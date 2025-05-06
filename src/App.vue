@@ -1,3 +1,4 @@
+<!-- src/App.vue -->
 <template>
   <router-view />
 </template>
@@ -16,7 +17,10 @@ export default defineComponent({
             entry.target.classList.add('visible');
           }
         });
-      }, { threshold: 0.1 });
+      }, { 
+        threshold: 0.1,
+        rootMargin: '-130px 0px 0px 0px' // Berücksichtigt die Header-Höhe
+      });
       
       // Alle Sektionen beobachten
       document.querySelectorAll('.section').forEach(section => {

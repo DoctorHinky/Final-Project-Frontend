@@ -1,3 +1,4 @@
+<!-- src/components/layout/AppHeader.vue -->
 <template>
   <header class="app-header container">
     <div class="header-top">
@@ -81,9 +82,14 @@ export default defineComponent({
     const scrollToElement = (sectionId: string) => {
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
+        // Den Header-Offset beim Scrollen berücksichtigen
+        const headerOffset = 130; // Muss konsistent mit dem Layout-Padding-Top sein
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
         });
       }
     };
@@ -115,14 +121,24 @@ export default defineComponent({
   transform: translateX(-50%);
   width: 100%;
   padding: map.get(vars.$spacing, m) 0;
-  margin-bottom: map.get(vars.$spacing, xl);
   z-index: 1000;
-  padding-top: 10px;
+  height: 130px; /* Feste Höhe für den Header, konsistent mit dem Layout-Padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, primary-bg); /* Hintergrund hinzufügen */
+      box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1); /* Schatten für bessere Sichtbarkeit */
+    }
+  }
   
   // Container für Logo und Header-Actions
   .header-top {
     @include mixins.flex(row, space-between, center, nowrap);
-    margin-bottom: map.get(vars.$spacing, m);
+    margin-bottom: map.get(vars.$spacing, s);
+    padding-top: 10px;
   }
   
   // Neuer Container für Theme-Toggle und Login-Button
@@ -170,9 +186,9 @@ export default defineComponent({
 // Navigation
 .nav-tabs {
   width: 100%;
-  margin: map.get(vars.$spacing, xl) 0 map.get(vars.$spacing, m);
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
+  margin-bottom: map.get(vars.$spacing, s);
   
   .nav-tab {
     position: relative;
@@ -222,6 +238,9 @@ export default defineComponent({
 // Responsives Design für den Header
 @media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
   .app-header {
+    height: auto; /* Flexible Höhe auf kleineren Bildschirmen */
+    padding-bottom: map.get(vars.$spacing, m);
+    
     .header-top {
       @include mixins.flex(row, space-between, center, wrap);
       margin-bottom: map.get(vars.$spacing, l);

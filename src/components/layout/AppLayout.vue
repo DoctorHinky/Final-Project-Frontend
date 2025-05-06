@@ -1,3 +1,4 @@
+<!-- src/components/layout/AppLayout.vue -->
 <template>
   <div class="app-layout" :class="{ 'theme-light': isLightTheme, 'theme-dark': !isLightTheme }">
     <AppHeader 
@@ -6,7 +7,9 @@
       @toggle-theme="toggleTheme" 
     />
     
-    <router-view />
+    <div class="main-content">
+      <router-view />
+    </div>
     
     <AppFooter />
   </div>
@@ -57,6 +60,11 @@ export default defineComponent({
   &.theme-dark {
     background-color: mixins.theme-color('dark', primary-bg);
     color: mixins.theme-color('dark', text-primary);
+  }
+  
+  .main-content {
+    /* Fester Abstand zum Header für alle Seiten */
+    padding-top: 130px; /* Anpassbar je nach Höhe des Headers */
   }
 }
 

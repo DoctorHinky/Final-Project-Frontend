@@ -1,3 +1,4 @@
+<!-- src/components/layout/AppMain.vue -->
 <template>
   <main class="landing-page container">
     <LandingPage />
@@ -19,7 +20,5 @@ export default defineComponent({
 <style lang="scss">
 @use '@/style/base/variables' as vars;
 
-main{
-  padding-top: 100px !important;
-}
+/* Der feste Abstand wurde entfernt, da er jetzt vom Layout-Container übernommen wird */
 </style>

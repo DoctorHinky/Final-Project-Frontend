@@ -1,3 +1,4 @@
+<!-- src/pages/LoginRegister.vue -->
 <template>
   <div class="login-register-page">
     <div class="container">
@@ -226,8 +227,8 @@ export default defineComponent({
 @use '@/style/base/animations' as animations;
 
 .login-register-page {
-  margin-top: 200px;
-  min-height: 100vh;
+  /* Der feste margin-top: 200px; wurde entfernt, da dies jetzt vom Layout übernommen wird */
+  min-height: calc(100vh - 130px); /* Anpassen an die Höhe des Headers (130px ist konsistent mit dem Layout) */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -8,7 +8,6 @@
           <div class="feature">
             <div class="feature-icon">🧠</div>
             <p>Ausführliche Artikel</p>
-            <br>
           </div>
           <div class="feature">
             <div class="feature-icon">👨‍👩‍👧‍👦</div>
@@ -135,7 +134,7 @@ export default defineComponent({
   
   .hero-features {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: map.get(vars.$spacing, l);
     margin-bottom: map.get(vars.$spacing, xxl);
     
