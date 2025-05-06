@@ -1,5 +1,5 @@
 <template>
-  <div class="login-register-page" :class="{ 'theme-light': isLightTheme, 'theme-dark': !isLightTheme }">
+  <div class="login-register-page">
     <div class="container">
       <div class="auth-container">
         <div class="tabs">
@@ -169,14 +169,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- Theme-Toggle -->
-    <div class="theme-toggle-container">
-      <button id="themeToggle" title="Theme wechseln" @click="toggleTheme">
-        <span class="dark-icon" v-if="isLightTheme">🌙</span>
-        <span class="light-icon" v-else>☀️</span>
-      </button>
-    </div>
   </div>
 </template>
 
@@ -186,7 +178,6 @@ import { defineComponent, ref, reactive } from 'vue';
 export default defineComponent({
   name: 'LoginRegister',
   setup() {
-    const isLightTheme = ref(localStorage.getItem('theme') === 'light');
     const activeTab = ref('login');
     
     const loginForm = reactive({
@@ -196,7 +187,12 @@ export default defineComponent({
     });
     
     const registerForm = reactive({
-      name: '',
+      firstName: '',
+      lastName: '',
+      username: '',
+      role: '',
+      dob: '',
+      phone: '',
       email: '',
       password: '',
       agreeTerms: false
@@ -212,19 +208,12 @@ export default defineComponent({
       alert('Registrierungs-Funktion ist aktuell nur ein Platzhalter.');
     };
     
-    const toggleTheme = () => {
-      isLightTheme.value = !isLightTheme.value;
-      localStorage.setItem('theme', isLightTheme.value ? 'light' : 'dark');
-    };
-    
     return {
-      isLightTheme,
       activeTab,
       loginForm,
       registerForm,
       handleLogin,
-      handleRegister,
-      toggleTheme
+      handleRegister
     };
   }
 });
@@ -237,6 +226,7 @@ export default defineComponent({
 @use '@/style/base/animations' as animations;
 
 .login-register-page {
+  margin-top: 200px;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -245,25 +235,20 @@ export default defineComponent({
   position: relative;
   z-index: 100;
   
-  &.theme-light {
-    background-color: mixins.theme-color('light', primary-bg);
-    color: mixins.theme-color('light', text-primary);
-  }
-  
-  &.theme-dark {
-    background-color: mixins.theme-color('dark', primary-bg);
-  }
-  
   .auth-container {
     max-width: 500px;
     width: 100%;
     margin: 0 auto;
     
-    background-color: mixins.theme-color('light', card-bg);
-    border-radius: map.get(map.get(vars.$layout, border-radius), large);
-    border: 2px solid mixins.theme-color('light', border-medium);
-    @include mixins.shadow('medium', 'light');
-    overflow: hidden;
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, card-bg);
+        border-radius: map.get(map.get(vars.$layout, border-radius), large);
+        border: 2px solid mixins.theme-color($theme, border-medium);
+        @include mixins.shadow('medium', $theme);
+        overflow: hidden;
+      }
+    }
   }
   
   .tabs {
@@ -281,12 +266,16 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
       
-      background-color: mixins.theme-color('light', nav-item-bg);
-      color: mixins.theme-color('light', text-primary);
-      
-      &.active {
-        background: mixins.theme-gradient('light', nav-active);
-        color: white;
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, nav-item-bg);
+          color: mixins.theme-color($theme, text-primary);
+          
+          &.active {
+            background: mixins.theme-gradient($theme, nav-active);
+            color: white;
+          }
+        }
       }
     }
   }
@@ -297,6 +286,23 @@ export default defineComponent({
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, xl);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+    
+    p {
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      margin-bottom: map.get(vars.$spacing, xl);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
     }
     
     .form-group {
@@ -306,46 +312,97 @@ export default defineComponent({
         display: block;
         margin-bottom: map.get(vars.$spacing, xs);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
       }
       
-      input {
+      input, select {
         width: 100%;
         padding: map.get(vars.$spacing, s);
-        border: 1px solid mixins.theme-color('light', border-light);
-        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            border: 1px solid mixins.theme-color($theme, border-light);
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+            background-color: mixins.theme-color($theme, secondary-bg);
+            color: mixins.theme-color($theme, text-primary);
+            
+            &::placeholder {
+              color: mixins.theme-color($theme, text-tertiary);
+            }
+            
+            &:focus {
+              outline: none;
+              border-color: mixins.theme-color($theme, accent-teal);
+              box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+            }
+          }
+        }
+      }
+    }
+    
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: map.get(vars.$spacing, l);
+      
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        
+        input[type="checkbox"] {
+          margin-right: map.get(vars.$spacing, xs);
+          width: auto;
+        }
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+      }
+      
+      .forgot-password {
+        text-decoration: none;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+            
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
       }
     }
     
     .submit-button {
-      margin-top: 50px;
+      margin-top: map.get(vars.$spacing, xl);
       width: 100%;
       padding: map.get(vars.$spacing, m);
-      background: mixins.theme-gradient('light', primary);
-      color: white;
       border: none;
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       cursor: pointer;
-    }
-  }
-  
-  .theme-toggle-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100;
-    
-    button {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: mixins.theme-color('light', secondary-bg);
-      box-shadow: 0 3px 10px mixins.theme-color('light', shadow-color);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+          
+          &:hover {
+            transform: translateY(-3px);
+            @include mixins.glow('green', 'small', $theme);
+          }
+        }
+      }
     }
   }
 }

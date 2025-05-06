@@ -3,10 +3,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
+  setup() {
+    onMounted(() => {
+      // IntersectionObserver für Scroll-Animationen einrichten
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      // Alle Sektionen beobachten
+      document.querySelectorAll('.section').forEach(section => {
+        observer.observe(section);
+      });
+    });
+  }
 });
 </script>
 
@@ -21,7 +38,7 @@ export default defineComponent({
 body {
   font-family: 'Nunito', sans-serif;
   line-height: 1.6;
-  background-color: beige;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }

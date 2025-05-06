@@ -1,5 +1,5 @@
 <template>
-  <section class="section subscription-section">
+  <section class="section subscription-section" id="sub">
     <h2>Mehr dazu erfahren</h2>
     
     <div class="subscription">

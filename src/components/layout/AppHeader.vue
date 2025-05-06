@@ -9,15 +9,16 @@
     </div>
     
     <nav class="nav-tabs">
-      <button 
+      <a 
         v-for="(tab, index) in tabs" 
         :key="index" 
         class="nav-tab" 
         :class="{ active: activeTab === index }"
-        @click="setActiveTab(index)"
+        @click="scrollToSection(tab.id, index)"
+        href="javascript:void(0);"
       >
-        {{ tab }}
-      </button>
+        {{ tab.name }}
+      </a>
     </nav>
   </header>
 </template>
@@ -25,6 +26,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import ThemeToggle from '../ui/ThemeToggle.vue';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'AppHeader',
@@ -44,19 +46,46 @@ export default defineComponent({
   emits: ['tab-change', 'toggle-theme'],
   setup(props, { emit }) {
     const activeTab = ref(0);
+    const router = useRouter();
     
     const tabs = [
-      'Über',
-      'Was wir tun',
-      'Bücher',
-      'Community',
-      'Über Autoren'
+      { name: 'Über', id: 'hero' },
+      { name: 'Was wir tun', id: 'content' },
+      { name: 'Quiz', id: 'quiz' },
+      { name: 'Community', id: 'community' },
+      { name: 'Über Autoren', id: 'Authors' },
+      { name: 'Newsletter', id: 'sub' }
     ];
     
-    const setActiveTab = (index: number) => {
+    const scrollToSection = (sectionId: string, index: number) => {
       activeTab.value = index;
+      
+      // Überprüfen, ob wir uns auf der Homepage befinden
+      if (router.currentRoute.value.path !== '/') {
+        // Wenn nicht, zuerst zur Homepage navigieren
+        router.push('/').then(() => {
+          // Kleine Verzögerung, um sicherzustellen, dass die Komponente gemountet ist
+          setTimeout(() => {
+            scrollToElement(sectionId);
+          }, 100);
+        });
+      } else {
+        // Direkt zum Element scrollen, wenn wir bereits auf der Homepage sind
+        scrollToElement(sectionId);
+      }
+      
       // Event für andere Komponenten emittieren
       emit('tab-change', index);
+    };
+    
+    const scrollToElement = (sectionId: string) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     };
     
     const toggleTheme = () => {
@@ -67,7 +96,7 @@ export default defineComponent({
     return {
       activeTab,
       tabs,
-      setActiveTab,
+      scrollToSection,
       toggleTheme
     };
   }
@@ -80,8 +109,15 @@ export default defineComponent({
 @use '@/style/base/mixins' as mixins;
 
 .app-header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
   padding: map.get(vars.$spacing, m) 0;
   margin-bottom: map.get(vars.$spacing, xl);
+  z-index: 1000;
+  padding-top: 10px;
   
   // Container für Logo und Header-Actions
   .header-top {
@@ -147,6 +183,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), medium);
     cursor: pointer;
     background: transparent;
+    text-decoration: none;
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

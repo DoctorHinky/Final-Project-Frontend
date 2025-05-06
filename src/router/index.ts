@@ -1,5 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import LandingPage from '../pages/LandingPage.vue';
 import LoginRegister from '../pages/LoginRegister.vue';
 import AppLayout from '../components/layout/AppLayout.vue';
 
@@ -7,13 +8,20 @@ import AppLayout from '../components/layout/AppLayout.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'AppLayout',
-    component: AppLayout
-  },
-  {
-    path: '/login-register',
-    name: 'LoginRegister',
-    component: LoginRegister
+    component: AppLayout,
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: LandingPage
+      },
+      {
+        path: 'login-register',
+        name: 'LoginRegister',
+        component: LoginRegister
+      }
+      // Hier kannst du weitere Routen hinzufügen, die innerhalb des Layouts angezeigt werden sollen
+    ]
   }
 ];
 
