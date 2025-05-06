@@ -20,6 +20,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+// Direkte Importe der Bilder
+import authorIcon1 from '@/assets/images/AuthorIcon1.jpg';
 
 export default defineComponent({
   name: 'AuthorsSection',
@@ -28,21 +30,21 @@ export default defineComponent({
       {
         id: 1,
         name: 'Max Mustermann',
-        image: '/images/authors/max.jpg',
+        image: authorIcon1,
         bio: 'Max ist ein erfahrener Autor mit einem Fokus auf Bildung und Erziehung.',
         specialties: ['Erziehungsratgeber', 'Lernmethoden']
       },
       {
         id: 2,
         name: 'Anna Beispiel',
-        image: '/images/authors/anna.jpg',
+        image: authorIcon1,
         bio: 'Anna schreibt leidenschaftlich über kreative Lernmethoden für Kinder.',
         specialties: ['Kreative Pädagogik', 'Montessori']
       },
       {
         id: 3,
         name: 'John Doe',
-        image: '/images/authors/john.jpg',
+        image: authorIcon1,
         bio: 'John ist Experte für digitale Bildung und innovative Technologien.',
         specialties: ['Digitale Bildung', 'Medienkompetenzen']
       }
@@ -150,8 +152,9 @@ export default defineComponent({
       .author-image {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         transition: transform map.get(vars.$transitions, default);
+        transform: scale(1.5);
       }
       
       &:hover .author-image {

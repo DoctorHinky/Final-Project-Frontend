@@ -119,6 +119,7 @@ export default defineComponent({
   justify-content: space-between;
   border-radius: 20px;
   border-radius: 20px;
+  user-select: none;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -228,7 +229,7 @@ export default defineComponent({
           transform: scale(1.05);
           @include mixins.glow('green', 'medium', $theme);
           border-color: transparent;
-          transition: all 0.5s;
+          transition: 0.5s;
         }
 
         &:hover::before {
