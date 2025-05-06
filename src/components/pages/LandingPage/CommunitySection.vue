@@ -1,36 +1,71 @@
 <template>
-  <section class="section community-section">
-    <h2>Community</h2>
+  <section class="section community-section" id="community">
+    <h2>Familienstimmen unserer Community</h2>
     
     <div class="community-content">
-      <p>Kein Projekt von dieser Größe kann allein stehen und die beste geteilte Weisheit ist die, die durch Erfahrung gewachsen ist. Darum laden wir alle ein, sich hier einzubringen!</p>
-      <p>Gemeinsam mit Pädagogen und Familientherapeuten sorgen wir dafür, dass unsere Inhalte geprüft und hilfreich zu lesen sind. Deine Beiträge tragen dazu bei, dass auch andere von diesen Erfahrungen profitieren können.</p>
-      <p>Wir stärken nur Inhalte und nicht institutionelle Bindungen. Freiheit und Selbstbestimmung stehen für uns an erster Stelle.</p>
+      <p>Erfahre, wie andere Familien von unserer Plattform profitieren. Wir sind stolz darauf, Eltern bei den täglichen Herausforderungen der Kindererziehung zu unterstützen.</p>
+      <p>Diese authentischen Bewertungen spiegeln die Erfahrungen echter Familien wider, die unsere Inhalte und Ratschläge in ihren Alltag integriert haben.</p>
     </div>
     
-    <div class="community-profiles">
-      <div class="profile">
-        <div class="profile-icon">👨‍👩‍👧</div>
-        <h3>Neu (Kleinkinder)</h3>
-        <p>Erste Schritte in der Erziehung</p>
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <div class="testimonial-content">
+          <p class="quote">"Die Artikel über Trotzphasen haben mir geholfen, die Entwicklung meines zweijährigen Sohnes besser zu verstehen. Ich reagiere jetzt viel gelassener auf schwierige Situationen."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨‍👩‍👦</div>
+          <div class="author-info">
+            <h3>Familie Müller</h3>
+            <p>Eltern eines 2-jährigen Kindes</p>
+          </div>
+        </div>
       </div>
       
-      <div class="profile">
-        <div class="profile-icon">👨‍👩‍👦</div>
-        <h3>Erfahren</h3>
-        <p>Ratschläge für die mittlere Kindheit</p>
+      <div class="testimonial">
+        <div class="rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <div class="testimonial-content">
+          <p class="quote">"Die Tipps zur Medienerziehung waren für uns ein Durchbruch. Wir haben klare Regeln etabliert und die Diskussionen über Bildschirmzeit sind deutlich weniger geworden."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩‍👧‍👦</div>
+          <div class="author-info">
+            <h3>Sandra K.</h3>
+            <p>Mutter von zwei Schulkindern</p>
+          </div>
+        </div>
       </div>
       
-      <div class="profile">
-        <div class="profile-icon">👨‍👩‍👧‍👦</div>
-        <h3>Profi (Jugendliche)</h3>
-        <p>Umgang mit heranwachsenden Kindern</p>
-      </div>
-      
-      <div class="profile">
-        <div class="profile-icon">👨‍👨‍👧‍👧</div>
-        <h3>Experten</h3>
-        <p>Pädagogen und Familientherapeuten</p>
+      <div class="testimonial">
+        <div class="rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star half">★</span>
+        </div>
+        <div class="testimonial-content">
+          <p class="quote">"Als Vater eines Teenagers hatte ich oft das Gefühl, gegen Wände zu reden. Die Kommunikationstipps haben unsere Beziehung komplett verändert. Wir verstehen uns jetzt viel besser."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨‍👧</div>
+          <div class="author-info">
+            <h3>Thomas Weber</h3>
+            <p>Vater einer 15-jährigen Tochter</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -44,7 +79,8 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+@use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
@@ -53,8 +89,8 @@ export default defineComponent({
   @include animations.scroll-fade-in;
   
   h2 {
-    font-size: map-get(map-get(vars.$fonts, sizes), xxxl);
-    font-weight: map-get(map-get(vars.$fonts, weights), extra-bold);
+    font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
+    font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -64,37 +100,44 @@ export default defineComponent({
   }
   
   .community-content {
-    margin-bottom: map-get(vars.$spacing, xxl);
+    margin-bottom: map.get(vars.$spacing, xxl);
     
     p {
-      font-size: map-get(map-get(vars.$fonts, sizes), medium);
-      margin-bottom: map-get(vars.$spacing, l);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      margin-bottom: map.get(vars.$spacing, l);
       line-height: 1.8;
     }
   }
   
-  .community-profiles {
-    @include mixins.flex(row, space-between, stretch, wrap);
-    gap: map-get(vars.$spacing, l);
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: map.get(vars.$spacing, xl);
     
-    @include mixins.responsive('tablet') {
-      flex-direction: column;
+    @media (max-width: map.get(map.get(vars.$layout, breakpoints), desktop)) {
+      grid-template-columns: repeat(2, 1fr);
     }
     
-    .profile {
-      flex: 1;
-      min-width: 200px;
-      text-align: center;
+    @media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
+      grid-template-columns: 1fr;
+    }
+    
+    .testimonial {
       position: relative;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
-          padding: map-get(vars.$spacing, xl);
-          border-radius: map-get(map-get(vars.$layout, border-radius), large);
+          border-radius: map.get(map.get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
+          padding: map.get(vars.$spacing, xl);
           @include mixins.shadow('medium', $theme);
+          transition: transform map.get(vars.$transitions, default), 
+                    box-shadow map.get(vars.$transitions, default),
+                    border-color map.get(vars.$transitions, default);
           
           &::before {
             content: '';
@@ -104,6 +147,7 @@ export default defineComponent({
             width: 100%;
             height: 100%;
             z-index: 0;
+            border-radius: map.get(map.get(vars.$layout, border-radius), large);
             
             @if $theme == 'dark' {
               background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
@@ -113,73 +157,151 @@ export default defineComponent({
           }
           
           &:hover {
-            transform: translateY(-8px) scale(1.05);
+            transform: translateY(-8px);
             @include mixins.glow('green', 'medium', $theme);
             border-color: mixins.theme-color($theme, accent-green);
           }
         }
       }
       
-      .profile-icon {
-        position: relative;
+      .rating {
+        margin-bottom: map.get(vars.$spacing, m);
         z-index: 1;
-        margin: 0 auto map-get(vars.$spacing, l);
-        @include animations.pulse;
+        position: relative;
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            @include mixins.icon-container($theme, 'medium', 'primary');
-          }
-        }
-      }
-      
-      @for $i from 1 through 4 {
-        &:nth-child(#{$i}) .profile-icon {
+        .star {
+          font-size: 1.5rem;
+          margin-right: 2px;
+          
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              @if $i == 1 {
-                background: linear-gradient(135deg, mixins.theme-color($theme, accent-green), mixins.theme-color($theme, accent-lime));
-                box-shadow: 0 5px 15px mixins.theme-color($theme, glow-green);
-              } @else if $i == 2 {
-                background: linear-gradient(135deg, mixins.theme-color($theme, accent-teal), mixins.theme-color($theme, accent-lime));
-                box-shadow: 0 5px 15px mixins.theme-color($theme, glow-teal);
-                animation-delay: 0.5s;
-              } @else if $i == 3 {
-                background: linear-gradient(135deg, mixins.theme-color($theme, accent-green), mixins.theme-color($theme, accent-teal));
-                box-shadow: 0 5px 15px mixins.theme-color($theme, glow-green);
-                animation-delay: 1s;
-              } @else if $i == 4 {
-                background: linear-gradient(135deg, mixins.theme-color($theme, accent-yellow), mixins.theme-color($theme, accent-lime));
-                box-shadow: 0 5px 15px rgba(mixins.theme-color($theme, accent-yellow), 0.4);
-                animation-delay: 1.5s;
+              color: mixins.theme-color($theme, accent-yellow);
+              text-shadow: 0 0 2px rgba(mixins.theme-color($theme, accent-yellow), 0.6);
+            }
+          }
+          
+          &.half {
+            position: relative;
+            
+            &::after {
+              content: "☆";
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 50%;
+              overflow: hidden;
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  color: mixins.theme-color($theme, secondary-bg);
+                }
               }
             }
           }
         }
       }
       
-      h3 {
-        font-size: map-get(map-get(vars.$fonts, sizes), large);
-        margin-bottom: map-get(vars.$spacing, s);
-        position: relative;
+      .testimonial-content {
+        flex: 1;
+        margin-bottom: map.get(vars.$spacing, l);
         z-index: 1;
+        position: relative;
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
+        .quote {
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          line-height: 1.8;
+          font-style: italic;
+          position: relative;
+          padding: 0 map.get(vars.$spacing, m);
+          
+          &::before, &::after {
+            font-size: 1.5rem;
+            position: absolute;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: rgba(mixins.theme-color($theme, accent-green), 0.4);
+              }
+            }
+          }
+          
+          &::before {
+            content: '"';
+            left: 0;
+            top: -5px;
+          }
+          
+          &::after {
+            content: '"';
+            right: 0;
+            bottom: -10px;
           }
         }
       }
       
-      p {
-        font-size: map-get(map-get(vars.$fonts, sizes), small);
-        position: relative;
+      .testimonial-author {
+        display: flex;
+        align-items: center;
         z-index: 1;
-        margin-bottom: 0;
+        position: relative;
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
+        .author-avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          margin-right: map.get(vars.$spacing, m);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          flex-shrink: 0;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: linear-gradient(135deg, mixins.theme-color($theme, accent-green), mixins.theme-color($theme, accent-teal));
+              box-shadow: 0 3px 8px rgba(mixins.theme-color($theme, accent-green), 0.4);
+            }
+          }
+        }
+        
+        .author-info {
+          h3 {
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            margin-bottom: map.get(vars.$spacing, xxs);
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
+          }
+          
+          p {
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            margin-bottom: 0;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+      }
+      
+      // Verschiedene Farbakzente für die Testimonials
+      @for $i from 1 through 3 {
+        &:nth-child(#{$i}) {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              @if $i == 1 {
+                border-top: 4px solid mixins.theme-color($theme, accent-green);
+              } @else if $i == 2 {
+                border-top: 4px solid mixins.theme-color($theme, accent-teal);
+              } @else if $i == 3 {
+                border-top: 4px solid mixins.theme-color($theme, accent-lime);
+              }
+            }
           }
         }
       }

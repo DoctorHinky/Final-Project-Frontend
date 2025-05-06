@@ -2,7 +2,10 @@
   <header class="app-header container">
     <div class="header-top">
       <div class="logo">{{ siteName }}</div>
-      <router-link to="/login-register" class="login-button">Anmelden</router-link>
+      <div class="header-actions">
+        <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
+        <router-link to="/login-register" class="login-button">Anmelden</router-link>
+      </div>
     </div>
     
     <nav class="nav-tabs">
@@ -21,15 +24,24 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import ThemeToggle from '../ui/ThemeToggle.vue';
 
 export default defineComponent({
   name: 'AppHeader',
+  components: {
+    ThemeToggle
+  },
   props: {
     siteName: {
       type: String,
       required: true
+    },
+    isLightTheme: {
+      type: Boolean,
+      required: true
     }
   },
+  emits: ['tab-change', 'toggle-theme'],
   setup(props, { emit }) {
     const activeTab = ref(0);
     
@@ -47,10 +59,16 @@ export default defineComponent({
       emit('tab-change', index);
     };
     
+    const toggleTheme = () => {
+      // Event an übergeordnete Komponente weiterleiten
+      emit('toggle-theme');
+    };
+    
     return {
       activeTab,
       tabs,
-      setActiveTab
+      setActiveTab,
+      toggleTheme
     };
   }
 });
@@ -65,10 +83,16 @@ export default defineComponent({
   padding: map.get(vars.$spacing, m) 0;
   margin-bottom: map.get(vars.$spacing, xl);
   
-  // Container für Logo und Login-Button
+  // Container für Logo und Header-Actions
   .header-top {
     @include mixins.flex(row, space-between, center, nowrap);
     margin-bottom: map.get(vars.$spacing, m);
+  }
+  
+  // Neuer Container für Theme-Toggle und Login-Button
+  .header-actions {
+    @include mixins.flex(row, flex-end, center, nowrap);
+    gap: map.get(vars.$spacing, m);
   }
   
   .logo {
@@ -164,6 +188,10 @@ export default defineComponent({
     .header-top {
       @include mixins.flex(row, space-between, center, wrap);
       margin-bottom: map.get(vars.$spacing, l);
+    }
+    
+    .header-actions {
+      margin-top: map.get(vars.$spacing, s);
     }
     
     .nav-tabs {

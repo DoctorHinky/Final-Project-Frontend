@@ -1,18 +1,37 @@
 <template>
-  <section class="section hero-section">
-    <h2>Die Idee</h2>
-    <div class="hero-content">
-      <p>Immer wieder stellen sich Eltern dieselbe Frage: "Mache ich alles richtig?" oder: "Warum verhält sich mein Kind so?"</p>
-      <p>Der Alltag von Eltern ist oft geprägt von Stress, Unsicherheit und Überforderung.</p>
-      <p>Wir von <span class="highlighted">Eltern und Kind</span> haben es uns zur Aufgabe gemacht, Eltern und Kindern zu guten Zeiten zu begleiten und ebenso bei den schwierigen und großen Fragen des Lebens.</p>
-      <p>In enger Zusammenarbeit mit Pädagogen und Bildungseinrichtungen entwickeln wir eine stetig wachsende Bibliothek. Sie bietet:</p>
-      
-      <ul>
-        <li>Wissenschaftlich fundierte Inhalte für Eltern zu Themen wie Entwicklung, Erziehung, Beziehung und Kommunikation</li>
-        <li>Kindgerecht formulierte Artikel, Geschichten und Erklärungen, die Kindern helfen, ihre Welt besser zu verstehen</li>
-      </ul>
-      
-      <p>Ob frühkindliche Trotz, Pubertät oder die ersten Erfahrungen mit Konflikten, unsere Plattform bietet Orientierung und stärkt die Verbindung zwischen Eltern und Kindern.</p>
+  <section class="section hero-section" id="hero">
+    <div class="hero-container">
+      <div class="hero-text">
+        <h1>Begleitung für die wichtigsten Momente</h1>
+        <p class="hero-subtext">Experten-Wissen und praktische Hilfestellungen für den Familienalltag – von Trotzphase nach der Pubertät.</p>
+        <div class="hero-features">
+          <div class="feature">
+            <div class="feature-icon">🧠</div>
+            <p>Ausführliche Artikel</p>
+            <br>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">👨‍👩‍👧‍👦</div>
+            <p>Von Eltern und Pädagogen entwickelt</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📱</div>
+            <p>Jederzeit abrufbare Ratschläge</p>
+          </div>
+        </div>
+        <div class="hero-cta">
+          <button class="btn-primary">Loslegen</button>
+          <button class="btn-secondary">Mehr erfahren</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="illustration">
+          <div class="illustration-element leaf1">🍃</div>
+          <div class="illustration-element leaf2">🌿</div>
+          <div class="illustration-element leaf3">🌱</div>
+          <div class="main-illustration">👨‍👩‍👧</div>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -25,69 +44,273 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+@use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
 
 .hero-section {
-  @include animations.scroll-fade-in;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 
-  h2 {
-    font-size: map-get(map-get(vars.$fonts, sizes), xxxl);
-    font-weight: map-get(map-get(vars.$fonts, weights), extra-bold);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0.4;
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        @include mixins.section-header($theme);
+        background: radial-gradient(circle at 70% 30%, 
+          rgba(mixins.theme-color($theme, accent-lime), 0.15) 0%, 
+          rgba(mixins.theme-color($theme, accent-green), 0.05) 50%, 
+          transparent 70%);
       }
     }
   }
   
-  p {
-    font-size: map-get(map-get(vars.$fonts, sizes), medium);
-    margin-bottom: map-get(vars.$spacing, l);
-    line-height: 1.8;
+  .hero-container {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: map.get(vars.$spacing, xxl);
+    width: 100%;
+    
+    @media (max-width: map.get(map.get(vars.$layout, breakpoints), desktop)) {
+      grid-template-columns: 1fr;
+    }
   }
   
-  .highlighted {
-    font-weight: map-get(map-get(vars.$fonts, weights), extra-bold);
-    position: relative;
-    display: inline-block;
-    padding: 0 4px;
+  .hero-text {
+    h1 {
+      font-size: 3.5rem;
+      font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
+      line-height: 1.2;
+      margin-bottom: map.get(vars.$spacing, l);
+      position: relative;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+          
+          &::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            bottom: -16px;
+            left: 0;
+            background: mixins.theme-gradient($theme, primary);
+            border-radius: 4px;
+          }
+        }
+      }
+      
+      @media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
+        font-size: 2.5rem;
+      }
+    }
     
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, accent-green);
-        
-        &::before {
-          content: '';
-          position: absolute;
-          width: 100%;
-          height: 30%;
-          bottom: 0;
-          left: 0;
-          background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
-          z-index: -1;
-          border-radius: 4px;
+    .hero-subtext {
+      font-size: map.get(map.get(vars.$fonts, sizes), xl);
+      margin-bottom: map.get(vars.$spacing, xl);
+      max-width: 600px;
+      line-height: 1.6;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
   }
   
-  ul {
-    margin-left: map-get(vars.$spacing, xxl);
-    margin-bottom: map-get(vars.$spacing, l);
+  .hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: map.get(vars.$spacing, l);
+    margin-bottom: map.get(vars.$spacing, xxl);
     
-    li {
-      margin-bottom: map-get(vars.$spacing, s);
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
+      
+      .feature-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            box-shadow: 0 4px 12px rgba(mixins.theme-color($theme, shadow-color), 0.15);
+          }
+        }
+      }
+      
+      p {
+        font-size: map.get(map.get(vars.$fonts, sizes), medium);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        margin: 0;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+      
+      &:nth-child(1) .feature-icon {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.15);
+          }
+        }
+      }
+      
+      &:nth-child(2) .feature-icon {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, accent-lime), 0.15);
+          }
+        }
+      }
+      
+      &:nth-child(3) .feature-icon {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
+          }
+        }
+      }
+    }
+  }
+  
+  .hero-cta {
+    display: flex;
+    gap: map.get(vars.$spacing, m);
+    margin-top: map.get(vars.$spacing, xl);
+    padding: 1rem;
+    
+    @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
+      flex-direction: column;
+    }
+    
+    .btn-primary, .btn-secondary {
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      cursor: pointer;
+      transition: transform map.get(vars.$transitions, default),
+                 box-shadow map.get(vars.$transitions, default);
+    }
+    
+    .btn-primary {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          @include mixins.button-style($theme, 'medium', true);
+        }
+      }
+    }
+    
+    .btn-secondary {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: transparent;
+          color: mixins.theme-color($theme, text-primary);
+          border: 2px solid mixins.theme-color($theme, border-medium);
+          
+          &:hover {
+            transform: translateY(-4px);
+            @include mixins.shadow('small', $theme);
+            border-color: mixins.theme-color($theme, accent-teal);
+          }
+        }
+      }
+    }
+  }
+  
+  .hero-visual {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    @media (max-width: map.get(map.get(vars.$layout, breakpoints), desktop)) {
+      display: none;
+    }
+    
+    .illustration {
       position: relative;
+      width: 300px;
+      height: 300px;
+      
+      .main-illustration {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 8rem;
+        z-index: 2;
+      }
+      
+      .illustration-element {
+        position: absolute;
+        font-size: 3rem;
+        z-index: 1;
+        
+        &.leaf1 {
+          top: 10%;
+          left: 0;
+        }
+        
+        &.leaf2 {
+          top: 70%;
+          left: 10%;
+        }
+        
+        &.leaf3 {
+          top: 20%;
+          right: 10%;
+        }
+      }
       
       &::before {
-        content: '🌿';
+        content: '';
         position: absolute;
-        left: -1.8rem;
-        top: 0.2rem;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: radial-gradient(
+              circle,
+              rgba(mixins.theme-color($theme, accent-green), 0.15) 0%,
+              rgba(mixins.theme-color($theme, accent-lime), 0.08) 60%,
+              transparent 80%
+            );
+          }
+        }
       }
     }
   }

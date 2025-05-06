@@ -1,5 +1,5 @@
 <template>
-  <section class="section content-blocks-section">
+  <section class="section content-blocks-section" id="content">
     <h2>Was ist das?</h2>
     
     <div class="content-blocks">

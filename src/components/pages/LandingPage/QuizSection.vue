@@ -1,5 +1,5 @@
 <template>
-  <section class="section quiz-section">
+  <section class="section quiz-section" id="quiz">
     <h2>Quiz</h2>
     
     <div class="quiz-container">

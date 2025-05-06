@@ -1,13 +1,13 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import AppLayout from '../components/layout/AppLayout.vue';
 import LoginRegister from '../pages/LoginRegister.vue';
+import AppLayout from '../components/layout/AppLayout.vue';
 
 // Routen definieren
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'Home',
+    name: 'AppLayout',
     component: AppLayout
   },
   {

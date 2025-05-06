@@ -21,6 +21,9 @@ export default defineComponent({
 body {
   font-family: 'Nunito', sans-serif;
   line-height: 1.6;
+  background-color: beige;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
