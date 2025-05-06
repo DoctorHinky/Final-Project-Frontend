@@ -1,3 +1,4 @@
+<!-- src/components/layout/AppFooter.vue -->
 <template>
   <footer class="app-footer">
     <div class="container">
@@ -6,13 +7,7 @@
           <h3>Eltern & Kind</h3>
           <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in schwierigen Zeiten.</p>
           <div class="social-icons">
-            <a href="#" class="social-icon">
-              <span>📱</span>
-            </a>
-            <a href="#" class="social-icon">
-              <span>📘</span>
-            </a>
-            <a href="#" class="social-icon">
+            <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
               <span>📸</span>
             </a>
           </div>
@@ -21,11 +16,11 @@
         <div class="footer-section links">
           <h3>Schnellzugriff</h3>
           <ul>
-            <li><a href="#">Startseite</a></li>
-            <li><a href="#">Über uns</a></li>
-            <li><a href="#">Artikel</a></li>
-            <li><a href="#">Community</a></li>
-            <li><a href="#">Kontakt</a></li>
+            <li><router-link to="/">Startseite</router-link></li>
+            <li><a href="#" @click.prevent="scrollToSection('content')">Über uns</a></li>
+            <li><router-link to="/articles">Artikel</router-link></li>
+            <li><a href="#" @click.prevent="scrollToSection('community')">Community</a></li>
+            <li><router-link to="/contact">Kontakt</router-link></li>
           </ul>
         </div>
         
@@ -34,17 +29,17 @@
           <p>Melde dich für unseren Newsletter an und verpasse keine neuen Artikel.</p>
           <div class="newsletter-form">
             <input type="email" placeholder="Deine E-Mail Adresse" />
-            <button type="submit">Anmelden</button>
+            <button type="submit" @click="subscribeNewsletter">Anmelden</button>
           </div>
         </div>
       </div>
       
       <div class="footer-bottom">
-        <p class="copyright">© 2025 Eltern & Kind. Alle Rechte vorbehalten.</p>
+        <p class="copyright">© {{ currentYear }} Eltern & Kind. Alle Rechte vorbehalten.</p>
         <div class="legal-links">
-          <a href="#">Datenschutz</a>
-          <a href="#">Impressum</a>
-          <a href="#">AGB</a>
+          <router-link to="/datenschutz">Datenschutz</router-link>
+          <router-link to="/impressum">Impressum</router-link>
+          <router-link to="/agb">AGB</router-link>
         </div>
       </div>
     </div>
@@ -52,10 +47,61 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
-  name: 'AppFooter'
+  name: 'AppFooter',
+  setup() {
+    const router = useRouter();
+    
+    // Aktuelles Jahr für das Copyright
+    const currentYear = computed(() => new Date().getFullYear());
+    
+    // Funktion zum Scrollen zu einem bestimmten Abschnitt
+    const scrollToSection = (sectionId: string) => {
+      // Überprüfen, ob wir uns auf der Homepage befinden
+      if (router.currentRoute.value.path !== '/') {
+        // Wenn nicht, zuerst zur Homepage navigieren und dann zum Abschnitt scrollen
+        router.push('/').then(() => {
+          // Kleine Verzögerung, um sicherzustellen, dass die Komponente gemountet ist
+          setTimeout(() => {
+            scrollToElement(sectionId);
+          }, 100);
+        });
+      } else {
+        // Direkt zum Element scrollen, wenn wir bereits auf der Homepage sind
+        scrollToElement(sectionId);
+      }
+    };
+    
+    const scrollToElement = (sectionId: string) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Den Header-Offset beim Scrollen berücksichtigen
+        const headerOffset = 130; // Muss konsistent mit dem Layout-Padding-Top sein
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    };
+    
+    // Newsletter-Anmeldung
+    const subscribeNewsletter = () => {
+      // Hier könntest du später eine Funktion implementieren, um die Newsletter-Anmeldung zu verarbeiten
+      alert('Die Newsletter-Anmeldung ist aktuell nur ein Platzhalter.');
+    };
+    
+    return {
+      currentYear,
+      scrollToSection,
+      subscribeNewsletter
+    };
+  }
 });
 </script>
 
