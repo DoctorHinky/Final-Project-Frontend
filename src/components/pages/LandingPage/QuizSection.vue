@@ -68,6 +68,18 @@ export default defineComponent({
     }
     
     .quiz-question {
+      position: relative;
+      /* Pseudo-Element für bessere Hover-Fläche */
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
@@ -75,17 +87,60 @@ export default defineComponent({
           border-radius: map-get(map-get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
           @include mixins.shadow('medium', $theme);
-          transition: all map-get(vars.$transitions, default);
+          transition: all 0.4s ease-out;
         }
       }
       
-      &:hover {
-        transform: translateY(-8px) scale(1.02);
+      /* Verzögerung beim Verlassen des Hover-Zustands */
+      &:not(:hover) {
+        transition-delay: 0.1s;
+      }
+      
+      /* Direktionale Hover-Effekte für jede Karte */
+      &:nth-child(1):hover {
+        /* Oben links - nach oben links verschieben */
+        transform: translate(-5px, -5px);
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             @include mixins.glow('green', 'medium', $theme);
             border-color: mixins.theme-color($theme, accent-green);
+          }
+        }
+      }
+      
+      &:nth-child(2):hover {
+        /* Oben rechts - nach oben rechts verschieben */
+        transform: translate(5px, -5px);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            @include mixins.glow('teal', 'medium', $theme);
+            border-color: mixins.theme-color($theme, accent-teal);
+          }
+        }
+      }
+      
+      &:nth-child(3):hover {
+        /* Unten links - nach unten links verschieben */
+        transform: translate(-5px, 5px);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            @include mixins.glow('lime', 'medium', $theme);
+            border-color: mixins.theme-color($theme, accent-lime);
+          }
+        }
+      }
+      
+      &:nth-child(4):hover {
+        /* Unten rechts - nach unten rechts verschieben */
+        transform: translate(5px, 5px);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            @include mixins.glow('yellow', 'medium', $theme);
+            border-color: mixins.theme-color($theme, accent-yellow);
           }
         }
       }
@@ -112,6 +167,8 @@ export default defineComponent({
         font-size: map-get(map-get(vars.$fonts, sizes), medium);
         margin-bottom: map-get(vars.$spacing, l);
         line-height: 1.8;
+        position: relative;
+        z-index: 2; /* Über dem Pseudo-Element */
         
         &:last-child {
           margin-bottom: 0;
@@ -120,6 +177,8 @@ export default defineComponent({
       
       .options {
         font-size: map-get(map-get(vars.$fonts, sizes), base);
+        position: relative;
+        z-index: 2; /* Über dem Pseudo-Element */
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {

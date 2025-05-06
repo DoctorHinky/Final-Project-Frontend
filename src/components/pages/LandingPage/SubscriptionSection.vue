@@ -81,6 +81,7 @@ export default defineComponent({
     }
     
     .subscription-info, .form-container {
+      transition: all 0.3s;
       position: relative;
       
       @each $theme in ('light', 'dark') {
@@ -95,7 +96,8 @@ export default defineComponent({
       }
       
       &:hover {
-        transform: translateY(-5px);
+      transition: all 0.3s;
+      transform: scale(1.02);
       }
     }
     

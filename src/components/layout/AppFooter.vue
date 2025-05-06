@@ -5,14 +5,20 @@
       <div class="footer-content">
         <div class="footer-section about">
           <h3>Eltern & Kind</h3>
-          <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in schwierigen Zeiten.</p>
+          <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in
+            schwierigen Zeiten.</p>
           <div class="social-icons">
             <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
-              <span>📸</span>
+              <!-- Direktes SVG Instagram-Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="instagram-icon">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
             </a>
           </div>
         </div>
-        
+
         <div class="footer-section links">
           <h3>Schnellzugriff</h3>
           <ul>
@@ -23,7 +29,7 @@
             <li><router-link to="/contact">Kontakt</router-link></li>
           </ul>
         </div>
-        
+
         <div class="footer-section newsletter">
           <h3>Newsletter</h3>
           <p>Melde dich für unseren Newsletter an und verpasse keine neuen Artikel.</p>
@@ -33,7 +39,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="footer-bottom">
         <p class="copyright">© {{ currentYear }} Eltern & Kind. Alle Rechte vorbehalten.</p>
         <div class="legal-links">
@@ -54,10 +60,10 @@ export default defineComponent({
   name: 'AppFooter',
   setup() {
     const router = useRouter();
-    
+
     // Aktuelles Jahr für das Copyright
     const currentYear = computed(() => new Date().getFullYear());
-    
+
     // Funktion zum Scrollen zu einem bestimmten Abschnitt
     const scrollToSection = (sectionId: string) => {
       // Überprüfen, ob wir uns auf der Homepage befinden
@@ -74,7 +80,7 @@ export default defineComponent({
         scrollToElement(sectionId);
       }
     };
-    
+
     const scrollToElement = (sectionId: string) => {
       const element = document.getElementById(sectionId);
       if (element) {
@@ -82,20 +88,20 @@ export default defineComponent({
         const headerOffset = 130; // Muss konsistent mit dem Layout-Padding-Top sein
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        
+
         window.scrollTo({
           top: offsetPosition,
           behavior: 'smooth'
         });
       }
     };
-    
+
     // Newsletter-Anmeldung
     const subscribeNewsletter = () => {
       // Hier könntest du später eine Funktion implementieren, um die Newsletter-Anmeldung zu verarbeiten
       alert('Die Newsletter-Anmeldung ist aktuell nur ein Platzhalter.');
     };
-    
+
     return {
       currentYear,
       scrollToSection,
@@ -113,7 +119,7 @@ export default defineComponent({
 
 .app-footer {
   padding-top: map.get(vars.$spacing, xxl);
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
@@ -126,17 +132,17 @@ export default defineComponent({
     margin: 0 auto;
     padding: 0 map.get(vars.$spacing, xl);
   }
-  
+
   .footer-content {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: map.get(vars.$spacing, xl);
     margin-bottom: map.get(vars.$spacing, xxl);
-    
+
     @media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
       grid-template-columns: 1fr;
     }
-    
+
     .footer-section {
       h3 {
         font-size: map.get(map.get(vars.$fonts, sizes), large);
@@ -144,11 +150,11 @@ export default defineComponent({
         margin-bottom: map.get(vars.$spacing, m);
         position: relative;
         display: inline-block;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
-            
+
             &::after {
               content: '';
               position: absolute;
@@ -162,24 +168,24 @@ export default defineComponent({
           }
         }
       }
-      
+
       p {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         line-height: 1.6;
         margin-bottom: map.get(vars.$spacing, m);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       &.about {
         .social-icons {
           @include mixins.flex(row, flex-start, center);
           gap: map.get(vars.$spacing, s);
-          
+
           .social-icon {
             display: flex;
             align-items: center;
@@ -187,57 +193,66 @@ export default defineComponent({
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            transition: transform map.get(vars.$transitions, quick);
-            
+            transition: all map.get(vars.$transitions, quick);
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, card-bg);
                 border: 1px solid mixins.theme-color($theme, border-medium);
-                
+
                 &:hover {
                   transform: translateY(-4px);
                   @include mixins.glow('green', 'small', $theme);
                   border-color: mixins.theme-color($theme, accent-green);
+                  
+                  .instagram-icon {
+                    color: mixins.theme-color($theme, accent-green);
+                  }
+                }
+                
+                .instagram-icon {
+                  color: mixins.theme-color($theme, text-secondary);
+                  transition: color map.get(vars.$transitions, quick);
                 }
               }
             }
           }
         }
       }
-      
+
       &.links {
         ul {
           list-style: none;
           padding: 0;
           margin: 0;
-          
+
           li {
             margin-bottom: map.get(vars.$spacing, s);
-            
+
             a {
               text-decoration: none;
               position: relative;
               transition: all map.get(vars.$transitions, quick);
               padding-left: map.get(vars.$spacing, s);
-              
+
               &::before {
                 content: '»';
                 position: absolute;
                 left: 0;
                 opacity: 0;
                 transition: opacity map.get(vars.$transitions, quick),
-                            transform map.get(vars.$transitions, quick);
+                  transform map.get(vars.$transitions, quick);
                 transform: translateX(-5px);
               }
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   color: mixins.theme-color($theme, text-secondary);
-                  
+
                   &:hover {
                     color: mixins.theme-color($theme, accent-green);
                     padding-left: map.get(vars.$spacing, m);
-                    
+
                     &::before {
                       opacity: 1;
                       transform: translateX(0);
@@ -249,12 +264,12 @@ export default defineComponent({
           }
         }
       }
-      
+
       &.newsletter {
         .newsletter-form {
           @include mixins.flex(column, flex-start, stretch);
           gap: map.get(vars.$spacing, s);
-          
+
           input {
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -262,11 +277,11 @@ export default defineComponent({
               }
             }
           }
-          
+
           button {
             align-self: flex-start;
             @include animations.shine-effect;
-            
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 @include mixins.button-style($theme, 'small', true);
@@ -277,42 +292,42 @@ export default defineComponent({
       }
     }
   }
-  
+
   .footer-bottom {
     padding: map.get(vars.$spacing, l) 0;
     @include mixins.flex(row, space-between, center, wrap);
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-top: 1px solid mixins.theme-color($theme, border-light);
       }
     }
-    
+
     @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
       flex-direction: column;
       gap: map.get(vars.$spacing, m);
       text-align: center;
     }
-    
+
     .copyright {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
         }
       }
     }
-    
+
     .legal-links {
       @include mixins.flex(row, flex-end, center);
       gap: map.get(vars.$spacing, m);
-      
+
       a {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         text-decoration: none;
         position: relative;
-        
+
         &::after {
           content: '';
           position: absolute;
@@ -322,14 +337,14 @@ export default defineComponent({
           left: 0;
           transition: width map.get(vars.$transitions, quick);
         }
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
-            
+
             &:hover {
               color: mixins.theme-color($theme, accent-teal);
-              
+
               &::after {
                 width: 100%;
                 background-color: mixins.theme-color($theme, accent-teal);
