@@ -76,7 +76,7 @@
             </label>
           </div>
 
-          <button type="submit" class="submit-button">Nachricht senden</button>
+          <button type="submit" class="submit-button-News">Nachricht senden</button>
         </form>
       </div>
     </div>
@@ -393,7 +393,7 @@ export default defineComponent({
         }
       }
 
-      .submit-button {
+      .submit-button-News {
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
         grid-column: 1 / -1;
         justify-self: end;
@@ -403,11 +403,14 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         transition: transform map.get(vars.$transitions, default),
-          box-shadow map.get(vars.$transitions, default);
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            @include mixins.button-style($theme, 'medium', true);
+        box-shadow map.get(vars.$transitions, default);
+        &:hover {
+          transform: scale(1.05) !important;
+        }
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              @include mixins.button-style($theme, 'medium', true);
           }
         }
       }

@@ -221,11 +221,11 @@ export default defineComponent({
         &:hover,
         &.active {
           background: mixins.theme-gradient($theme, nav-active);
-          color: white;
-          transform: scale(1.1);
+          color: rgba(26, 26, 26, 0.59);
+          transform: scale(1.05);
           @include mixins.glow('green', 'medium', $theme);
           border-color: transparent;
-          transition: all 0.3s;
+          transition: all 0.5s;
         }
 
         &:hover::before {

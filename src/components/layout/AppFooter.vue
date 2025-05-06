@@ -201,7 +201,7 @@ export default defineComponent({
                 border: 1px solid mixins.theme-color($theme, border-medium);
 
                 &:hover {
-                  transform: translateY(-4px);
+                  transform: scale(1.1);
                   @include mixins.glow('green', 'small', $theme);
                   border-color: mixins.theme-color($theme, accent-green);
                   
@@ -251,7 +251,6 @@ export default defineComponent({
 
                   &:hover {
                     color: mixins.theme-color($theme, accent-green);
-                    padding-left: map.get(vars.$spacing, m);
 
                     &::before {
                       opacity: 1;
@@ -281,6 +280,7 @@ export default defineComponent({
           button {
             align-self: flex-start;
             @include animations.shine-effect;
+            transform: none !important;
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
