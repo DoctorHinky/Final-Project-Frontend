@@ -2,7 +2,9 @@
 <template>
   <header class="app-header container">
     <div class="header-top">
-      <div class="logo">{{ siteName }}</div>
+      <div class="logo">
+        <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
+      </div>
       <div class="header-actions">
         <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
         <router-link to="/login-register" class="login-button">Anmelden</router-link>
@@ -29,10 +31,6 @@ export default defineComponent({
     ThemeToggle
   },
   props: {
-    siteName: {
-      type: String,
-      required: true
-    },
     isLightTheme: {
       type: Boolean,
       required: true
@@ -116,11 +114,11 @@ export default defineComponent({
   width: 100%;
   padding: map.get(vars.$spacing, m) 0;
   z-index: 1000;
-  height: 130px;
-  /* Feste Höhe für den Header, konsistent mit dem Layout-Padding */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-radius: 20px;
+  border-radius: 20px;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -145,14 +143,19 @@ export default defineComponent({
   }
 
   .logo {
-    font-size: map.get(map.get(vars.$fonts, sizes), xxl);
-    font-weight: map.get(map.get(vars.$fonts, weights), bold);
     position: relative;
+    display: flex;
+    align-items: center;
+
+    .logo-image {
+      height: 60px;
+      width: auto;
+      border-radius: 50px;
+      object-fit: contain;
+    }
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        @include mixins.text-gradient('primary', $theme);
-
         &::after {
           content: '';
           position: absolute;
@@ -250,6 +253,11 @@ export default defineComponent({
 
     .header-actions {
       margin-top: map.get(vars.$spacing, s);
+    }
+
+    .logo-image {
+      height: 50px;
+      /* Kleineres Logo auf mobilen Geräten */
     }
 
     .nav-tabs {
