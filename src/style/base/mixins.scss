@@ -1,0 +1,215 @@
+// src/style/base/mixins.scss
+@use 'sass:map';
+@use 'variables' as vars;
+
+// Hilfsfunktion zum Abrufen von verschachtelten Map-Werten
+@function theme-color($theme, $color-name) {
+  @return map.get(map.get(vars.$colors, $theme), $color-name);
+}
+
+@function theme-gradient($theme, $gradient-name) {
+  @return map.get(map.get(vars.$gradients, $theme), $gradient-name);
+}
+
+// Theme-Mixin
+@mixin themed($property, $key, $value-map: vars.$colors) {
+  @each $theme, $map in $value-map {
+    .theme-#{$theme} & {
+      #{$property}: map.get($map, $key);
+    }
+  }
+}
+
+// Responsive Design
+@mixin responsive($breakpoint) {
+  $value: map.get(map.get(vars.$layout, breakpoints), $breakpoint);
+  
+  @if $value {
+    @media (max-width: $value) {
+      @content;
+    }
+  } @else {
+    @error "Unbekannter Breakpoint: #{$breakpoint}";
+  }
+}
+
+// Flexbox
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+// Grid
+@mixin grid($columns: 1fr, $rows: auto, $gap: map.get(vars.$spacing, m)) {
+  display: grid;
+  grid-template-columns: $columns;
+  grid-template-rows: $rows;
+  gap: $gap;
+}
+
+// Schatten
+@mixin shadow($level: 'medium', $theme: 'light') {
+  @if $level == 'small' {
+    box-shadow: 0 4px 8px theme-color($theme, shadow-color);
+  } @else if $level == 'medium' {
+    box-shadow: 0 8px 20px theme-color($theme, shadow-color);
+  } @else if $level == 'large' {
+    box-shadow: 0 15px 30px theme-color($theme, shadow-color);
+  }
+}
+
+// Glühen-Effekt
+@mixin glow($color: 'green', $strength: 'medium', $theme: 'light') {
+  $glow-property: theme-color($theme, 'glow-#{$color}');
+  
+  @if $strength == 'small' {
+    box-shadow: 0 4px 12px $glow-property;
+  } @else if $strength == 'medium' {
+    box-shadow: 0 8px 16px $glow-property;
+  } @else if $strength == 'large' {
+    box-shadow: 0 15px 30px $glow-property;
+  }
+}
+
+// Textgradient
+@mixin text-gradient($gradient, $theme: 'light') {
+  background: theme-gradient($theme, $gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+// Button-Stil
+@mixin button-style($theme: 'light', $size: 'medium', $rounded: true) {
+  background: theme-gradient($theme, button);
+  color: white;
+  border: none;
+  
+  @if $size == 'small' {
+    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
+  } @else if $size == 'medium' {
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    font-size: map.get(map.get(vars.$fonts, sizes), base);
+  } @else if $size == 'large' {
+    padding: map.get(vars.$spacing, l) map.get(vars.$spacing, xxl);
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+  }
+  
+  @if $rounded {
+    border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+  } @else {
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+  }
+  
+  font-weight: map.get(map.get(vars.$fonts, weights), bold);
+  cursor: pointer;
+  transition: transform map.get(vars.$transitions, default), box-shadow map.get(vars.$transitions, default);
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-5px) scale(1.03);
+    @include glow('green', 'medium', $theme);
+  }
+}
+
+// Karten-Stil
+@mixin card-style($theme: 'light', $padding: 'medium', $hover-effect: true) {
+  background-color: theme-color($theme, card-bg);
+  border-radius: map.get(map.get(vars.$layout, border-radius), large);
+  border: 2px solid theme-color($theme, border-medium);
+  
+  @if $padding == 'small' {
+    padding: map.get(vars.$spacing, l);
+  } @else if $padding == 'medium' {
+    padding: map.get(vars.$spacing, xl);
+  } @else if $padding == 'large' {
+    padding: map.get(vars.$spacing, xxl);
+  }
+  
+  @include shadow('medium', $theme);
+  transition: transform map.get(vars.$transitions, default), box-shadow map.get(vars.$transitions, default);
+  
+  @if $hover-effect {
+    &:hover {
+      transform: translateY(-8px);
+      @include glow('green', 'medium', $theme);
+      border-color: theme-color($theme, accent-green);
+    }
+  }
+}
+
+// Abschnitt-Header-Stil
+@mixin section-header($theme: 'light') {
+  position: relative;
+  display: inline-block;
+  margin-bottom: map.get(vars.$spacing, xl);
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 70%;
+    height: 4px;
+    bottom: -8px;
+    left: 0;
+    background: theme-gradient($theme, primary);
+    border-radius: 4px;
+  }
+}
+
+// Icon-Container-Stil
+@mixin icon-container($theme: 'light', $size: 'medium', $gradient: 'primary') {
+  background: theme-gradient($theme, $gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @if $size == 'small' {
+    width: 50px;
+    height: 50px;
+    font-size: 1.4rem;
+  } @else if $size == 'medium' {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+  } @else if $size == 'large' {
+    width: 90px;
+    height: 90px;
+    font-size: 2.2rem;
+  }
+}
+
+// Formular-Elemente-Stil
+@mixin form-element($theme: 'light') {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+  border: 2px solid theme-color($theme, border-medium);
+  
+  @if $theme == 'dark' {
+    background-color: rgba(15, 36, 25, 0.8);
+    color: theme-color($theme, text-primary);
+  } @else {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: theme-color($theme, text-primary);
+  }
+  
+  font-family: map.get(vars.$fonts, primary);
+  font-size: map.get(map.get(vars.$fonts, sizes), base);
+  transition: all map.get(vars.$transitions, default);
+  
+  &:focus {
+    outline: none;
+    border-color: theme-color($theme, accent-teal);
+    box-shadow: 0 0 0 3px theme-color($theme, glow-teal);
+  }
+  
+  &::placeholder {
+    color: theme-color($theme, text-tertiary);
+  }
+}
