@@ -25,6 +25,10 @@
           <h2>Willkommen zurück!</h2>
           <p>Melde dich an, um auf dein persönliches Profil zuzugreifen.</p>
           
+          <div v-if="loginStatus.message" :class="['status-message', loginStatus.success ? 'success' : 'error']">
+            {{ loginStatus.message }}
+          </div>
+          
           <form @submit.prevent="handleLogin">
             <div class="form-group">
               <label for="login-email">E-Mail</label>
@@ -35,6 +39,7 @@
                 placeholder="deine@email.de" 
                 required
               />
+              <div class="hint-text">Testlogin: test@example.com</div>
             </div>
             
             <div class="form-group">
@@ -46,6 +51,7 @@
                 placeholder="Dein Passwort" 
                 required
               />
+              <div class="hint-text">Testpasswort: password123</div>
             </div>
             
             <div class="form-options">
@@ -57,8 +63,10 @@
               <a href="#" class="forgot-password">Passwort vergessen?</a>
             </div>
             
-            
-            <button type="submit" class="submit-button">Anmelden</button>
+            <button type="submit" class="submit-button" :disabled="isLoading">
+              <span v-if="isLoading">Wird angemeldet...</span>
+              <span v-else>Anmelden</span>
+            </button>
           </form>
         </div>
         
@@ -67,37 +75,41 @@
           <h2>Werde Teil unserer Community</h2>
           <p>Erstelle ein Konto, um alle Funktionen nutzen zu können.</p>
           
-            <form @submit.prevent="handleRegister">
+          <div v-if="registerStatus.message" :class="['status-message', registerStatus.success ? 'success' : 'error']">
+            {{ registerStatus.message }}
+          </div>
+          
+          <form @submit.prevent="handleRegister">
             <div class="form-group">
               <label for="register-first-name">Vorname</label>
               <input 
-              type="text" 
-              id="register-first-name" 
-              v-model="registerForm.firstName" 
-              placeholder="Vorname" 
-              required
+                type="text" 
+                id="register-first-name" 
+                v-model="registerForm.firstName" 
+                placeholder="Vorname" 
+                required
               />
             </div>
             
             <div class="form-group">
               <label for="register-last-name">Nachname</label>
               <input 
-              type="text" 
-              id="register-last-name" 
-              v-model="registerForm.lastName" 
-              placeholder="Nachname" 
-              required
+                type="text" 
+                id="register-last-name" 
+                v-model="registerForm.lastName" 
+                placeholder="Nachname" 
+                required
               />
             </div>
             
             <div class="form-group">
               <label for="register-username">Benutzername</label>
               <input 
-              type="text" 
-              id="register-username" 
-              v-model="registerForm.username" 
-              placeholder="Benutzername" 
-              required
+                type="text" 
+                id="register-username" 
+                v-model="registerForm.username" 
+                placeholder="Benutzername" 
+                required
               />
             </div>
             
@@ -127,43 +139,43 @@
             <div class="form-group">
               <label for="register-dob">Geburtsdatum</label>
               <input 
-              type="date" 
-              id="register-dob" 
-              v-model="registerForm.dob" 
-              required
+                type="date" 
+                id="register-dob" 
+                v-model="registerForm.dob" 
+                required
               />
             </div>
             
             <div class="form-group">
               <label for="register-phone">Telefon</label>
               <input 
-              type="tel" 
-              id="register-phone" 
-              v-model="registerForm.phone" 
-              placeholder="Telefonnummer" 
-              required
+                type="tel" 
+                id="register-phone" 
+                v-model="registerForm.phone" 
+                placeholder="Telefonnummer" 
+                required
               />
             </div>
             
             <div class="form-group">
               <label for="register-email">E-Mail</label>
               <input 
-              type="email" 
-              id="register-email" 
-              v-model="registerForm.email" 
-              placeholder="deine@email.de" 
-              required
+                type="email" 
+                id="register-email" 
+                v-model="registerForm.email" 
+                placeholder="deine@email.de" 
+                required
               />
             </div>
             
             <div class="form-group">
               <label for="register-password">Passwort</label>
               <input 
-              type="password" 
-              id="register-password" 
-              v-model="registerForm.password" 
-              placeholder="Erstelle ein sicheres Passwort" 
-              required
+                type="password" 
+                id="register-password" 
+                v-model="registerForm.password" 
+                placeholder="Erstelle ein sicheres Passwort" 
+                required
               />
             </div>
             
@@ -174,7 +186,11 @@
                 <span>Ich stimme den <a href="#" class="terms-link">Nutzungsbedingungen</a> zu</span>
               </label>
             </div>
-            <button type="submit" class="submit-button">Konto erstellen</button>
+            
+            <button type="submit" class="submit-button" :disabled="isLoading">
+              <span v-if="isLoading">Wird registriert...</span>
+              <span v-else>Konto erstellen</span>
+            </button>
           </form>
         </div>
       </div>
@@ -184,18 +200,67 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { authService } from '@/services/auth.service';
 
 export default defineComponent({
   name: 'LoginRegister',
   setup() {
+    const router = useRouter();
+    const route = useRoute();
     const activeTab = ref('login');
+    const isLoading = ref(false);
     
+    // Status-Meldungen
+    const loginStatus = reactive({
+      success: false,
+      message: ''
+    });
+    
+    const registerStatus = reactive({
+      success: false,
+      message: ''
+    });
+    
+    // Login-Formular
     const loginForm = reactive({
       email: '',
       password: '',
       rememberMe: false
     });
     
+    // Anmeldung verarbeiten
+    const handleLogin = async () => {
+      isLoading.value = true;
+      loginStatus.message = '';
+      
+      try {
+        const result = await authService.login(loginForm.email, loginForm.password);
+        
+        if (result.success) {
+          loginStatus.success = true;
+          loginStatus.message = 'Anmeldung erfolgreich! Du wirst weitergeleitet...';
+          
+          // Nach kurzer Verzögerung weiterleiten
+          setTimeout(() => {
+            // Prüfen, ob es eine Redirect-URL gibt
+            const redirectPath = route.query.redirect as string || '/member/articles';
+            router.push(redirectPath);
+          }, 1000);
+        } else {
+          loginStatus.success = false;
+          loginStatus.message = result.message || 'Anmeldung fehlgeschlagen. Bitte überprüfe deine Eingaben.';
+        }
+      } catch (error) {
+        loginStatus.success = false;
+        loginStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
+        console.error('Login error:', error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+    
+    // Register-Formular
     const registerForm = reactive({
       firstName: '',
       lastName: '',
@@ -207,6 +272,46 @@ export default defineComponent({
       password: '',
       agreeTerms: false
     });
+    
+    // Registrierung verarbeiten
+    const handleRegister = async () => {
+      isLoading.value = true;
+      registerStatus.message = '';
+      
+      try {
+        // Dummy-Registrierung (später durch echte API ersetzen)
+        setTimeout(() => {
+          registerStatus.success = true;
+          registerStatus.message = 'Registrierung erfolgreich! Du kannst dich jetzt anmelden.';
+          
+          // Tab zur Anmeldung wechseln
+          setTimeout(() => {
+            activeTab.value = 'login';
+            
+            // Anmeldedaten vorausfüllen
+            loginForm.email = registerForm.email;
+            
+            // Formular zurücksetzen
+            registerForm.firstName = '';
+            registerForm.lastName = '';
+            registerForm.username = '';
+            registerForm.role = '';
+            registerForm.dob = '';
+            registerForm.phone = '';
+            registerForm.email = '';
+            registerForm.password = '';
+            registerForm.agreeTerms = false;
+            
+            isLoading.value = false;
+          }, 1500);
+        }, 1000);
+      } catch (error) {
+        registerStatus.success = false;
+        registerStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
+        console.error('Register error:', error);
+        isLoading.value = false;
+      }
+    };
     
     // Dropdown-Funktionalität
     const isOpen = ref(false);
@@ -265,21 +370,22 @@ export default defineComponent({
     
     onMounted(() => {
       document.addEventListener('click', handleClickOutside);
+      
+      // Prüfen, ob bereits angemeldet
+      if (authService.isLoggedIn()) {
+        // Falls bereits angemeldet, zur geschützten Seite weiterleiten
+        router.push('/member/articles');
+      }
+      
+      // Bei Redirect-Parameter den Login-Tab aktivieren
+      if (route.query.redirect) {
+        activeTab.value = 'login';
+      }
     });
     
     onBeforeUnmount(() => {
       document.removeEventListener('click', handleClickOutside);
     });
-    
-    const handleLogin = () => {
-      console.log('Login mit:', loginForm);
-      alert('Login-Funktion ist aktuell nur ein Platzhalter.');
-    };
-    
-    const handleRegister = () => {
-      console.log('Registrierung mit:', registerForm);
-      alert('Registrierungs-Funktion ist aktuell nur ein Platzhalter.');
-    };
     
     return {
       activeTab,
@@ -287,6 +393,9 @@ export default defineComponent({
       registerForm,
       handleLogin,
       handleRegister,
+      isLoading,
+      loginStatus,
+      registerStatus,
       // Dropdown-Funktionalität
       isOpen,
       roleOptions,
@@ -307,8 +416,7 @@ export default defineComponent({
 @use '@/style/base/animations' as animations;
 
 .login-register-page {
-  /* Der feste margin-top: 200px; wurde entfernt, da dies jetzt vom Layout übernommen wird */
-  min-height: calc(100vh - 130px); /* Anpassen an die Höhe des Headers (130px ist konsistent mit dem Layout) */
+  min-height: calc(100vh - 130px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,7 +474,7 @@ export default defineComponent({
     
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
-      margin-bottom: map.get(vars.$spacing, xl);
+      margin-bottom: map.get(vars.$spacing, m);
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -377,11 +485,39 @@ export default defineComponent({
     
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      margin-bottom: map.get(vars.$spacing, xl);
+      margin-bottom: map.get(vars.$spacing, l);
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+    
+    // Status-Meldungen
+    .status-message {
+      padding: map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      margin-bottom: map.get(vars.$spacing, l);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      
+      &.success {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
+            color: mixins.theme-color($theme, accent-green);
+            border: 1px solid rgba(mixins.theme-color($theme, accent-green), 0.3);
+          }
+        }
+      }
+      
+      &.error {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(255, 100, 100, 0.15);
+            color: #ff6464;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+          }
         }
       }
     }
@@ -546,6 +682,19 @@ export default defineComponent({
           }
         }
       }
+      
+      // Hints für Testdaten
+      .hint-text {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        margin-top: map.get(vars.$spacing, xxs);
+        font-style: italic;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-tertiary);
+          }
+        }
+      }
     }
     
     .form-options {
@@ -604,6 +753,13 @@ export default defineComponent({
           &:hover {
             transform: translateY(-3px);
             @include mixins.glow('green', 'small', $theme);
+          }
+          
+          &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
           }
         }
       }

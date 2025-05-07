@@ -2,6 +2,7 @@
 import { createApp } from 'vue'
 import router from './router'
 import './style/base/main.scss'
+import './style/base/member-area.scss'
 import App from './App.vue'
 import { resetScrollObserver } from './utils/scrollObserver'
 

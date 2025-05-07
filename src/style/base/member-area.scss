@@ -1,0 +1,120 @@
+/* src/assets/styles/member-area.css */
+/* Globales Styling für den Mitgliederbereich */
+
+/* Grundlegende Reset-Stile */
+body.member-area {
+  background-color: #000;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Container entfernen/überschreiben */
+body.member-area .container {
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Header und Footer ausblenden im Mitgliederbereich */
+body.member-area .app-header,
+body.member-area .app-footer {
+  display: none;
+}
+
+/* Scrollbar-Styling für ein besseres Erscheinungsbild */
+body.member-area::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.member-area::-webkit-scrollbar-track {
+  background: #111;
+}
+
+body.member-area::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 5px;
+}
+
+body.member-area::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Typografie-Anpassungen */
+body.member-area h1, 
+body.member-area h2, 
+body.member-area h3, 
+body.member-area h4 {
+  color: #fff;
+  margin-top: 0;
+}
+
+body.member-area p {
+  color: #ccc;
+}
+
+/* Button-Styling */
+body.member-area button {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body.member-area button:hover {
+  background-color: #333;
+}
+
+/* Input-Styling */
+body.member-area input, 
+body.member-area select, 
+body.member-area textarea {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+body.member-area input:focus, 
+body.member-area select:focus, 
+body.member-area textarea:focus {
+  outline: none;
+  border-color: #444;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Link-Styling */
+body.member-area a {
+  color: #4AD295;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+body.member-area a:hover {
+  color: #35CCD0;
+  text-decoration: underline;
+}
+
+/* Allgemeines Container-Styling */
+body.member-area .card,
+body.member-area .box,
+body.member-area .panel {
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Animation für Seitenübergänge */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+body.member-area .page-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}

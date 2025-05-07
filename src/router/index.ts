@@ -5,6 +5,9 @@ import LoginRegister from '../pages/LoginRegister.vue';
 import Articles from '../pages/Articles.vue';
 import Contact from '../pages/Contact.vue';
 import AppLayout from '../components/layout/AppLayout.vue';
+import ProtectedRoute from '../components/route/ProtectedRoute.vue';
+import MemberArticlesNew from '../pages/member/Articles.vue'; // Importiere die neue Komponente
+import { authService } from '@/services/auth.service';
 
 // Platzhalter für die rechtlichen Seiten
 const PlaceholderPage = {
@@ -20,6 +23,19 @@ const PlaceholderPage = {
       type: String,
       required: true
     }
+  }
+};
+
+// Navigation Guard für geschützte Routen
+const requireAuth = (to: any, from: any, next: any) => {
+  if (authService.isLoggedIn()) {
+    next(); // Benutzer ist eingeloggt, Navigation fortsetzen
+  } else {
+    // Benutzer ist nicht eingeloggt, Weiterleitung zur Anmeldeseite
+    next({ 
+      path: '/login-register', 
+      query: { redirect: to.fullPath } 
+    });
   }
 };
 
@@ -73,9 +89,38 @@ const routes: Array<RouteRecordRaw> = [
           props: { title: 'Allgemeine Geschäftsbedingungen' }
         }
       }
-      // Hier kannst du weitere Routen hinzufügen, die innerhalb des Layouts angezeigt werden sollen
     ]
   },
+  
+  // Geschützte Routen für eingeloggte Benutzer als eigenständige Route ohne AppLayout
+  {
+    path: '/member',
+    beforeEnter: requireAuth, // Navigation Guard für geschützte Routen
+    children: [
+      {
+        path: 'articles',
+        name: 'MemberArticles',
+        component: MemberArticlesNew
+      },
+      {
+        path: 'profile',
+        name: 'UserProfile',
+        component: { 
+          ...PlaceholderPage,
+          props: { title: 'Mein Profil' }
+        }
+      },
+      {
+        path: 'favorites',
+        name: 'UserFavorites',
+        component: { 
+          ...PlaceholderPage,
+          props: { title: 'Meine Favoriten' }
+        }
+      }
+    ]
+  },
+  
   // Fallback-Route für nicht gefundene Seiten
   {
     path: '/:pathMatch(.*)*',
@@ -105,6 +150,30 @@ const router = createRouter({
       return { top: 0 };
     }
   }
+});
+
+// Globaler Navigation Guard
+router.beforeEach((to, from, next) => {
+  // Da wir kein echtes Backend haben, führen wir hier eine einfache Auth-Überprüfung durch
+  const publicPages = ['/', '/login-register', '/articles', '/contact', '/datenschutz', '/impressum', '/agb'];
+  const authRequired = !publicPages.includes(to.path) && !to.path.startsWith('/public/');
+  const loggedIn = authService.isLoggedIn();
+
+  // Wenn der Benutzer bereits eingeloggt ist und versucht, die Login-Seite aufzurufen,
+  // leiten wir ihn zur Member-Startseite weiter
+  if (to.path === '/login-register' && loggedIn) {
+    return next('/member/articles');
+  }
+
+  // Bei geschützten Routen prüfen, ob der Benutzer angemeldet ist
+  if (authRequired && !loggedIn) {
+    return next({
+      path: '/login-register',
+      query: { redirect: to.fullPath }
+    });
+  }
+
+  next();
 });
 
 export default router;

@@ -4,35 +4,42 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
   name: 'App',
   setup() {
-    onMounted(() => {
-      // IntersectionObserver für Scroll-Animationen einrichten
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { 
-        threshold: 0.1,
-        rootMargin: '-130px 0px 0px 0px' // Berücksichtigt die Header-Höhe
-      });
+    const route = useRoute();
+    
+    // Funktion zum Anpassen der Body-Klasse basierend auf der aktuellen Route
+    const updateBodyClass = () => {
+      // Prüfen, ob die aktuelle Route zum Mitgliederbereich gehört
+      const isMemberRoute = route.path.startsWith('/member');
       
-      // Alle Sektionen beobachten
-      document.querySelectorAll('.section').forEach(section => {
-        observer.observe(section);
-      });
+      // Body-Klasse entsprechend setzen oder entfernen
+      if (isMemberRoute) {
+        document.body.classList.add('member-area');
+      } else {
+        document.body.classList.remove('member-area');
+      }
+    };
+    
+    // Body-Klasse beim ersten Laden setzen
+    onMounted(() => {
+      updateBodyClass();
+    });
+    
+    // Body-Klasse aktualisieren, wenn sich die Route ändert
+    watch(() => route.path, () => {
+      updateBodyClass();
     });
   }
 });
 </script>
 
-<style lang="scss">
-// Basis-Styling für die gesamte Anwendung
+<style>
+/* Globale Stile */
 * {
   margin: 0;
   padding: 0;
@@ -43,8 +50,7 @@ body {
   font-family: 'Nunito', sans-serif;
   line-height: 1.6;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .container {
@@ -52,5 +58,22 @@ body {
   margin: 0 auto;
   padding: 0 2rem;
   width: 100%;
+}
+
+/* Spezielle Stile für den Mitgliederbereich */
+body.member-area {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Basisstile für Formulare und Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
 }
 </style>
