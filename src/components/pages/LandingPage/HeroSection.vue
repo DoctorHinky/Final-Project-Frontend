@@ -216,6 +216,7 @@ export default defineComponent({
       cursor: pointer;
       transition: transform map.get(vars.$transitions, default),
                  box-shadow map.get(vars.$transitions, default);
+                 transform: scale(1.05)
     }
     
     .btn-primary {

@@ -3,7 +3,10 @@
   <header class="app-header container">
     <div class="header-top">
       <div class="logo">
-        <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
+        <!-- Logo als Link zur Hauptseite -->
+        <router-link to="/">
+          <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
+        </router-link>
       </div>
       <div class="header-actions">
         <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
@@ -148,11 +151,21 @@ export default defineComponent({
     display: flex;
     align-items: center;
 
+    a {
+      display: flex; /* Stellt sicher, dass der Link das gesamte Logo umfasst */
+      align-items: center;
+    }
+
     .logo-image {
       height: 60px;
       width: auto;
       border-radius: 50px;
       object-fit: contain;
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
     }
 
     @each $theme in ('light', 'dark') {

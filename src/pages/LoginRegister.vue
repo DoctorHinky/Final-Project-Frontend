@@ -103,15 +103,25 @@
             
             <div class="form-group">
               <label for="register-role">Rolle</label>
-              <select 
-              id="register-role" 
-              v-model="registerForm.role" 
-              required
-              >
-              <option value="" disabled>Wähle eine Rolle</option>
-              <option value="parent">Eltern</option>
-              <option value="child">Kind</option>
-              </select>
+              <div class="custom-dropdown">
+                <div class="dropdown-selected" @click="toggleDropdown" :class="{ 'active': isOpen }" tabindex="0"
+                  @keydown.enter="toggleDropdown" @keydown.space="toggleDropdown" @keydown.up="navigateOptions(-1)"
+                  @keydown.down="navigateOptions(1)" @keydown.esc="closeDropdown">
+                  <span>{{ selectedOption.text }}</span>
+                  <span class="dropdown-arrow">▼</span>
+                </div>
+
+                <div class="dropdown-options" :class="{ 'show': isOpen }">
+                  <div v-for="(option, index) in roleOptions" :key="option.value" class="dropdown-option"
+                    :class="{ 'selected': option.value === selectedOption.value }" @click="selectOption(option)"
+                    tabindex="0" @keydown.enter="selectOption(option)" :data-index="index">
+                    {{ option.text }}
+                  </div>
+                </div>
+
+                <!-- Hidden input for form submission -->
+                <input type="hidden" id="register-role" name="role" v-model="registerForm.role">
+              </div>
             </div>
             
             <div class="form-group">
@@ -161,10 +171,9 @@
               <label class="checkbox-container">
                 <input type="checkbox" v-model="registerForm.agreeTerms" required />
                 <span class="checkmark"></span>
-                Ich stimme den <a href="#">Nutzungsbedingungen</a> zu
+                <span>Ich stimme den <a href="#" class="terms-link">Nutzungsbedingungen</a> zu</span>
               </label>
             </div>
-            
             <button type="submit" class="submit-button">Konto erstellen</button>
           </form>
         </div>
@@ -174,7 +183,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
 export default defineComponent({
   name: 'LoginRegister',
@@ -199,6 +208,69 @@ export default defineComponent({
       agreeTerms: false
     });
     
+    // Dropdown-Funktionalität
+    const isOpen = ref(false);
+    
+    const roleOptions = [
+      { value: '', text: 'Wähle eine Rolle' },
+      { value: 'parent', text: 'Eltern' },
+      { value: 'child', text: 'Kind' }
+    ];
+    
+    const selectedOption = ref(roleOptions[0]);
+    
+    const toggleDropdown = () => {
+      isOpen.value = !isOpen.value;
+    };
+    
+    const closeDropdown = () => {
+      isOpen.value = false;
+    };
+    
+    const selectOption = (option: { value: string; text: string }) => {
+      selectedOption.value = option;
+      registerForm.role = option.value;
+      closeDropdown();
+    };
+    
+    const navigateOptions = (direction: number) => {
+      if (!isOpen.value) {
+        isOpen.value = true;
+        return;
+      }
+    
+      const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
+      let newIndex = currentIndex + direction;
+    
+      if (newIndex < 0) {
+        newIndex = roleOptions.length - 1;
+      } else if (newIndex >= roleOptions.length) {
+        newIndex = 0;
+      }
+    
+      // Nur fokussieren, nicht auswählen
+      const optionElements = document.querySelectorAll('.dropdown-option');
+      if (optionElements[newIndex]) {
+        (optionElements[newIndex] as HTMLElement).focus();
+      }
+    };
+    
+    // Klick außerhalb schließt Dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.querySelector('.custom-dropdown');
+      if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
+        closeDropdown();
+      }
+    };
+    
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+    });
+    
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleClickOutside);
+    });
+    
     const handleLogin = () => {
       console.log('Login mit:', loginForm);
       alert('Login-Funktion ist aktuell nur ein Platzhalter.');
@@ -214,7 +286,15 @@ export default defineComponent({
       loginForm,
       registerForm,
       handleLogin,
-      handleRegister
+      handleRegister,
+      // Dropdown-Funktionalität
+      isOpen,
+      roleOptions,
+      selectedOption,
+      toggleDropdown,
+      closeDropdown,
+      selectOption,
+      navigateOptions
     };
   }
 });
@@ -344,6 +424,128 @@ export default defineComponent({
           }
         }
       }
+      
+      // Benutzerdefiniertes Dropdown-Menü
+      .custom-dropdown {
+        position: relative;
+        width: 100%;
+        font-family: map.get(vars.$fonts, primary);
+
+        // Ausgewähltes Element
+        .dropdown-selected {
+          width: 100%;
+          padding: 0.9rem 1.2rem;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          outline: none;
+          font-size: map.get(map.get(vars.$fonts, sizes), base);
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              @if $theme =='dark' {
+                background-color: rgba(15, 36, 25, 0.8);
+              }
+              @else {
+                background-color: rgba(255, 255, 255, 0.7);
+              }
+
+              color: mixins.theme-color($theme, text-primary);
+              border: 1px solid mixins.theme-color($theme, border-medium);
+              transition: all map.get(vars.$transitions, default);
+
+              &:hover,
+              &:focus {
+                border-color: mixins.theme-color($theme, accent-teal);
+                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+              }
+
+              &.active {
+                border-color: mixins.theme-color($theme, accent-teal);
+                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+              }
+            }
+          }
+
+          // Pfeil-Icon
+          .dropdown-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+
+          &.active .dropdown-arrow {
+            transform: rotate(180deg);
+          }
+        }
+
+        // Optionen-Dropdown
+        .dropdown-options {
+          position: absolute;
+          top: calc(100% + 5px);
+          left: 0;
+          right: 0;
+          z-index: 100;
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(-10px);
+          transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+          max-height: 250px;
+          overflow-y: auto;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, card-bg);
+              border: 1px solid mixins.theme-color($theme, border-light);
+              border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+          }
+
+          &.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+          }
+
+          // Einzelne Option
+          .dropdown-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            outline: none;
+            font-size: map.get(map.get(vars.$fonts, sizes), base);
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+                border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.2);
+
+                &:hover,
+                &:focus {
+                  background-color: mixins.theme-color($theme, hover-color);
+                }
+
+                &.selected {
+                  font-weight: map.get(map.get(vars.$fonts, weights), bold);
+                  background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+                }
+
+                &:last-child {
+                  border-bottom: none;
+                }
+              }
+            }
+          }
+        }
+      }
     }
     
     .form-options {
@@ -369,12 +571,11 @@ export default defineComponent({
         }
       }
       
-      .forgot-password {
-        text-decoration: none;
-        
+      a.terms-link, a.forgot-password {
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, accent-teal);
+            color: mixins.theme-color($theme, accent-teal) !important;
+            text-decoration: none;
             
             &:hover {
               text-decoration: underline;
@@ -392,6 +593,8 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       cursor: pointer;
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      transform: scale(1.05);
+      transition: all 0.5s;
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {

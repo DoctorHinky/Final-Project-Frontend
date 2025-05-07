@@ -3,22 +3,7 @@
   <footer class="app-footer">
     <div class="container">
       <div class="footer-content">
-        <div class="footer-section about">
-          <h3>Eltern & Kind</h3>
-          <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in
-            schwierigen Zeiten.</p>
-          <div class="social-icons">
-            <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
-              <!-- Direktes SVG Instagram-Icon -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="instagram-icon">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-            </a>
-          </div>
-        </div>
-
+        <!-- Links nach links verschoben -->
         <div class="footer-section links">
           <h3>Schnellzugriff</h3>
           <ul>
@@ -30,12 +15,32 @@
           </ul>
         </div>
 
+        <!-- Newsletter in die Mitte verschoben -->
         <div class="footer-section newsletter">
           <h3>Newsletter</h3>
           <p>Melde dich für unseren Newsletter an und verpasse keine neuen Artikel.</p>
           <div class="newsletter-form">
             <input type="email" placeholder="Deine E-Mail Adresse" />
             <button type="submit" @click="subscribeNewsletter">Anmelden</button>
+          </div>
+        </div>
+
+        <!-- About/Social nach rechts verschoben -->
+        <div class="footer-section about">
+          <h3>Eltern & Kind</h3>
+          <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in
+            schwierigen Zeiten.</p>
+          <div class="social-icons-container">
+            <div class="social-icons">
+              <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
+                <!-- Direktes SVG Instagram-Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="instagram-icon">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -119,14 +124,15 @@ export default defineComponent({
 
 .app-footer {
   padding-top: map.get(vars.$spacing, xxl);
-
+  margin-top: 20px;
+  
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       border-top: 1px solid mixins.theme-color($theme, border-light);
     }
   }
-
+  
   .container {
     max-width: map.get(vars.$layout, max-width);
     margin: 0 auto;
@@ -182,37 +188,43 @@ export default defineComponent({
       }
 
       &.about {
-        .social-icons {
-          @include mixins.flex(row, flex-start, center);
-          gap: map.get(vars.$spacing, s);
-
-          .social-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: all map.get(vars.$transitions, quick);
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, card-bg);
-                border: 1px solid mixins.theme-color($theme, border-medium);
-
-                &:hover {
-                  transform: scale(1.1);
-                  @include mixins.glow('green', 'small', $theme);
-                  border-color: mixins.theme-color($theme, accent-green);
+        .social-icons-container {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          
+          .social-icons {
+            @include mixins.flex(row, flex-end, center);
+            gap: map.get(vars.$spacing, s);
+  
+            .social-icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              transition: all map.get(vars.$transitions, quick);
+  
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: mixins.theme-color($theme, card-bg);
+                  border: 1px solid mixins.theme-color($theme, border-medium);
+  
+                  &:hover {
+                    transform: scale(1.1);
+                    @include mixins.glow('green', 'small', $theme);
+                    border-color: mixins.theme-color($theme, accent-green);
+                    
+                    .instagram-icon {
+                      color: mixins.theme-color($theme, accent-green);
+                    }
+                  }
                   
                   .instagram-icon {
-                    color: mixins.theme-color($theme, accent-green);
+                    color: mixins.theme-color($theme, text-secondary);
+                    transition: color map.get(vars.$transitions, quick);
                   }
-                }
-                
-                .instagram-icon {
-                  color: mixins.theme-color($theme, text-secondary);
-                  transition: color map.get(vars.$transitions, quick);
                 }
               }
             }
