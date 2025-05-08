@@ -244,7 +244,7 @@ export default defineComponent({
           // Nach kurzer Verzögerung weiterleiten
           setTimeout(() => {
             // Prüfen, ob es eine Redirect-URL gibt
-            const redirectPath = route.query.redirect as string || '/member/articles';
+            const redirectPath = route.query.redirect as string || '/member/dashboard';
             router.push(redirectPath);
           }, 1000);
         } else {
@@ -374,7 +374,7 @@ export default defineComponent({
       // Prüfen, ob bereits angemeldet
       if (authService.isLoggedIn()) {
         // Falls bereits angemeldet, zur geschützten Seite weiterleiten
-        router.push('/member/articles');
+        router.push('/member/dashboard');
       }
       
       // Bei Redirect-Parameter den Login-Tab aktivieren

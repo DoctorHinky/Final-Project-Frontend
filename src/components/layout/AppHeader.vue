@@ -49,7 +49,7 @@ export default defineComponent({
       { name: 'Was wir tun', id: 'content' },
       { name: 'Quiz', id: 'quiz' },
       { name: 'Community', id: 'community' },
-      { name: 'Über Autoren', id: 'Authors' },
+      { name: 'Autoren', id: 'Authors' },
       { name: 'Newsletter', id: 'sub' }
     ];
 
@@ -199,23 +199,30 @@ export default defineComponent({
 
 // Navigation
 .nav-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
   margin-bottom: map.get(vars.$spacing, s);
+  padding: 2rem;
 
 
   .nav-tab {
+    display: flex;
+    justify-content: center;
     position: relative;
     overflow: hidden;
     padding: map.get(vars.$spacing, s) map.get(vars.$spacing, xl);
     border-radius: map.get(map.get(vars.$layout, border-radius), pill);
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
-    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
     cursor: pointer;
     background: transparent;
     text-decoration: none;
     transition: all 0.3s;
+    width: 150px;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -278,7 +285,7 @@ export default defineComponent({
       justify-content: flex-start;
       overflow-x: auto;
       padding-bottom: map.get(vars.$spacing, s);
-
+      
       .nav-tab {
         flex: 0 0 auto;
         white-space: nowrap;
