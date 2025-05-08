@@ -27,7 +27,12 @@
     <!-- Sidebar-Footer mit Abmelde-Button -->
     <div class="sidebar-footer">
       <button class="logout-button" @click="$emit('logout')">
-        <span class="nav-icon">🚪</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
         <span>Abmelden</span>
       </button>
     </div>
@@ -227,6 +232,7 @@ export default defineComponent({
     .logout-button {
       width: 100%;
       display: flex;
+      justify-content: space-evenly;
       align-items: center;
       padding: map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -237,11 +243,11 @@ export default defineComponent({
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          color: #ff6b6b; // Rot für Abmelden
-          border-color: rgba(255, 107, 107, 0.3);
+          color: #ff0000; // Rot für Abmelden
+          border-color: rgba(255, 0, 0, 0.3);
           
           &:hover {
-            background-color: rgba(255, 107, 107, 0.1);
+            background-color: rgba(255, 0, 0, 0.1);
             border-color: rgba(255, 107, 107, 0.5);
           }
         }
