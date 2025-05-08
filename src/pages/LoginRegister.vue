@@ -200,8 +200,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { authService } from '@/services/auth.service';
+import axios from 'axios';
 
 export default defineComponent({
   name: 'LoginRegister',
@@ -209,58 +208,13 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const activeTab = ref('login');
-    const isLoading = ref(false);
-    
-    // Status-Meldungen
-    const loginStatus = reactive({
-      success: false,
-      message: ''
-    });
-    
-    const registerStatus = reactive({
-      success: false,
-      message: ''
-    });
-    
-    // Login-Formular
+
     const loginForm = reactive({
       email: '',
       password: '',
       rememberMe: false
     });
-    
-    // Anmeldung verarbeiten
-    const handleLogin = async () => {
-      isLoading.value = true;
-      loginStatus.message = '';
-      
-      try {
-        const result = await authService.login(loginForm.email, loginForm.password);
-        
-        if (result.success) {
-          loginStatus.success = true;
-          loginStatus.message = 'Anmeldung erfolgreich! Du wirst weitergeleitet...';
-          
-          // Nach kurzer Verzögerung weiterleiten
-          setTimeout(() => {
-            // Prüfen, ob es eine Redirect-URL gibt
-            const redirectPath = route.query.redirect as string || '/member/dashboard';
-            router.push(redirectPath);
-          }, 1000);
-        } else {
-          loginStatus.success = false;
-          loginStatus.message = result.message || 'Anmeldung fehlgeschlagen. Bitte überprüfe deine Eingaben.';
-        }
-      } catch (error) {
-        loginStatus.success = false;
-        loginStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
-        console.error('Login error:', error);
-      } finally {
-        isLoading.value = false;
-      }
-    };
-    
-    // Register-Formular
+
     const registerForm = reactive({
       firstName: '',
       lastName: '',
@@ -272,102 +226,58 @@ export default defineComponent({
       password: '',
       agreeTerms: false
     });
-    
-    // Registrierung verarbeiten
-    const handleRegister = async () => {
-      isLoading.value = true;
-      registerStatus.message = '';
-      
-      try {
-        // Dummy-Registrierung (später durch echte API ersetzen)
-        setTimeout(() => {
-          registerStatus.success = true;
-          registerStatus.message = 'Registrierung erfolgreich! Du kannst dich jetzt anmelden.';
-          
-          // Tab zur Anmeldung wechseln
-          setTimeout(() => {
-            activeTab.value = 'login';
-            
-            // Anmeldedaten vorausfüllen
-            loginForm.email = registerForm.email;
-            
-            // Formular zurücksetzen
-            registerForm.firstName = '';
-            registerForm.lastName = '';
-            registerForm.username = '';
-            registerForm.role = '';
-            registerForm.dob = '';
-            registerForm.phone = '';
-            registerForm.email = '';
-            registerForm.password = '';
-            registerForm.agreeTerms = false;
-            
-            isLoading.value = false;
-          }, 1500);
-        }, 1000);
-      } catch (error) {
-        registerStatus.success = false;
-        registerStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
-        console.error('Register error:', error);
-        isLoading.value = false;
-      }
-    };
-    
+
     // Dropdown-Funktionalität
     const isOpen = ref(false);
-    
     const roleOptions = [
       { value: '', text: 'Wähle eine Rolle' },
       { value: 'parent', text: 'Eltern' },
       { value: 'child', text: 'Kind' }
     ];
-    
     const selectedOption = ref(roleOptions[0]);
-    
+
     const toggleDropdown = () => {
       isOpen.value = !isOpen.value;
     };
-    
+
     const closeDropdown = () => {
       isOpen.value = false;
     };
-    
+
     const selectOption = (option: { value: string; text: string }) => {
       selectedOption.value = option;
       registerForm.role = option.value;
       closeDropdown();
     };
-    
+
     const navigateOptions = (direction: number) => {
       if (!isOpen.value) {
         isOpen.value = true;
         return;
       }
-    
+
       const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
       let newIndex = currentIndex + direction;
-    
+
       if (newIndex < 0) {
         newIndex = roleOptions.length - 1;
       } else if (newIndex >= roleOptions.length) {
         newIndex = 0;
       }
-    
-      // Nur fokussieren, nicht auswählen
+
       const optionElements = document.querySelectorAll('.dropdown-option');
       if (optionElements[newIndex]) {
         (optionElements[newIndex] as HTMLElement).focus();
       }
     };
-    
-    // Klick außerhalb schließt Dropdown
+
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.querySelector('.custom-dropdown');
       if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
         closeDropdown();
       }
     };
-    
+
     onMounted(() => {
       document.addEventListener('click', handleClickOutside);
       
@@ -382,21 +292,116 @@ export default defineComponent({
         activeTab.value = 'login';
       }
     });
-    
+
     onBeforeUnmount(() => {
       document.removeEventListener('click', handleClickOutside);
     });
-    
+    const handleLogin = async () => {
+  try {
+    const loginData: Record<string, string> = {};
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email.trim());
+
+    if (isEmail) {
+      loginData.email = loginForm.email.trim();
+    } else {
+      loginData.username = loginForm.email.trim();
+    }
+
+    loginData.password = loginForm.password;
+
+    const response = await axios.post(
+      'http://localhost:8080/auth/login',
+      loginData, // schickt JSON!
+      {
+        headers: {
+          'Content-Type': 'application/json', // wichtig!
+        },
+      }
+    );
+
+    alert('Login erfolgreich!');
+    console.log('Login Antwort:', response.data);
+
+    // Token speichern, wenn Backend es liefert
+    // localStorage.setItem('authToken', response.data.token);
+
+    activeTab.value = 'login';
+    // window.location.href = '/dashboard'; // optional Weiterleitung
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      alert('Ungültiger Benutzername/E-Mail oder Passwort.');
+    } else if (error.response?.data?.message) {
+      alert(`Fehler: ${error.response.data.message}`);
+    } else {
+      alert('Ein unerwarteter Fehler ist aufgetreten.');
+    }
+    console.error(error);
+  }
+};
+
+
+
+
+
+    const handleRegister = async () => {
+  try {
+    const password = registerForm.password;
+
+    const hasMinLength = password.length >= 8;
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
+      alert('Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.');
+      return;
+    }
+
+    const phone = registerForm.phone.trim();
+    const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
+
+    if (!germanPhoneRegex.test(phone)) {
+      alert('Bitte eine gültige deutsche Telefonnummer eingeben (z. B. +4915123456789, 015123456789, 004915123456789).');
+      return;
+    }
+
+    const registerData = {
+      firstname: registerForm.firstName.trim(),
+      lastname: registerForm.lastName.trim(),
+      birthdate: registerForm.dob,
+      username: registerForm.username.trim(),
+      role: registerForm.role.trim(),
+      email: registerForm.email.trim(),
+      phone: phone,
+      password: registerForm.password,
+    };
+
+    const response = await axios.post('http://localhost:8080/auth/register', registerData);
+
+    alert('Registrierung erfolgreich!');
+    console.log('Antwort:', response.data);
+    activeTab.value = 'login';
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      alert(`Fehler: ${error.response.data.message}`);
+    } else {
+      alert('Ein unerwarteter Fehler ist aufgetreten.');
+    }
+    console.error(error);
+  }
+};
+
+
+
+
+
     return {
       activeTab,
       loginForm,
       registerForm,
       handleLogin,
       handleRegister,
-      isLoading,
-      loginStatus,
-      registerStatus,
-      // Dropdown-Funktionalität
       isOpen,
       roleOptions,
       selectedOption,
