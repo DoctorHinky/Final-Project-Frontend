@@ -1,69 +1,95 @@
 // src/style/base/variables.scss
-@use 'sass:map';
+@use "sass:map";
 
 // Farbpaletten
 $colors: (
   // Dark-Theme-Farben
-  dark: (
-    primary-bg: #0F2419,           // Tiefer Waldgrün
-    secondary-bg: #163A27,         // Etwas helleres Grün
-    card-bg: #1D4A32,              // Karten Hintergrund
-    hover-color: #285F42,          // Hover-Zustand
-    nav-item-bg: #1A422D,          // Navigation Items
-    
-    // Akzentfarben
-    accent-green: #4AD295,         // Lebendiges Grün
-    accent-lime: #9BE15D,          // Frisches Limette
-    accent-teal: #35CCD0,          // Türkis
-    accent-yellow: #FFD460,        // Warmes Gelb
-    accent-orange: #FF9A55,        // Sanftes Orange
-    
-    // Textfarben
-    text-primary: #FFFFFF,         // Weiß
-    text-secondary: #C7E9D6,       // Helles Pastellgrün
-    text-tertiary: #8FD3B5,        // Mittleres Mintgrün
-    
-    // Rahmen-Farben
-    border-light: rgba(199, 233, 214, 0.2),
-    border-medium: rgba(199, 233, 214, 0.3),
-    
-    // Schatten/Glow
-    shadow-color: rgba(0, 0, 0, 0.25),
-    glow-green: rgba(74, 210, 149, 0.4),
-    glow-teal: rgba(53, 204, 208, 0.4),
-    glow-lime: rgba(155, 225, 93, 0.4)
-  ),
-  
+  dark:
+    (
+      primary-bg: #0f2419,
+      // Tiefer Waldgrün
+      secondary-bg: #163a27,
+      // Etwas helleres Grün
+      card-bg: #1d4a32,
+      // Karten Hintergrund
+      hover-color: #285f42,
+      // Hover-Zustand
+      nav-item-bg: #1a422d,
+
+      // Navigation Items
+      // Akzentfarben
+      accent-green: #4ad295,
+      // Lebendiges Grün
+      accent-lime: #9be15d,
+      // Frisches Limette
+      accent-teal: #35ccd0,
+      // Türkis
+      accent-yellow: #ffd460,
+      // Warmes Gelb
+      accent-orange: #ff9a55,
+
+      // Sanftes Orange
+      // Textfarben
+      text-primary: #ffffff,
+      // Weiß
+      text-secondary: #c7e9d6,
+      // Helles Pastellgrün
+      text-tertiary: #8fd3b5,
+
+      // Mittleres Mintgrün
+      // Rahmen-Farben
+      border-light: rgba(199, 233, 214, 0.2),
+      border-medium: rgba(199, 233, 214, 0.3),
+      // Schatten/Glow
+      shadow-color: rgba(0, 0, 0, 0.25),
+      glow-green: rgba(74, 210, 149, 0.4),
+      glow-teal: rgba(53, 204, 208, 0.4),
+      glow-lime: rgba(155, 225, 93, 0.4),
+    ),
+
   // Light-Theme-Farben
-  light: (
-    primary-bg: #F8FFF9,           // Helles Mintgrün
-    secondary-bg: #E6F5EB,         // Helles Pastellgrün
-    card-bg: #FFFFFF,              // Karten Hintergrund (Weiß)
-    hover-color: #D9F1E3,          // Hover-Zustand
-    nav-item-bg: #E6F5EB,          // Navigation Items
-    
-    // Akzentfarben
-    accent-green: #26BB77,         // Lebendiges Grün
-    accent-lime: #77CD35,          // Frisches Limette
-    accent-teal: #17A2B8,          // Türkis
-    accent-yellow: #FFC107,        // Warmes Gelb
-    accent-orange: #FF9A55,        // Sanftes Orange
-    
-    // Textfarben
-    text-primary: #005F40,         // Dunkelgrün für Text
-    text-secondary: #2A7857,       // Mittleres Grün für Sekundärtext
-    text-tertiary: #4C9372,        // Helles Grün für Tertiärtext
-    
-    // Rahmen-Farben
-    border-light: rgba(38, 187, 119, 0.2),
-    border-medium: rgba(38, 187, 119, 0.3),
-    
-    // Schatten/Glow
-    shadow-color: rgba(0, 95, 64, 0.1),
-    glow-green: rgba(38, 187, 119, 0.3),
-    glow-teal: rgba(23, 162, 184, 0.3),
-    glow-lime: rgba(119, 205, 53, 0.3)
-  )
+  light:
+    (
+      primary-bg: #f8fff9,
+      // Helles Mintgrün
+      secondary-bg: #e6f5eb,
+      // Helles Pastellgrün
+      card-bg: #ffffff,
+      // Karten Hintergrund (Weiß)
+      hover-color: #d9f1e3,
+      // Hover-Zustand
+      nav-item-bg: #e6f5eb,
+
+      // Navigation Items
+      // Akzentfarben
+      accent-green: #26bb77,
+      // Lebendiges Grün
+      accent-lime: #77cd35,
+      // Frisches Limette
+      accent-teal: #17a2b8,
+      // Türkis
+      accent-yellow: #ffc107,
+      // Warmes Gelb
+      accent-orange: #ff9a55,
+
+      // Sanftes Orange
+      // Textfarben
+      text-primary: #005f40,
+      // Dunkelgrün für Text
+      text-secondary: #2a7857,
+      // Mittleres Grün für Sekundärtext
+      text-tertiary: #4c9372,
+
+      // Helles Grün für Tertiärtext
+      // Rahmen-Farben
+      border-light: rgba(38, 187, 119, 0.2),
+      border-medium: rgba(38, 187, 119, 0.3),
+      // Schatten/Glow
+      shadow-color: rgba(0, 95, 64, 0.1),
+      glow-green: rgba(38, 187, 119, 0.3),
+      glow-teal: rgba(23, 162, 184, 0.3),
+      glow-lime: rgba(119, 205, 53, 0.3),
+    )
 );
 
 // Moderne Sass-Funktion für den Zugriff auf verschachtelte Maps
@@ -74,17 +100,59 @@ $colors: (
 // Gradient-Definitionen mit modernen Funktionen
 $gradients: (
   dark: (
-    primary: linear-gradient(to right, color('dark', 'accent-green'), color('dark', 'accent-teal')),
-    button: linear-gradient(45deg, color('dark', 'accent-green'), color('dark', 'accent-teal')),
-    nav-active: linear-gradient(135deg, color('dark', 'accent-green'), color('dark', 'accent-teal')),
-    header: linear-gradient(to right, color('dark', 'accent-green'), color('dark', 'accent-teal'), color('dark', 'accent-lime'))
+    primary:
+      linear-gradient(
+        to right,
+        color("dark", "accent-green"),
+        color("dark", "accent-teal")
+      ),
+    button:
+      linear-gradient(
+        45deg,
+        color("dark", "accent-green"),
+        color("dark", "accent-teal")
+      ),
+    nav-active:
+      linear-gradient(
+        135deg,
+        color("dark", "accent-green"),
+        color("dark", "accent-teal")
+      ),
+    header:
+      linear-gradient(
+        to right,
+        color("dark", "accent-green"),
+        color("dark", "accent-teal"),
+        color("dark", "accent-lime")
+      ),
   ),
   light: (
-    primary: linear-gradient(to right, color('light', 'accent-green'), color('light', 'accent-teal')),
-    button: linear-gradient(45deg, color('light', 'accent-green'), color('light', 'accent-teal')),
-    nav-active: linear-gradient(135deg, color('light', 'accent-green'), color('light', 'accent-teal')),
-    header: linear-gradient(to right, color('light', 'accent-green'), color('light', 'accent-teal'), color('light', 'accent-lime'))
-  )
+    primary:
+      linear-gradient(
+        to right,
+        color("light", "accent-green"),
+        color("light", "accent-teal")
+      ),
+    button:
+      linear-gradient(
+        45deg,
+        color("light", "accent-green"),
+        color("light", "accent-teal")
+      ),
+    nav-active:
+      linear-gradient(
+        135deg,
+        color("light", "accent-green"),
+        color("light", "accent-teal")
+      ),
+    header:
+      linear-gradient(
+        to right,
+        color("light", "accent-green"),
+        color("light", "accent-teal"),
+        color("light", "accent-lime")
+      ),
+  ),
 );
 
 // Moderne Sass-Funktion für den Zugriff auf Gradienten
@@ -94,7 +162,10 @@ $gradients: (
 
 // Typografie
 $fonts: (
-  primary: ('Nunito', sans-serif),
+  primary: (
+    "Nunito",
+    sans-serif,
+  ),
   sizes: (
     base: 16px,
     small: 0.9rem,
@@ -102,14 +173,14 @@ $fonts: (
     large: 1.2rem,
     xl: 1.4rem,
     xxl: 1.8rem,
-    xxxl: 2rem
+    xxxl: 2rem,
   ),
   weights: (
     regular: 400,
     medium: 600,
     bold: 700,
-    extra-bold: 800
-  )
+    extra-bold: 800,
+  ),
 );
 
 // Abstände
@@ -121,7 +192,7 @@ $spacing: (
   l: 1.5rem,
   xl: 2rem,
   xxl: 2.5rem,
-  xxxl: 3.5rem
+  xxxl: 3.5rem,
 );
 
 // Layout
@@ -131,15 +202,15 @@ $layout: (
     medium: 12px,
     large: 16px,
     xlarge: 20px,
-    pill: 50px
+    pill: 50px,
   ),
   max-width: 1200px,
   breakpoints: (
     mobile: 480px,
     tablet: 768px,
     desktop: 1024px,
-    large: 1200px
-  )
+    large: 1200px,
+  ),
 );
 
 // Z-Index
@@ -149,7 +220,7 @@ $z-index: (
   above: 1,
   header: 100,
   modal: 200,
-  tooltip: 300
+  tooltip: 300,
 );
 
 // Transitions
@@ -157,5 +228,5 @@ $transitions: (
   quick: 0.2s ease,
   default: 0.3s ease,
   slow: 0.5s ease,
-  very-slow: 0.8s ease
+  very-slow: 0.8s ease,
 );

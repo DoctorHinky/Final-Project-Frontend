@@ -33,11 +33,13 @@ export default defineComponent({
 
 <style lang="scss">
 @use '@/style/base/variables' as vars;
+@use 'sass:map';
 
 .LandingPage {
   display: flex;
   flex-direction: column;
-  gap: map-get(vars.$spacing, xxxl);
-  padding-bottom: map-get(vars.$spacing, xxxl);
+  gap: map.get(vars.$spacing, xxxl);
+  padding-bottom: map.get(vars.$spacing, xxxl);
 }
+
 </style>

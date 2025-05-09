@@ -43,14 +43,15 @@ export default defineComponent({
 <style lang="scss">
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
+@use 'sass:map';
 @use '@/style/base/animations' as animations;
 
 .quiz-section {
   @include animations.scroll-fade-in;
   
   h2 {
-    font-size: map-get(map-get(vars.$fonts, sizes), xxxl);
-    font-weight: map-get(map-get(vars.$fonts, weights), extra-bold);
+    font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
+    font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -60,8 +61,8 @@ export default defineComponent({
   }
   
   .quiz-container {
-    @include mixins.grid(1fr 1fr, auto, map-get(vars.$spacing, xl));
-    margin-top: map-get(vars.$spacing, xxl);
+    @include mixins.grid(1fr 1fr, auto, map.get(vars.$spacing, xl));
+    margin-top: map.get(vars.$spacing, xxl);
     
     @include mixins.responsive('tablet') {
       grid-template-columns: 1fr;
@@ -83,8 +84,8 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
-          padding: map-get(vars.$spacing, xl);
-          border-radius: map-get(map-get(vars.$layout, border-radius), large);
+          padding: map.get(vars.$spacing, xl);
+          border-radius: map.get(map.get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
           @include mixins.shadow('medium', $theme);
           transition: all 0.4s ease-out;
@@ -164,8 +165,8 @@ export default defineComponent({
       }
       
       p {
-        font-size: map-get(map-get(vars.$fonts, sizes), medium);
-        margin-bottom: map-get(vars.$spacing, l);
+        font-size: map.get(map.get(vars.$fonts, sizes), medium);
+        margin-bottom: map.get(vars.$spacing, l);
         line-height: 1.8;
         position: relative;
         z-index: 2; /* Über dem Pseudo-Element */
@@ -176,7 +177,7 @@ export default defineComponent({
       }
       
       .options {
-        font-size: map-get(map-get(vars.$fonts, sizes), base);
+        font-size: map.get(map.get(vars.$fonts, sizes), base);
         position: relative;
         z-index: 2; /* Über dem Pseudo-Element */
         

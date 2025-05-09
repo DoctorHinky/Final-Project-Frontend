@@ -137,6 +137,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
@@ -145,8 +146,8 @@ export default defineComponent({
   @include animations.scroll-fade-in;
 
   h2 {
-    font-size: map-get(map-get(vars.$fonts, sizes), xxxl);
-    font-weight: map-get(map-get(vars.$fonts, weights), extra-bold);
+    font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
+    font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -156,8 +157,8 @@ export default defineComponent({
   }
 
   .subscription {
-    @include mixins.grid(1fr 1fr, auto, map-get(vars.$spacing, xxl));
-    margin-top: map-get(vars.$spacing, xxl);
+    @include mixins.grid(1fr 1fr, auto, map.get(vars.$spacing, xxl));
+    margin-top: map.get(vars.$spacing, xxl);
 
     @include mixins.responsive('tablet') {
       grid-template-columns: 1fr;
@@ -170,11 +171,11 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
-          padding: map-get(vars.$spacing, xl);
-          border-radius: map-get(map-get(vars.$layout, border-radius), large);
+          padding: map.get(vars.$spacing, xl);
+          border-radius: map.get(map.get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
           @include mixins.shadow('medium', $theme);
-          transition: all map-get(vars.$transitions, default);
+          transition: all map.get(vars.$transitions, default);
         }
       }
 
@@ -202,8 +203,8 @@ export default defineComponent({
     }
 
     p {
-      font-size: map-get(map-get(vars.$fonts, sizes), medium);
-      margin-bottom: map-get(vars.$spacing, l);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      margin-bottom: map.get(vars.$spacing, l);
       line-height: 1.8;
 
       &:last-child {
@@ -212,14 +213,13 @@ export default defineComponent({
     }
   }
 
-  // Formular-Elemente
   .form-group {
-    margin-bottom: map-get(vars.$spacing, l);
+    margin-bottom: map.get(vars.$spacing, l);
 
     label {
       display: block;
-      margin-bottom: map-get(vars.$spacing, s);
-      font-weight: map-get(map-get(vars.$fonts, weights), bold);
+      margin-bottom: map.get(vars.$spacing, s);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -236,13 +236,11 @@ export default defineComponent({
       }
     }
 
-    // Benutzerdefiniertes Dropdown-Menü
     .custom-dropdown {
       position: relative;
       width: 100%;
-      font-family: map-get(vars.$fonts, primary);
+      font-family: map.get(vars.$fonts, primary);
 
-      // Ausgewähltes Element
       .dropdown-selected {
         width: 100%;
         padding: 0.9rem 1.2rem;
@@ -251,13 +249,13 @@ export default defineComponent({
         justify-content: space-between;
         align-items: center;
         position: relative;
-        border-radius: map-get(map-get(vars.$layout, border-radius), medium);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         outline: none;
-        font-size: map-get(map-get(vars.$fonts, sizes), base);
+        font-size: map.get(map.get(vars.$fonts, sizes), base);
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            @if $theme =='dark' {
+            @if $theme == 'dark' {
               background-color: rgba(15, 36, 25, 0.8);
             }
 
@@ -267,7 +265,7 @@ export default defineComponent({
 
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-medium);
-            transition: all map-get(vars.$transitions, default);
+            transition: all map.get(vars.$transitions, default);
 
             &:hover,
             &:focus {
@@ -282,7 +280,6 @@ export default defineComponent({
           }
         }
 
-        // Pfeil-Icon
         .dropdown-arrow {
           font-size: 0.8rem;
           transition: transform 0.2s ease;
@@ -299,7 +296,6 @@ export default defineComponent({
         }
       }
 
-      // Optionen-Dropdown
       .dropdown-options {
         position: absolute;
         top: calc(100% + 5px);
@@ -317,7 +313,7 @@ export default defineComponent({
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            border-radius: map-get(map-get(vars.$layout, border-radius), medium);
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
           }
         }
@@ -328,12 +324,11 @@ export default defineComponent({
           transform: translateY(0);
         }
 
-        // Einzelne Option
         .dropdown-option {
           padding: 12px 16px;
           cursor: pointer;
           outline: none;
-          font-size: map-get(map-get(vars.$fonts, sizes), base);
+          font-size: map.get(map.get(vars.$fonts, sizes), base);
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
@@ -346,7 +341,7 @@ export default defineComponent({
               }
 
               &.selected {
-                font-weight: map-get(map-get(vars.$fonts, weights), bold);
+                font-weight: map.get(map.get(vars.$fonts, weights), bold);
                 background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
               }
 
@@ -360,10 +355,9 @@ export default defineComponent({
     }
   }
 
-  // Button
   .btn {
     display: inline-block;
-    margin-top: map-get(vars.$spacing, m);
+    margin-top: map.get(vars.$spacing, m);
     @include animations.shine-effect;
 
     &:hover {
@@ -377,10 +371,9 @@ export default defineComponent({
     }
   }
 
-  // Footnote
   .footnote {
-    font-size: map-get(map-get(vars.$fonts, sizes), small);
-    margin-top: map-get(vars.$spacing, xxl);
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
+    margin-top: map.get(vars.$spacing, xxl);
     text-align: center;
     line-height: 1.6;
 

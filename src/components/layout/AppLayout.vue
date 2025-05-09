@@ -75,6 +75,7 @@ export default defineComponent({
   transition: 
     opacity map.get(vars.$transitions, very-slow), 
     transform map.get(vars.$transitions, very-slow);
+    margin-top: 100px;
   
   &.visible {
     opacity: 1;

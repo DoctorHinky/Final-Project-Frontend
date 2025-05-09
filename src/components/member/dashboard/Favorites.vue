@@ -275,6 +275,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @use 'sass:map';
+@use 'sass:color';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
@@ -784,7 +785,7 @@ export default defineComponent({
                 color: white;
                 
                 &:hover {
-                  background-color: darken(#ff6b6b, 10%);
+                  background-color: color.adjust(#ff6b6b, $lightness: -10%);
                 }
               }
             }

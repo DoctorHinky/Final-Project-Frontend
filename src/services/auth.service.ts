@@ -15,7 +15,7 @@ class AuthService {
     const storedAuth = localStorage.getItem(this.storageKey);
     if (storedAuth) {
       try {
-        const authData = JSON.parse(storedAuth);
+        JSON.parse(storedAuth);
         // Hier könnte ein Token-Check erfolgen
         this.isAuthenticated = true;
       } catch (e) {
@@ -71,7 +71,7 @@ class AuthService {
   
   // Alias für isLoggedIn (für Kompatibilität mit neueren Komponenten)
   // Diese Methode wurde hinzugefügt, um die Naming-Konvention anzugleichen
-  isAuthenticated(): boolean {
+  getAuthStatus(): boolean {
     return this.isLoggedIn();
   }
   
