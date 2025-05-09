@@ -132,7 +132,6 @@ export default defineComponent({
       { icon: '📚', label: 'Gelesene Artikel', value: '12', color: 'rgba(74, 210, 149, 0.2)' },
       { icon: '⭐', label: 'Favoriten', value: '5', color: 'rgba(255, 212, 96, 0.2)' },
       { icon: '👥', label: 'Freunde', value: '3', color: 'rgba(53, 204, 208, 0.2)' },
-      { icon: '🏆', label: 'Punkte', value: '230', color: 'rgba(155, 225, 93, 0.2)' },
     ]);
     
     // Zuletzt gelesene Artikel mit Kapitel/Seiten statt Prozent
