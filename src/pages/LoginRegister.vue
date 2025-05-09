@@ -423,7 +423,6 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl) 0;
   position: relative;
   z-index: 100;
-  margin-top: 150px;
   
   .auth-container {
     max-width: 500px;

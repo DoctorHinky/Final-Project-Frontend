@@ -121,7 +121,6 @@ export default defineComponent({
   flex-direction: column;
   justify-content: space-between;
   border-radius: 20px;
-  border-radius: 20px;
   user-select: none;
 
   @each $theme in ('light', 'dark') {
@@ -206,7 +205,6 @@ export default defineComponent({
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
   margin-bottom: map.get(vars.$spacing, s);
-  padding: 2rem;
 
 
   .nav-tab {
@@ -223,6 +221,8 @@ export default defineComponent({
     text-decoration: none;
     transition: all 0.3s;
     width: 150px;
+    height: 40px;
+    align-items: center;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

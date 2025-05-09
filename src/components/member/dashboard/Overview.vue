@@ -2,7 +2,7 @@
 <template>
   <div class="overview-dashboard">
     <div class="welcome-message">
-      <h2>Willkommen zurück, {{ userName }}!</h2>
+      <h2>Übersicht</h2>
       <p>Hier ist deine Übersicht für {{ currentDate }}</p>
     </div>
     

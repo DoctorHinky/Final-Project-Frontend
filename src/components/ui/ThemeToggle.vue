@@ -88,6 +88,8 @@ export default defineComponent({
   display: inline-block;
   width: 60px;
   height: 34px;
+  border-radius: 34px;
+  box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.2); /* Leichte Schatten für bessere Sichtbarkeit */
 }
 .switch #input {
   opacity: 0;
