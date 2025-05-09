@@ -461,7 +461,6 @@ export default defineComponent({
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 map.get(vars.$spacing, m);
   
@@ -775,12 +774,11 @@ export default defineComponent({
           &.unread {
             border-left: 4px solid mixins.theme-color($theme, accent-green);
             
+            background-color: rgba(mixins.theme-color($theme, accent-green), 0.05);
             @media (max-width: 576px) {
               border-left-width: 1px;
               border-top: 4px solid mixins.theme-color($theme, accent-green);
             }
-            
-            background-color: rgba(mixins.theme-color($theme, accent-green), 0.05);
           }
           
           &:hover {

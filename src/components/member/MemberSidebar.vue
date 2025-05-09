@@ -11,23 +11,18 @@
       </div>
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
-    
+
     <!-- Sidebar-Navigation -->
     <nav class="sidebar-nav">
-      <div 
-        v-for="(item, index) in menuItems" 
-        :key="index"
-        class="nav-item"
-        :class="{ active: activeMenu === item.id }"
-        @click="selectMenuItem(item.id)"
-      >
+      <div v-for="(item, index) in menuItems" :key="index" class="nav-item" :class="{ active: activeMenu === item.id }"
+        @click="selectMenuItem(item.id)">
         <span class="nav-icon">
           <component :is="item.icon" class="h-6 w-6" />
         </span>
         <span class="nav-text">{{ item.text }}</span>
       </div>
     </nav>
-    
+
     <!-- Sidebar-Footer mit Abmelde-Button -->
     <div class="sidebar-footer">
       <button class="logout-button" @click="$emit('logout')">
@@ -40,12 +35,12 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { 
-  ChartBarIcon, 
-  BookOpenIcon, 
-  HeartIcon, 
-  UserGroupIcon, 
-  BellIcon, 
+import {
+  ChartBarIcon,
+  BookOpenIcon,
+  HeartIcon,
+  UserGroupIcon,
+  BellIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
   ArrowRightOnRectangleIcon
@@ -85,12 +80,12 @@ export default defineComponent({
       { id: 'notifications', text: 'Benachrichtigungen', icon: BellIcon },
       { id: 'settings', text: 'Einstellungen', icon: Cog6ToothIcon }
     ]);
-    
+
     // Menüpunkt auswählen
     const selectMenuItem = (itemId: string) => {
       emit('select-menu', itemId);
     };
-    
+
     return {
       menuItems,
       selectMenuItem
@@ -116,32 +111,32 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   padding-top: 70px; // Platz für den Header
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border-right: 1px solid mixins.theme-color($theme, border-medium);
     }
   }
-  
+
   &.open {
     left: 0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
   }
-  
+
   // Sidebar-Header
   .sidebar-header {
     display: flex;
     align-items: center;
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
     }
-    
+
     .account-logo {
       width: 40px;
       height: 40px;
@@ -149,15 +144,15 @@ export default defineComponent({
       object-fit: cover;
       margin-right: map.get(vars.$spacing, s);
     }
-    
+
     .header-content {
       flex: 1;
-      
+
       h3 {
         margin: 0;
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -165,7 +160,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     .close-sidebar {
       width: 30px;
       height: 30px;
@@ -176,11 +171,11 @@ export default defineComponent({
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
-          
+
           &:hover {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -188,7 +183,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Sidebar-Navigation
   .sidebar-nav {
     flex: 1;
@@ -197,7 +192,7 @@ export default defineComponent({
     flex-direction: column;
     gap: map.get(vars.$spacing, s);
     overflow-y: auto;
-    
+
     .nav-item {
       display: flex;
       align-items: center;
@@ -205,23 +200,23 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       cursor: pointer;
       transition: all 0.3s;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
-          
+
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
             color: mixins.theme-color($theme, text-primary);
           }
-          
+
           &.active {
             background: mixins.theme-gradient($theme, primary);
             color: white;
           }
         }
       }
-      
+
       .nav-icon {
         margin-right: map.get(vars.$spacing, m);
         font-size: 1.2rem;
@@ -230,24 +225,24 @@ export default defineComponent({
         justify-content: center;
         width: 24px;
       }
-      
+
       .nav-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
       }
     }
   }
-  
+
   // Sidebar-Footer
   .sidebar-footer {
     padding: map.get(vars.$spacing, m);
     border-top: 1px solid;
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
     }
-    
+
     .logout-button {
       width: 100%;
       display: flex;
@@ -259,28 +254,31 @@ export default defineComponent({
       border: 1px solid;
       cursor: pointer;
       transition: all 0.3s;
+
       .LogoutIcon {
-      width: 20px;
+        width: 20px;
       }
-      
+
       @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary); // Dynamische Textfarbe
-        border-color: rgb(255, 0, 0);
-        
-        &:hover {
-        background-color: rgba(255, 0, 0, 0.308);
-        border-color: rgb(255, 0, 0);
-        color: mixins.theme-color($theme, text-primary); // Dynamische Hover-Textfarbe
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary); // Dynamische Textfarbe
+          border-color: rgb(255, 0, 0);
+
+          &:hover {
+            background-color: rgba(255, 0, 0, 0.308);
+            border-color: rgb(255, 0, 0);
+            color: mixins.theme-color($theme, text-primary); // Dynamische Hover-Textfarbe
+          }
         }
-      }
       }
     }
   }
 }
+
 .logo-Sidebar {
   display: block;
-  margin: 0 auto; /* Zentriert das Bild horizontal */
+  margin: 0 auto;
+  /* Zentriert das Bild horizontal */
   height: 80px;
   border-radius: 50px;
   margin-bottom: map.get(vars.$spacing, m);
@@ -288,7 +286,7 @@ export default defineComponent({
   border: 1px solid #000;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  
+
   &:hover {
     opacity: 1;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
@@ -300,26 +298,40 @@ export default defineComponent({
   0% {
     transform: translateY(0) scale(1, 1);
   }
+
   25% {
-    transform: translateY(-20px) scale(1, 1.05); /* Leicht vertikal gedehnt während des Aufstiegs */
+    transform: translateY(-20px) scale(1, 1.05);
+    /* Leicht vertikal gedehnt während des Aufstiegs */
   }
+
   40% {
-    transform: translateY(-25px) scale(1.05, 0.95); /* Bereitet sich auf den Fall vor */
+    transform: translateY(-25px) scale(1.05, 0.95);
+    /* Bereitet sich auf den Fall vor */
   }
+
   50% {
-    transform: translateY(5px) scale(1.1, 0.8); /* Abgeflacht beim Aufprall */
+    transform: translateY(5px) scale(1.1, 0.8);
+    /* Abgeflacht beim Aufprall */
   }
+
   65% {
-    transform: translateY(-5px) scale(0.95, 1.1); /* Vertikale Gegenbewegung - quetscht nach oben */
+    transform: translateY(-5px) scale(0.95, 1.1);
+    /* Vertikale Gegenbewegung - quetscht nach oben */
   }
+
   75% {
-    transform: translateY(0) scale(1.05, 0.95); /* Zweite kleine Abflachung */
+    transform: translateY(0) scale(1.05, 0.95);
+    /* Zweite kleine Abflachung */
   }
+
   85% {
-    transform: translateY(0) scale(0.98, 1.02); /* Kleine Nachwackelbewegung */
+    transform: translateY(0) scale(0.98, 1.02);
+    /* Kleine Nachwackelbewegung */
   }
+
   100% {
-    transform: translateY(0) scale(1, 1); /* Zurück zur Ausgangsgröße */
+    transform: translateY(0) scale(1, 1);
+    /* Zurück zur Ausgangsgröße */
   }
 }
 
@@ -328,7 +340,7 @@ export default defineComponent({
   .member-sidebar {
     left: 0;
     transform: translateX(-100%);
-    
+
     &.open {
       transform: translateX(0);
     }

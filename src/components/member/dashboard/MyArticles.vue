@@ -507,7 +507,6 @@ export default defineComponent({
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
   padding: 0 map.get(vars.$spacing, m);
 
