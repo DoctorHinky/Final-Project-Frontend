@@ -7,16 +7,11 @@
         <h2>Meine Artikel</h2>
         <p>Hier findest du deine gespeicherten und kürzlich gelesenen Artikel</p>
       </div>
-      
+
       <!-- Suchleiste -->
       <div class="search-section">
         <div class="search-container">
-          <input 
-            type="text" 
-            placeholder="Artikel suchen..." 
-            v-model="searchQuery"
-            @input="filterArticles"
-          />
+          <input type="text" placeholder="Artikel suchen..." v-model="searchQuery" @input="filterArticles" />
           <button class="search-button">
             <span class="search-icon">🔍</span>
           </button>
@@ -24,33 +19,23 @@
         <div class="active-filters" v-if="filterTags.length > 0">
           <span class="filter-label">Aktive Filter:</span>
           <div class="filter-tags">
-            <span 
-              v-for="(tag, index) in filterTags" 
-              :key="index"
-              class="filter-tag"
-              @click="removeFilterTag(index)"
-            >
+            <span v-for="(tag, index) in filterTags" :key="index" class="filter-tag" @click="removeFilterTag(index)">
               {{ tag }} <span class="remove-tag">×</span>
             </span>
           </div>
           <button class="clear-filters" @click="clearFilters">Alle löschen</button>
         </div>
       </div>
-      
+
       <!-- Tabs für verschiedene Artikelgruppen -->
       <div class="articles-tabs">
-        <button 
-          v-for="(tab, index) in tabs" 
-          :key="index"
-          class="tab-button"
-          :class="{ active: activeTab === tab.id }"
-          @click="activeTab = tab.id"
-        >
-          {{ tab.name }} 
+        <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
+          @click="activeTab = tab.id">
+          {{ tab.name }}
           <span class="count">{{ getArticleCount(tab.id) }}</span>
         </button>
       </div>
-      
+
       <!-- Artikelliste -->
       <div class="article-list">
         <div class="view-options">
@@ -64,83 +49,108 @@
             </select>
           </div>
           <div class="view-mode-toggle">
-            <button 
-              class="view-button" 
-              :class="{ active: viewMode === 'grid' }" 
-              @click="switchViewMode('grid')"
-              title="Rasteransicht"
-            >
+            <button class="view-button" :class="{ active: viewMode === 'grid' }" @click="switchViewMode('grid')"
+              title="Rasteransicht">
               ■ ■
             </button>
-            <button 
-              class="view-button" 
-              :class="{ active: viewMode === 'list' }" 
-              @click="switchViewMode('list')"
-              title="Listenansicht"
-            >
+            <button class="view-button" :class="{ active: viewMode === 'list' }" @click="switchViewMode('list')"
+              title="Listenansicht">
               ≡
             </button>
           </div>
         </div>
-        
+
         <!-- Anzeigebereich für Artikel -->
-        <div class="articles-container" :class="viewMode">
-          <div 
-            v-for="article in filteredArticles" 
-            :key="article.id" 
-            class="article-card"
-            @click="openArticleReader(article)"
-          >
-            <div class="card-label">{{ article.category }}</div>
-            <h3 class="card-title">{{ article.title }}</h3>
-            <p class="card-preview">{{ article.preview }}</p>
-            
-            <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
-            <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
-              <div class="progress-bar">
-                <div 
-                  class="progress-fill" 
-                  :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"
-                ></div>
+        <div :class="['articles-container', viewMode]">
+          <!-- Grid-Ansicht -->
+          <div v-if="viewMode === 'grid'" class="grid-view">
+            <div v-for="article in filteredArticles" :key="article.id" class="article-card"
+              @click="openArticleReader(article)">
+              <div class="card-label">{{ article.category }}</div>
+              <h3 class="card-title">{{ article.title }}</h3>
+              <p class="card-preview">{{ article.preview }}</p>
+
+              <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
+              <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill"
+                    :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+                </div>
+                <div class="progress-text">
+                  <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
+                  <span class="last-read">{{ article.lastRead }}</span>
+                </div>
               </div>
-              <div class="progress-text">
-                <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
-                <span class="last-read">{{ article.lastRead }}</span>
+
+              <div class="card-meta">
+                <span class="card-date">{{ article.date }}</span>
+                <div class="card-tags">
+                  <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Aktionsbuttons für jeden Artikel -->
+              <div class="card-actions">
+                <button class="action-button read" @click.stop="openArticleReader(article)">
+                  <span v-if="article.currentChapter">Weiterlesen</span>
+                  <span v-else>Jetzt lesen</span>
+                </button>
+                <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
+                  @click.stop="toggleBookmark(article)">
+                  {{ article.status === 'bookmarked' ? '★' : '☆' }}
+                </button>
               </div>
             </div>
-            
-            <div class="card-meta">
-              <span class="card-date">{{ article.date }}</span>
-              <div class="card-tags">
-                <span 
-                  v-for="(tag, idx) in article.tags" 
-                  :key="idx" 
-                  class="card-tag"
-                  @click.stop="addFilterTag(tag)"
-                >
-                  {{ tag }}
-                </span>
+          </div>
+
+          <!-- Listen-Ansicht -->
+          <div v-else-if="viewMode === 'list'" class="list-view">
+            <div v-for="article in filteredArticles" :key="article.id" class="article-list-item"
+              @click="openArticleReader(article)">
+              <div class="list-item-main">
+                <div class="list-item-header">
+                  <div class="card-label">{{ article.category }}</div>
+                  <span class="card-date">{{ article.date }}</span>
+                </div>
+                <h3 class="card-title">{{ article.title }}</h3>
+                <p class="card-preview">{{ article.preview }}</p>
+
+                <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
+                <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill"
+                      :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+                  </div>
+                  <div class="progress-text">
+                    <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
+                    <span class="last-read">{{ article.lastRead }}</span>
+                  </div>
+                </div>
+
+                <div class="card-tags">
+                  <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
+                    {{ tag }}
+                  </span>
+                </div>
               </div>
-            </div>
-            
-            <!-- Aktionsbuttons für jeden Artikel -->
-            <div class="card-actions">
-              <button class="action-button read" @click.stop="openArticleReader(article)">
-                <span v-if="article.currentChapter">Weiterlesen</span>
-                <span v-else>Jetzt lesen</span>
-              </button>
-              <button 
-                class="action-button bookmark" 
-                :class="{ active: article.status === 'bookmarked' }"
-                @click.stop="toggleBookmark(article)"
-              >
-                {{ article.status === 'bookmarked' ? '★' : '☆' }}
-              </button>
+
+              <div class="list-item-actions">
+                <button class="action-button read" @click.stop="openArticleReader(article)">
+                  <span v-if="article.currentChapter">Weiterlesen</span>
+                  <span v-else>Jetzt lesen</span>
+                </button>
+                <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
+                  @click.stop="toggleBookmark(article)">
+                  {{ article.status === 'bookmarked' ? '★' : '☆' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Anzeige eines leeren Zustands -->
       <div v-if="filteredArticles.length === 0" class="empty-state">
         <div class="empty-icon">📄</div>
@@ -149,14 +159,10 @@
         <button @click="clearFilters" class="reset-button">Filter zurücksetzen</button>
       </div>
     </div>
-    
+
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader 
-        :article="selectedArticle" 
-        @close="closeArticleReader"
-        @toggle-bookmark="toggleBookmark"
-      />
+      <article-reader :article="selectedArticle" @close="closeArticleReader" @toggle-bookmark="toggleBookmark" />
     </div>
   </div>
 </template>
@@ -202,17 +208,17 @@ export default defineComponent({
       { id: 'completed', name: 'Abgeschlossene' },
       { id: 'bookmarked', name: 'Favoriten' }
     ]);
-    
+
     const activeTab = ref('all');
     const searchQuery = ref('');
     const filterTags = ref<string[]>([]);
     const viewMode = ref('grid');
     const sortOption = ref('date-desc');
     const selectedArticle = ref<Article | null>(null);
-    
+
     // Flag für Artikel-Leseansicht
     const articleReaderMode = ref(false);
-    
+
     // Artikeldaten (später durch API ersetzen)
     const articles = ref<Article[]>([
       {
@@ -343,60 +349,60 @@ export default defineComponent({
         }
       }
     ]);
-    
+
     // Gefilterte Artikel basierend auf Tab, Suche und Tags
     const filteredArticles = computed(() => {
       let result = [...articles.value];
-      
+
       // Nach Tab filtern
       if (activeTab.value !== 'all') {
         result = result.filter(article => article.status === activeTab.value);
       }
-      
+
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(article => 
-          article.title.toLowerCase().includes(query) || 
+        result = result.filter(article =>
+          article.title.toLowerCase().includes(query) ||
           article.content.toLowerCase().includes(query) ||
           article.preview.toLowerCase().includes(query) ||
           (article.tags && article.tags.some(tag => tag.toLowerCase().includes(query)))
         );
       }
-      
+
       // Nach Tags filtern
       if (filterTags.value.length > 0) {
-        result = result.filter(article => 
-          article.tags && filterTags.value.some(tag => 
+        result = result.filter(article =>
+          article.tags && filterTags.value.some(tag =>
             article.tags!.some(articleTag => articleTag.toLowerCase() === tag.toLowerCase())
           )
         );
       }
-      
+
       // Sortieren
       result = sortArticles(result);
-      
+
       return result;
     });
-    
+
     // Artikel sortieren
     const sortArticles = (articlesToSort: Article[]) => {
       const sorted = [...articlesToSort];
-      
+
       switch (sortOption.value) {
         case 'date-desc':
           return sorted.sort((a, b) => {
             if (!a.date) return 1;
             if (!b.date) return -1;
-            return new Date(b.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(a.date.split('.').reverse().join('-')).getTime();
+            return new Date(b.date.split('.').reverse().join('-')).getTime() -
+              new Date(a.date.split('.').reverse().join('-')).getTime();
           });
         case 'date-asc':
           return sorted.sort((a, b) => {
             if (!a.date) return -1;
             if (!b.date) return 1;
-            return new Date(a.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(b.date.split('.').reverse().join('-')).getTime();
+            return new Date(a.date.split('.').reverse().join('-')).getTime() -
+              new Date(b.date.split('.').reverse().join('-')).getTime();
           });
         case 'title-asc':
           return sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -406,7 +412,7 @@ export default defineComponent({
           return sorted;
       }
     };
-    
+
     // Anzahl der Artikel nach Status
     const getArticleCount = (tabId: string) => {
       if (tabId === 'all') {
@@ -414,56 +420,56 @@ export default defineComponent({
       }
       return articles.value.filter(article => article.status === tabId).length;
     };
-    
+
     // Ansichtsmodus umschalten
     const switchViewMode = (mode: string) => {
       viewMode.value = mode;
       // Speichere Benutzereinstellung lokal
       localStorage.setItem('articleViewMode', mode);
     };
-    
+
     // Artikel in Reader-Modus öffnen
     const openArticleReader = (article: Article) => {
       selectedArticle.value = article;
       articleReaderMode.value = true;
     };
-    
+
     // Reader-Modus schließen
     const closeArticleReader = () => {
       articleReaderMode.value = false;
       selectedArticle.value = null;
     };
-    
+
     // Lesezeichen-Status umschalten
     const toggleBookmark = (article: Article) => {
-      article.status = article.status === 'bookmarked' 
-        ? (article.currentChapter === article.totalChapters ? 'completed' : 'reading') 
+      article.status = article.status === 'bookmarked'
+        ? (article.currentChapter === article.totalChapters ? 'completed' : 'reading')
         : 'bookmarked';
     };
-    
+
     // Suche und Filter
     const filterArticles = () => {
       // Filtert Artikel nach aktuellem Suchbegriff
     };
-    
+
     // Filter-Tag hinzufügen
     const addFilterTag = (tag: string) => {
       if (!filterTags.value.includes(tag)) {
         filterTags.value.push(tag);
       }
     };
-    
+
     // Filter-Tag entfernen
     const removeFilterTag = (index: number) => {
       filterTags.value.splice(index, 1);
     };
-    
+
     // Alle Filter zurücksetzen
     const clearFilters = () => {
       filterTags.value = [];
       searchQuery.value = '';
     };
-    
+
     return {
       tabs,
       activeTab,
@@ -500,25 +506,41 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
-  
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 map.get(vars.$spacing, m);
+
+  @media (max-width: 768px) {
+    padding: 0 map.get(vars.$spacing, s);
+  }
+
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
-      
+
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), xl);
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      
+
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
@@ -526,29 +548,29 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Suchleiste
   .search-section {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .search-container {
       position: relative;
       width: 100%;
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       input {
         width: 100%;
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
           }
         }
       }
-      
+
       .search-button {
         position: absolute;
         right: 10px;
@@ -558,7 +580,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         font-size: 1.2rem;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -566,29 +588,29 @@ export default defineComponent({
         }
       }
     }
-    
+
     // Filter-Tags
     .active-filters {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: map.get(vars.$spacing, s);
-      
+
       .filter-label {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       .filter-tags {
         display: flex;
         flex-wrap: wrap;
         gap: map.get(vars.$spacing, xs);
-        
+
         .filter-tag {
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           padding: 4px 12px;
@@ -597,34 +619,34 @@ export default defineComponent({
           display: flex;
           align-items: center;
           gap: 6px;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-teal);
               color: white;
-              
+
               &:hover {
                 background-color: mixins.theme-color($theme, accent-green);
               }
             }
           }
-          
+
           .remove-tag {
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
           }
         }
       }
-      
+
       .clear-filters {
         background: none;
         border: none;
         cursor: pointer;
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
-            
+
             &:hover {
               color: mixins.theme-color($theme, accent-green);
               text-decoration: underline;
@@ -634,14 +656,18 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Tabs für Artikelgruppen
   .articles-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: map.get(vars.$spacing, s);
     margin-bottom: map.get(vars.$spacing, l);
-    
+
+    @media (max-width: 576px) {
+      gap: map.get(vars.$spacing, xs);
+    }
+
     .tab-button {
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -650,30 +676,40 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s;
       border: none;
-      
+
+      @media (max-width: 576px) {
+        padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+        font-size: 12px;
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
-          
+
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
           }
-          
+
           &.active {
             background: mixins.theme-gradient($theme, primary);
             color: white;
           }
         }
       }
-      
+
       .count {
         display: inline-block;
         margin-left: 5px;
         padding: 2px 6px;
         border-radius: 50%;
         font-size: 0.8rem;
-        
+
+        @media (max-width: 576px) {
+          font-size: 0.7rem;
+          padding: 1px 4px;
+        }
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: rgba(255, 255, 255, 0.2);
@@ -682,43 +718,58 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Artikelliste
   .article-list {
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     .view-options {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: map.get(vars.$spacing, m);
-      
+
+      @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: map.get(vars.$spacing, s);
+      }
+
       .sort-by {
         display: flex;
         align-items: center;
         gap: map.get(vars.$spacing, s);
-        
+
+        @media (max-width: 576px) {
+          width: 100%;
+        }
+
         label {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+          white-space: nowrap;
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
-        
+
         select {
           padding: 6px 12px;
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
+          @media (max-width: 576px) {
+            flex: 1;
+          }
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
               border: 1px solid mixins.theme-color($theme, border-light);
-              
+
               &:focus {
                 border-color: mixins.theme-color($theme, accent-teal);
                 outline: none;
@@ -727,11 +778,15 @@ export default defineComponent({
           }
         }
       }
-      
+
       .view-mode-toggle {
         display: flex;
         gap: map.get(vars.$spacing, xxs);
-        
+
+        @media (max-width: 576px) {
+          align-self: flex-end;
+        }
+
         .view-button {
           width: 36px;
           height: 36px;
@@ -741,16 +796,21 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), small);
           cursor: pointer;
           border: none;
-          
+
+          @media (max-width: 576px) {
+            width: 32px;
+            height: 32px;
+          }
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
-              
+
               &:hover {
                 background-color: mixins.theme-color($theme, hover-color);
               }
-              
+
               &.active {
                 background-color: mixins.theme-color($theme, accent-green);
                 color: white;
@@ -760,23 +820,42 @@ export default defineComponent({
         }
       }
     }
-    
+
+    // Container für die Artikel
     .articles-container {
-      display: grid;
-      gap: map.get(vars.$spacing, l);
-      
+      position: relative;
+
+      // Rasteransicht
       &.grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        
-        @media (max-width: 576px) {
-          grid-template-columns: 1fr;
+        .grid-view {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: map.get(vars.$spacing, l);
+
+          @media (max-width: 992px) {
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+          }
+
+          @media (max-width: 768px) {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          }
+
+          @media (max-width: 576px) {
+            grid-template-columns: 1fr;
+          }
         }
       }
-      
+
+      // Listenansicht
       &.list {
-        grid-template-columns: 1fr;
+        .list-view {
+          display: flex;
+          flex-direction: column;
+          gap: map.get(vars.$spacing, m);
+        }
       }
-      
+
+      // Artikelkarte für Rasteransicht
       .article-card {
         position: relative;
         padding: map.get(vars.$spacing, l);
@@ -785,12 +864,16 @@ export default defineComponent({
         transition: all 0.3s;
         display: flex;
         flex-direction: column;
-        
+
+        @media (max-width: 768px) {
+          padding: map.get(vars.$spacing, m);
+        }
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+
             &:hover {
               transform: translateY(-5px);
               @include mixins.shadow('medium', $theme);
@@ -798,7 +881,7 @@ export default defineComponent({
             }
           }
         }
-        
+
         .card-label {
           position: absolute;
           top: 15px;
@@ -807,7 +890,14 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          
+
+          @media (max-width: 768px) {
+            top: 10px;
+            right: 10px;
+            padding: 3px 10px;
+            font-size: 11px;
+          }
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
@@ -815,21 +905,27 @@ export default defineComponent({
             }
           }
         }
-        
+
         .card-title {
           margin-top: map.get(vars.$spacing, s);
           margin-bottom: map.get(vars.$spacing, m);
           font-size: map.get(map.get(vars.$fonts, sizes), large);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
           padding-right: 80px; // Platz für das Label
-          
+
+          @media (max-width: 768px) {
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            padding-right: 70px;
+            margin-bottom: map.get(vars.$spacing, s);
+          }
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
           }
         }
-        
+
         .card-preview {
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           margin-bottom: map.get(vars.$spacing, m);
@@ -839,33 +935,47 @@ export default defineComponent({
           -webkit-box-orient: vertical;
           overflow: hidden;
           flex-grow: 1;
-          
+
+          @media (max-width: 768px) {
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+          }
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
-        
+
         // Kapitel-Fortschritt
         .chapter-progress {
           margin-bottom: map.get(vars.$spacing, m);
-          
+
+          @media (max-width: 768px) {
+            margin-bottom: map.get(vars.$spacing, s);
+          }
+
           .progress-bar {
             height: 6px;
             border-radius: 3px;
             overflow: hidden;
             margin-bottom: map.get(vars.$spacing, xxs);
-            
+
+            @media (max-width: 768px) {
+              height: 4px;
+            }
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, border-light);
               }
             }
-            
+
             .progress-fill {
               height: 100%;
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
@@ -873,22 +983,26 @@ export default defineComponent({
               }
             }
           }
-          
+
           .progress-text {
             display: flex;
             justify-content: space-between;
             font-size: map.get(map.get(vars.$fonts, sizes), small);
-            
+
+            @media (max-width: 768px) {
+              font-size: 11px;
+            }
+
             .chapter-info {
               font-weight: map.get(map.get(vars.$fonts, weights), medium);
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   color: mixins.theme-color($theme, accent-green);
                 }
               }
             }
-            
+
             .last-read {
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
@@ -898,39 +1012,49 @@ export default defineComponent({
             }
           }
         }
-        
+
         .card-meta {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: map.get(vars.$spacing, m);
-          
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: map.get(vars.$spacing, xs);
+          }
+
           .card-date {
             font-size: map.get(map.get(vars.$fonts, sizes), small);
-            
+
+            @media (max-width: 768px) {
+              font-size: 11px;
+            }
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
               }
             }
           }
-          
+
           .card-tags {
             display: flex;
             flex-wrap: wrap;
             gap: map.get(vars.$spacing, xs);
-            
+
             .card-tag {
               padding: 2px 8px;
               border-radius: map.get(map.get(vars.$layout, border-radius), pill);
               font-size: 11px;
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
                   color: mixins.theme-color($theme, accent-teal);
                   border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-                  
+
                   &:hover {
                     background-color: mixins.theme-color($theme, accent-teal);
                     color: white;
@@ -940,21 +1064,317 @@ export default defineComponent({
             }
           }
         }
-        
+
         // Aktionsbuttons
         .card-actions {
           display: flex;
           gap: map.get(vars.$spacing, s);
+          height: 40px; // Feste Höhe für die Aktionsleiste
           
           .action-button {
-            flex: 1;
-            padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+            height: 100%; // Volle Höhe nehmen
+            padding: 0 map.get(vars.$spacing, m);
             border-radius: map.get(map.get(vars.$layout, border-radius), medium);
             font-size: map.get(map.get(vars.$fonts, sizes), small);
             font-weight: map.get(map.get(vars.$fonts, weights), medium);
             cursor: pointer;
             transition: all 0.3s;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            @media (max-width: 768px) {
+              padding: 0 map.get(vars.$spacing, s);
+              font-size: 12px;
+            }
+            
+            &.read {
+              flex: 3; // Lese-Button nimmt etwas mehr Platz ein
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background: mixins.theme-gradient($theme, primary);
+                  color: white;
+                  
+                  &:hover {
+                    transform: translateY(-2px);
+                    @include mixins.shadow('small', $theme);
+                  }
+                }
+              }
+            }
+            
+            &.bookmark {
+              flex: 1; // Lesezeichen-Button nimmt weniger Platz ein, aber bleibt proportional
+              min-width: 40px; // Mindestbreite für den Stern
+              
+              @media (max-width: 768px) {
+                min-width: 32px;
+              }
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: transparent;
+                  color: mixins.theme-color($theme, text-primary);
+                  border: 1px solid mixins.theme-color($theme, border-medium);
+                  
+                  &:hover {
+                    background-color: mixins.theme-color($theme, hover-color);
+                  }
+                  
+                  &.active {
+                    background-color: rgba(249, 202, 36, 0.1);
+                    color: #F9CA24;
+                    border-color: #F9CA24;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Artikel-Listenelement für Listenansicht
+      .article-list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: map.get(vars.$spacing, l);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        cursor: pointer;
+        transition: all 0.3s;
+        gap: map.get(vars.$spacing, l);
+
+        @media (max-width: 768px) {
+          padding: map.get(vars.$spacing, m);
+          gap: map.get(vars.$spacing, m);
+        }
+
+        @media (max-width: 576px) {
+          flex-direction: column;
+        }
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, card-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+
+            &:hover {
+              transform: translateY(-3px);
+              @include mixins.shadow('small', $theme);
+              border-color: mixins.theme-color($theme, accent-green);
+            }
+          }
+        }
+
+        .list-item-main {
+          flex: 1;
+          min-width: 0; // Für Textbegrenzung
+
+          .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: map.get(vars.$spacing, s);
+
+            .card-label {
+              padding: 4px 12px;
+              border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+              font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+              @media (max-width: 768px) {
+                padding: 3px 10px;
+                font-size: 11px;
+              }
+
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background: mixins.theme-gradient($theme, primary);
+                  color: white;
+                }
+              }
+            }
+
+            .card-date {
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+              @media (max-width: 768px) {
+                font-size: 11px;
+              }
+
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  color: mixins.theme-color($theme, text-tertiary);
+                }
+              }
+            }
+          }
+
+          .card-title {
+            margin-bottom: map.get(vars.$spacing, s);
+            font-size: map.get(map.get(vars.$fonts, sizes), large);
+            font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+            @media (max-width: 768px) {
+              font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            }
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
+          }
+
+          .card-preview {
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            margin-bottom: map.get(vars.$spacing, m);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+
+            @media (max-width: 768px) {
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+              margin-bottom: map.get(vars.$spacing, s);
+            }
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+
+          // Kapitel-Fortschritt
+          .chapter-progress {
+            margin-bottom: map.get(vars.$spacing, m);
+
+            @media (max-width: 768px) {
+              margin-bottom: map.get(vars.$spacing, s);
+            }
+
+            .progress-bar {
+              height: 6px;
+              border-radius: 3px;
+              overflow: hidden;
+              margin-bottom: map.get(vars.$spacing, xxs);
+
+              @media (max-width: 768px) {
+                height: 4px;
+              }
+
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: mixins.theme-color($theme, border-light);
+                }
+              }
+
+              .progress-fill {
+                height: 100%;
+
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    background: mixins.theme-gradient($theme, primary);
+                  }
+                }
+              }
+            }
+
+            .progress-text {
+              display: flex;
+              justify-content: space-between;
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+              @media (max-width: 768px) {
+                font-size: 11px;
+              }
+
+              .chapter-info {
+                font-weight: map.get(map.get(vars.$fonts, weights), medium);
+
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, accent-green);
+                  }
+                }
+              }
+
+              .last-read {
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-tertiary);
+                  }
+                }
+              }
+            }
+          }
+
+          .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: map.get(vars.$spacing, xs);
+
+            .card-tag {
+              padding: 2px 8px;
+              border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+              font-size: 11px;
+
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+                  color: mixins.theme-color($theme, accent-teal);
+                  border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+
+                  &:hover {
+                    background-color: mixins.theme-color($theme, accent-teal);
+                    color: white;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Aktionsschaltflächen für Listenansicht
+        .list-item-actions {
+          display: flex;
+          flex-direction: column;
+          gap: map.get(vars.$spacing, s);
+          align-self: center;
+          width: 120px; // Feste Breite für die Aktionsleiste in der Listenansicht
+          
+          @media (max-width: 576px) {
+            flex-direction: row;
+            width: 100%;
+            margin-top: map.get(vars.$spacing, s);
+          }
+          
+          .action-button {
+            height: 40px; // Feste Höhe für beide Buttons
+            padding: 0 map.get(vars.$spacing, m);
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            @media (max-width: 768px) {
+              padding: 0 map.get(vars.$spacing, s);
+              font-size: 12px;
+              height: 36px; // Etwas kleiner auf mobilen Geräten
+            }
+            
+            @media (max-width: 576px) {
+              flex: 1;
+            }
             
             &.read {
               @each $theme in ('light', 'dark') {
@@ -971,8 +1391,9 @@ export default defineComponent({
             }
             
             &.bookmark {
-              width: 40px;
-              flex: 0 0 auto;
+              @media (max-width: 576px) {
+                flex: 0 0 40px; // Feste Breite in der mobilen Listenansicht
+              }
               
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
@@ -997,7 +1418,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Leerer Zustand
   .empty-state {
     display: flex;
@@ -1006,47 +1427,71 @@ export default defineComponent({
     justify-content: center;
     padding: map.get(vars.$spacing, xxl);
     text-align: center;
-    
+
+    @media (max-width: 576px) {
+      padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
+    }
+
     .empty-icon {
       font-size: 4rem;
       margin-bottom: map.get(vars.$spacing, l);
       opacity: 0.5;
+
+      @media (max-width: 576px) {
+        font-size: 3rem;
+        margin-bottom: map.get(vars.$spacing, m);
+      }
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
-      
+
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), large);
+        margin-bottom: map.get(vars.$spacing, s);
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
-      
+
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        margin-bottom: map.get(vars.$spacing, m);
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-    
-    .reset-button {
+
+.reset-button {
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       border: none;
       cursor: pointer;
-      
+
+      @media (max-width: 576px) {
+        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+      }
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-          
+
           &:hover {
             transform: translateY(-3px);
             @include mixins.shadow('medium', $theme);
@@ -1055,7 +1500,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Artikel-Leseansicht nimmt den gesamten Bereich ein
   .article-reader-mode {
     width: 100%;

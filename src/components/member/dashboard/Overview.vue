@@ -67,7 +67,6 @@
       <div class="section-container recommendations">
         <div class="section-header">
           <h3>Empfohlen für dich</h3>
-          <button class="view-all-button" @click="goToDiscovery">Alle Empfehlungen</button>
         </div>
         
         <!-- Liste der empfohlenen Artikel -->
@@ -449,6 +448,8 @@ export default defineComponent({
     // Aktivitäten-Sektion
     .recent-activities {
       margin-bottom: map.get(vars.$spacing, l);
+      max-width: 800px;
+      margin: 0 auto;
       
       .article-progress-list {
         display: flex;

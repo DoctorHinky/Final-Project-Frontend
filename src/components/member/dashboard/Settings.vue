@@ -200,14 +200,6 @@
         <h4>Farbschema</h4>
         <div class="theme-selection">
           <label class="theme-option">
-            <input type="radio" name="theme" value="system" v-model="appearanceSettings.theme" />
-            <div class="theme-preview system-theme">
-              <div class="theme-icon">🖥️</div>
-              <div class="theme-label">Systemeinstellung</div>
-            </div>
-          </label>
-
-          <label class="theme-option">
             <input type="radio" name="theme" value="light" v-model="appearanceSettings.theme" />
             <div class="theme-preview light-theme">
               <div class="theme-icon">☀️</div>
@@ -339,7 +331,7 @@
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { authService } from '@/services/auth.service';
-import { userService } from '@/services/user.service'; // Hinzugefügt für API-Aufrufe
+/* import { userService } from '@/services/user.service';  Hinzugefügt für API-Aufrufe */
 
 interface NotificationSetting {
   id: string;
@@ -1061,6 +1053,7 @@ export default defineComponent({
   // Profilformular
   .settings-form {
     max-width: 800px;
+    margin: 0 auto;
 
     .form-row {
       display: grid;
@@ -1529,10 +1522,6 @@ export default defineComponent({
           }
         }
 
-        &.system-theme {
-          background: linear-gradient(to right, #f8fff9 50%, #0F2419 50%);
-        }
-
         &.light-theme {
           background-color: #f8fff9;
         }
@@ -1577,6 +1566,7 @@ export default defineComponent({
       input[type="range"] {
         width: 100%;
         height: 4px;
+        appearance: none;
         -webkit-appearance: none;
         border-radius: 2px;
         margin-bottom: map.get(vars.$spacing, m);

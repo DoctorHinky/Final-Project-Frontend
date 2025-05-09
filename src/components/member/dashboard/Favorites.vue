@@ -5,22 +5,17 @@
       <h2>Meine Favoriten</h2>
       <p>Hier findest du alle Artikel, die du als Favoriten gespeichert hast</p>
     </div>
-    
+
     <!-- Suchleiste -->
     <div class="search-section">
       <div class="search-container">
-        <input 
-          type="text" 
-          placeholder="Favoriten durchsuchen..." 
-          v-model="searchQuery"
-          @input="filterFavorites"
-        />
+        <input type="text" placeholder="Favoriten durchsuchen..." v-model="searchQuery" @input="filterFavorites" />
         <button class="search-button">
           <span class="search-icon">🔍</span>
         </button>
       </div>
     </div>
-    
+
     <!-- Ansichtsoptionen -->
     <div class="view-options">
       <div class="sort-by">
@@ -33,50 +28,62 @@
         </select>
       </div>
       <div class="view-mode-toggle">
-        <button 
-          class="view-button" 
-          :class="{ active: viewMode === 'grid' }" 
-          @click="viewMode = 'grid'"
-          title="Rasteransicht"
-        >
+        <button class="view-button" :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'"
+          title="Rasteransicht">
           ■ ■
         </button>
-        <button 
-          class="view-button" 
-          :class="{ active: viewMode === 'list' }" 
-          @click="viewMode = 'list'"
-          title="Listenansicht"
-        >
+        <button class="view-button" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'"
+          title="Listenansicht">
           ≡
         </button>
       </div>
     </div>
-    
-    <!-- Favoriten-Liste -->
-    <div v-if="filteredFavorites.length > 0" class="favorites-list" :class="viewMode">
-      <div 
-        v-for="favorite in filteredFavorites" 
-        :key="favorite.id" 
-        class="favorite-card"
-        :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }"
-        @click="selectFavorite(favorite)"
-      >
-        <div class="favorite-category">{{ favorite.category }}</div>
-        <div class="favorite-content">
-          <h3>{{ favorite.title }}</h3>
-          <p class="favorite-excerpt">{{ favorite.preview }}</p>
-          <div class="favorite-meta">
-            <span class="favorite-date">{{ favorite.date }}</span>
-            <span class="favorite-author">{{ favorite.author }}</span>
+
+    <!-- Favoriten-Anzeige -->
+    <div v-if="filteredFavorites.length > 0" :class="['favorites-container', viewMode]">
+      <!-- Grid-Ansicht -->
+      <div v-if="viewMode === 'grid'" class="grid-view">
+        <div v-for="favorite in filteredFavorites" :key="favorite.id" class="favorite-card"
+          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }" @click="selectFavorite(favorite)">
+          <div class="favorite-category">{{ favorite.category }}</div>
+          <div class="favorite-content">
+            <h3>{{ favorite.title }}</h3>
+            <p class="favorite-excerpt">{{ favorite.preview }}</p>
+            <div class="favorite-meta">
+              <span class="favorite-date">{{ favorite.date }}</span>
+              <span class="favorite-author">{{ favorite.author }}</span>
+            </div>
+          </div>
+          <div class="favorite-actions">
+            <button class="action-button read" @click.stop="readFavorite(favorite)">Lesen</button>
+            <button class="action-button remove" @click.stop="confirmRemoveFavorite(favorite)">Entfernen</button>
           </div>
         </div>
-        <div class="favorite-actions">
-          <button class="action-button read" @click.stop="readFavorite(favorite)">Lesen</button>
-          <button class="action-button remove" @click.stop="confirmRemoveFavorite(favorite)">Entfernen</button>
+      </div>
+
+      <!-- Listen-Ansicht -->
+      <div v-else-if="viewMode === 'list'" class="list-view">
+        <div v-for="favorite in filteredFavorites" :key="favorite.id" class="favorite-list-item"
+          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }" @click="selectFavorite(favorite)">
+          <div class="favorite-list-main">
+            <div class="favorite-list-header">
+              <div class="favorite-category">{{ favorite.category }}</div>
+              <div class="favorite-meta">
+                <span class="favorite-date">{{ favorite.date }}</span>
+                <span class="favorite-author">{{ favorite.author }}</span>
+              </div>
+            </div>
+            <h3 class="favorite-title">{{ favorite.title }}</h3>
+            <p class="favorite-excerpt">{{ favorite.preview }}</p>
+          </div>
+          <div class="favorite-list-actions">
+            <button class="action-button read" @click.stop="readFavorite(favorite)">Lesen</button>
+            <button class="action-button remove" @click.stop="confirmRemoveFavorite(favorite)">Entfernen</button>
+          </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Leerer Zustand -->
     <div v-else class="empty-state">
       <div class="empty-icon">⭐</div>
@@ -85,7 +92,7 @@
       <button v-if="searchQuery" @click="clearSearch" class="reset-button">Suche zurücksetzen</button>
       <button v-else @click="browseArticles" class="reset-button">Artikel durchstöbern</button>
     </div>
-    
+
     <!-- Bestätigungsdialog -->
     <div v-if="showConfirmDialog" class="confirm-dialog-backdrop" @click="cancelRemove">
       <div class="confirm-dialog" @click.stop>
@@ -122,7 +129,7 @@ export default defineComponent({
     const selectedFavorite = ref<Favorite | null>(null);
     const showConfirmDialog = ref(false);
     const favoriteToRemove = ref<Favorite | null>(null);
-    
+
     // Beispiel-Favoriten (später durch API-Daten ersetzen)
     const favorites = ref<Favorite[]>([
       {
@@ -158,33 +165,33 @@ export default defineComponent({
         date: "25.03.2025"
       }
     ]);
-    
+
     // Gefilterte und sortierte Favoriten
     const filteredFavorites = computed(() => {
       let result = [...favorites.value];
-      
+
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(favorite => 
-          favorite.title.toLowerCase().includes(query) || 
+        result = result.filter(favorite =>
+          favorite.title.toLowerCase().includes(query) ||
           favorite.preview.toLowerCase().includes(query) ||
           favorite.category.toLowerCase().includes(query) ||
           favorite.author.toLowerCase().includes(query)
         );
       }
-      
+
       // Sortieren
       switch (sortOption.value) {
         case 'date-desc':
           return result.sort((a, b) => {
-            return new Date(b.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(a.date.split('.').reverse().join('-')).getTime();
+            return new Date(b.date.split('.').reverse().join('-')).getTime() -
+              new Date(a.date.split('.').reverse().join('-')).getTime();
           });
         case 'date-asc':
           return result.sort((a, b) => {
-            return new Date(a.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(b.date.split('.').reverse().join('-')).getTime();
+            return new Date(a.date.split('.').reverse().join('-')).getTime() -
+              new Date(b.date.split('.').reverse().join('-')).getTime();
           });
         case 'title-asc':
           return result.sort((a, b) => a.title.localeCompare(b.title));
@@ -194,46 +201,46 @@ export default defineComponent({
           return result;
       }
     });
-    
+
     // Such-Handler
     const filterFavorites = () => {
       selectedFavorite.value = null;
     };
-    
+
     // Suche zurücksetzen
     const clearSearch = () => {
       searchQuery.value = '';
     };
-    
+
     // Zu Artikeln navigieren (Platzhalter)
     const browseArticles = () => {
       console.log('Navigiere zu allen Artikeln');
       // Später mit Router-Navigation ersetzen
     };
-    
+
     // Favorit auswählen
     const selectFavorite = (favorite: Favorite) => {
       selectedFavorite.value = selectedFavorite.value?.id === favorite.id ? null : favorite;
     };
-    
+
     // Favorit lesen
     const readFavorite = (favorite: Favorite) => {
       console.log('Favorit lesen:', favorite.title);
       // Später mit Artikelansicht-Navigation ersetzen
     };
-    
+
     // Entfernen-Dialog anzeigen
     const confirmRemoveFavorite = (favorite: Favorite) => {
       favoriteToRemove.value = favorite;
       showConfirmDialog.value = true;
     };
-    
+
     // Entfernen abbrechen
     const cancelRemove = () => {
       showConfirmDialog.value = false;
       favoriteToRemove.value = null;
     };
-    
+
     // Favorit entfernen
     const removeFavorite = () => {
       if (favoriteToRemove.value) {
@@ -241,16 +248,16 @@ export default defineComponent({
         if (index !== -1) {
           favorites.value.splice(index, 1);
         }
-        
+
         if (selectedFavorite.value?.id === favoriteToRemove.value.id) {
           selectedFavorite.value = null;
         }
       }
-      
+
       showConfirmDialog.value = false;
       favoriteToRemove.value = null;
     };
-    
+
     return {
       searchQuery,
       sortOption,
@@ -285,25 +292,25 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
-  
+
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
@@ -311,28 +318,28 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Suchleiste
   .search-section {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .search-container {
       position: relative;
       width: 100%;
-      
+
       input {
         width: 100%;
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
           }
         }
       }
-      
+
       .search-button {
         position: absolute;
         right: 10px;
@@ -342,7 +349,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         font-size: 1.2rem;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -351,40 +358,40 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Ansichtsoptionen
   .view-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .sort-by {
       display: flex;
       align-items: center;
       gap: map.get(vars.$spacing, s);
-      
+
       label {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       select {
         padding: 6px 12px;
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+
             &:focus {
               border-color: mixins.theme-color($theme, accent-teal);
               outline: none;
@@ -393,11 +400,11 @@ export default defineComponent({
         }
       }
     }
-    
+
     .view-mode-toggle {
       display: flex;
       gap: map.get(vars.$spacing, xxs);
-      
+
       .view-button {
         width: 36px;
         height: 36px;
@@ -407,16 +414,16 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), small);
         cursor: pointer;
         border: none;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
-            
+
             &:hover {
               background-color: mixins.theme-color($theme, hover-color);
             }
-            
+
             &.active {
               background-color: mixins.theme-color($theme, accent-green);
               color: white;
@@ -426,103 +433,49 @@ export default defineComponent({
       }
     }
   }
-  
-  // Favoriten-Liste
-  .favorites-list {
-    display: grid;
-    gap: map.get(vars.$spacing, l);
-    
+
+  // Favoriten-Container
+  .favorites-container {
+    // Rasteransicht
     &.grid {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-      }
-      
-      .favorite-card {
-        flex-direction: column;
-        
-        .favorite-category {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-        }
-        
-        .favorite-content {
-          margin-top: map.get(vars.$spacing, xl);
-        }
-        
-        .favorite-actions {
-          margin-top: map.get(vars.$spacing, l);
-          flex-direction: row;
-          justify-content: flex-end;
-        }
-      }
-    }
-    
-    &.list {
-      grid-template-columns: 1fr;
-      
-      .favorite-card {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
+      .grid-view {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: map.get(vars.$spacing, l);
-        
-        @media (max-width: 768px) {
-          grid-template-columns: 1fr;
-        }
-        
-        .favorite-category {
-          grid-row: span 2;
-          
-          @media (max-width: 768px) {
-            grid-row: 1;
-            justify-self: flex-start;
-            margin-bottom: map.get(vars.$spacing, s);
-          }
-        }
-        
-        .favorite-content {
-          min-width: 0; // Für Textbegrenzung
-          
-          h3 {
-            margin-top: 0;
-          }
-        }
-        
-        .favorite-actions {
-          grid-row: span 2;
-          flex-direction: column;
-          
-          @media (max-width: 768px) {
-            grid-row: 3;
-            flex-direction: row;
-            justify-content: flex-end;
-            margin-top: map.get(vars.$spacing, m);
-          }
-        }
       }
     }
-    
+
+    // Listenansicht
+    &.list {
+      .list-view {
+        display: flex;
+        flex-direction: column;
+        gap: map.get(vars.$spacing, m);
+      }
+    }
+
+    // Gemeinsame Karten-Stile für Rasteransicht
     .favorite-card {
       position: relative;
       display: flex;
+      flex-direction: column;
       padding: map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s;
-      
+      width: 500px;
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
-          
+
           &:hover {
             transform: translateY(-5px);
             @include mixins.shadow('medium', $theme);
             border-color: mixins.theme-color($theme, accent-green);
           }
-          
+
           &.active {
             border-color: mixins.theme-color($theme, accent-green);
             border-width: 2px;
@@ -530,13 +483,14 @@ export default defineComponent({
           }
         }
       }
-      
+
       .favorite-category {
+        align-self: flex-start;
         padding: 4px 12px;
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
@@ -544,111 +498,225 @@ export default defineComponent({
           }
         }
       }
-      
+
       .favorite-content {
+        margin-top: map.get(vars.$spacing, m);
         flex: 1;
-        min-width: 0; // Für Textbegrenzung
-        
+
         h3 {
-          margin-top: map.get(vars.$spacing, m);
+          margin-top: map.get(vars.$spacing, xs);
           margin-bottom: map.get(vars.$spacing, s);
           font-size: map.get(map.get(vars.$fonts, sizes), large);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
           }
-          
-          // In Listenansicht keine Begrenzung
-          .grid & {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
         }
-        
+
         .favorite-excerpt {
           margin-bottom: map.get(vars.$spacing, m);
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
-          
-          // Textbegrenzung
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
-        
+
         .favorite-meta {
           display: flex;
           justify-content: space-between;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
           }
-          
+
           .favorite-author {
             font-weight: map.get(map.get(vars.$fonts, weights), medium);
           }
         }
       }
-      
+
       .favorite-actions {
         display: flex;
         gap: map.get(vars.$spacing, s);
-        
-        .action-button {
-          padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
-          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
-          font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          cursor: pointer;
-          transition: all 0.2s;
-          border: none;
-          
-          &.read {
+        margin-top: map.get(vars.$spacing, m);
+        justify-content: flex-end;
+      }
+    }
+
+    // Listenelement-Stile
+    .favorite-list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      cursor: pointer;
+      transition: all 0.3s;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          border: 1px solid mixins.theme-color($theme, border-light);
+
+          &:hover {
+            transform: translateY(-3px);
+            @include mixins.shadow('small', $theme);
+            border-color: mixins.theme-color($theme, accent-green);
+          }
+
+          &.active {
+            border-color: mixins.theme-color($theme, accent-green);
+            border-width: 2px;
+            @include mixins.shadow('small', $theme);
+          }
+        }
+      }
+
+      .favorite-list-main {
+        flex: 1;
+        padding-right: map.get(vars.$spacing, l);
+
+        .favorite-list-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: map.get(vars.$spacing, s);
+
+          .favorite-category {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;
-                
-                &:hover {
-                  transform: translateY(-2px);
-                  @include mixins.shadow('small', $theme);
-                }
               }
             }
           }
-          
-          &.remove {
+
+          .favorite-meta {
+            display: flex;
+            gap: map.get(vars.$spacing, m);
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background-color: transparent;
-                color: #ff6b6b;
-                border: 1px solid rgba(255, 107, 107, 0.3);
-                
-                &:hover {
-                  background-color: rgba(255, 107, 107, 0.1);
-                  border-color: rgba(255, 107, 107, 0.5);
-                }
+                color: mixins.theme-color($theme, text-tertiary);
               }
+            }
+
+            .favorite-author {
+              font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            }
+          }
+        }
+
+        .favorite-title {
+          margin-bottom: map.get(vars.$spacing, s);
+          font-size: map.get(map.get(vars.$fonts, sizes), large);
+          font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+
+        .favorite-excerpt {
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
+          }
+        }
+      }
+
+      .favorite-list-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: map.get(vars.$spacing, s);
+      }
+
+      // Responsive-Anpassungen für die Listenansicht
+      @media (max-width: 768px) {
+        flex-direction: column;
+
+        .favorite-list-main {
+          padding-right: 0;
+          margin-bottom: map.get(vars.$spacing, m);
+        }
+
+        .favorite-list-actions {
+          flex-direction: row;
+          justify-content: flex-start;
+        }
+      }
+    }
+
+    // Gemeinsame Stile für Aktionsschaltflächen
+    .action-button {
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+
+      &.read {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: mixins.theme-gradient($theme, primary);
+            color: white;
+
+            &:hover {
+              transform: translateY(-2px);
+              @include mixins.shadow('small', $theme);
+            }
+          }
+        }
+      }
+
+      &.remove {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: transparent;
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+
+            &:hover {
+              background-color: rgba(255, 107, 107, 0.1);
+              border-color: rgba(255, 107, 107, 0.5);
             }
           }
         }
       }
     }
   }
-  
+
   // Leerer Zustand
   .empty-state {
     display: flex;
@@ -657,48 +725,48 @@ export default defineComponent({
     justify-content: center;
     padding: map.get(vars.$spacing, xxl);
     text-align: center;
-    
+
     .empty-icon {
       font-size: 4rem;
       margin-bottom: map.get(vars.$spacing, l);
       opacity: 0.5;
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
       max-width: 500px;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-    
+
     .reset-button {
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       border: none;
       cursor: pointer;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-          
+
           &:hover {
             transform: translateY(-3px);
             @include mixins.shadow('medium', $theme);
@@ -707,7 +775,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Bestätigungsdialog
   .confirm-dialog-backdrop {
     position: fixed;
@@ -720,54 +788,54 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    
+
     .confirm-dialog {
       width: 100%;
       max-width: 400px;
       padding: map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), large);
       @include animations.fade-in(0.3s);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           @include mixins.shadow('large', $theme);
         }
       }
-      
+
       h3 {
         font-size: map.get(map.get(vars.$fonts, sizes), large);
         margin-bottom: map.get(vars.$spacing, m);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
       }
-      
+
       p {
         margin-bottom: map.get(vars.$spacing, l);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       .dialog-actions {
         display: flex;
         justify-content: flex-end;
         gap: map.get(vars.$spacing, m);
-        
+
         button {
           padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           cursor: pointer;
           border: none;
-          
+
           &.cancel-button {
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -777,13 +845,13 @@ export default defineComponent({
               }
             }
           }
-          
+
           &.confirm-button {
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: #ff6b6b;
                 color: white;
-                
+
                 &:hover {
                   background-color: color.adjust(#ff6b6b, $lightness: -10%);
                 }

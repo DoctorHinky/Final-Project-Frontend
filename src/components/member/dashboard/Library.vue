@@ -96,51 +96,110 @@
     
     <!-- Artikel-Anzeige -->
     <div class="articles-section">
-      <div v-if="filteredArticles.length > 0" class="articles-container" :class="viewMode">
-        <div 
-          v-for="article in filteredArticles" 
-          :key="article.id" 
-          class="article-card"
-          @click="openArticle(article)"
-        >
-          <div class="article-label">{{ article.category }}</div>
-          <h3 class="article-title">{{ article.title }}</h3>
-          <p class="article-preview">{{ article.preview }}</p>
-          
-          <div class="article-meta">
-            <span class="article-author">{{ article.author }}</span>
-            <span class="article-date">{{ article.date }}</span>
+      <div v-if="filteredArticles.length > 0" :class="['articles-container', viewMode]">
+        <!-- Grid-Ansicht -->
+        <div v-if="viewMode === 'grid'" class="grid-view">
+          <div 
+            v-for="article in filteredArticles" 
+            :key="article.id" 
+            class="article-card"
+            @click="openArticle(article)"
+          >
+            <div class="article-label">{{ article.category }}</div>
+            <h3 class="article-title">{{ article.title }}</h3>
+            <p class="article-preview">{{ article.preview }}</p>
+            
+            <div class="article-meta">
+              <span class="article-author">{{ article.author }}</span>
+              <span class="article-date">{{ article.date }}</span>
+            </div>
+            
+            <div class="article-tags">
+              <span 
+                v-for="(tag, idx) in article.tags" 
+                :key="idx" 
+                class="article-tag"
+                @click.stop="addTag(tag)"
+              >
+                {{ tag }}
+              </span>
+            </div>
+            
+            <div class="article-meta-bottom">
+              <span class="read-time">{{ article.readTime || '10 min' }} Lesezeit</span>
+              <span class="difficulty" :class="article.difficulty || 'medium'">
+                {{ getDifficultyText(article.difficulty) }}
+              </span>
+            </div>
+            
+            <div class="article-actions">
+              <button class="action-button read" @click.stop="openArticle(article)">
+                Lesen
+              </button>
+              <button 
+                class="action-button bookmark" 
+                :class="{ active: article.bookmarked }"
+                @click.stop="toggleBookmark(article)"
+              >
+                {{ article.bookmarked ? '★' : '☆' }}
+              </button>
+            </div>
           </div>
-          
-          <div class="article-tags">
-            <span 
-              v-for="(tag, idx) in article.tags" 
-              :key="idx" 
-              class="article-tag"
-              @click.stop="addTag(tag)"
-            >
-              {{ tag }}
-            </span>
-          </div>
-          
-          <div class="article-meta-bottom">
-            <span class="read-time">{{ article.readTime || '10 min' }} Lesezeit</span>
-            <span class="difficulty" :class="article.difficulty || 'medium'">
-              {{ getDifficultyText(article.difficulty) }}
-            </span>
-          </div>
-          
-          <div class="article-actions">
-            <button class="action-button read" @click.stop="openArticle(article)">
-              Lesen
-            </button>
-            <button 
-              class="action-button bookmark" 
-              :class="{ active: article.bookmarked }"
-              @click.stop="toggleBookmark(article)"
-            >
-              {{ article.bookmarked ? '★' : '☆' }}
-            </button>
+        </div>
+        
+        <!-- Listen-Ansicht -->
+        <div v-else-if="viewMode === 'list'" class="list-view">
+          <div 
+            v-for="article in filteredArticles" 
+            :key="article.id" 
+            class="article-list-item"
+            @click="openArticle(article)"
+          >
+            <div class="article-list-main">
+              <div class="article-list-header">
+                <div class="article-label">{{ article.category }}</div>
+                <div class="article-meta">
+                  <span class="article-author">{{ article.author }}</span>
+                  <span class="article-date">{{ article.date }}</span>
+                </div>
+              </div>
+              
+              <h3 class="article-title">{{ article.title }}</h3>
+              <p class="article-preview">{{ article.preview }}</p>
+              
+              <div class="article-list-footer">
+                <div class="article-tags">
+                  <span 
+                    v-for="(tag, idx) in article.tags" 
+                    :key="idx" 
+                    class="article-tag"
+                    @click.stop="addTag(tag)"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+                
+                <div class="article-meta-bottom">
+                  <span class="read-time">{{ article.readTime || '10 min' }} Lesezeit</span>
+                  <span class="difficulty" :class="article.difficulty || 'medium'">
+                    {{ getDifficultyText(article.difficulty) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="article-list-actions">
+              <button class="action-button read" @click.stop="openArticle(article)">
+                Lesen
+              </button>
+              <button 
+                class="action-button bookmark" 
+                :class="{ active: article.bookmarked }"
+                @click.stop="toggleBookmark(article)"
+              >
+                {{ article.bookmarked ? '★' : '☆' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -925,64 +984,26 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, xl);
     
     .articles-container {
-      display: grid;
-      gap: map.get(vars.$spacing, l);
-      
       &.grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        
-        @media (max-width: 768px) {
-          grid-template-columns: 1fr;
+        .grid-view {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: map.get(vars.$spacing, l);
         }
       }
       
       &.list {
-        grid-template-columns: 1fr;
-        
-        .article-card {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          grid-template-areas: 
-            "header actions"
-            "content actions"
-            "meta actions";
-          
-          .article-label {
-            grid-area: header;
-          }
-          
-          .article-title {
-            grid-area: header;
-            margin-top: map.get(vars.$spacing, m);
-          }
-          
-          .article-preview, .article-tags, .article-meta, .article-meta-bottom {
-            grid-area: content;
-          }
-          
-          .article-actions {
-            grid-area: actions;
-            flex-direction: column;
-            height: 100%;
-            justify-content: center;
-          }
-          
-          @media (max-width: 768px) {
-            grid-template-columns: 1fr;
-            grid-template-areas: 
-              "header"
-              "content"
-              "actions";
-            
-            .article-actions {
-              flex-direction: row;
-              margin-top: map.get(vars.$spacing, m);
-            }
-          }
+        .list-view {
+          display: flex;
+          flex-direction: column;
+          gap: map.get(vars.$spacing, m);
         }
       }
       
+      // Gemeinsame Kartenstile für Grid-Ansicht
       .article-card {
+        width: 500px;
         position: relative;
         padding: map.get(vars.$spacing, l);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -1035,6 +1056,7 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           display: -webkit-box;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
           
@@ -1146,7 +1168,7 @@ export default defineComponent({
             }
             
             &.bookmark {
-              width: 32px;
+              width: 100px;
               height: 32px;
               padding: 0;
               display: flex;
@@ -1171,6 +1193,233 @@ export default defineComponent({
                 }
               }
             }
+          }
+        }
+      }
+      
+      // Liste-Stile
+      .article-list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: map.get(vars.$spacing, m);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        cursor: pointer;
+        transition: all 0.3s;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, card-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+            
+            &:hover {
+              transform: translateY(-3px);
+              @include mixins.shadow('small', $theme);
+              border-color: mixins.theme-color($theme, accent-green);
+            }
+          }
+        }
+        
+        .article-list-main {
+          flex: 1;
+          padding-right: map.get(vars.$spacing, l);
+          
+          .article-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: map.get(vars.$spacing, s);
+            
+            .article-label {
+              display: inline-block;
+              padding: 4px 10px;
+              border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+              font-weight: map.get(map.get(vars.$fonts, weights), medium);
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background: mixins.theme-gradient($theme, primary);
+                  color: white;
+                }
+              }
+            }
+            
+            .article-meta {
+              display: flex;
+              gap: map.get(vars.$spacing, m);
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  color: mixins.theme-color($theme, text-tertiary);
+                }
+              }
+            }
+          }
+          
+          .article-title {
+            margin-bottom: map.get(vars.$spacing, s);
+            font-size: map.get(map.get(vars.$fonts, sizes), large);
+            font-weight: map.get(map.get(vars.$fonts, weights), bold);
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
+          }
+          
+          .article-preview {
+            margin-bottom: map.get(vars.$spacing, m);
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+          
+          .article-list-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .article-tags {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              
+              .article-tag {
+                padding: 2px 8px;
+                border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+                font-size: 11px;
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+                    color: mixins.theme-color($theme, accent-teal);
+                    border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                    
+                    &:hover {
+                      background-color: mixins.theme-color($theme, accent-teal);
+                      color: white;
+                    }
+                  }
+                }
+              }
+            }
+            
+            .article-meta-bottom {
+              display: flex;
+              gap: map.get(vars.$spacing, m);
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+              
+              .read-time {
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-tertiary);
+                  }
+                }
+              }
+              
+              .difficulty {
+                padding: 2px 8px;
+                border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+                
+                &.easy {
+                  background-color: rgba(74, 210, 149, 0.1);
+                  color: #4AD295;
+                }
+                
+                &.medium {
+                  background-color: rgba(53, 204, 208, 0.1);
+                  color: #35CCD0;
+                }
+                
+                &.hard {
+                  background-color: rgba(155, 225, 93, 0.1);
+                  color: #9BE15D;
+                }
+              }
+            }
+          }
+        }
+        
+        .article-list-actions {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: map.get(vars.$spacing, s);
+          
+          .action-button {
+            padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            cursor: pointer;
+            border: none;
+            
+            &.read {
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background: mixins.theme-gradient($theme, primary);
+                  color: white;
+                  
+                  &:hover {
+                    transform: translateY(-2px);
+                    @include mixins.shadow('small', $theme);
+                  }
+                }
+              }
+            }
+            
+            &.bookmark {
+              width: 90px;
+              height: 32px;
+              padding: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: transparent;
+                  color: mixins.theme-color($theme, text-secondary);
+                  border: 1px solid mixins.theme-color($theme, border-medium);
+                  
+                  &:hover {
+                    background-color: mixins.theme-color($theme, hover-color);
+                  }
+                  
+                  &.active {
+                    background-color: rgba(249, 202, 36, 0.1);
+                    color: #F9CA24;
+                    border-color: #F9CA24;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Responsive-Anpassungen für die Listenansicht auf mobilen Geräten
+        @media (max-width: 768px) {
+          flex-direction: column;
+          
+          .article-list-main {
+            padding-right: 0;
+            margin-bottom: map.get(vars.$spacing, m);
+          }
+          
+          .article-list-actions {
+            flex-direction: row;
+            justify-content: flex-start;
           }
         }
       }

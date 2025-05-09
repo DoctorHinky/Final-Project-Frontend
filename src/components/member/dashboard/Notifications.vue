@@ -27,22 +27,24 @@
     
     <!-- Filter-Optionen -->
     <div class="notification-filters">
-      <div class="filter-buttons">
-        <button 
-          v-for="(filter, index) in filters" 
-          :key="index"
-          class="filter-button"
-          :class="{ active: activeFilter === filter.id }"
-          @click="activeFilter = filter.id"
-        >
-          {{ filter.name }}
-          <span v-if="filter.count > 0" class="filter-count">{{ filter.count }}</span>
-        </button>
-      </div>
-      
-      <div class="action-buttons">
-        <button class="mark-all-read" @click="markAllAsRead" v-if="hasUnread">Alle als gelesen markieren</button>
-        <button class="clear-notifications" @click="clearAllNotifications" v-if="hasNotifications">Alle löschen</button>
+      <div class="filter-toolbar">
+        <div class="filter-buttons">
+          <button 
+            v-for="(filter, index) in filters" 
+            :key="index"
+            class="filter-button"
+            :class="{ active: activeFilter === filter.id }"
+            @click="activeFilter = filter.id"
+          >
+            {{ filter.name }}
+            <span v-if="filter.count > 0" class="filter-count">{{ filter.count }}</span>
+          </button>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="mark-all-read" @click="markAllAsRead" v-if="hasUnread">Alle als gelesen markieren</button>
+          <button class="clear-notifications" @click="clearAllNotifications" v-if="hasNotifications">Alle löschen</button>
+        </div>
       </div>
     </div>
     
@@ -458,6 +460,14 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 map.get(vars.$spacing, m);
+  
+  @media (max-width: 768px) {
+    padding: 0 map.get(vars.$spacing, s);
+  }
   
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);
@@ -466,6 +476,10 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
+      
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), xl);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -476,6 +490,10 @@ export default defineComponent({
     
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -492,12 +510,21 @@ export default defineComponent({
     gap: map.get(vars.$spacing, l);
     margin-bottom: map.get(vars.$spacing, l);
     
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+      gap: map.get(vars.$spacing, m);
+    }
+    
     .stat-card {
       display: flex;
       align-items: center;
       padding: map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s;
+      
+      @media (max-width: 576px) {
+        padding: map.get(vars.$spacing, m);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -520,6 +547,13 @@ export default defineComponent({
         justify-content: center;
         margin-right: map.get(vars.$spacing, m);
         font-size: 1.5rem;
+        
+        @media (max-width: 576px) {
+          width: 40px;
+          height: 40px;
+          font-size: 1.2rem;
+          margin-right: map.get(vars.$spacing, s);
+        }
       }
       
       .stat-info {
@@ -527,6 +561,10 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), xl);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
           margin: 0 0 map.get(vars.$spacing, xxs) 0;
+          
+          @media (max-width: 576px) {
+            font-size: map.get(map.get(vars.$fonts, sizes), large);
+          }
           
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
@@ -551,17 +589,31 @@ export default defineComponent({
   
   // Filter und Aktions-Buttons
   .notification-filters {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: map.get(vars.$spacing, l);
-    flex-wrap: wrap;
-    gap: map.get(vars.$spacing, m);
+    
+    .filter-toolbar {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      gap: map.get(vars.$spacing, m);
+      
+      @media (min-width: 992px) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
     
     .filter-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: map.get(vars.$spacing, s);
+      width: 100%;
+      justify-content: center;
+      
+      @media (max-width: 576px) {
+        gap: map.get(vars.$spacing, xs);
+      }
       
       .filter-button {
         padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
@@ -574,6 +626,11 @@ export default defineComponent({
         display: flex;
         align-items: center;
         gap: map.get(vars.$spacing, xs);
+        
+        @media (max-width: 576px) {
+          padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+          font-size: 12px;
+        }
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -601,6 +658,13 @@ export default defineComponent({
           font-size: 0.8rem;
           padding: 0 6px;
           
+          @media (max-width: 576px) {
+            min-width: 16px;
+            height: 16px;
+            font-size: 0.7rem;
+            padding: 0 4px;
+          }
+          
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: rgba(255, 255, 255, 0.2);
@@ -612,7 +676,18 @@ export default defineComponent({
     
     .action-buttons {
       display: flex;
+      flex-wrap: wrap;
       gap: map.get(vars.$spacing, s);
+      justify-content: center;
+      width: 100%;
+      
+      @media (max-width: 576px) {
+        width: 100%;
+        
+        button {
+          flex: 1;
+        }
+      }
       
       button {
         padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
@@ -620,6 +695,13 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         cursor: pointer;
         border: none;
+        white-space: nowrap;
+        
+        @media (max-width: 576px) {
+          font-size: 12px;
+          text-align: center;
+          padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+        }
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -659,6 +741,9 @@ export default defineComponent({
   // Benachrichtigungsliste
   .notifications-list {
     margin-bottom: map.get(vars.$spacing, xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     
     .notification-item {
       display: flex;
@@ -668,6 +753,19 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       position: relative;
       transition: all 0.3s;
+      width: 100%;
+      max-width: 800px;
+      
+      @media (max-width: 768px) {
+        padding: map.get(vars.$spacing, m);
+        gap: map.get(vars.$spacing, s);
+      }
+      
+      @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: map.get(vars.$spacing, s);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -676,6 +774,12 @@ export default defineComponent({
           
           &.unread {
             border-left: 4px solid mixins.theme-color($theme, accent-green);
+            
+            @media (max-width: 576px) {
+              border-left-width: 1px;
+              border-top: 4px solid mixins.theme-color($theme, accent-green);
+            }
+            
             background-color: rgba(mixins.theme-color($theme, accent-green), 0.05);
           }
           
@@ -694,6 +798,16 @@ export default defineComponent({
         justify-content: center;
         font-size: 1.5rem;
         flex-shrink: 0;
+        
+        @media (max-width: 768px) {
+          width: 40px;
+          height: 40px;
+          font-size: 1.2rem;
+        }
+        
+        @media (max-width: 576px) {
+          margin-bottom: map.get(vars.$spacing, s);
+        }
         
         &.article {
           @each $theme in ('light', 'dark') {
@@ -748,6 +862,10 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
             
+            @media (max-width: 768px) {
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+            }
+            
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
@@ -757,6 +875,11 @@ export default defineComponent({
           
           .notification-time {
             font-size: map.get(map.get(vars.$fonts, sizes), small);
+            white-space: nowrap;
+            
+            @media (max-width: 768px) {
+              font-size: 11px;
+            }
             
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -769,6 +892,10 @@ export default defineComponent({
         .notification-message {
           margin-bottom: map.get(vars.$spacing, s);
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          
+          @media (max-width: 768px) {
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+          }
           
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
@@ -785,6 +912,11 @@ export default defineComponent({
             border-radius: map.get(map.get(vars.$layout, border-radius), pill);
             font-size: map.get(map.get(vars.$fonts, sizes), small);
             text-decoration: none;
+            
+            @media (max-width: 768px) {
+              font-size: 11px;
+              padding: 4px 10px;
+            }
             
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -804,6 +936,13 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         gap: map.get(vars.$spacing, s);
+        flex-shrink: 0;
+        
+        @media (max-width: 576px) {
+          flex-direction: row;
+          align-self: flex-end;
+          margin-top: map.get(vars.$spacing, s);
+        }
         
         .action-button {
           width: 30px;
@@ -815,6 +954,12 @@ export default defineComponent({
           border: none;
           cursor: pointer;
           font-size: 1rem;
+          
+          @media (max-width: 768px) {
+            width: 26px;
+            height: 26px;
+            font-size: 0.9rem;
+          }
           
           &.mark-read {
             @each $theme in ('light', 'dark') {
@@ -852,18 +997,31 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: map.get(vars.$spacing, xxl);
+    padding: map.get(vars.$spacing, xxl) map.get(vars.$spacing, m);
     text-align: center;
+    
+    @media (max-width: 576px) {
+      padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, s);
+    }
     
     .empty-icon {
       font-size: 4rem;
       margin-bottom: map.get(vars.$spacing, l);
       opacity: 0.5;
+      
+      @media (max-width: 576px) {
+        font-size: 3rem;
+        margin-bottom: map.get(vars.$spacing, m);
+      }
     }
     
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
+      
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), large);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -876,6 +1034,10 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
       max-width: 500px;
+      
+      @media (max-width: 576px) {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -910,6 +1072,10 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     
+    @media (max-width: 576px) {
+      margin-top: map.get(vars.$spacing, l);
+    }
+    
     .settings-button {
       display: flex;
       align-items: center;
@@ -919,6 +1085,13 @@ export default defineComponent({
       cursor: pointer;
       border: none;
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      
+      @media (max-width: 576px) {
+        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        width: 100%;
+        justify-content: center;
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -934,6 +1107,10 @@ export default defineComponent({
       
       .settings-icon {
         font-size: 1.2rem;
+        
+        @media (max-width: 576px) {
+          font-size: 1rem;
+        }
       }
     }
   }
@@ -950,14 +1127,23 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: map.get(vars.$spacing, m);
     
     .modal-content, .confirm-dialog {
-      width: 90%;
+      width: 100%;
       max-width: 500px;
       padding: map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), large);
       position: relative;
       @include animations.fade-in(0.3s);
+      overflow-y: auto;
+      max-height: 90vh;
+      
+      @media (max-width: 576px) {
+        padding: map.get(vars.$spacing, l);
+        max-width: 100%;
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -970,6 +1156,10 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         margin-bottom: map.get(vars.$spacing, m);
         
+        @media (max-width: 576px) {
+          font-size: map.get(map.get(vars.$fonts, sizes), large);
+        }
+        
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -979,6 +1169,10 @@ export default defineComponent({
       
       p {
         margin-bottom: map.get(vars.$spacing, l);
+        
+        @media (max-width: 576px) {
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+        }
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -992,11 +1186,21 @@ export default defineComponent({
     .settings-form {
       margin-bottom: map.get(vars.$spacing, xl);
       
+      @media (max-width: 576px) {
+        margin-bottom: map.get(vars.$spacing, l);
+      }
+      
       .setting-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: map.get(vars.$spacing, m) 0;
+        
+        @media (max-width: 576px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: map.get(vars.$spacing, s);
+        }
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -1012,9 +1216,17 @@ export default defineComponent({
           flex: 1;
           padding-right: map.get(vars.$spacing, l);
           
+          @media (max-width: 576px) {
+            padding-right: 0;
+          }
+          
           h4 {
             margin: 0 0 map.get(vars.$spacing, xxs) 0;
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            
+            @media (max-width: 576px) {
+              font-size: map.get(map.get(vars.$fonts, sizes), small);
+            }
             
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -1026,6 +1238,10 @@ export default defineComponent({
           p {
             margin: 0;
             font-size: map.get(map.get(vars.$fonts, sizes), small);
+            
+            @media (max-width: 576px) {
+              font-size: 11px;
+            }
             
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -1041,6 +1257,10 @@ export default defineComponent({
           display: inline-block;
           width: 50px;
           height: 26px;
+          
+          @media (max-width: 576px) {
+            align-self: flex-end;
+          }
           
           input {
             opacity: 0;
@@ -1103,12 +1323,21 @@ export default defineComponent({
       justify-content: flex-end;
       gap: map.get(vars.$spacing, m);
       
+      @media (max-width: 576px) {
+        flex-direction: column;
+      }
+      
       button {
         padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         cursor: pointer;
         border: none;
+        
+        @media (max-width: 576px) {
+          padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+        }
         
         &.cancel-button {
           @each $theme in ('light', 'dark') {
@@ -1156,6 +1385,14 @@ export default defineComponent({
       cursor: pointer;
       border: none;
       background: none;
+      
+      @media (max-width: 576px) {
+        top: 10px;
+        right: 10px;
+        width: 24px;
+        height: 24px;
+        font-size: 1.2rem;
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
