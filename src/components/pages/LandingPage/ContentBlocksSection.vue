@@ -74,21 +74,19 @@ export default defineComponent({
       }
 
       &:nth-child(1) {
-        transform: rotate(-2deg);
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            border-top: 4px solid mixins.theme-color($theme, accent-green);
+            border-left: 4px solid mixins.theme-color($theme, accent-green);
           }
         }
       }
 
       &:nth-child(2) {
-        transform: rotate(2deg);
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            border-top: 4px solid mixins.theme-color($theme, accent-teal);
+            border-left: 4px solid mixins.theme-color($theme, accent-teal);
           }
         }
       }

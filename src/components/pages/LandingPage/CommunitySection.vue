@@ -303,15 +303,15 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               @if $i ==1 {
-                border-top: 4px solid mixins.theme-color($theme, accent-green);
+                border-left: 4px solid mixins.theme-color($theme, accent-green);
               }
 
               @else if $i ==2 {
-                border-top: 4px solid mixins.theme-color($theme, accent-teal);
+                border-left: 4px solid mixins.theme-color($theme, accent-teal);
               }
 
               @else if $i ==3 {
-                border-top: 4px solid mixins.theme-color($theme, accent-lime);
+                border-left: 4px solid mixins.theme-color($theme, accent-lime);
               }
             }
           }

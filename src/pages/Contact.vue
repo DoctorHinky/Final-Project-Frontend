@@ -355,6 +355,7 @@ export default defineComponent({
         textarea {
           width: 100%;
           padding: map.get(vars.$spacing, m);
+          resize: none;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
