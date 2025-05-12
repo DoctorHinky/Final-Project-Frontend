@@ -291,33 +291,44 @@ export default defineComponent({
     document.removeEventListener('click', handleClickOutside);
   });
 
-  const handleLogin = async () => {
-    try {
-      isLoading.value = true;
-      const loginData: Record<string, string> = {};
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email.trim());
-      if (isEmail) loginData.email = loginForm.email.trim();
-      else loginData.username = loginForm.email.trim();
-      loginData.password = loginForm.password;
+ const handleLogin = async () => {
+  try {
+    const loginData: Record<string, string> = {};
+    const trimmedInput = loginForm.email.trim();
 
-      const response = await axios.post('http://localhost:8080/auth/login', loginData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
+    if (isEmail) loginData.email = trimmedInput;
+    else loginData.username = trimmedInput;
 
-      loginStatus.message = 'Login erfolgreich!';
-      loginStatus.success = true;
-      console.log('Login Antwort:', response.data);
-      activeTab.value = 'login';
-    } catch (error: any) {
-      loginStatus.success = false;
-      if (error.response?.status === 400) loginStatus.message = 'Ungültiger Benutzername/E-Mail oder Passwort.';
-      else if (error.response?.data?.message) loginStatus.message = `Fehler: ${error.response.data.message}`;
-      else loginStatus.message = 'Ein unerwarteter Fehler ist aufgetreten.';
-      console.error(error);
-    } finally {
-      isLoading.value = false;
+    loginData.password = loginForm.password;
+
+    const response = await axios.post(
+      'http://localhost:8080/auth/local/login',
+      loginData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    const { access_token, refresh_token } = response.data;
+
+    // ✅ Token speichern
+    localStorage.setItem('accessToken', access_token);
+    localStorage.setItem('refreshToken', refresh_token);
+
+    alert('Login erfolgreich!');
+    activeTab.value = 'login';
+    // Optional: zur Dashboard-Seite wechseln
+    // router.push('/dashboard');
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      alert('Benutzername/E-Mail oder Passwort ist falsch.');
+    } else {
+      alert('Login fehlgeschlagen.');
     }
-  };
+    console.error(error);
+  }
+};
 
   const handleRegister = async () => {
     try {
@@ -349,7 +360,7 @@ export default defineComponent({
         phone: phone,
         password: registerForm.password,
       };
-      const response = await axios.post('http://localhost:8080/auth/register', registerData);
+      const response = await axios.post('http://localhost:8080/auth/local/register', registerData);
       registerStatus.message = 'Registrierung erfolgreich!';
       registerStatus.success = true;
       console.log('Antwort:', response.data);
