@@ -228,9 +228,6 @@
               <span>A</span>
             </div>
           </div>
-          <div class="font-size-preview" :style="{ fontSize: getFontSizePreview() }">
-            Beispieltext
-          </div>
         </div>
 
         <div class="form-actions">
@@ -944,6 +941,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -954,6 +952,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -979,6 +978,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -990,6 +990,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -1018,6 +1019,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
 
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
@@ -1058,6 +1060,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -1073,6 +1076,7 @@ export default defineComponent({
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
+        transition: all 0.4s ease-out;
       }
     }
 
@@ -1083,6 +1087,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -1093,6 +1098,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -1102,6 +1108,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           border-left: 4px solid #ff6b6b;
+          transition: all 0.4s ease-out;
         }
       }
 
@@ -1150,6 +1157,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
 
@@ -1175,6 +1183,7 @@ export default defineComponent({
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
+            transition: all 0.4s ease-out;
 
             &:focus-within {
               border-color: mixins.theme-color($theme, accent-teal);
@@ -1203,6 +1212,7 @@ export default defineComponent({
 
         input,
         textarea {
+          resize: none;
           width: 100%;
           border: none;
           background: transparent;
@@ -1212,6 +1222,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
 
@@ -1230,6 +1241,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
+            transition: all 0.4s ease-out;
           }
         }
 
@@ -1247,6 +1259,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
+            transition: all 0.4s ease-out;
 
             &.warning {
               color: #f39c12;
@@ -1272,6 +1285,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, border-light);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1292,6 +1306,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-green);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1302,6 +1317,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1327,6 +1343,7 @@ export default defineComponent({
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border: 3px solid mixins.theme-color($theme, accent-green);
+            transition: all 0.4s ease-out;
           }
         }
 
@@ -1337,6 +1354,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1359,6 +1377,7 @@ export default defineComponent({
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
+              transition: all 0.4s ease-out;
 
               &:hover {
                 transform: translateY(-2px);
@@ -1412,6 +1431,7 @@ export default defineComponent({
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
+            transition: all 0.4s ease-out;
 
             &:hover:not(:disabled) {
               background-color: mixins.theme-color($theme, hover-color);
@@ -1425,6 +1445,7 @@ export default defineComponent({
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
+            transition: all 0.4s ease-out;
 
             &:hover:not(:disabled) {
               transform: translateY(-3px);
@@ -1469,6 +1490,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           border-bottom: 1px solid mixins.theme-color($theme, border-light);
+          transition: all 0.4s ease-out;
 
           &:last-child {
             border-bottom: none;
@@ -1507,6 +1529,7 @@ export default defineComponent({
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, accent-green);
+                transition: all 0.4s ease-out;
               }
             }
           }
@@ -1529,6 +1552,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, border-medium);
+              transition: all 0.4s ease-out;
             }
           }
 
@@ -1545,6 +1569,7 @@ export default defineComponent({
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: white;
+                transition: all 0.4s ease-out;
               }
             }
           }
@@ -1575,6 +1600,7 @@ export default defineComponent({
             .theme-#{$theme} & {
               border-color: mixins.theme-color($theme, accent-green);
               box-shadow: 0 0 0 3px rgba(mixins.theme-color($theme, accent-green), 0.3);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1592,6 +1618,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             border: 2px solid mixins.theme-color($theme, border-light);
+            transition: all 0.4s ease-out;
           }
         }
 
@@ -1621,6 +1648,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1647,6 +1675,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, border-light);
+            transition: all 0.4s ease-out;
 
             &::-webkit-slider-thumb {
               -webkit-appearance: none;
@@ -1698,27 +1727,13 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
+              transition: all 0.4s ease-out;
             }
           }
         }
       }
     }
-
-    .font-size-preview {
-      padding: map.get(vars.$spacing, m);
-      text-align: center;
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, secondary-bg);
-          color: mixins.theme-color($theme, text-primary);
-          border: 1px solid mixins.theme-color($theme, border-light);
-        }
-      }
-    }
   }
-
   // Cookie-Einstellungen
   .cookie-settings {
     margin-top: map.get(vars.$spacing, xl);
@@ -1750,6 +1765,7 @@ export default defineComponent({
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
@@ -1763,6 +1779,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
+            transition: all 0.4s ease-out;
           }
         }
       }
@@ -1812,6 +1829,7 @@ export default defineComponent({
         .theme-#{$theme} & {
 
           background-color: mixins.theme-color($theme, card-bg);
+          transition: all 0.4s ease-out;
 
           @include mixins.shadow('large', $theme);
 
@@ -1828,6 +1846,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
 
           .theme-#{$theme} & {
+            transition: all 0.4s ease-out;
 
             color: mixins.theme-color($theme, text-primary);
 
@@ -1846,6 +1865,7 @@ export default defineComponent({
           .theme-#{$theme} & {
 
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
 
           }
 
@@ -1884,6 +1904,7 @@ export default defineComponent({
                 color: mixins.theme-color($theme, text-primary);
 
                 border: 1px solid mixins.theme-color($theme, border-light);
+                transition: all 0.4s ease-out;
 
               }
 
@@ -1900,6 +1921,7 @@ export default defineComponent({
                 background: mixins.theme-gradient($theme, primary);
 
                 color: white;
+                transition: all 0.4s ease-out;
 
                 &.danger {
 

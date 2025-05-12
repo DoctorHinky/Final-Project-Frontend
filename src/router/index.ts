@@ -3,26 +3,13 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import LandingPage from '../pages/LandingPage.vue';
 import LoginRegister from '../pages/LoginRegister.vue';
 import Contact from '../pages/Contact.vue';
+import NotFound from '../pages/NotFound.vue';
+import PrivacyPolicy from '../pages/PrivacyPolicyPage.vue';
+import Imprint from '../pages/Imprint.vue';
+import TermsOfService from '../pages/TermsOfService.vue';
 import AppLayout from '../components/layout/AppLayout.vue';
 import Dashboard from '../pages/member/Dashboard.vue';
 import { authService } from '@/services/auth.service';
-
-// Platzhalter für die rechtlichen Seiten
-const PlaceholderPage = {
-  template: `
-    <div class="placeholder-page container" style="padding: 150px 20px 50px;">
-      <h1>{{ title }}</h1>
-      <p>Diese Seite ist derzeit in Bearbeitung. Bitte schau später wieder vorbei.</p>
-      <router-link to="/" style="display: inline-block; margin-top: 20px; text-decoration: none; color: #26BB77;">Zurück zur Startseite</router-link>
-    </div>
-  `,
-  props: {
-    title: {
-      type: String,
-      required: true
-    }
-  }
-};
 
 // Navigation Guard für geschützte Routen
 const requireAuth = (to: any, from: any, next: any) => {
@@ -59,28 +46,25 @@ const routes: Array<RouteRecordRaw> = [
         component: Contact
       },
       {
-        path: 'datenschutz',
-        name: 'Datenschutz',
-        component: { 
-          ...PlaceholderPage,
-          props: { title: 'Datenschutz' }
-        }
+        path: 'privacy-policy',
+        name: 'PrivacyPolicy',
+        component: PrivacyPolicy
       },
       {
-        path: 'impressum',
-        name: 'Impressum',
-        component: { 
-          ...PlaceholderPage,
-          props: { title: 'Impressum' }
-        }
+        path: 'imprint',
+        name: 'Imprint',
+        component: Imprint
       },
       {
-        path: 'agb',
-        name: 'AGB',
-        component: { 
-          ...PlaceholderPage,
-          props: { title: 'Allgemeine Geschäftsbedingungen' }
-        }
+        path: 'terms-of-service',
+        name: 'TermsOfService',
+        component: TermsOfService
+      },
+      // 404-Seite als Kind der AppLayout-Komponente
+      {
+        path: '404',
+        name: 'NotFound',
+        component: NotFound
       }
     ]
   },
@@ -134,10 +118,10 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   
-  // Fallback-Route für nicht gefundene Seiten
+  // Fallback-Route für nicht gefundene Seiten - umgeleitet zur 404-Seite
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: { name: 'NotFound' }
   }
 ];
 
@@ -168,7 +152,7 @@ const router = createRouter({
 // Globaler Navigation Guard
 router.beforeEach((to, from, next) => {
   // Da wir kein echtes Backend haben, führen wir hier eine einfache Auth-Überprüfung durch
-  const publicPages = ['/', '/login-register', '/contact', '/datenschutz', '/impressum', '/agb'];
+  const publicPages = ['/', '/login-register', '/contact', '/privacy-policy', '/imprint', '/terms-of-service', '/404'];
   const authRequired = !publicPages.includes(to.path) && !to.path.startsWith('/public/');
   const loggedIn = authService.isLoggedIn();
 

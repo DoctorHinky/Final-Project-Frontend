@@ -1,4 +1,4 @@
-<!-- src/components/layout/MemberLayout.vue mit spezifischeren Klassen -->
+<!-- src/components/layout/MemberLayout.vue -->
 <template>
   <div class="member-layout" :class="{ 'theme-light': isLightTheme, 'theme-dark': !isLightTheme }">
     <!-- Header mit Toggle und Benutzerinfo - verbesserte mobile Ansicht -->
@@ -96,7 +96,7 @@ export default defineComponent({
     // Sidebar umschalten - verbessert für mobile Geräte
     const toggleSidebar = () => {
       isSidebarOpen.value = !isSidebarOpen.value;
-      
+
       // Body-Scroll verhindern bei offener Sidebar auf mobilen Geräten
       if (isSmallScreen.value) {
         document.body.style.overflow = isSidebarOpen.value ? 'hidden' : '';
@@ -107,7 +107,7 @@ export default defineComponent({
     const closeSidebar = () => {
       if (isSidebarOpen.value) {
         isSidebarOpen.value = false;
-        
+
         // Body-Scroll wiederherstellen
         if (isSmallScreen.value) {
           document.body.style.overflow = '';
@@ -140,7 +140,7 @@ export default defineComponent({
     // Verbesserte Responsive Handler für die Bildschirmgröße
     const handleResize = () => {
       isSmallScreen.value = window.innerWidth < 1024;
-      
+
       // Sidebar automatisch schließen bei kleinen Bildschirmen
       if (isSmallScreen.value && isSidebarOpen.value) {
         closeSidebar();
@@ -153,7 +153,7 @@ export default defineComponent({
     // Debounce-Funktion für bessere Performance
     const debounce = (fn: Function, ms = 300) => {
       let timeoutId: ReturnType<typeof setTimeout>;
-      return function(...args: any[]) {
+      return function (...args: any[]) {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => fn.apply(this, args), ms);
       };
@@ -163,7 +163,7 @@ export default defineComponent({
     onMounted(() => {
       handleResize(); // Initial aufrufen
       window.addEventListener('resize', debounce(handleResize, 250));
-      
+
       // Seitenorientierung berücksichtigen
       window.addEventListener('orientationchange', handleResize);
     });
@@ -191,7 +191,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-/* Nicht-gescoped Style für spezifischere Klassen */
 @use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
@@ -202,20 +201,31 @@ export default defineComponent({
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
   display: flex;
   flex-direction: column;
-}
+  /* Langsamer Background-Toggle mit verzögerter Transition */
+  transition: background 1.5s cubic-bezier(0.19, 1, 0.22, 1), color 0.4s ease-out;
 
-/* Theme-spezifische Hintergründe */
-.theme-light.member-layout {
-  background: linear-gradient(135deg, #e9f7ec, #f8fff9, #ffffff);
-  color: #005f40;
-}
+  /* Schriftstil nur für h1-h6 Elemente */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: map.get(vars.$fonts, primary);
+  }
 
-.theme-dark.member-layout {
-  background: linear-gradient(135deg, #081812, #0f2419, #173828);
-  color: #ffffff;
+  /* Theme-spezifische Hintergründe */
+  &.theme-light {
+    background: linear-gradient(135deg, #e9f7ec, #f8fff9, #ffffff);
+    color: map.get(map.get(vars.$colors, light), text-primary);
+  }
+
+  &.theme-dark {
+    background: linear-gradient(135deg, #081812, #0f2419, #173828);
+    color: map.get(map.get(vars.$colors, dark), text-primary);
+  }
 }
 
 /* Header mit zusätzlicher Klasse für Spezifität */
@@ -225,54 +235,50 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 70px;
-  z-index: 900;
+  z-index: map.get(vars.$z-index, header);
   display: flex;
   justify-content: space-between;
   align-items: center;
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  border-radius: 0px 0px 25px 25px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 0 1rem;
-}
+  border-radius: 0 0 map.get(map.get(vars.$layout, border-radius), large) map.get(map.get(vars.$layout, border-radius), large);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0 map.get(vars.$spacing, m);
+  /* Langsamer Background-Toggle mit verzögerter Transition */
+  transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
 
-/* Theme-spezifische Header-Stile */
-.theme-light .member-header.custom-header {
-  background-color: rgba(245, 255, 241, 0.95);
-  border-bottom: 1px solid rgba(38, 187, 119, 0.2);
-}
-
-.theme-dark .member-header.custom-header {
-  background-color: rgba(29, 74, 50, 0.95);
-  border-bottom: 1px solid rgba(199, 233, 214, 0.2);
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: rgba(mixins.theme-color($theme, card-bg), 0.95);
+      border-bottom: 1px solid mixins.theme-color($theme, border-light);
+    }
+  }
 }
 
 /* Anpassungen für Header-Bereich links */
 .header-left.custom-header-left {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: map.get(vars.$spacing, s);
 }
 
 /* Seitentitel mit spezifischerer Klasse */
 .page-title.custom-title {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: map.get(map.get(vars.$fonts, sizes), large);
+  font-weight: map.get(map.get(vars.$fonts, weights), bold);
   margin: 0;
   letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
-}
+  /* Sanfte Überblendung für Text */
+  transition: color 0.4s ease-out;
 
-/* Theme-spezifische Titelfarben */
-.theme-light .page-title.custom-title {
-  color: #005f40 !important;
-}
-
-.theme-dark .page-title.custom-title {
-  color: #ffffff !important;
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-primary) !important;
+    }
+  }
 }
 
 /* Sidebar-Toggle mit spezifischerer Klasse */
@@ -285,39 +291,32 @@ export default defineComponent({
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
+  border-radius: map.get(map.get(vars.$layout, border-radius), small);
+  transition: all 0.4s ease-out;
 
-/* Theme-spezifische Toggle-Farben */
-.theme-light .sidebar-toggle.custom-toggle {
-  color: #005f40;
-}
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-primary);
 
-.theme-light .sidebar-toggle.custom-toggle:hover {
-  background-color: #d9f1e3;
-}
-
-.theme-dark .sidebar-toggle.custom-toggle {
-  color: #ffffff;
-}
-
-.theme-dark .sidebar-toggle.custom-toggle:hover {
-  background-color: #285f42;
+      &:hover {
+        background-color: mixins.theme-color($theme, hover-color);
+      }
+    }
+  }
 }
 
 /* Header rechter Bereich */
 .header-right.custom-header-right {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: map.get(vars.$spacing, s);
 }
 
 /* Benutzerinfo-Bereich */
 .user-info.custom-user-info {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: map.get(vars.$spacing, s);
 }
 
 /* Abmelde-Button mit spezifischer Klasse */
@@ -326,36 +325,27 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0.3rem 0.8rem;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+  border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+  font-weight: map.get(map.get(vars.$fonts, weights), bold);
+  font-size: map.get(map.get(vars.$fonts, sizes), small);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.4s ease-out;
   min-width: 36px;
   min-height: 36px;
   border: none;
-}
 
-/* Theme-spezifische Button-Stile */
-.theme-light .logout-button.custom-logout-btn {
-  background: linear-gradient(to right, #26bb77, #17a2b8) !important;
-  color: white !important;
-}
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background: mixins.theme-gradient($theme, primary) !important;
+      color: white !important;
 
-.theme-light .logout-button.custom-logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 95, 64, 0.1);
-}
-
-.theme-dark .logout-button.custom-logout-btn {
-  background: linear-gradient(to right, #4ad295, #35ccd0) !important;
-  color: white !important;
-}
-
-.theme-dark .logout-button.custom-logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+      &:hover {
+        transform: translateY(-2px);
+        @include mixins.shadow('medium', $theme);
+      }
+    }
+  }
 }
 
 /* Hauptcontainer mit Spezifizität */
@@ -364,7 +354,7 @@ export default defineComponent({
   flex: 1;
   min-height: calc(100vh - 70px);
   padding-top: 70px;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease-out; 
   position: relative;
 }
 
@@ -372,9 +362,9 @@ export default defineComponent({
 .member-content.custom-content {
   flex: 1;
   width: 100%;
-  padding: 1rem;
-  animation: fadeIn 0.4s ease-out;
-  transition: all 0.3s ease;
+  padding: map.get(vars.$spacing, m);
+  @include animations.fade-in(0.4s);
+  transition: all 0.4s ease-out;
 }
 
 /* Overlay für mobile Ansicht */
@@ -399,57 +389,57 @@ export default defineComponent({
   .d-sm-inline {
     display: inline !important;
   }
-  
+
   .member-header.custom-header {
-    padding: 0 1.5rem;
+    padding: 0 map.get(vars.$spacing, l);
   }
-  
+
   .page-title.custom-title {
-    font-size: 1.4rem;
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
     max-width: 250px;
   }
-  
+
   .sidebar-toggle.custom-toggle {
     min-width: 40px;
     min-height: 40px;
   }
-  
+
   .logout-button.custom-logout-btn {
     gap: 8px;
-    padding: 0.3rem 1rem;
+    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
   }
-  
+
   .header-left.custom-header-left {
-    gap: 1.5rem;
+    gap: map.get(vars.$spacing, l);
   }
-  
+
   .header-right.custom-header-right {
-    gap: 1.5rem;
+    gap: map.get(vars.$spacing, l);
   }
-  
+
   .member-content.custom-content {
-    padding: 1.5rem;
+    padding: map.get(vars.$spacing, l);
   }
 }
 
 @media (min-width: 768px) {
   .page-title.custom-title {
-    font-size: 1.8rem;
+    font-size: map.get(map.get(vars.$fonts, sizes), xxl);
     max-width: none;
   }
-  
+
   .header-right.custom-header-right {
-    gap: 2rem;
+    gap: map.get(vars.$spacing, xl);
   }
 }
 
 @media (min-width: 992px) {
   .member-header.custom-header {
-    padding: 0 2rem;
+    padding: 0 map.get(vars.$spacing, xl);
   }
-  
+
   .member-content.custom-content {
-    padding: 2rem;
+    padding: map.get(vars.$spacing, xl);
   }
 }
 
@@ -466,24 +456,14 @@ export default defineComponent({
   }
 }
 
-/* Animationen */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Transition für Overlay */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease-out;
 }
-.fade-enter-from, .fade-leave-to {
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

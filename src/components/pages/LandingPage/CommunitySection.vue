@@ -141,9 +141,7 @@ export default defineComponent({
           border: 2px solid mixins.theme-color($theme, border-light);
           padding: map.get(vars.$spacing, xl);
           @include mixins.shadow('medium', $theme);
-          transition: transform map.get(vars.$transitions, default),
-            box-shadow map.get(vars.$transitions, default),
-            border-color map.get(vars.$transitions, default);
+          transition: all 0.4s ease-out;
 
           &::before {
             content: '';

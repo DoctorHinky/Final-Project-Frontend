@@ -5,21 +5,16 @@
       <h2>Bibliothek</h2>
       <p>Entdecke alle verfügbaren Artikel zu verschiedenen Themen</p>
     </div>
-    
+
     <!-- Filter- und Suchleiste -->
     <div class="filter-section">
       <div class="search-container">
-        <input 
-          type="text" 
-          placeholder="Artikel durchsuchen..." 
-          v-model="searchQuery"
-          @input="filterArticles"
-        />
+        <input type="text" placeholder="Artikel durchsuchen..." v-model="searchQuery" @input="filterArticles" />
         <button class="search-button">
           <span class="search-icon">🔍</span>
         </button>
       </div>
-      
+
       <div class="filter-options">
         <div class="filter-group">
           <label>Kategorie:</label>
@@ -30,7 +25,7 @@
             </option>
           </select>
         </div>
-        
+
         <div class="filter-group">
           <label>Sortieren nach:</label>
           <select v-model="sortOption" @change="filterArticles">
@@ -41,120 +36,85 @@
             <option value="popular">Beliebteste</option>
           </select>
         </div>
-        
+
         <div class="view-toggle">
-          <button 
-            class="view-button" 
-            :class="{ active: viewMode === 'grid' }"
-            @click="viewMode = 'grid'"
-            title="Rasteransicht"
-          >
+          <button class="view-button" :class="{ active: viewMode === 'grid' }" @click="viewMode = 'grid'"
+            title="Rasteransicht">
             ■ ■
           </button>
-          <button 
-            class="view-button" 
-            :class="{ active: viewMode === 'list' }"
-            @click="viewMode = 'list'"
-            title="Listenansicht"
-          >
+          <button class="view-button" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'"
+            title="Listenansicht">
             ≡
           </button>
         </div>
       </div>
-      
+
       <div class="active-filters" v-if="selectedTags.length > 0">
         <span class="filter-label">Aktive Tags:</span>
         <div class="tag-list">
-          <span 
-            v-for="(tag, index) in selectedTags" 
-            :key="index"
-            class="tag-item"
-            @click="removeTag(index)"
-          >
+          <span v-for="(tag, index) in selectedTags" :key="index" class="tag-item" @click="removeTag(index)">
             {{ tag }} <span class="remove-tag">×</span>
           </span>
         </div>
         <button class="clear-tags" @click="clearTags">Alle löschen</button>
       </div>
     </div>
-    
+
     <!-- Themen-Schnellauswahl -->
     <div class="topics-section">
       <h3>Beliebte Themen</h3>
       <div class="topic-tags">
-        <button 
-          v-for="(topic, index) in popularTopics" 
-          :key="index"
-          class="topic-tag"
-          :class="{ active: selectedTags.includes(topic) }"
-          @click="toggleTag(topic)"
-        >
+        <button v-for="(topic, index) in popularTopics" :key="index" class="topic-tag"
+          :class="{ active: selectedTags.includes(topic) }" @click="toggleTag(topic)">
           {{ topic }}
         </button>
       </div>
     </div>
-    
+
     <!-- Artikel-Anzeige -->
     <div class="articles-section">
       <div v-if="filteredArticles.length > 0" :class="['articles-container', viewMode]">
         <!-- Grid-Ansicht -->
         <div v-if="viewMode === 'grid'" class="grid-view">
-          <div 
-            v-for="article in filteredArticles" 
-            :key="article.id" 
-            class="article-card"
-            @click="openArticle(article)"
-          >
+          <div v-for="article in filteredArticles" :key="article.id" class="article-card" @click="openArticle(article)">
             <div class="article-label">{{ article.category }}</div>
             <h3 class="article-title">{{ article.title }}</h3>
             <p class="article-preview">{{ article.preview }}</p>
-            
+
             <div class="article-meta">
               <span class="article-author">{{ article.author }}</span>
               <span class="article-date">{{ article.date }}</span>
             </div>
-            
+
             <div class="article-tags">
-              <span 
-                v-for="(tag, idx) in article.tags" 
-                :key="idx" 
-                class="article-tag"
-                @click.stop="addTag(tag)"
-              >
+              <span v-for="(tag, idx) in article.tags" :key="idx" class="article-tag" @click.stop="addTag(tag)">
                 {{ tag }}
               </span>
             </div>
-            
+
             <div class="article-meta-bottom">
               <span class="read-time">{{ article.readTime || '10 min' }} Lesezeit</span>
               <span class="difficulty" :class="article.difficulty || 'medium'">
                 {{ getDifficultyText(article.difficulty) }}
               </span>
             </div>
-            
+
             <div class="article-actions">
               <button class="action-button read" @click.stop="openArticle(article)">
                 Lesen
               </button>
-              <button 
-                class="action-button bookmark" 
-                :class="{ active: article.bookmarked }"
-                @click.stop="toggleBookmark(article)"
-              >
+              <button class="action-button bookmark" :class="{ active: article.bookmarked }"
+                @click.stop="toggleBookmark(article)">
                 {{ article.bookmarked ? '★' : '☆' }}
               </button>
             </div>
           </div>
         </div>
-        
+
         <!-- Listen-Ansicht -->
         <div v-else-if="viewMode === 'list'" class="list-view">
-          <div 
-            v-for="article in filteredArticles" 
-            :key="article.id" 
-            class="article-list-item"
-            @click="openArticle(article)"
-          >
+          <div v-for="article in filteredArticles" :key="article.id" class="article-list-item"
+            @click="openArticle(article)">
             <div class="article-list-main">
               <div class="article-list-header">
                 <div class="article-label">{{ article.category }}</div>
@@ -163,22 +123,17 @@
                   <span class="article-date">{{ article.date }}</span>
                 </div>
               </div>
-              
+
               <h3 class="article-title">{{ article.title }}</h3>
               <p class="article-preview">{{ article.preview }}</p>
-              
+
               <div class="article-list-footer">
                 <div class="article-tags">
-                  <span 
-                    v-for="(tag, idx) in article.tags" 
-                    :key="idx" 
-                    class="article-tag"
-                    @click.stop="addTag(tag)"
-                  >
+                  <span v-for="(tag, idx) in article.tags" :key="idx" class="article-tag" @click.stop="addTag(tag)">
                     {{ tag }}
                   </span>
                 </div>
-                
+
                 <div class="article-meta-bottom">
                   <span class="read-time">{{ article.readTime || '10 min' }} Lesezeit</span>
                   <span class="difficulty" :class="article.difficulty || 'medium'">
@@ -187,23 +142,20 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="article-list-actions">
               <button class="action-button read" @click.stop="openArticle(article)">
                 Lesen
               </button>
-              <button 
-                class="action-button bookmark" 
-                :class="{ active: article.bookmarked }"
-                @click.stop="toggleBookmark(article)"
-              >
+              <button class="action-button bookmark" :class="{ active: article.bookmarked }"
+                @click.stop="toggleBookmark(article)">
                 {{ article.bookmarked ? '★' : '☆' }}
               </button>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- Leerer Zustand -->
       <div v-else class="empty-state">
         <div class="empty-icon">📚</div>
@@ -212,34 +164,21 @@
         <button @click="resetFilters" class="reset-button">Filter zurücksetzen</button>
       </div>
     </div>
-    
+
     <!-- Paginierung -->
     <div class="pagination" v-if="filteredArticles.length > 0">
-      <button 
-        class="pagination-button prev" 
-        :disabled="currentPage === 1"
-        @click="prevPage"
-      >
+      <button class="pagination-button prev" :disabled="currentPage === 1" @click="prevPage">
         « Zurück
       </button>
-      
+
       <div class="page-numbers">
-        <button 
-          v-for="page in totalPages" 
-          :key="page"
-          class="page-number"
-          :class="{ active: page === currentPage }"
-          @click="goToPage(page)"
-        >
+        <button v-for="page in totalPages" :key="page" class="page-number" :class="{ active: page === currentPage }"
+          @click="goToPage(page)">
           {{ page }}
         </button>
       </div>
-      
-      <button 
-        class="pagination-button next" 
-        :disabled="currentPage === totalPages"
-        @click="nextPage"
-      >
+
+      <button class="pagination-button next" :disabled="currentPage === totalPages" @click="nextPage">
         Weiter »
       </button>
     </div>
@@ -276,7 +215,7 @@ export default defineComponent({
     const selectedTags = ref<string[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = ref(9);
-    
+
     // Beispieldaten für Artikel (später durch API-Daten ersetzen)
     const articles = ref<Article[]>([
       {
@@ -465,13 +404,13 @@ export default defineComponent({
         featured: true
       }
     ]);
-    
+
     // Beliebte Themen
     const popularTopics = [
-      'Erziehung', 'Gesundheit', 'Bildung', 'Entwicklung', 'Familienleben', 
+      'Erziehung', 'Gesundheit', 'Bildung', 'Entwicklung', 'Familienleben',
       'Kleinkind', 'Kommunikation', 'Spiel', 'Grenzen', 'Medien'
     ];
-    
+
     // Einzigartige Kategorien aus den Artikeln extrahieren
     const uniqueCategories = computed(() => {
       const categories = new Set<string>();
@@ -480,61 +419,61 @@ export default defineComponent({
       });
       return Array.from(categories).sort();
     });
-    
+
     // Artikel basierend auf Filtern und Suchbegriff filtern
     const filteredArticles = computed(() => {
       let result = [...articles.value];
-      
+
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(article => 
-          article.title.toLowerCase().includes(query) || 
+        result = result.filter(article =>
+          article.title.toLowerCase().includes(query) ||
           article.preview.toLowerCase().includes(query) ||
           article.category.toLowerCase().includes(query) ||
           article.author.toLowerCase().includes(query) ||
           article.tags.some(tag => tag.toLowerCase().includes(query))
         );
       }
-      
+
       // Nach Kategorie filtern
       if (filterCategory.value) {
         result = result.filter(article => article.category === filterCategory.value);
       }
-      
+
       // Nach Tags filtern
       if (selectedTags.value.length > 0) {
-        result = result.filter(article => 
-          selectedTags.value.some(tag => 
+        result = result.filter(article =>
+          selectedTags.value.some(tag =>
             article.tags.includes(tag)
           )
         );
       }
-      
+
       // Sortieren
       result = sortArticles(result);
-      
+
       // Paginierung
       const startIndex = (currentPage.value - 1) * itemsPerPage.value;
       const paginatedResult = result.slice(startIndex, startIndex + itemsPerPage.value);
-      
+
       return paginatedResult;
     });
-    
+
     // Artikel sortieren
     const sortArticles = (articlesToSort: Article[]) => {
       const sorted = [...articlesToSort];
-      
+
       switch (sortOption.value) {
         case 'date-desc':
           return sorted.sort((a, b) => {
-            return new Date(b.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(a.date.split('.').reverse().join('-')).getTime();
+            return new Date(b.date.split('.').reverse().join('-')).getTime() -
+              new Date(a.date.split('.').reverse().join('-')).getTime();
           });
         case 'date-asc':
           return sorted.sort((a, b) => {
-            return new Date(a.date.split('.').reverse().join('-')).getTime() - 
-                   new Date(b.date.split('.').reverse().join('-')).getTime();
+            return new Date(a.date.split('.').reverse().join('-')).getTime() -
+              new Date(b.date.split('.').reverse().join('-')).getTime();
           });
         case 'title-asc':
           return sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -546,45 +485,45 @@ export default defineComponent({
           return sorted;
       }
     };
-    
+
     // Für Paginierung - Gesamtzahl der Artikel nach Filter
     const totalFilteredArticles = computed(() => {
       let result = [...articles.value];
-      
+
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(article => 
-          article.title.toLowerCase().includes(query) || 
+        result = result.filter(article =>
+          article.title.toLowerCase().includes(query) ||
           article.preview.toLowerCase().includes(query) ||
           article.category.toLowerCase().includes(query) ||
           article.author.toLowerCase().includes(query) ||
           article.tags.some(tag => tag.toLowerCase().includes(query))
         );
       }
-      
+
       // Nach Kategorie filtern
       if (filterCategory.value) {
         result = result.filter(article => article.category === filterCategory.value);
       }
-      
+
       // Nach Tags filtern
       if (selectedTags.value.length > 0) {
-        result = result.filter(article => 
-          selectedTags.value.some(tag => 
+        result = result.filter(article =>
+          selectedTags.value.some(tag =>
             article.tags.includes(tag)
           )
         );
       }
-      
+
       return result.length;
     });
-    
+
     // Gesamtanzahl der Seiten
     const totalPages = computed(() => {
       return Math.ceil(totalFilteredArticles.value / itemsPerPage.value);
     });
-    
+
     // Zur vorherigen Seite
     const prevPage = () => {
       if (currentPage.value > 1) {
@@ -592,7 +531,7 @@ export default defineComponent({
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
-    
+
     // Zur nächsten Seite
     const nextPage = () => {
       if (currentPage.value < totalPages.value) {
@@ -600,19 +539,19 @@ export default defineComponent({
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
-    
+
     // Zu einer spezifischen Seite springen
     const goToPage = (page: number) => {
       currentPage.value = page;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    
+
     // Artikel filtern
     const filterArticles = () => {
       // Seite zurücksetzen
       currentPage.value = 1;
     };
-    
+
     // Tag hinzufügen
     const addTag = (tag: string) => {
       if (!selectedTags.value.includes(tag)) {
@@ -620,7 +559,7 @@ export default defineComponent({
         filterArticles();
       }
     };
-    
+
     // Tag umschalten (hinzufügen oder entfernen)
     const toggleTag = (tag: string) => {
       const index = selectedTags.value.indexOf(tag);
@@ -631,19 +570,19 @@ export default defineComponent({
       }
       filterArticles();
     };
-    
+
     // Tag entfernen
     const removeTag = (index: number) => {
       selectedTags.value.splice(index, 1);
       filterArticles();
     };
-    
+
     // Alle Tags löschen
     const clearTags = () => {
       selectedTags.value = [];
       filterArticles();
     };
-    
+
     // Alle Filter zurücksetzen
     const resetFilters = () => {
       searchQuery.value = '';
@@ -652,19 +591,19 @@ export default defineComponent({
       currentPage.value = 1;
       sortOption.value = 'date-desc';
     };
-    
+
     // Artikel öffnen (Platzhalter)
     const openArticle = (article: Article) => {
       console.log('Artikel öffnen:', article.title);
       // Hier später mit Router-Navigation ersetzen oder Modal öffnen
       alert(`Artikel "${article.title}" wird geöffnet...`);
     };
-    
+
     // Lesezeichen umschalten
     const toggleBookmark = (article: Article) => {
       article.bookmarked = !article.bookmarked;
     };
-    
+
     // Text für Schwierigkeitsgrad
     const getDifficultyText = (difficulty?: string) => {
       switch (difficulty) {
@@ -678,7 +617,7 @@ export default defineComponent({
           return 'Mittel';
       }
     };
-    
+
     return {
       searchQuery,
       filterCategory,
@@ -719,25 +658,25 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
-  
+
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
@@ -745,29 +684,29 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Filter-Sektion
   .filter-section {
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     .search-container {
       position: relative;
       width: 100%;
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       input {
         width: 100%;
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
           }
         }
       }
-      
+
       .search-button {
         position: absolute;
         right: 10px;
@@ -777,7 +716,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         font-size: 1.2rem;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -785,7 +724,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     .filter-options {
       display: flex;
       flex-wrap: wrap;
@@ -793,34 +732,34 @@ export default defineComponent({
       align-items: center;
       gap: map.get(vars.$spacing, m);
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       .filter-group {
         display: flex;
         align-items: center;
         gap: map.get(vars.$spacing, s);
-        
+
         label {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
-        
+
         select {
           padding: 8px 12px;
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
               border: 1px solid mixins.theme-color($theme, border-light);
-              
+
               &:focus {
                 border-color: mixins.theme-color($theme, accent-teal);
                 outline: none;
@@ -829,11 +768,11 @@ export default defineComponent({
           }
         }
       }
-      
+
       .view-toggle {
         display: flex;
         gap: 4px;
-        
+
         .view-button {
           width: 36px;
           height: 36px;
@@ -843,16 +782,16 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), small);
           cursor: pointer;
           border: none;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
-              
+
               &:hover {
                 background-color: mixins.theme-color($theme, hover-color);
               }
-              
+
               &.active {
                 background-color: mixins.theme-color($theme, accent-green);
                 color: white;
@@ -862,29 +801,29 @@ export default defineComponent({
         }
       }
     }
-    
+
     .active-filters {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: map.get(vars.$spacing, s);
-      
+
       .filter-label {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       .tag-list {
         display: flex;
         flex-wrap: wrap;
         gap: map.get(vars.$spacing, xs);
-        
+
         .tag-item {
           padding: 4px 10px;
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -893,34 +832,34 @@ export default defineComponent({
           display: flex;
           align-items: center;
           gap: 4px;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-teal);
               color: white;
-              
+
               &:hover {
                 background-color: mixins.theme-color($theme, accent-green);
               }
             }
           }
-          
+
           .remove-tag {
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
           }
         }
       }
-      
+
       .clear-tags {
         background: none;
         border: none;
         cursor: pointer;
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
-            
+
             &:hover {
               color: mixins.theme-color($theme, accent-green);
               text-decoration: underline;
@@ -930,44 +869,44 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Themen-Sektion
   .topics-section {
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     .topic-tags {
       display: flex;
       flex-wrap: wrap;
       gap: map.get(vars.$spacing, s);
-      
+
       .topic-tag {
         padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         cursor: pointer;
         border: none;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+
             &:hover {
               background-color: mixins.theme-color($theme, hover-color);
             }
-            
+
             &.active {
               background-color: mixins.theme-color($theme, accent-green);
               color: white;
@@ -978,11 +917,11 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Artikel-Sektion
   .articles-section {
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     .articles-container {
       &.grid {
         .grid-view {
@@ -992,7 +931,7 @@ export default defineComponent({
           gap: map.get(vars.$spacing, l);
         }
       }
-      
+
       &.list {
         .list-view {
           display: flex;
@@ -1000,7 +939,7 @@ export default defineComponent({
           gap: map.get(vars.$spacing, m);
         }
       }
-      
+
       // Gemeinsame Kartenstile für Grid-Ansicht
       .article-card {
         width: 500px;
@@ -1009,12 +948,13 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         cursor: pointer;
         transition: all 0.3s;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+            transition: all 0.4s ease-out;
+
             &:hover {
               transform: translateY(-5px);
               @include mixins.shadow('medium', $theme);
@@ -1022,35 +962,37 @@ export default defineComponent({
             }
           }
         }
-        
+
         .article-label {
           display: inline-block;
           padding: 4px 10px;
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         .article-title {
           margin-top: map.get(vars.$spacing, s);
           margin-bottom: map.get(vars.$spacing, s);
           font-size: map.get(map.get(vars.$fonts, sizes), large);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         .article-preview {
           margin-bottom: map.get(vars.$spacing, m);
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
@@ -1059,44 +1001,47 @@ export default defineComponent({
           line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         .article-meta {
           display: flex;
           justify-content: space-between;
           margin-bottom: map.get(vars.$spacing, s);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         .article-tags {
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
           margin-bottom: map.get(vars.$spacing, m);
-          
+
           .article-tag {
             padding: 2px 8px;
             border-radius: map.get(map.get(vars.$layout, border-radius), pill);
             font-size: 11px;
-            
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
                 color: mixins.theme-color($theme, accent-teal);
                 border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-                
+                transition: all 0.4s ease-out;
+
                 &:hover {
                   background-color: mixins.theme-color($theme, accent-teal);
                   color: white;
@@ -1105,46 +1050,47 @@ export default defineComponent({
             }
           }
         }
-        
+
         .article-meta-bottom {
           display: flex;
           justify-content: space-between;
           margin-bottom: map.get(vars.$spacing, m);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
           .read-time {
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
+                transition: all 0.4s ease-out;
               }
             }
           }
-          
+
           .difficulty {
             padding: 2px 8px;
             border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-            
+
             &.easy {
               background-color: rgba(74, 210, 149, 0.1);
               color: #4AD295;
             }
-            
+
             &.medium {
               background-color: rgba(53, 204, 208, 0.1);
               color: #35CCD0;
             }
-            
+
             &.hard {
               background-color: rgba(155, 225, 93, 0.1);
               color: #9BE15D;
             }
           }
         }
-        
+
         .article-actions {
           display: flex;
           gap: map.get(vars.$spacing, s);
-          
+
           .action-button {
             padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
             border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -1152,13 +1098,15 @@ export default defineComponent({
             font-weight: map.get(map.get(vars.$fonts, weights), medium);
             cursor: pointer;
             border: none;
-            
+
             &.read {
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
                   color: white;
-                  
+
+                  transition: all 0.4s ease-out;
+
                   &:hover {
                     transform: translateY(-2px);
                     @include mixins.shadow('small', $theme);
@@ -1166,7 +1114,7 @@ export default defineComponent({
                 }
               }
             }
-            
+
             &.bookmark {
               width: 100px;
               height: 32px;
@@ -1174,17 +1122,18 @@ export default defineComponent({
               display: flex;
               align-items: center;
               justify-content: center;
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background-color: transparent;
                   color: mixins.theme-color($theme, text-secondary);
                   border: 1px solid mixins.theme-color($theme, border-medium);
-                  
+                  transition: all 0.4s ease-out;
+
                   &:hover {
                     background-color: mixins.theme-color($theme, hover-color);
                   }
-                  
+
                   &.active {
                     background-color: rgba(249, 202, 36, 0.1);
                     color: #F9CA24;
@@ -1196,7 +1145,7 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Liste-Stile
       .article-list-item {
         display: flex;
@@ -1205,12 +1154,13 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         cursor: pointer;
         transition: all 0.3s;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+            transition: all 0.4s ease-out;
+
             &:hover {
               transform: translateY(-3px);
               @include mixins.shadow('small', $theme);
@@ -1218,57 +1168,60 @@ export default defineComponent({
             }
           }
         }
-        
+
         .article-list-main {
           flex: 1;
           padding-right: map.get(vars.$spacing, l);
-          
+
           .article-list-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: map.get(vars.$spacing, s);
-            
+
             .article-label {
               display: inline-block;
               padding: 4px 10px;
               border-radius: map.get(map.get(vars.$layout, border-radius), pill);
               font-size: map.get(map.get(vars.$fonts, sizes), small);
               font-weight: map.get(map.get(vars.$fonts, weights), medium);
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
                   color: white;
+                  transition: all 0.4s ease-out;
                 }
               }
             }
-            
+
             .article-meta {
               display: flex;
               gap: map.get(vars.$spacing, m);
               font-size: map.get(map.get(vars.$fonts, sizes), small);
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   color: mixins.theme-color($theme, text-tertiary);
+                  transition: all 0.4s ease-out;
                 }
               }
             }
           }
-          
+
           .article-title {
             margin-bottom: map.get(vars.$spacing, s);
             font-size: map.get(map.get(vars.$fonts, sizes), large);
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
-            
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
+                transition: all 0.4s ease-out;
               }
             }
           }
-          
+
           .article-preview {
             margin-bottom: map.get(vars.$spacing, m);
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
@@ -1277,35 +1230,37 @@ export default defineComponent({
             line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
+                transition: all 0.4s ease-out;
               }
             }
           }
-          
+
           .article-list-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            
+
             .article-tags {
               display: flex;
               flex-wrap: wrap;
               gap: 6px;
-              
+
               .article-tag {
                 padding: 2px 8px;
                 border-radius: map.get(map.get(vars.$layout, border-radius), pill);
                 font-size: 11px;
-                
+
                 @each $theme in ('light', 'dark') {
                   .theme-#{$theme} & {
                     background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
                     color: mixins.theme-color($theme, accent-teal);
                     border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-                    
+                    transition: all 0.4s ease-out;
+
                     &:hover {
                       background-color: mixins.theme-color($theme, accent-teal);
                       color: white;
@@ -1314,34 +1269,35 @@ export default defineComponent({
                 }
               }
             }
-            
+
             .article-meta-bottom {
               display: flex;
               gap: map.get(vars.$spacing, m);
               font-size: map.get(map.get(vars.$fonts, sizes), small);
-              
+
               .read-time {
                 @each $theme in ('light', 'dark') {
                   .theme-#{$theme} & {
                     color: mixins.theme-color($theme, text-tertiary);
+                    transition: all 0.4s ease-out;
                   }
                 }
               }
-              
+
               .difficulty {
                 padding: 2px 8px;
                 border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-                
+
                 &.easy {
                   background-color: rgba(74, 210, 149, 0.1);
                   color: #4AD295;
                 }
-                
+
                 &.medium {
                   background-color: rgba(53, 204, 208, 0.1);
                   color: #35CCD0;
                 }
-                
+
                 &.hard {
                   background-color: rgba(155, 225, 93, 0.1);
                   color: #9BE15D;
@@ -1350,13 +1306,13 @@ export default defineComponent({
             }
           }
         }
-        
+
         .article-list-actions {
           display: flex;
           flex-direction: column;
           justify-content: center;
           gap: map.get(vars.$spacing, s);
-          
+
           .action-button {
             padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
             border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -1364,13 +1320,14 @@ export default defineComponent({
             font-weight: map.get(map.get(vars.$fonts, weights), medium);
             cursor: pointer;
             border: none;
-            
+
             &.read {
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
                   color: white;
-                  
+                  transition: all 0.4s ease-out;
+
                   &:hover {
                     transform: translateY(-2px);
                     @include mixins.shadow('small', $theme);
@@ -1378,7 +1335,7 @@ export default defineComponent({
                 }
               }
             }
-            
+
             &.bookmark {
               width: 90px;
               height: 32px;
@@ -1386,17 +1343,18 @@ export default defineComponent({
               display: flex;
               align-items: center;
               justify-content: center;
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background-color: transparent;
                   color: mixins.theme-color($theme, text-secondary);
                   border: 1px solid mixins.theme-color($theme, border-medium);
-                  
+                  transition: all 0.4s ease-out;
+
                   &:hover {
                     background-color: mixins.theme-color($theme, hover-color);
                   }
-                  
+
                   &.active {
                     background-color: rgba(249, 202, 36, 0.1);
                     color: #F9CA24;
@@ -1407,16 +1365,16 @@ export default defineComponent({
             }
           }
         }
-        
+
         // Responsive-Anpassungen für die Listenansicht auf mobilen Geräten
         @media (max-width: 768px) {
           flex-direction: column;
-          
+
           .article-list-main {
             padding-right: 0;
             margin-bottom: map.get(vars.$spacing, m);
           }
-          
+
           .article-list-actions {
             flex-direction: row;
             justify-content: flex-start;
@@ -1424,7 +1382,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     // Leerer Zustand
     .empty-state {
       display: flex;
@@ -1433,48 +1391,51 @@ export default defineComponent({
       justify-content: center;
       padding: map.get(vars.$spacing, xxl);
       text-align: center;
-      
+
       .empty-icon {
         font-size: 4rem;
         margin-bottom: map.get(vars.$spacing, l);
         opacity: 0.5;
       }
-      
+
       h3 {
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         margin-bottom: map.get(vars.$spacing, m);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       p {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         margin-bottom: map.get(vars.$spacing, l);
         max-width: 500px;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       .reset-button {
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         border: none;
         cursor: pointer;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
-            
+            transition: all 0.4s ease-out;
+
             &:hover {
               transform: translateY(-3px);
               @include mixins.shadow('medium', $theme);
@@ -1484,7 +1445,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Paginierung
   .pagination {
     display: flex;
@@ -1492,23 +1453,24 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, m);
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     .pagination-button {
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       cursor: pointer;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
           border: 1px solid mixins.theme-color($theme, border-light);
-          
+          transition: all 0.4s ease-out;
+
           &:hover:not(:disabled) {
             background-color: mixins.theme-color($theme, hover-color);
           }
-          
+
           &:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -1516,11 +1478,11 @@ export default defineComponent({
         }
       }
     }
-    
+
     .page-numbers {
       display: flex;
       gap: map.get(vars.$spacing, xs);
-      
+
       .page-number {
         width: 32px;
         height: 32px;
@@ -1530,17 +1492,18 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), small);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         cursor: pointer;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
-            
+            transition: all 0.4s ease-out;
+
             &:hover {
               background-color: mixins.theme-color($theme, hover-color);
             }
-            
+
             &.active {
               background-color: mixins.theme-color($theme, accent-green);
               color: white;

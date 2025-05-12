@@ -129,6 +129,7 @@ export default defineComponent({
       /* Hintergrund hinzufügen */
       box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
       /* Schatten für bessere Sichtbarkeit */
+      transition: all 0.4s ease-out;
     }
   }
 
@@ -151,7 +152,8 @@ export default defineComponent({
     align-items: center;
 
     a {
-      display: flex; /* Stellt sicher, dass der Link das gesamte Logo umfasst */
+      display: flex;
+      /* Stellt sicher, dass der Link das gesamte Logo umfasst */
       align-items: center;
     }
 
@@ -161,7 +163,7 @@ export default defineComponent({
       border-radius: 50px;
       object-fit: contain;
       transition: transform 0.3s ease;
-      
+
       &:hover {
         transform: scale(1.05);
       }
@@ -285,7 +287,7 @@ export default defineComponent({
       justify-content: flex-start;
       overflow-x: auto;
       padding-bottom: map.get(vars.$spacing, s);
-      
+
       .nav-tab {
         flex: 0 0 auto;
         white-space: nowrap;

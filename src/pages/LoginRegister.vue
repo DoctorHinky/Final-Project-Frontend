@@ -44,13 +44,24 @@
             
             <div class="form-group">
               <label for="login-password">Passwort</label>
-              <input 
-                type="password" 
-                id="login-password" 
-                v-model="loginForm.password" 
-                placeholder="Dein Passwort" 
-                required
-              />
+              <div class="password-input-container">
+                <input 
+                  :type="showLoginPassword ? 'text' : 'password'" 
+                  id="login-password" 
+                  v-model="loginForm.password" 
+                  placeholder="Dein Passwort" 
+                  required
+                />
+                <button 
+                  type="button" 
+                  class="password-toggle" 
+                  @click="showLoginPassword = !showLoginPassword"
+                  :aria-label="showLoginPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                >
+                  <EyeSlashIcon v-if="showLoginPassword" class="icon" />
+                  <EyeIcon v-else class="icon" />
+                </button>
+              </div>
               <div class="hint-text">Testpasswort: password123</div>
             </div>
             
@@ -131,7 +142,7 @@
                   </div>
                 </div>
 
-                <!-- Hidden input for form submission -->
+                <!-- Hidden input für Form-Übermittlung -->
                 <input type="hidden" id="register-role" name="role" v-model="registerForm.role">
               </div>
             </div>
@@ -170,13 +181,78 @@
             
             <div class="form-group">
               <label for="register-password">Passwort</label>
-              <input 
-                type="password" 
-                id="register-password" 
-                v-model="registerForm.password" 
-                placeholder="Erstelle ein sicheres Passwort" 
-                required
-              />
+              <div class="password-input-container">
+                <input 
+                  :type="showRegisterPassword ? 'text' : 'password'" 
+                  id="register-password" 
+                  v-model="registerForm.password" 
+                  placeholder="Erstelle ein sicheres Passwort" 
+                  required
+                  @input="checkPasswordStrength"
+                />
+                <button 
+                  type="button" 
+                  class="password-toggle" 
+                  @click="showRegisterPassword = !showRegisterPassword"
+                  :aria-label="showRegisterPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                >
+                  <EyeSlashIcon v-if="showRegisterPassword" class="icon" />
+                  <EyeIcon v-else class="icon" />
+                </button>
+              </div>
+              
+              <!-- Passwort-Stärke-Anzeige -->
+              <div class="password-strength-container" v-if="registerForm.password">
+                <div class="password-strength-label">Passwortstärke: {{ passwordStrengthText }}</div>
+                <div class="password-strength-bar">
+                  <div 
+                    class="password-strength-fill" 
+                    :style="{ width: passwordStrength + '%' }"
+                    :class="passwordStrengthClass"
+                  ></div>
+                </div>
+                <div class="password-strength-tips" v-if="passwordStrength < 70">
+                  Für ein sicheres Passwort verwende Groß- und Kleinbuchstaben,
+                  Zahlen und Sonderzeichen.
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="register-password-confirm">Passwort bestätigen</label>
+              <div class="password-input-container">
+                <input 
+                  :type="showRegisterPasswordConfirm ? 'text' : 'password'" 
+                  id="register-password-confirm" 
+                  v-model="registerForm.passwordConfirm" 
+                  placeholder="Passwort erneut eingeben" 
+                  required
+                />
+                <button 
+                  type="button" 
+                  class="password-toggle" 
+                  @click="showRegisterPasswordConfirm = !showRegisterPasswordConfirm"
+                  :aria-label="showRegisterPasswordConfirm ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                >
+                  <EyeSlashIcon v-if="showRegisterPasswordConfirm" class="icon" />
+                  <EyeIcon v-else class="icon" />
+                </button>
+              </div>
+              
+              <!-- Passwort-Übereinstimmungs-Hinweis -->
+              <div 
+                v-if="registerForm.passwordConfirm && passwordMatch !== null" 
+                :class="['password-match-message', passwordMatch ? 'match-success' : 'match-error']"
+              >
+                <span v-if="passwordMatch">
+                  <CheckCircleIcon class="check-icon" />
+                  Passwörter stimmen überein
+                </span>
+                <span v-else>
+                  <XCircleIcon class="error-icon" />
+                  Passwörter stimmen nicht überein
+                </span>
+              </div>
             </div>
             
             <div class="form-options">
@@ -199,17 +275,87 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/services/auth.service';
+// Import Heroicons
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'LoginRegister',
+  components: {
+    EyeIcon,
+    EyeSlashIcon,
+    CheckCircleIcon,
+    XCircleIcon
+  },
   setup() {
     const router = useRouter();
     const route = useRoute();
     const activeTab = ref('login');
     const isLoading = ref(false);
+    
+    // Password-Toggle-Variablen
+    const showLoginPassword = ref(false);
+    const showRegisterPassword = ref(false);
+    const showRegisterPasswordConfirm = ref(false);
+    
+    // Passwort-Stärke-Variablen
+    const passwordStrength = ref(0);
+    
+    // Passwort-Übereinstimmungs-Variable
+    const passwordMatch = ref(null);
+    
+    // Passwort-Stärke-Texte und -Klassen berechnen
+    const passwordStrengthText = computed(() => {
+      if (passwordStrength.value <= 25) return 'Sehr schwach';
+      if (passwordStrength.value <= 50) return 'Schwach';
+      if (passwordStrength.value <= 75) return 'Mittel';
+      return 'Stark';
+    });
+    
+    const passwordStrengthClass = computed(() => {
+      if (passwordStrength.value <= 25) return 'strength-very-weak';
+      if (passwordStrength.value <= 50) return 'strength-weak';
+      if (passwordStrength.value <= 75) return 'strength-medium';
+      return 'strength-strong';
+    });
+    
+    // Funktion zum Prüfen der Passwortstärke
+    const checkPasswordStrength = () => {
+      const password = registerForm.password;
+      
+      // Wenn kein Passwort, dann 0% Stärke
+      if (!password) {
+        passwordStrength.value = 0;
+        return;
+      }
+      
+      let strength = 0;
+      
+      // Grundlegende Längenprüfung
+      if (password.length >= 8) strength += 25;
+      if (password.length >= 12) strength += 10;
+      
+      // Prüfung auf Buchstaben, Zahlen und Sonderzeichen
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasNumbers = /\d/.test(password);
+      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+      
+      if (hasLowerCase) strength += 10;
+      if (hasUpperCase) strength += 15;
+      if (hasNumbers) strength += 15;
+      if (hasSpecialChars) strength += 25;
+      
+      // Begrenzung auf maximal 100%
+      passwordStrength.value = Math.min(strength, 100);
+      
+      // Wenn Bestätigungspasswort existiert, prüfe Übereinstimmung
+      if (registerForm.passwordConfirm) {
+        checkPasswordMatch();
+      }
+    };
     
     // Status-Meldungen
     const loginStatus = reactive({
@@ -270,11 +416,29 @@ export default defineComponent({
       phone: '',
       email: '',
       password: '',
+      passwordConfirm: '',
       agreeTerms: false
     });
     
+    // Passwort-Übereinstimmung prüfen
+    const checkPasswordMatch = () => {
+      if (!registerForm.passwordConfirm) {
+        passwordMatch.value = null;
+        return;
+      }
+      
+      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
+    };
+    
     // Registrierung verarbeiten
     const handleRegister = async () => {
+      // Prüfe, ob Passwörter übereinstimmen
+      if (registerForm.password !== registerForm.passwordConfirm) {
+        registerStatus.success = false;
+        registerStatus.message = 'Die Passwörter stimmen nicht überein.';
+        return;
+      }
+      
       isLoading.value = true;
       registerStatus.message = '';
       
@@ -300,7 +464,10 @@ export default defineComponent({
             registerForm.phone = '';
             registerForm.email = '';
             registerForm.password = '';
+            registerForm.passwordConfirm = '';
             registerForm.agreeTerms = false;
+            passwordStrength.value = 0;
+            passwordMatch.value = null;
             
             isLoading.value = false;
           }, 1500);
@@ -396,6 +563,18 @@ export default defineComponent({
       isLoading,
       loginStatus,
       registerStatus,
+      // Password-Toggle-Funktionalität
+      showLoginPassword,
+      showRegisterPassword,
+      showRegisterPasswordConfirm,
+      // Passwort-Stärke
+      passwordStrength,
+      passwordStrengthText,
+      passwordStrengthClass,
+      checkPasswordStrength,
+      // Passwort-Übereinstimmung
+      passwordMatch,
+      checkPasswordMatch,
       // Dropdown-Funktionalität
       isOpen,
       roleOptions,
@@ -556,6 +735,109 @@ export default defineComponent({
               outline: none;
               border-color: mixins.theme-color($theme, accent-teal);
               box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+            }
+          }
+        }
+      }
+      
+      // Password-Input-Container für den Toggle-Button
+      .password-input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        
+        input {
+          padding-right: 40px; // Platz für den Button
+        }
+        
+        .password-toggle {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          .icon {
+            width: 20px;
+            height: 20px;
+          }
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+              
+              &:hover {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
+          }
+        }
+      }
+      
+      // Passwort-Stärke-Anzeige
+      .password-strength-container {
+        margin-top: map.get(vars.$spacing, s);
+        
+        .password-strength-label {
+          display: flex;
+          justify-content: space-between;
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
+          }
+        }
+        
+        .password-strength-bar {
+          height: 6px;
+          width: 100%;
+          margin: 4px 0;
+          border-radius: 3px;
+          overflow: hidden;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, secondary-bg);
+            }
+          }
+          
+          .password-strength-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            
+            &.strength-very-weak {
+              background-color: #ff4d4d;
+            }
+            
+            &.strength-weak {
+              background-color: #ffaa00;
+            }
+            
+            &.strength-medium {
+              background-color: #ffdd00;
+            }
+            
+            &.strength-strong {
+              background-color: #00cc66;
+            }
+          }
+        }
+        
+        .password-strength-tips {
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+          margin-top: 4px;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
             }
           }
         }

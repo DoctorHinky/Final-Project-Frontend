@@ -44,23 +44,23 @@
       <div class="stars">
         <svg id="star-1" class="star" viewBox="0 0 20 20">
           <path
-            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
-          ></path>
+            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z">
+          </path>
         </svg>
         <svg id="star-2" class="star" viewBox="0 0 20 20">
           <path
-            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
-          ></path>
+            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z">
+          </path>
         </svg>
         <svg id="star-3" class="star" viewBox="0 0 20 20">
           <path
-            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
-          ></path>
+            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z">
+          </path>
         </svg>
         <svg id="star-4" class="star" viewBox="0 0 20 20">
           <path
-            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"
-          ></path>
+            d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z">
+          </path>
         </svg>
       </div>
     </div>
@@ -89,13 +89,16 @@ export default defineComponent({
   width: 60px;
   height: 34px;
   border-radius: 34px;
-  box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.2); /* Leichte Schatten für bessere Sichtbarkeit */
+  box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.2);
+  /* Leichte Schatten für bessere Sichtbarkeit */
 }
+
 .switch #input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .slider {
   position: absolute;
   cursor: pointer;
@@ -104,11 +107,13 @@ export default defineComponent({
   right: 0;
   bottom: 0;
   background-color: #2196f3;
-  -webkit-transition: 1.5s ease-in-out; /* Übergang mit sanfter Beschleunigung und Abbremsung */
-  transition: 1.5s ease-in-out;
+  -webkit-transition: 1.5s ease-in-out;
+  /* Übergang mit sanfter Beschleunigung und Abbremsung */
+  transition: 0.5s ease-in-out;
   z-index: 0;
   overflow: hidden;
 }
+
 .sun-moon {
   position: absolute;
   content: "";
@@ -117,38 +122,50 @@ export default defineComponent({
   left: 4px;
   bottom: 4px;
   background-color: yellow;
-  -webkit-transition: 1.5s ease-in-out; /* Synchronisiert mit anderen Animationen */
-  transition: 1.5s ease-in-out;
+  -webkit-transition: 1.5s ease-in-out;
+  /* Synchronisiert mit anderen Animationen */
+  transition: 0.5s ease-in-out;
 }
-#input:checked + .slider {
+
+#input:checked+.slider {
   background-color: black;
 }
-#input:focus + .slider {
+
+#input:focus+.slider {
   box-shadow: 0 0 1px #2196f3;
 }
-#input:checked + .slider .sun-moon {
+
+#input:checked+.slider .sun-moon {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
   background-color: white;
-  -webkit-animation: rotate-center 2s ease-in-out 0s both; /* Animation startet sofort mit dem Übergang */
-  animation: rotate-center 2s ease-in-out 0s both;
+  -webkit-animation: rotate-center 2s ease-in-out 0s both;
+  /* Animation startet sofort mit dem Übergang */
+  animation: rotate-center 1s ease-in-out 0s both;
 }
+
 .moon-dot {
   opacity: 0;
-  transition: 1.5s ease-in-out; /* Synchronisiert mit anderen Übergängen */
+  transition: 0.5s ease-in-out;
+  /* Synchronisiert mit anderen Übergängen */
   fill: gray;
 }
-#input:checked + .slider .sun-moon .moon-dot {
+
+#input:checked+.slider .sun-moon .moon-dot {
   opacity: 1;
-  transition-delay: 0.3s; /* Leichte Verzögerung für fließenden Übergang */
+  transition-delay: 0.3s;
+  /* Leichte Verzögerung für fließenden Übergang */
 }
+
 .slider.round {
   border-radius: 34px;
 }
+
 .slider.round .sun-moon {
   border-radius: 50%;
 }
+
 #moon-dot-1 {
   left: 10px;
   top: 3px;
@@ -157,6 +174,7 @@ export default defineComponent({
   height: 6px;
   z-index: 4;
 }
+
 #moon-dot-2 {
   left: 2px;
   top: 10px;
@@ -165,6 +183,7 @@ export default defineComponent({
   height: 10px;
   z-index: 4;
 }
+
 #moon-dot-3 {
   left: 16px;
   top: 18px;
@@ -173,6 +192,7 @@ export default defineComponent({
   height: 3px;
   z-index: 4;
 }
+
 #light-ray-1 {
   left: -8px;
   top: -8px;
@@ -183,6 +203,7 @@ export default defineComponent({
   fill: white;
   opacity: 10%;
 }
+
 #light-ray-2 {
   left: -50%;
   top: -50%;
@@ -193,6 +214,7 @@ export default defineComponent({
   fill: white;
   opacity: 10%;
 }
+
 #light-ray-3 {
   left: -18px;
   top: -18px;
@@ -203,16 +225,21 @@ export default defineComponent({
   fill: white;
   opacity: 10%;
 }
+
 .cloud-light {
   position: absolute;
   fill: #eee;
   animation-name: cloud-move;
-  animation-duration: 12s;
+  animation-duration: 5s;
   animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out; /* Sanftere Bewegung */
-  opacity: 0; /* Beginnt unsichtbar */
-  transition: opacity 1.5s ease-in-out; /* Übergang für Erscheinen/Verschwinden */
+  animation-timing-function: ease-in-out;
+  /* Sanftere Bewegung */
+  opacity: 0;
+  /* Beginnt unsichtbar */
+  transition: opacity 1.5s ease-in-out;
+  /* Übergang für Erscheinen/Verschwinden */
 }
+
 .cloud-dark {
   position: absolute;
   fill: #ccc;
@@ -220,66 +247,86 @@ export default defineComponent({
   animation-duration: 12s;
   animation-iteration-count: infinite;
   animation-delay: 1s;
-  animation-timing-function: ease-in-out; /* Sanftere Bewegung */
-  opacity: 0; /* Beginnt unsichtbar */
-  transition: opacity 1.5s ease-in-out; /* Übergang für Erscheinen/Verschwinden */
+  animation-timing-function: ease-in-out;
+  /* Sanftere Bewegung */
+  opacity: 0;
+  /* Beginnt unsichtbar */
+  transition: opacity 1.5s ease-in-out;
+  /* Übergang für Erscheinen/Verschwinden */
 }
-#input:not(:checked) + .slider .cloud-light {
-  opacity: 1; /* Sichtbar im Tagesmodus */
+
+#input:not(:checked)+.slider .cloud-light {
+  opacity: 1;
+  /* Sichtbar im Tagesmodus */
 }
-#input:checked + .slider .cloud-dark {
-  opacity: 1; /* Sichtbar im Nachtmodus */
+
+#input:checked+.slider .cloud-dark {
+  opacity: 1;
+  /* Sichtbar im Nachtmodus */
 }
+
 #cloud-1 {
   left: 30px;
   top: 15px;
   width: 40px;
 }
+
 #cloud-2 {
   left: 44px;
   top: 10px;
   width: 20px;
 }
+
 #cloud-3 {
   left: 18px;
   top: 24px;
   width: 30px;
 }
+
 #cloud-4 {
   left: 36px;
   top: 18px;
   width: 40px;
 }
+
 #cloud-5 {
   left: 48px;
   top: 14px;
   width: 20px;
 }
+
 #cloud-6 {
   left: 22px;
   top: 26px;
   width: 30px;
 }
+
 @keyframes cloud-move {
   0% {
     transform: translateX(0px);
   }
+
   40% {
     transform: translateX(4px);
   }
+
   80% {
     transform: translateX(-4px);
   }
+
   100% {
     transform: translateX(0px);
   }
-  
+
 }
+
 .stars {
   transform: translateY(-32px);
   opacity: 0;
-  transition: 1.8s ease-in-out; /* Verlängerte Zeit für flüssigeren Übergang */
+  transition: 1.8s ease-in-out;
+  /* Verlängerte Zeit für flüssigeren Übergang */
 }
+
 .star {
   fill: white;
   position: absolute;
@@ -289,54 +336,66 @@ export default defineComponent({
   animation-duration: 4s;
   animation-iteration-count: infinite;
 }
-#input:checked + .slider .stars {
+
+#input:checked+.slider .stars {
   -webkit-transform: translateY(0);
   -ms-transform: translateY(0);
   transform: translateY(0);
   opacity: 1;
-  transition-delay: 0.2s; /* Leichte Verzögerung für fließenderen Übergang */
+  transition-delay: 0.2s;
+  /* Leichte Verzögerung für fließenderen Übergang */
 }
+
 #star-1 {
   width: 20px;
   top: 2px;
   left: 3px;
   animation-delay: 0.3s;
 }
+
 #star-2 {
   width: 6px;
   top: 16px;
   left: 3px;
 }
+
 #star-3 {
   width: 12px;
   top: 20px;
   left: 10px;
   animation-delay: 0.6s;
 }
+
 #star-4 {
   width: 18px;
   top: 0px;
   left: 18px;
   animation-delay: 1.3s;
 }
+
 @keyframes star-twinkle {
   0% {
     transform: scale(1);
   }
+
   40% {
     transform: scale(1.2);
   }
+
   80% {
     transform: scale(0.8);
   }
+
   100% {
     transform: scale(1);
   }
 }
+
 @keyframes rotate-center {
   0% {
     transform: translateX(26px) rotate(0);
   }
+
   100% {
     transform: translateX(26px) rotate(360deg);
   }
@@ -347,6 +406,7 @@ export default defineComponent({
   0% {
     background-color: #2196f3;
   }
+
   100% {
     background-color: black;
   }
@@ -356,16 +416,17 @@ export default defineComponent({
   0% {
     background-color: black;
   }
+
   100% {
     background-color: #2196f3;
   }
 }
 
-#input:checked + .slider {
+#input:checked+.slider {
   animation: night-transition 1.5s ease-in-out forwards;
 }
 
-#input:not(:checked) + .slider {
+#input:not(:checked)+.slider {
   animation: day-transition 1.5s ease-in-out forwards;
 }
 </style>

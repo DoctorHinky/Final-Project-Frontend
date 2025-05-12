@@ -116,6 +116,7 @@ export default defineComponent({
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border-right: 1px solid mixins.theme-color($theme, border-medium);
+      transition: all 0.4s ease-out;
     }
   }
 
@@ -134,6 +135,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
+        transition: all 0.4s ease-out;
       }
     }
 
@@ -156,6 +158,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
@@ -175,6 +178,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
 
           &:hover {
             color: mixins.theme-color($theme, text-primary);
@@ -204,6 +208,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
 
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
@@ -240,6 +245,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
+        transition: all 0.4s ease-out;
       }
     }
 
@@ -263,6 +269,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary); // Dynamische Textfarbe
           border-color: rgb(255, 0, 0);
+          transition: all 0.4s ease-out;
 
           &:hover {
             background-color: rgba(255, 0, 0, 0.308);

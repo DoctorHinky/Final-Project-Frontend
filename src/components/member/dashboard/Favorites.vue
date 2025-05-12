@@ -44,7 +44,8 @@
       <!-- Grid-Ansicht -->
       <div v-if="viewMode === 'grid'" class="grid-view">
         <div v-for="favorite in filteredFavorites" :key="favorite.id" class="favorite-card"
-          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }" @click="selectFavorite(favorite)">
+          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }"
+          @click="selectFavorite(favorite)">
           <div class="favorite-category">{{ favorite.category }}</div>
           <div class="favorite-content">
             <h3>{{ favorite.title }}</h3>
@@ -64,7 +65,8 @@
       <!-- Listen-Ansicht -->
       <div v-else-if="viewMode === 'list'" class="list-view">
         <div v-for="favorite in filteredFavorites" :key="favorite.id" class="favorite-list-item"
-          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }" @click="selectFavorite(favorite)">
+          :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }"
+          @click="selectFavorite(favorite)">
           <div class="favorite-list-main">
             <div class="favorite-list-header">
               <div class="favorite-category">{{ favorite.category }}</div>
@@ -391,7 +393,7 @@ export default defineComponent({
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
-
+             transition: all 0.4s ease-out;
             &:focus {
               border-color: mixins.theme-color($theme, accent-teal);
               outline: none;
@@ -419,7 +421,7 @@ export default defineComponent({
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
-
+             transition: all 0.4s ease-out;
             &:hover {
               background-color: mixins.theme-color($theme, hover-color);
             }
@@ -436,6 +438,7 @@ export default defineComponent({
 
   // Favoriten-Container
   .favorites-container {
+
     // Rasteransicht
     &.grid {
       .grid-view {
@@ -469,7 +472,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
-
+          transition: all 0.4s ease-out;
           &:hover {
             transform: translateY(-5px);
             @include mixins.shadow('medium', $theme);
@@ -521,6 +524,7 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           display: -webkit-box;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
 
@@ -569,7 +573,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
-
+          transition: all 0.4s ease-out;
           &:hover {
             transform: translateY(-3px);
             @include mixins.shadow('small', $theme);
@@ -605,6 +609,7 @@ export default defineComponent({
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;
+          transition: all 0.4s ease-out;
               }
             }
           }
@@ -642,6 +647,7 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           display: -webkit-box;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
 
@@ -683,7 +689,8 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.4s ease-out;
+
       border: none;
 
       &.read {
@@ -766,6 +773,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
+          transition: all 0.4s ease-out;
 
           &:hover {
             transform: translateY(-3px);
@@ -788,6 +796,7 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    border-radius: 20px;
 
     .confirm-dialog {
       width: 100%;
@@ -800,6 +809,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           @include mixins.shadow('large', $theme);
+          transition: all 0.4s ease-out;
         }
       }
 

@@ -1069,7 +1069,7 @@ export default defineComponent({
           display: flex;
           gap: map.get(vars.$spacing, s);
           height: 40px; // Feste Höhe für die Aktionsleiste
-          
+
           .action-button {
             height: 100%; // Volle Höhe nehmen
             padding: 0 map.get(vars.$spacing, m);
@@ -1082,20 +1082,20 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
-            
+
             @media (max-width: 768px) {
               padding: 0 map.get(vars.$spacing, s);
               font-size: 12px;
             }
-            
+
             &.read {
               flex: 3; // Lese-Button nimmt etwas mehr Platz ein
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
                   color: white;
-                  
+
                   &:hover {
                     transform: translateY(-2px);
                     @include mixins.shadow('small', $theme);
@@ -1103,25 +1103,25 @@ export default defineComponent({
                 }
               }
             }
-            
+
             &.bookmark {
               flex: 1; // Lesezeichen-Button nimmt weniger Platz ein, aber bleibt proportional
               min-width: 40px; // Mindestbreite für den Stern
-              
+
               @media (max-width: 768px) {
                 min-width: 32px;
               }
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background-color: transparent;
                   color: mixins.theme-color($theme, text-primary);
                   border: 1px solid mixins.theme-color($theme, border-medium);
-                  
+
                   &:hover {
                     background-color: mixins.theme-color($theme, hover-color);
                   }
-                  
+
                   &.active {
                     background-color: rgba(249, 202, 36, 0.1);
                     color: #F9CA24;
@@ -1344,13 +1344,13 @@ export default defineComponent({
           gap: map.get(vars.$spacing, s);
           align-self: center;
           width: 120px; // Feste Breite für die Aktionsleiste in der Listenansicht
-          
+
           @media (max-width: 576px) {
             flex-direction: row;
             width: 100%;
             margin-top: map.get(vars.$spacing, s);
           }
-          
+
           .action-button {
             height: 40px; // Feste Höhe für beide Buttons
             padding: 0 map.get(vars.$spacing, m);
@@ -1364,23 +1364,23 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
-            
+
             @media (max-width: 768px) {
               padding: 0 map.get(vars.$spacing, s);
               font-size: 12px;
               height: 36px; // Etwas kleiner auf mobilen Geräten
             }
-            
+
             @media (max-width: 576px) {
               flex: 1;
             }
-            
+
             &.read {
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background: mixins.theme-gradient($theme, primary);
                   color: white;
-                  
+
                   &:hover {
                     transform: translateY(-2px);
                     @include mixins.shadow('small', $theme);
@@ -1388,22 +1388,22 @@ export default defineComponent({
                 }
               }
             }
-            
+
             &.bookmark {
               @media (max-width: 576px) {
                 flex: 0 0 40px; // Feste Breite in der mobilen Listenansicht
               }
-              
+
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
                   background-color: transparent;
                   color: mixins.theme-color($theme, text-primary);
                   border: 1px solid mixins.theme-color($theme, border-medium);
-                  
+
                   &:hover {
                     background-color: mixins.theme-color($theme, hover-color);
                   }
-                  
+
                   &.active {
                     background-color: rgba(249, 202, 36, 0.1);
                     color: #F9CA24;
@@ -1454,6 +1454,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -1470,11 +1471,12 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
 
-.reset-button {
+    .reset-button {
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
@@ -1490,6 +1492,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
+          transition: all 0.4s ease-out;
 
           &:hover {
             transform: translateY(-3px);

@@ -99,9 +99,7 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
           @include mixins.shadow('medium', $theme);
-          transition: transform map.get(vars.$transitions, default), 
-                     box-shadow map.get(vars.$transitions, default),
-                     border-color map.get(vars.$transitions, default);
+          transition: all 0.4s ease-out;
           
           &:hover {
             transform: translateY(-8px) scale(1.02);

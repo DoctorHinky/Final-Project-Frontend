@@ -55,11 +55,13 @@ export default defineComponent({
   &.theme-light {
     background-color: mixins.theme-color('light', primary-bg);
     color: mixins.theme-color('light', text-primary);
+    transition: all 0.4s ease-out;
   }
   
   &.theme-dark {
     background-color: mixins.theme-color('dark', primary-bg);
     color: mixins.theme-color('dark', text-primary);
+    transition: all 0.4s ease-out;
   }
   
   .main-content {

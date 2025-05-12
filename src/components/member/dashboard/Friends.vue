@@ -5,7 +5,7 @@
       <h2>Meine Freunde</h2>
       <p>Verbinde dich mit anderen Eltern und tausche dich über Erfahrungen aus</p>
     </div>
-    
+
     <!-- Freunde-Statistik-Karten -->
     <div class="friends-stats">
       <div class="stat-card">
@@ -15,7 +15,7 @@
           <p>Freunde</p>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon" style="background-color: rgba(53, 204, 208, 0.2)">📨</div>
         <div class="stat-info">
@@ -23,7 +23,7 @@
           <p>Offene Anfragen</p>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon" style="background-color: rgba(155, 225, 93, 0.2)">💬</div>
         <div class="stat-info">
@@ -32,43 +32,29 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Tabs für Freunde, Anfragen und Empfehlungen -->
     <div class="friends-tabs">
-      <button 
-        v-for="(tab, index) in tabs" 
-        :key="index"
-        class="tab-button"
-        :class="{ active: activeTab === tab.id }"
-        @click="activeTab = tab.id"
-      >
+      <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id">
         {{ tab.name }}
       </button>
     </div>
-    
+
     <!-- Suchleiste -->
     <div class="search-section" v-if="activeTab === 'friends'">
       <div class="search-container">
-        <input 
-          type="text" 
-          placeholder="Freunde suchen..." 
-          v-model="searchQuery"
-          @input="filterFriends"
-        />
+        <input type="text" placeholder="Freunde suchen..." v-model="searchQuery" @input="filterFriends" />
         <button class="search-button">
           <span class="search-icon">🔍</span>
         </button>
       </div>
     </div>
-    
+
     <!-- Freunde-Liste -->
     <div v-if="activeTab === 'friends'" class="friends-list">
       <div v-if="filteredFriends.length > 0" class="friends-grid">
-        <div 
-          v-for="friend in filteredFriends" 
-          :key="friend.id" 
-          class="friend-card"
-        >
+        <div v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
           <div class="friend-avatar">
             <span class="avatar-placeholder">{{ getInitials(friend.name) }}</span>
             <span v-if="friend.isOnline" class="online-indicator"></span>
@@ -90,7 +76,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Leerer Zustand für Freunde -->
       <div v-else class="empty-state">
         <div class="empty-icon">👥</div>
@@ -101,15 +87,11 @@
         <button v-else @click="activeTab = 'suggestions'" class="reset-button">Empfehlungen anzeigen</button>
       </div>
     </div>
-    
+
     <!-- Anfragen-Liste -->
     <div v-if="activeTab === 'requests'" class="requests-list">
       <div v-if="pendingRequests.length > 0" class="requests-grid">
-        <div 
-          v-for="request in pendingRequests" 
-          :key="request.id" 
-          class="request-card"
-        >
+        <div v-for="request in pendingRequests" :key="request.id" class="request-card">
           <div class="request-avatar">
             <span class="avatar-placeholder">{{ getInitials(request.name) }}</span>
           </div>
@@ -127,7 +109,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Leerer Zustand für Anfragen -->
       <div v-else class="empty-state">
         <div class="empty-icon">📨</div>
@@ -136,15 +118,11 @@
         <button @click="activeTab = 'suggestions'" class="reset-button">Empfehlungen anzeigen</button>
       </div>
     </div>
-    
+
     <!-- Empfehlungen-Liste -->
     <div v-if="activeTab === 'suggestions'" class="suggestions-list">
       <div v-if="friendSuggestions.length > 0" class="suggestions-grid">
-        <div 
-          v-for="suggestion in friendSuggestions" 
-          :key="suggestion.id" 
-          class="suggestion-card"
-        >
+        <div v-for="suggestion in friendSuggestions" :key="suggestion.id" class="suggestion-card">
           <div class="suggestion-avatar">
             <span class="avatar-placeholder">{{ getInitials(suggestion.name) }}</span>
           </div>
@@ -166,7 +144,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Leerer Zustand für Empfehlungen -->
       <div v-else class="empty-state">
         <div class="empty-icon">🔍</div>
@@ -178,7 +156,7 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Einladungs-Modal -->
     <div v-if="showInviteModal" class="modal-backdrop" @click="showInviteModal = false">
       <div class="modal-content" @click.stop>
@@ -233,14 +211,14 @@ export default defineComponent({
     const showInviteModal = ref(false);
     const inviteEmail = ref('');
     const inviteMessage = ref('');
-    
+
     // Tabs
     const tabs = ref([
       { id: 'friends', name: 'Meine Freunde' },
       { id: 'requests', name: 'Anfragen' },
       { id: 'suggestions', name: 'Empfehlungen' }
     ]);
-    
+
     // Beispieldaten (später durch API-Daten ersetzen)
     const friends = ref<Friend[]>([
       {
@@ -268,7 +246,7 @@ export default defineComponent({
         isOnline: true
       }
     ]);
-    
+
     const pendingRequests = ref<FriendRequest[]>([
       {
         id: 101,
@@ -285,7 +263,7 @@ export default defineComponent({
         mutualFriends: 0
       }
     ]);
-    
+
     const friendSuggestions = ref<FriendSuggestion[]>([
       {
         id: 201,
@@ -309,39 +287,39 @@ export default defineComponent({
         matchReason: 'Interesse an Outdoor-Aktivitäten mit Kindern'
       }
     ]);
-    
+
     // Berechnete Eigenschaften
     const friendsCount = computed(() => friends.value.length);
     const pendingRequestsCount = computed(() => pendingRequests.value.length);
     const suggestionsCount = computed(() => friendSuggestions.value.length);
-    
+
     // Nach Namen gefilterte Freunde
     const filteredFriends = computed(() => {
       if (!searchQuery.value.trim()) return friends.value;
-      
+
       const query = searchQuery.value.toLowerCase();
-      return friends.value.filter(friend => 
-        friend.name.toLowerCase().includes(query) || 
+      return friends.value.filter(friend =>
+        friend.name.toLowerCase().includes(query) ||
         friend.bio.toLowerCase().includes(query)
       );
     });
-    
+
     // Such-Handler
     const filterFriends = () => {
       // Aktives Menü zurücksetzen, wenn gesucht wird
       activeFriendMenu.value = null;
     };
-    
+
     // Suche zurücksetzen
     const clearSearch = () => {
       searchQuery.value = '';
     };
-    
+
     // Freundesmenü umschalten
     const toggleFriendMenu = (friendId: number) => {
       activeFriendMenu.value = activeFriendMenu.value === friendId ? null : friendId;
     };
-    
+
     // Initialen für Avatar-Platzhalter
     const getInitials = (name: string) => {
       return name
@@ -350,7 +328,7 @@ export default defineComponent({
         .join('')
         .toUpperCase();
     };
-    
+
     // Freund entfernen
     const unfriend = (friendId: number) => {
       const index = friends.value.findIndex(friend => friend.id === friendId);
@@ -362,7 +340,7 @@ export default defineComponent({
         }
       }
     };
-    
+
     // Anfrage annehmen
     const acceptRequest = (requestId: number) => {
       const request = pendingRequests.value.find(req => req.id === requestId);
@@ -376,7 +354,7 @@ export default defineComponent({
           sharedInterests: request.mutualFriends,
           isOnline: false
         });
-        
+
         // Anfrage entfernen
         const index = pendingRequests.value.findIndex(req => req.id === requestId);
         if (index !== -1) {
@@ -384,7 +362,7 @@ export default defineComponent({
         }
       }
     };
-    
+
     // Anfrage ablehnen
     const declineRequest = (requestId: number) => {
       const index = pendingRequests.value.findIndex(req => req.id === requestId);
@@ -392,20 +370,20 @@ export default defineComponent({
         pendingRequests.value.splice(index, 1);
       }
     };
-    
+
     // Anfrage senden
     const sendRequest = (suggestionId: number) => {
       // Empfehlung entfernen (später durch tatsächliche Anfrage-Logik ersetzen)
       const index = friendSuggestions.value.findIndex(sug => sug.id === suggestionId);
       if (index !== -1) {
         const suggestion = friendSuggestions.value[index];
-        
+
         alert(`Freundschaftsanfrage an ${suggestion.name} wurde gesendet!`);
-        
+
         friendSuggestions.value.splice(index, 1);
       }
     };
-    
+
     // Empfehlung ignorieren
     const ignoreSuggestion = (suggestionId: number) => {
       const index = friendSuggestions.value.findIndex(sug => sug.id === suggestionId);
@@ -413,7 +391,7 @@ export default defineComponent({
         friendSuggestions.value.splice(index, 1);
       }
     };
-    
+
     // Einladung senden
     const sendInvite = () => {
       if (inviteEmail.value.trim()) {
@@ -423,7 +401,7 @@ export default defineComponent({
         showInviteModal.value = false;
       }
     };
-    
+
     return {
       activeTab,
       searchQuery,
@@ -465,59 +443,62 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
-  
+
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
   }
-  
+
   // Statistik-Karten
   .friends-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: map.get(vars.$spacing, l);
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .stat-card {
       display: flex;
       align-items: center;
       padding: map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
-          
+          transition: all 0.4s ease-out;
+
           &:hover {
             transform: translateY(-5px);
             @include mixins.shadow('medium', $theme);
           }
         }
       }
-      
+
       .stat-icon {
         width: 50px;
         height: 50px;
@@ -528,41 +509,43 @@ export default defineComponent({
         margin-right: map.get(vars.$spacing, m);
         font-size: 1.5rem;
       }
-      
+
       .stat-info {
         h3 {
           font-size: map.get(map.get(vars.$fonts, sizes), xl);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
           margin: 0 0 map.get(vars.$spacing, xxs) 0;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         p {
           margin: 0;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
+              transition: all 0.4s ease-out;
             }
           }
         }
       }
     }
   }
-  
+
   // Tabs
   .friends-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: map.get(vars.$spacing, s);
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .tab-button {
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -571,16 +554,17 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s;
       border: none;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
-          
+          transition: all 0.4s ease-out;
+
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
           }
-          
+
           &.active {
             background: mixins.theme-gradient($theme, primary);
             color: white;
@@ -589,28 +573,29 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Suchleiste
   .search-section {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .search-container {
       position: relative;
       width: 100%;
-      
+
       input {
         width: 100%;
         padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       .search-button {
         position: absolute;
         right: 10px;
@@ -620,30 +605,35 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         font-size: 1.2rem;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
       }
     }
   }
-  
+
   // Gemeinsame Stile für Cards
-  .friends-grid, .requests-grid, .suggestions-grid {
+  .friends-grid,
+  .requests-grid,
+  .suggestions-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: map.get(vars.$spacing, l); // Adjusted spacing for better alignment
-    
+
     @media (max-width: 768px) {
       justify-content: center; // Center align cards on smaller screens
     }
   }
-  
+
   // Card-Styles
-  .friend-card, .request-card, .suggestion-card {
+  .friend-card,
+  .request-card,
+  .suggestion-card {
     width: 600px;
     display: flex;
     padding: map.get(vars.$spacing, l);
@@ -652,12 +642,13 @@ export default defineComponent({
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     gap: map.get(vars.$spacing, m);
     overflow: hidden;
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        
+        transition: all 0.4s ease-out;
+
         &:hover {
           transform: translateY(-4px);
           @include mixins.shadow('medium', $theme);
@@ -665,9 +656,11 @@ export default defineComponent({
         }
       }
     }
-    
+
     // Avatar-Stil
-    .friend-avatar, .request-avatar, .suggestion-avatar {
+    .friend-avatar,
+    .request-avatar,
+    .suggestion-avatar {
       width: 80px;
       height: 80px;
       border-radius: 50%;
@@ -677,25 +670,27 @@ export default defineComponent({
       justify-content: center;
       position: relative;
       flex-shrink: 0;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 2px solid mixins.theme-color($theme, accent-green);
+          transition: all 0.4s ease-out;
         }
       }
-      
+
       .avatar-placeholder {
         font-size: 2rem;
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       .online-indicator {
         position: absolute;
         bottom: 5px;
@@ -707,72 +702,89 @@ export default defineComponent({
         border: 2px solid white;
       }
     }
-    
+
     // Info-Bereich
-    .friend-info, .request-info, .suggestion-info {
+    .friend-info,
+    .request-info,
+    .suggestion-info {
       flex: 1;
       min-width: 0; // Für Textbegrenzung
-      
+
       h3 {
         margin: 0 0 map.get(vars.$spacing, xs) 0;
         font-size: map.get(map.get(vars.$fonts, sizes), large);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
-      .friend-bio, .request-message, .suggestion-bio {
+
+      .friend-bio,
+      .request-message,
+      .suggestion-bio {
         margin-bottom: map.get(vars.$spacing, s);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         line-height: 1.4;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
-      .friend-meta, .request-meta, .suggestion-meta {
+
+      .friend-meta,
+      .request-meta,
+      .suggestion-meta {
         display: flex;
         flex-wrap: wrap;
         gap: map.get(vars.$spacing, s);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
+            transition: all 0.4s ease-out;
           }
         }
-        
-        .friend-since, .request-date, .mutual-friends, .match-reason, .shared-interests {
+
+        .friend-since,
+        .request-date,
+        .mutual-friends,
+        .match-reason,
+        .shared-interests {
           padding: 4px 10px;
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           white-space: nowrap;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
+              transition: all 0.4s ease-out;
             }
           }
         }
       }
     }
-    
+
     // Aktionen
-    .friend-actions, .request-actions, .suggestion-actions {
+    .friend-actions,
+    .request-actions,
+    .suggestion-actions {
       display: flex;
       gap: map.get(vars.$spacing, s);
       align-items: flex-start;
-      
-      .request-actions, .suggestion-actions {
+
+      .request-actions,
+      .suggestion-actions {
         flex-direction: column;
       }
-      
+
       .action-button {
         padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -781,13 +793,14 @@ export default defineComponent({
         cursor: pointer;
         border: none;
         transition: all 0.2s ease;
-        
+
         &.message {
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 transform: translateY(-2px);
                 @include mixins.shadow('small', $theme);
@@ -795,7 +808,7 @@ export default defineComponent({
             }
           }
         }
-        
+
         &.more {
           width: 32px;
           height: 32px;
@@ -804,25 +817,27 @@ export default defineComponent({
           justify-content: center;
           padding: 0;
           font-size: 18px;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 background-color: mixins.theme-color($theme, hover-color);
               }
             }
           }
         }
-        
+
         &.accept {
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-green);
               color: white;
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 transform: translateY(-2px);
                 @include mixins.shadow('small', $theme);
@@ -830,14 +845,16 @@ export default defineComponent({
             }
           }
         }
-        
-        &.decline, &.ignore {
+
+        &.decline,
+        &.ignore {
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: transparent;
               color: #ff6b6b; // Rot für Ablehnen
               border: 1px solid rgba(255, 107, 107, 0.3);
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 background-color: rgba(255, 107, 107, 0.1);
                 border-color: rgba(255, 107, 107, 0.5);
@@ -845,13 +862,13 @@ export default defineComponent({
             }
           }
         }
-        
+
         &.add {
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-teal);
               color: white;
-              
+
               &:hover {
                 transform: translateY(-2px);
                 @include mixins.shadow('small', $theme);
@@ -860,7 +877,7 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Freunde-Menü
       .friend-menu {
         position: absolute;
@@ -870,26 +887,27 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         overflow: hidden;
         @include mixins.shadow('medium', 'light');
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
           }
         }
-        
+
         button {
           width: 100%;
           padding: map.get(vars.$spacing, m);
           text-align: left;
           border: none;
           cursor: pointer;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background-color: transparent;
               color: #ff6b6b; // Rot für Löschen
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 background-color: rgba(255, 107, 107, 0.1);
               }
@@ -899,7 +917,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Leerer Zustand
   .empty-state {
     display: flex;
@@ -908,36 +926,38 @@ export default defineComponent({
     justify-content: center;
     padding: map.get(vars.$spacing, xxl);
     text-align: center;
-    
+
     .empty-icon {
       font-size: 4rem;
       margin-bottom: map.get(vars.$spacing, l);
       opacity: 0.5;
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
       max-width: 500px;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
-    
+
     .reset-button {
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -947,25 +967,26 @@ export default defineComponent({
       display: flex;
       align-items: center;
       gap: map.get(vars.$spacing, s);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-          
+          transition: all 0.4s ease-out;
+
           &:hover {
             transform: translateY(-3px);
             @include mixins.shadow('medium', $theme);
           }
         }
       }
-      
+
       .invite-icon {
         font-size: 1.2rem;
       }
     }
   }
-  
+
   // Modal-Hintergrund
   .modal-backdrop {
     position: fixed;
@@ -978,7 +999,7 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    
+
     .modal-content {
       width: 90%;
       max-width: 500px;
@@ -986,53 +1007,58 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), large);
       position: relative;
       @include animations.fade-in(0.3s);
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           @include mixins.shadow('large', $theme);
+          transition: all 0.4s ease-out;
         }
       }
-      
+
       h3 {
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         margin-bottom: map.get(vars.$spacing, m);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       p {
         margin-bottom: map.get(vars.$spacing, l);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
+
       .invite-form {
         display: flex;
         flex-direction: column;
         gap: map.get(vars.$spacing, m);
-        
-        input, textarea {
+
+        input,
+        textarea {
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               @include mixins.form-element($theme);
+              transition: all 0.4s ease-out;
             }
           }
         }
-        
+
         textarea {
           min-height: 100px;
           resize: vertical;
         }
-        
+
         .send-invite-button {
           align-self: flex-end;
           padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
@@ -1040,12 +1066,13 @@ export default defineComponent({
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           border: none;
           cursor: pointer;
-          
+
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
-              
+              transition: all 0.4s ease-out;
+
               &:hover {
                 transform: translateY(-3px);
                 @include mixins.shadow('medium', $theme);
@@ -1054,7 +1081,7 @@ export default defineComponent({
           }
         }
       }
-      
+
       .close-modal {
         position: absolute;
         top: 15px;
@@ -1068,12 +1095,13 @@ export default defineComponent({
         font-size: 1.5rem;
         cursor: pointer;
         border: none;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: transparent;
             color: mixins.theme-color($theme, text-secondary);
-            
+            transition: all 0.4s ease-out;
+
             &:hover {
               color: mixins.theme-color($theme, text-primary);
             }

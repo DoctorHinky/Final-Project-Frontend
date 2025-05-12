@@ -1,42 +1,60 @@
 // src/style/base/animations.scss
-@use 'sass:map';
-@use 'variables' as vars;
+@use "sass:map";
+@use "variables" as vars;
 
 // Fade In Animation
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 // Shimmer-Effekt Animation
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 // Pulse Animation
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 // Glanz-Effekt-Animation für Buttons
 @keyframes shine {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 // Logo-Rotation
 @keyframes logoRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Blätter-Fall-Animation
@@ -81,7 +99,15 @@
 }
 
 // Animation-Mixins
-@mixin animate($animation, $duration: 0.3s, $timing-function: ease, $delay: 0s, $iteration-count: 1, $direction: normal, $fill-mode: both) {
+@mixin animate(
+  $animation,
+  $duration: 0.3s,
+  $timing-function: ease,
+  $delay: 0s,
+  $iteration-count: 1,
+  $direction: normal,
+  $fill-mode: both
+) {
   animation-name: $animation;
   animation-duration: $duration;
   animation-timing-function: $timing-function;
@@ -103,9 +129,9 @@
 @mixin shine-effect($duration: 0.7s) {
   position: relative;
   overflow: hidden;
-  
+
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -119,7 +145,7 @@
     );
     transition: left $duration ease;
   }
-  
+
   &:hover::before {
     left: 100%;
   }
@@ -129,8 +155,9 @@
 @mixin scroll-fade-in {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity map.get(vars.$transitions, very-slow), transform map.get(vars.$transitions, very-slow);
-  
+  transition: opacity map.get(vars.$transitions, very-slow),
+    transform map.get(vars.$transitions, very-slow);
+
   &.visible {
     opacity: 1;
     transform: translateY(0);
@@ -151,8 +178,30 @@
   --start-rotation: #{random(360)}deg;
   --end-rotation: #{var(--start-rotation) + 360}deg;
   --duration: #{$duration-min + random($duration-max - $duration-min)}s;
-  
-  animation: 
-    fall var(--duration) linear forwards,
+
+  animation: fall var(--duration) linear forwards,
     rotate var(--duration) linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
