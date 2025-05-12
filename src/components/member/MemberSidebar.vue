@@ -286,7 +286,8 @@ export default defineComponent({
   display: block;
   margin: 0 auto;
   /* Zentriert das Bild horizontal */
-  height: 80px;
+  height: 100px;
+  width: 100px;
   border-radius: 50px;
   margin-bottom: map.get(vars.$spacing, m);
   opacity: .9;
