@@ -18,10 +18,38 @@
 
     <form @submit.prevent="saveProfileSettings" class="settings-form">
       <div class="form-group profile-avatar">
-        <div class="avatar-preview">
-          <span class="avatar-placeholder">{{ getInitials(profileForm.firstName, profileForm.lastName) }}</span>
-          <button type="button" class="change-avatar-btn" title="Profilbild ändern">📷</button>
+        <div 
+          class="avatar-preview" 
+          :class="{ 'drag-active': isDragging }"
+          @dragenter.prevent="onDragOver"
+          @dragover.prevent="onDragOver"
+          @dragleave.prevent="onDragLeave"
+          @drop.prevent="onDrop"
+          @click="triggerFileInput"
+        >
+          <img v-if="profileForm.avatarUrl" :src="profileForm.avatarUrl" alt="Profilbild" class="avatar-image" />
+          <span v-else class="avatar-placeholder">{{ getInitials(profileForm.firstName, profileForm.lastName) }}</span>
+          
+          <input 
+            type="file" 
+            ref="fileInput" 
+            @change="handleFileChange" 
+            accept="image/*" 
+            class="file-input" 
+          />
+          
+          <button type="button" class="change-avatar-btn" title="Profilbild ändern" @click.stop="triggerFileInput">
+            <span v-if="isUploading" class="loading-spinner avatar-spinner"></span>
+            <span v-else>📷</span>
+          </button>
+          
+          <div v-if="isDragging" class="drop-overlay">
+            <span>Bild hier ablegen</span>
+          </div>
         </div>
+        <p v-if="profileForm.avatarUrl" class="avatar-actions">
+          <button type="button" class="text-button" @click="removeAvatar">Profilbild entfernen</button>
+        </p>
       </div>
 
       <div class="form-row">
@@ -87,7 +115,7 @@
         <button type="button" class="cancel-button" @click="resetProfileForm">
           <span class="button-icon">↩️</span> Zurücksetzen
         </button>
-        <button type="submit" class="save-button" :disabled="isSaving">
+        <button type="submit" class="save-button" :disabled="isSaving || isUploading">
           <span v-if="isSaving" class="loading-spinner"></span>
           <span v-else class="button-icon">💾</span> Speichern
         </button>
@@ -97,7 +125,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, watch } from 'vue';
+import { defineComponent, ref, PropType, watch, onMounted } from 'vue';
+import { cloudinaryUpload, cloudinaryDelete } from '@/services/cloudinaryService';
 
 interface ProfileForm {
   firstName: string;
@@ -106,6 +135,8 @@ interface ProfileForm {
   email: string;
   phone: string;
   bio: string;
+  avatarUrl: string;
+  avatarPublicId: string | null;
 }
 
 export default defineComponent({
@@ -128,10 +159,26 @@ export default defineComponent({
   setup(props, { emit }) {
     // Status für Formularprozesse
     const isSaving = ref(false);
+    const isUploading = ref(false);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
+    const fileInput = ref<HTMLInputElement | null>(null);
+    const isDragging = ref(false);
     
+    // Profilformular mit neuem Bild-URL-Feld
+    const profileForm = ref<ProfileForm>({
+      firstName: 'Max',
+      lastName: 'Mustermann',
+      username: 'max.mustermann',
+      email: 'max@example.com',
+      phone: '+49 123 456789',
+      bio: 'Vater von zwei Kindern (4 und 7 Jahre). Interesse an Erziehungsmethoden und kindlicher Entwicklung.',
+      avatarUrl: '',
+      avatarPublicId: null
+    });
+    
+    // Beobachter für Prop-Änderungen
     watch(() => props.showSuccess, (newVal) => {
       saveSuccess.value = newVal;
     });
@@ -144,19 +191,97 @@ export default defineComponent({
       errorMessage.value = newVal;
     });
 
-    // Profilformular mit neuer Telefonnummer
-    const profileForm = ref<ProfileForm>({
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      username: 'max.mustermann',
-      email: 'max@example.com',
-      phone: '+49 123 456789',
-      bio: 'Vater von zwei Kindern (4 und 7 Jahre). Interesse an Erziehungsmethoden und kindlicher Entwicklung.'
-    });
-
     // Initialen für Avatar-Platzhalter generieren
     const getInitials = (firstName: string, lastName: string): string => {
       return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    };
+
+    // Datei-Upload-Funktionen
+    const triggerFileInput = (): void => {
+      if (fileInput.value) {
+        fileInput.value.click();
+      }
+    };
+    
+    const handleFileChange = async (event: Event): Promise<void> => {
+      const target = event.target as HTMLInputElement;
+      if (target.files && target.files.length > 0) {
+        await uploadFile(target.files[0]);
+      }
+    };
+    
+    const onDragOver = (event: DragEvent): void => {
+      isDragging.value = true;
+    };
+    
+    const onDragLeave = (event: DragEvent): void => {
+      isDragging.value = false;
+    };
+    
+    const onDrop = async (event: DragEvent): Promise<void> => {
+      isDragging.value = false;
+      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+        const file = event.dataTransfer.files[0];
+        if (file.type.startsWith('image/')) {
+          await uploadFile(file);
+        } else {
+          errorMessage.value = 'Bitte nur Bilder hochladen.';
+          saveError.value = true;
+          setTimeout(() => {
+            saveError.value = false;
+          }, 3000);
+        }
+      }
+    };
+    
+    const uploadFile = async (file: File): Promise<void> => {
+      try {
+        isUploading.value = true;
+        saveError.value = false;
+        
+        // Wenn es ein vorheriges Bild gibt, löschen wir es
+        if (profileForm.value.avatarPublicId) {
+          await cloudinaryDelete(profileForm.value.avatarPublicId);
+        }
+        
+        // Hochladen des neuen Bildes
+        const result = await cloudinaryUpload(file, 'profile_avatars', profileForm.value.username);
+        
+        profileForm.value.avatarUrl = result.secureUrl;
+        profileForm.value.avatarPublicId = result.publicId;
+        
+        saveSuccess.value = true;
+        setTimeout(() => {
+          saveSuccess.value = false;
+        }, 3000);
+      } catch (error) {
+        saveError.value = true;
+        errorMessage.value = 'Fehler beim Hochladen des Bildes. Bitte versuche es erneut.';
+      } finally {
+        isUploading.value = false;
+      }
+    };
+    
+    const removeAvatar = async (): Promise<void> => {
+      try {
+        if (!profileForm.value.avatarPublicId) return;
+        
+        isUploading.value = true;
+        await cloudinaryDelete(profileForm.value.avatarPublicId);
+        
+        profileForm.value.avatarUrl = '';
+        profileForm.value.avatarPublicId = null;
+        
+        saveSuccess.value = true;
+        setTimeout(() => {
+          saveSuccess.value = false;
+        }, 3000);
+      } catch (error) {
+        saveError.value = true;
+        errorMessage.value = 'Fehler beim Entfernen des Bildes. Bitte versuche es erneut.';
+      } finally {
+        isUploading.value = false;
+      }
     };
 
     // Profilformular zurücksetzen
@@ -167,6 +292,7 @@ export default defineComponent({
     // Profil speichern
     const saveProfileSettings = async (): Promise<void> => {
       isSaving.value = true;
+      // Cloudinary-Bild-Informationen in Formulardaten einschließen
       emit('save-profile', profileForm.value);
       setTimeout(() => {
         isSaving.value = false;
@@ -176,12 +302,21 @@ export default defineComponent({
     return {
       profileForm,
       isSaving,
+      isUploading,
       saveSuccess,
       saveError,
       errorMessage,
+      fileInput,
+      isDragging,
       getInitials,
       resetProfileForm,
-      saveProfileSettings
+      saveProfileSettings,
+      triggerFileInput,
+      handleFileChange,
+      onDragOver,
+      onDragLeave,
+      onDrop,
+      removeAvatar
     };
   }
 });
@@ -402,10 +537,11 @@ export default defineComponent({
     }
   }
 
-  // Profilavatar
+  // Profilavatar mit Drag and Drop
   .profile-avatar {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: map.get(vars.$spacing, xl);
 
     .avatar-preview {
@@ -416,13 +552,27 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 3px solid mixins.theme-color($theme, accent-green);
           transition: all 0.4s ease-out;
+
+          &:hover {
+            background-color: mixins.theme-color($theme, hover-color);
+          }
         }
+      }
+
+      &.drag-active {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-style: dashed;
+        transition: all 0.2s ease;
       }
 
       .avatar-placeholder {
@@ -435,6 +585,16 @@ export default defineComponent({
             transition: all 0.4s ease-out;
           }
         }
+      }
+
+      .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .file-input {
+        display: none;
       }
 
       .change-avatar-btn {
@@ -450,6 +610,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
+        z-index: 2;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -460,6 +621,53 @@ export default defineComponent({
             &:hover {
               transform: translateY(-2px);
               @include mixins.shadow('small', $theme);
+            }
+          }
+        }
+
+        .avatar-spinner {
+          width: 14px;
+          height: 14px;
+          border-width: 2px;
+        }
+      }
+
+      .drop-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        font-size: 0.9rem;
+        border-radius: 50%;
+        text-align: center;
+        z-index: 1;
+        pointer-events: none; /* Verhindert, dass das Overlay Drag-Events abfängt */
+      }
+    }
+
+    .avatar-actions {
+      margin-top: map.get(vars.$spacing, m);
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+      .text-button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        text-decoration: underline;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+            
+            &:hover {
+              color: mixins.theme-color($theme, accent-green);
             }
           }
         }

@@ -24,6 +24,19 @@ const requireAuth = (to: any, from: any, next: any) => {
   }
 };
 
+// Navigation Guard für Admin-Routen
+const requireAdminAuth = (to: any, from: any, next: any) => {
+  if (authService.isAdminLoggedIn()) {
+    next(); // Admin ist eingeloggt, Navigation fortsetzen
+  } else {
+    // Admin ist nicht eingeloggt, Weiterleitung zur Admin-Anmeldeseite
+    next({ 
+      path: '/admin', 
+      query: { redirect: to.fullPath } 
+    });
+  }
+};
+
 // Routen definieren
 const routes: Array<RouteRecordRaw> = [
   {
@@ -124,6 +137,24 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   
+  // Admin-Routen
+  {
+    path: '/admin',
+    children: [
+      {
+        path: '',
+        name: 'AdminLogin',
+        component: () => import('../pages/admin/Login.vue')
+      },
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../pages/admin/Dashboard.vue'),
+        beforeEnter: requireAdminAuth
+      }
+    ]
+  },
+  
   // Fallback-Route für nicht gefundene Seiten - umgeleitet zur 404-Seite
   {
     path: '/:pathMatch(.*)*',
@@ -158,9 +189,11 @@ const router = createRouter({
 // Globaler Navigation Guard
 router.beforeEach((to, from, next) => {
   // Da wir kein echtes Backend haben, führen wir hier eine einfache Auth-Überprüfung durch
-  const publicPages = ['/', '/login-register', '/contact', '/privacy-policy', '/imprint', '/terms-of-service', '/404'];
+  const publicPages = ['/', '/login-register', '/contact', '/privacy-policy', '/imprint', '/terms-of-service', '/404', '/admin'];
   const authRequired = !publicPages.includes(to.path) && !to.path.startsWith('/public/');
+  const adminRequired = to.path.startsWith('/admin/');
   const loggedIn = authService.isLoggedIn();
+  const adminLoggedIn = authService.isAdminLoggedIn();
 
   // Wenn der Benutzer bereits eingeloggt ist und versucht, die Login-Seite aufzurufen,
   // leiten wir ihn zur Member-Startseite weiter
@@ -168,8 +201,22 @@ router.beforeEach((to, from, next) => {
     return next('/member/dashboard');
   }
 
+  // Wenn der Admin bereits eingeloggt ist und versucht, die Admin-Login-Seite aufzurufen,
+  // leiten wir ihn zum Admin-Dashboard weiter
+  if (to.path === '/admin' && adminLoggedIn) {
+    return next('/admin/dashboard');
+  }
+
+  // Bei geschützten Admin-Routen prüfen, ob der Admin angemeldet ist
+  if (adminRequired && !adminLoggedIn) {
+    return next({
+      path: '/admin',
+      query: { redirect: to.fullPath }
+    });
+  }
+
   // Bei geschützten Routen prüfen, ob der Benutzer angemeldet ist
-  if (authRequired && !loggedIn) {
+  if (authRequired && !loggedIn && !adminLoggedIn) {
     return next({
       path: '/login-register',
       query: { redirect: to.fullPath }
