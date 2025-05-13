@@ -153,7 +153,7 @@ export default defineComponent({
     // Debounce-Funktion für bessere Performance
     const debounce = (fn: Function, ms = 300) => {
       let timeoutId: ReturnType<typeof setTimeout>;
-      return function (...args: any[]) {
+      return  (...args: any[]) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => fn.apply(this, args), ms);
       };

@@ -59,7 +59,7 @@
             </div>
             <div class="progress-bar">
               <div class="progress-fill"
-                :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+                :style="{ width: (article.currentChapter && article.totalChapters ? (article.currentChapter / article.totalChapters * 100) + '%' : '0%') }"></div>
             </div>
           </div>
         </div>
@@ -1423,51 +1423,51 @@ export default defineComponent({
               margin-bottom: map.get(vars.$spacing, m);
 
               label {
-              display: block;
-              margin-bottom: map.get(vars.$spacing, xs);
-              font-weight: map.get(map.get(vars.$fonts, weights), medium);
+                display: block;
+                margin-bottom: map.get(vars.$spacing, xs);
+                font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-secondary);
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-secondary);
+                  }
                 }
-              }
               }
 
               input[type="text"],
               input[type="email"],
               select,
               textarea {
-              width: 100%;
-              padding: map.get(vars.$spacing, m);
-              border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+                width: 100%;
+                padding: map.get(vars.$spacing, m);
+                border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, secondary-bg);
-                border: 1px solid mixins.theme-color($theme, border-light);
-                color: mixins.theme-color($theme, text-primary);
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    background-color: mixins.theme-color($theme, secondary-bg);
+                    border: 1px solid mixins.theme-color($theme, border-light);
+                    color: mixins.theme-color($theme, text-primary);
 
-                &:focus {
-                  border-color: mixins.theme-color($theme, accent-teal);
-                  outline: none;
-                  box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
-                }
+                    &:focus {
+                      border-color: mixins.theme-color($theme, accent-teal);
+                      outline: none;
+                      box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                    }
 
-                &::placeholder {
-                  color: mixins.theme-color($theme, text-tertiary);
+                    &::placeholder {
+                      color: mixins.theme-color($theme, text-tertiary);
+                    }
+                  }
                 }
-                }
-              }
               }
 
               select {
-              cursor: pointer;
+                cursor: pointer;
               }
 
               textarea {
-              min-height: 100px;
-              resize: none;
+                min-height: 100px;
+                resize: none;
               }
             }
 
@@ -1530,8 +1530,8 @@ export default defineComponent({
                       right: -5px;
                       width: 20px;
                       height: 20px;
-                      border-radius: 50%;
                       display: flex;
+                      border-radius: 50%;
                       align-items: center;
                       justify-content: center;
 
