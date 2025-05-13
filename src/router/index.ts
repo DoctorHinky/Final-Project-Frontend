@@ -9,7 +9,7 @@ import Imprint from '../pages/Imprint.vue';
 import TermsOfService from '../pages/TermsOfService.vue';
 import AppLayout from '../components/layout/AppLayout.vue';
 import Dashboard from '../pages/member/Dashboard.vue';
-import { authService } from '@/services/auth.service';
+import { authService } from '../services/auth.service';
 
 // Navigation Guard für geschützte Routen
 const requireAuth = (to: any, from: any, next: any) => {

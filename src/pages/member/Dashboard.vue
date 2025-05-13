@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, markRaw, PropType } from 'vue';
+import { defineComponent, ref, computed, onMounted, markRaw, type PropType } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import MemberLayout from '@/components/layout/MemberLayout.vue';
 

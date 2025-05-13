@@ -85,7 +85,7 @@
                 {{ getStatusText(post.status) }}
               </span>
               <span v-if="post.status === 'reported'" class="report-count">
-                {{ post.reportCount }} Meldung{{ post.reportCount > 1 ? 'en' : '' }}
+                {{ post.reportCount ?? 0 }} Meldung{{ (post.reportCount ?? 0) > 1 ? 'en' : '' }}
               </span>
             </td>
             <td class="col-views">{{ formatNumber(post.views) }}</td>

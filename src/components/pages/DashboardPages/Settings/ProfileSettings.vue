@@ -125,7 +125,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, watch, onMounted } from 'vue';
+import { defineComponent, ref, type PropType, watch, onMounted } from 'vue';
 import { cloudinaryUpload, cloudinaryDelete } from '@/services/cloudinaryService';
 
 interface ProfileForm {

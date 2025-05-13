@@ -169,7 +169,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, PropType } from 'vue';
+import { defineComponent, ref, reactive, type PropType } from 'vue';
 import {
   XMarkIcon as IconXMark,
   DocumentIcon as IconDocument,
