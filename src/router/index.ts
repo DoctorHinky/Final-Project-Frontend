@@ -114,6 +114,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'notifications',
         name: 'UserNotifications',
         redirect: { name: 'MemberDashboard', query: { tab: 'notifications' } }
+      },
+      // Route für Settings-Seite
+      {
+        path: 'settings',
+        name: 'MemberSettings',
+        redirect: { name: 'MemberDashboard', query: { tab: 'settings' } }
       }
     ]
   },

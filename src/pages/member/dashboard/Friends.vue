@@ -7,174 +7,79 @@
     </div>
 
     <!-- Freunde-Statistik-Karten -->
-    <div class="friends-stats">
-      <div class="stat-card">
-        <div class="stat-icon" style="background-color: rgba(74, 210, 149, 0.2)">👥</div>
-        <div class="stat-info">
-          <h3>{{ friendsCount }}</h3>
-          <p>Freunde</p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon" style="background-color: rgba(53, 204, 208, 0.2)">📨</div>
-        <div class="stat-info">
-          <h3>{{ pendingRequestsCount }}</h3>
-          <p>Offene Anfragen</p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon" style="background-color: rgba(155, 225, 93, 0.2)">💬</div>
-        <div class="stat-info">
-          <h3>{{ suggestionsCount }}</h3>
-          <p>Empfehlungen</p>
-        </div>
-      </div>
-    </div>
+    <friends-stats
+      :friends-count="friendsCount"
+      :pending-requests-count="pendingRequestsCount"
+      :suggestions-count="suggestionsCount"
+    />
 
     <!-- Tabs für Freunde, Anfragen und Empfehlungen -->
-    <div class="friends-tabs">
-      <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
-        @click="activeTab = tab.id">
-        {{ tab.name }}
-      </button>
-    </div>
+    <friends-tabs
+      :tabs="tabs"
+      :active-tab="activeTab"
+      @update:active-tab="activeTab = $event"
+    />
 
     <!-- Suchleiste -->
-    <div class="search-section" v-if="activeTab === 'friends'">
-      <div class="search-container">
-        <input type="text" placeholder="Freunde suchen..." v-model="searchQuery" @input="filterFriends" />
-        <button class="search-button">
-          <span class="search-icon">🔍</span>
-        </button>
-      </div>
-    </div>
+    <search-section
+      v-if="activeTab === 'friends'"
+      :search-query="searchQuery"
+      @update:search-query="searchQuery = $event"
+      @filter-friends="filterFriends"
+    />
 
     <!-- Freunde-Liste -->
-    <div v-if="activeTab === 'friends'" class="friends-list">
-      <div v-if="filteredFriends.length > 0" class="friends-grid">
-        <div v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
-          <div class="friend-avatar">
-            <span class="avatar-placeholder">{{ getInitials(friend.name) }}</span>
-            <span v-if="friend.isOnline" class="online-indicator"></span>
-          </div>
-          <div class="friend-info">
-            <h3>{{ friend.name }}</h3>
-            <p class="friend-bio">{{ friend.bio }}</p>
-            <div class="friend-meta">
-              <span class="friend-since">Freunde seit {{ friend.friendSince }}</span>
-              <span class="shared-interests">{{ friend.sharedInterests }} gemeinsame Interessen</span>
-            </div>
-          </div>
-          <div class="friend-actions">
-            <button class="action-button message">Nachricht</button>
-            <button class="action-button more" @click="toggleFriendMenu(friend.id)">⋮</button>
-            <div v-if="activeFriendMenu === friend.id" class="friend-menu">
-              <button @click="unfriend(friend.id)">Freundschaft beenden</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Leerer Zustand für Freunde -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">👥</div>
-        <h3>Keine Freunde gefunden</h3>
-        <p v-if="searchQuery">Deine Suche ergab keine Treffer. Versuche es mit einem anderen Suchbegriff.</p>
-        <p v-else>Du hast noch keine Freunde hinzugefügt. Entdecke Empfehlungen oder lade Freunde ein.</p>
-        <button v-if="searchQuery" @click="clearSearch" class="reset-button">Suche zurücksetzen</button>
-        <button v-else @click="activeTab = 'suggestions'" class="reset-button">Empfehlungen anzeigen</button>
-      </div>
-    </div>
+    <friends-list
+      v-if="activeTab === 'friends'"
+      :filtered-friends="filteredFriends"
+      :search-query="searchQuery"
+      @unfriend="unfriend"
+      @clear-search="clearSearch"
+      @show-suggestions="activeTab = 'suggestions'"
+    />
 
     <!-- Anfragen-Liste -->
-    <div v-if="activeTab === 'requests'" class="requests-list">
-      <div v-if="pendingRequests.length > 0" class="requests-grid">
-        <div v-for="request in pendingRequests" :key="request.id" class="request-card">
-          <div class="request-avatar">
-            <span class="avatar-placeholder">{{ getInitials(request.name) }}</span>
-          </div>
-          <div class="request-info">
-            <h3>{{ request.name }}</h3>
-            <p class="request-message">{{ request.message || 'Möchte mit dir befreundet sein.' }}</p>
-            <div class="request-meta">
-              <span class="request-date">Angefragt am {{ request.requestDate }}</span>
-              <span class="mutual-friends">{{ request.mutualFriends }} gemeinsame Freunde</span>
-            </div>
-          </div>
-          <div class="request-actions">
-            <button class="action-button accept" @click="acceptRequest(request.id)">Annehmen</button>
-            <button class="action-button decline" @click="declineRequest(request.id)">Ablehnen</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Leerer Zustand für Anfragen -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">📨</div>
-        <h3>Keine Anfragen vorhanden</h3>
-        <p>Du hast derzeit keine offenen Freundschaftsanfragen.</p>
-        <button @click="activeTab = 'suggestions'" class="reset-button">Empfehlungen anzeigen</button>
-      </div>
-    </div>
+    <requests-list
+      v-if="activeTab === 'requests'"
+      :pending-requests="pendingRequests"
+      @accept-request="acceptRequest"
+      @decline-request="declineRequest"
+      @show-suggestions="activeTab = 'suggestions'"
+    />
 
     <!-- Empfehlungen-Liste -->
-    <div v-if="activeTab === 'suggestions'" class="suggestions-list">
-      <div v-if="friendSuggestions.length > 0" class="suggestions-grid">
-        <div v-for="suggestion in friendSuggestions" :key="suggestion.id" class="suggestion-card">
-          <div class="suggestion-avatar">
-            <span class="avatar-placeholder">{{ getInitials(suggestion.name) }}</span>
-          </div>
-          <div class="suggestion-info">
-            <h3>{{ suggestion.name }}</h3>
-            <p class="suggestion-bio">{{ suggestion.bio }}</p>
-            <div class="suggestion-meta">
-              <span v-if="suggestion.mutualFriends" class="mutual-friends">
-                {{ suggestion.mutualFriends }} gemeinsame Freunde
-              </span>
-              <span v-if="suggestion.matchReason" class="match-reason">
-                {{ suggestion.matchReason }}
-              </span>
-            </div>
-          </div>
-          <div class="suggestion-actions">
-            <button class="action-button add" @click="sendRequest(suggestion.id)">Anfragen</button>
-            <button class="action-button ignore" @click="ignoreSuggestion(suggestion.id)">Ignorieren</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Leerer Zustand für Empfehlungen -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h3>Keine Empfehlungen vorhanden</h3>
-        <p>Derzeit gibt es keine Freundschaftsempfehlungen für dich.</p>
-        <button class="reset-button invite-button" @click="showInviteModal = true">
-          <span class="invite-icon">✉️</span>
-          Freunde einladen
-        </button>
-      </div>
-    </div>
+    <suggestions-list
+      v-if="activeTab === 'suggestions'"
+      :friend-suggestions="friendSuggestions"
+      @send-request="sendRequest"
+      @ignore-suggestion="ignoreSuggestion"
+      @show-invite-modal="showInviteModal = true"
+    />
 
     <!-- Einladungs-Modal -->
-    <div v-if="showInviteModal" class="modal-backdrop" @click="showInviteModal = false">
-      <div class="modal-content" @click.stop>
-        <h3>Freunde einladen</h3>
-        <p>Lade Freunde ein, der Community beizutreten.</p>
-        <div class="invite-form">
-          <input type="email" placeholder="E-Mail-Adresse" v-model="inviteEmail" />
-          <textarea placeholder="Persönliche Nachricht (optional)" v-model="inviteMessage"></textarea>
-          <button class="send-invite-button" @click="sendInvite">Einladung senden</button>
-        </div>
-        <button class="close-modal" @click="showInviteModal = false">×</button>
-      </div>
-    </div>
+    <invite-modal
+      :is-visible="showInviteModal"
+      :invite-email="inviteEmail"
+      :invite-message="inviteMessage"
+      @update:is-visible="showInviteModal = $event"
+      @update:invite-email="inviteEmail = $event"
+      @update:invite-message="inviteMessage = $event"
+      @send-invite="sendInvite"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import {
+  FriendsStats,
+  FriendsTabs,
+  SearchSection,
+  FriendsList,
+  RequestsList,
+  SuggestionsList,
+  InviteModal
+} from '@/components/pages/DashboardPages/Friends';
 
 interface Friend {
   id: number;
@@ -203,11 +108,19 @@ interface FriendSuggestion {
 
 export default defineComponent({
   name: 'FriendsDashboard',
+  components: {
+    FriendsStats,
+    FriendsTabs,
+    SearchSection,
+    FriendsList,
+    RequestsList,
+    SuggestionsList,
+    InviteModal
+  },
   setup() {
     // Status
     const activeTab = ref('friends');
     const searchQuery = ref('');
-    const activeFriendMenu = ref<number | null>(null);
     const showInviteModal = ref(false);
     const inviteEmail = ref('');
     const inviteMessage = ref('');
@@ -306,27 +219,12 @@ export default defineComponent({
 
     // Such-Handler
     const filterFriends = () => {
-      // Aktives Menü zurücksetzen, wenn gesucht wird
-      activeFriendMenu.value = null;
+      // Implementierung bleibt einfach, da die Filterung über das computed property erfolgt
     };
 
     // Suche zurücksetzen
     const clearSearch = () => {
       searchQuery.value = '';
-    };
-
-    // Freundesmenü umschalten
-    const toggleFriendMenu = (friendId: number) => {
-      activeFriendMenu.value = activeFriendMenu.value === friendId ? null : friendId;
-    };
-
-    // Initialen für Avatar-Platzhalter
-    const getInitials = (name: string) => {
-      return name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase();
     };
 
     // Freund entfernen
@@ -336,7 +234,6 @@ export default defineComponent({
         const friendName = friends.value[index].name;
         if (confirm(`Möchtest du die Freundschaft mit ${friendName} wirklich beenden?`)) {
           friends.value.splice(index, 1);
-          activeFriendMenu.value = null;
         }
       }
     };
@@ -405,7 +302,6 @@ export default defineComponent({
     return {
       activeTab,
       searchQuery,
-      activeFriendMenu,
       showInviteModal,
       inviteEmail,
       inviteMessage,
@@ -419,8 +315,6 @@ export default defineComponent({
       filteredFriends,
       filterFriends,
       clearSearch,
-      toggleFriendMenu,
-      getInitials,
       unfriend,
       acceptRequest,
       declineRequest,
@@ -432,12 +326,13 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
 
+// Global styles for the Friends Dashboard
 .friends-dashboard {
   @include animations.fade-in(0.5s);
   display: flex;
@@ -472,7 +367,7 @@ export default defineComponent({
     }
   }
 
-  // Statistik-Karten
+  // Friends-Stats
   .friends-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -616,21 +511,21 @@ export default defineComponent({
     }
   }
 
-  // Gemeinsame Stile für Cards
+  // Gemeinsame Stile für Grid-Ansichten
   .friends-grid,
   .requests-grid,
   .suggestions-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: map.get(vars.$spacing, l); // Adjusted spacing for better alignment
+    gap: map.get(vars.$spacing, l);
 
     @media (max-width: 768px) {
-      justify-content: center; // Center align cards on smaller screens
+      justify-content: center;
     }
   }
 
-  // Card-Styles
+  // Gemeinsame Card-Styles
   .friend-card,
   .request-card,
   .suggestion-card {
@@ -656,261 +551,249 @@ export default defineComponent({
         }
       }
     }
+  }
 
-    // Avatar-Stil
-    .friend-avatar,
-    .request-avatar,
-    .suggestion-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      flex-shrink: 0;
+  // Avatar styles
+  .friend-avatar,
+  .request-avatar,
+  .suggestion-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, secondary-bg);
+        border: 2px solid mixins.theme-color($theme, accent-green);
+        transition: all 0.4s ease-out;
+      }
+    }
+
+    .avatar-placeholder {
+      font-size: 2rem;
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, secondary-bg);
-          border: 2px solid mixins.theme-color($theme, accent-green);
+          color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #4CAF50; // Green for online
+      border: 2px solid white;
+    }
+  }
+
+  // Info styles
+  .friend-info,
+  .request-info,
+  .suggestion-info {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 map.get(vars.$spacing, xs) 0;
+      font-size: map.get(map.get(vars.$fonts, sizes), large);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
+
+    .friend-bio,
+    .request-message,
+    .suggestion-bio {
+      margin-bottom: map.get(vars.$spacing, s);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      line-height: 1.4;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
+
+    .friend-meta,
+    .request-meta,
+    .suggestion-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: map.get(vars.$spacing, s);
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
         }
       }
 
-      .avatar-placeholder {
-        font-size: 2rem;
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      .friend-since,
+      .request-date,
+      .mutual-friends,
+      .match-reason,
+      .shared-interests {
+        padding: 4px 10px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+        white-space: nowrap;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
+            background-color: mixins.theme-color($theme, secondary-bg);
             transition: all 0.4s ease-out;
-          }
-        }
-      }
-
-      .online-indicator {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: #4CAF50; // Grün für Online
-        border: 2px solid white;
-      }
-    }
-
-    // Info-Bereich
-    .friend-info,
-    .request-info,
-    .suggestion-info {
-      flex: 1;
-      min-width: 0; // Für Textbegrenzung
-
-      h3 {
-        margin: 0 0 map.get(vars.$spacing, xs) 0;
-        font-size: map.get(map.get(vars.$fonts, sizes), large);
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
-            transition: all 0.4s ease-out;
-          }
-        }
-      }
-
-      .friend-bio,
-      .request-message,
-      .suggestion-bio {
-        margin-bottom: map.get(vars.$spacing, s);
-        font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        line-height: 1.4;
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-            transition: all 0.4s ease-out;
-          }
-        }
-      }
-
-      .friend-meta,
-      .request-meta,
-      .suggestion-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: map.get(vars.$spacing, s);
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-tertiary);
-            transition: all 0.4s ease-out;
-          }
-        }
-
-        .friend-since,
-        .request-date,
-        .mutual-friends,
-        .match-reason,
-        .shared-interests {
-          padding: 4px 10px;
-          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-          white-space: nowrap;
-
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, secondary-bg);
-              transition: all 0.4s ease-out;
-            }
           }
         }
       }
     }
+  }
 
-    // Aktionen
-    .friend-actions,
+  // Actions
+  .friend-actions,
+  .request-actions,
+  .suggestion-actions {
+    display: flex;
+    gap: map.get(vars.$spacing, s);
+    align-items: flex-start;
+
     .request-actions,
     .suggestion-actions {
-      display: flex;
-      gap: map.get(vars.$spacing, s);
-      align-items: flex-start;
+      flex-direction: column;
+    }
 
-      .request-actions,
-      .suggestion-actions {
-        flex-direction: column;
-      }
+    .action-button {
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
 
-      .action-button {
-        padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
-        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s ease;
+      &.message, &.accept, &.add {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: mixins.theme-gradient($theme, primary);
+            color: white;
+            transition: all 0.4s ease-out;
 
-        &.message {
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background: mixins.theme-gradient($theme, primary);
-              color: white;
-              transition: all 0.4s ease-out;
-
-              &:hover {
-                transform: translateY(-2px);
-                @include mixins.shadow('small', $theme);
-              }
-            }
-          }
-        }
-
-        &.more {
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          font-size: 18px;
-
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, secondary-bg);
-              color: mixins.theme-color($theme, text-secondary);
-              transition: all 0.4s ease-out;
-
-              &:hover {
-                background-color: mixins.theme-color($theme, hover-color);
-              }
-            }
-          }
-        }
-
-        &.accept {
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, accent-green);
-              color: white;
-              transition: all 0.4s ease-out;
-
-              &:hover {
-                transform: translateY(-2px);
-                @include mixins.shadow('small', $theme);
-              }
-            }
-          }
-        }
-
-        &.decline,
-        &.ignore {
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: transparent;
-              color: #ff6b6b; // Rot für Ablehnen
-              border: 1px solid rgba(255, 107, 107, 0.3);
-              transition: all 0.4s ease-out;
-
-              &:hover {
-                background-color: rgba(255, 107, 107, 0.1);
-                border-color: rgba(255, 107, 107, 0.5);
-              }
-            }
-          }
-        }
-
-        &.add {
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, accent-teal);
-              color: white;
-
-              &:hover {
-                transform: translateY(-2px);
-                @include mixins.shadow('small', $theme);
-              }
+            &:hover {
+              transform: translateY(-2px);
+              @include mixins.shadow('small', $theme);
             }
           }
         }
       }
 
-      // Freunde-Menü
-      .friend-menu {
-        position: absolute;
-        top: 50px;
-        right: 20px;
-        z-index: 10;
-        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-        overflow: hidden;
-        @include mixins.shadow('medium', 'light');
+      &.more {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 18px;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, card-bg);
-            border: 1px solid mixins.theme-color($theme, border-light);
+            background-color: mixins.theme-color($theme, secondary-bg);
+            color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
+
+            &:hover {
+              background-color: mixins.theme-color($theme, hover-color);
+            }
           }
         }
+      }
 
-        button {
-          width: 100%;
-          padding: map.get(vars.$spacing, m);
-          text-align: left;
-          border: none;
-          cursor: pointer;
+      &.accept {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, accent-green);
+            color: white;
+          }
+        }
+      }
 
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: transparent;
-              color: #ff6b6b; // Rot für Löschen
-              transition: all 0.4s ease-out;
+      &.decline, &.ignore {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: transparent;
+            color: #ff6b6b; // Red for decline/ignore
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            transition: all 0.4s ease-out;
 
-              &:hover {
-                background-color: rgba(255, 107, 107, 0.1);
-              }
+            &:hover {
+              background-color: rgba(255, 107, 107, 0.1);
+              border-color: rgba(255, 107, 107, 0.5);
+            }
+          }
+        }
+      }
+
+      &.add {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, accent-teal);
+            color: white;
+          }
+        }
+      }
+    }
+
+    // Freunde-Menü
+    .friend-menu {
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      z-index: 10;
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      overflow: hidden;
+      @include mixins.shadow('medium', 'light');
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          border: 1px solid mixins.theme-color($theme, border-light);
+        }
+      }
+
+      button {
+        width: 100%;
+        padding: map.get(vars.$spacing, m);
+        text-align: left;
+        border: none;
+        cursor: pointer;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: transparent;
+            color: #ff6b6b; // Red for delete
+            transition: all 0.4s ease-out;
+
+            &:hover {
+              background-color: rgba(255, 107, 107, 0.1);
             }
           }
         }
@@ -981,13 +864,15 @@ export default defineComponent({
         }
       }
 
-      .invite-icon {
-        font-size: 1.2rem;
+      &.invite-button {
+        .invite-icon {
+          font-size: 1.2rem;
+        }
       }
     }
   }
 
-  // Modal-Hintergrund
+  // Modal-Styles
   .modal-backdrop {
     position: fixed;
     top: 0;
