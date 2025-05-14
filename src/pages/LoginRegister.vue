@@ -275,17 +275,10 @@
 </template>
 
 <script lang="ts">
-<<<<<<< HEAD
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { authService } from '@/services/auth.service';
-// Import Heroicons
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline';
-=======
-import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 import axios from 'axios';
-import { useRouter, useRoute } from 'vue-router';
->>>>>>> dev
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'LoginRegister',
@@ -296,7 +289,6 @@ export default defineComponent({
     XCircleIcon
   },
   setup() {
-<<<<<<< HEAD
     const router = useRouter();
     const route = useRoute();
     const activeTab = ref('login');
@@ -382,35 +374,14 @@ export default defineComponent({
       rememberMe: false
     });
     
-    // Anmeldung verarbeiten
-    const handleLogin = async () => {
-      isLoading.value = true;
-      loginStatus.message = '';
-      
-      try {
-        const result = await authService.login(loginForm.email, loginForm.password);
-        
-        if (result.success) {
-          loginStatus.success = true;
-          loginStatus.message = 'Anmeldung erfolgreich! Du wirst weitergeleitet...';
-          
-          // Nach kurzer Verzögerung weiterleiten
-          setTimeout(() => {
-            // Prüfen, ob es eine Redirect-URL gibt
-            const redirectPath = route.query.redirect as string || '/member/dashboard';
-            router.push(redirectPath);
-          }, 1000);
-        } else {
-          loginStatus.success = false;
-          loginStatus.message = result.message || 'Anmeldung fehlgeschlagen. Bitte überprüfe deine Eingaben.';
-        }
-      } catch (error) {
-        loginStatus.success = false;
-        loginStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
-        console.error('Login error:', error);
-      } finally {
-        isLoading.value = false;
+    // Passwort-Übereinstimmung prüfen
+    const checkPasswordMatch = () => {
+      if (!registerForm.passwordConfirm) {
+        passwordMatch.value = null;
+        return;
       }
+      
+      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
     };
     
     // Register-Formular
@@ -426,66 +397,6 @@ export default defineComponent({
       passwordConfirm: '',
       agreeTerms: false
     });
-    
-    // Passwort-Übereinstimmung prüfen
-    const checkPasswordMatch = () => {
-      if (!registerForm.passwordConfirm) {
-        passwordMatch.value = null;
-        return;
-      }
-      
-      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
-    };
-    
-    // Registrierung verarbeiten
-    const handleRegister = async () => {
-      // Prüfe, ob Passwörter übereinstimmen
-      if (registerForm.password !== registerForm.passwordConfirm) {
-        registerStatus.success = false;
-        registerStatus.message = 'Die Passwörter stimmen nicht überein.';
-        return;
-      }
-      
-      isLoading.value = true;
-      registerStatus.message = '';
-      
-      try {
-        // Dummy-Registrierung (später durch echte API ersetzen)
-        setTimeout(() => {
-          registerStatus.success = true;
-          registerStatus.message = 'Registrierung erfolgreich! Du kannst dich jetzt anmelden.';
-          
-          // Tab zur Anmeldung wechseln
-          setTimeout(() => {
-            activeTab.value = 'login';
-            
-            // Anmeldedaten vorausfüllen
-            loginForm.email = registerForm.email;
-            
-            // Formular zurücksetzen
-            registerForm.firstName = '';
-            registerForm.lastName = '';
-            registerForm.username = '';
-            registerForm.role = '';
-            registerForm.dob = '';
-            registerForm.phone = '';
-            registerForm.email = '';
-            registerForm.password = '';
-            registerForm.passwordConfirm = '';
-            registerForm.agreeTerms = false;
-            passwordStrength.value = 0;
-            passwordMatch.value = null;
-            
-            isLoading.value = false;
-          }, 1500);
-        }, 1000);
-      } catch (error) {
-        registerStatus.success = false;
-        registerStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
-        console.error('Register error:', error);
-        isLoading.value = false;
-      }
-    };
     
     // Dropdown-Funktionalität
     const isOpen = ref(false);
@@ -509,154 +420,21 @@ export default defineComponent({
     const selectOption = (option: { value: string; text: string }) => {
       selectedOption.value = option;
       registerForm.role = option.value;
-=======
-  const router = useRouter();
-  const route = useRoute();
-  const activeTab = ref('login');
-  const isLoading = ref(false);
-
-  const loginForm = reactive({
-    email: '',
-    password: '',
-    rememberMe: false
-  });
-
-  const registerForm = reactive({
-    firstName: '',
-    lastName: '',
-    username: '',
-    role: '',
-    dob: '',
-    phone: '',
-    email: '',
-    password: '',
-    agreeTerms: false
-  });
-
-  // ✅ NEW: login and register status
-  const loginStatus = reactive({
-    message: '',
-    success: false
-  });
-
-  const registerStatus = reactive({
-    message: '',
-    success: false
-  });
-
-  const isOpen = ref(false);
-  const roleOptions = [
-    { value: '', text: 'Wähle eine Rolle' },
-    { value: 'parent', text: 'Eltern' },
-    { value: 'child', text: 'Kind' }
-  ];
-  const selectedOption = ref(roleOptions[0]);
-
-  const toggleDropdown = () => {
-    isOpen.value = !isOpen.value;
-  };
-
-  const closeDropdown = () => {
-    isOpen.value = false;
-  };
-
-  const selectOption = (option: { value: string; text: string }) => {
-    selectedOption.value = option;
-    registerForm.role = option.value;
-    closeDropdown();
-  };
-
-  const navigateOptions = (direction: number) => {
-    if (!isOpen.value) {
-      isOpen.value = true;
-      return;
-    }
-    const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
-    let newIndex = currentIndex + direction;
-    if (newIndex < 0) newIndex = roleOptions.length - 1;
-    else if (newIndex >= roleOptions.length) newIndex = 0;
-    const optionElements = document.querySelectorAll('.dropdown-option');
-    if (optionElements[newIndex]) (optionElements[newIndex] as HTMLElement).focus();
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    const dropdown = document.querySelector('.custom-dropdown');
-    if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
->>>>>>> dev
       closeDropdown();
-    }
-  };
-
-  onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-    if (route.query.redirect) activeTab.value = 'login';
-  });
-
-  onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside);
-  });
-
- const handleLogin = async () => {
-  try {
-    const loginData: Record<string, string> = {};
-    const trimmedInput = loginForm.email.trim();
-
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
-    if (isEmail) loginData.email = trimmedInput;
-    else loginData.username = trimmedInput;
-
-    loginData.password = loginForm.password;
-
-    const response = await axios.post(
-      'http://localhost:8080/auth/local/login',
-      loginData,
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-
-    const { access_token, refresh_token } = response.data;
-
-    // ✅ Token speichern
-    localStorage.setItem('accessToken', access_token);
-    localStorage.setItem('refreshToken', refresh_token);
-
-    alert('Login erfolgreich!');
-    activeTab.value = 'login';
-    // Optional: zur Dashboard-Seite wechseln
-    // router.push('/dashboard');
-  } catch (error: any) {
-    if (error.response?.status === 401) {
-      alert('Benutzername/E-Mail oder Passwort ist falsch.');
-    } else {
-      alert('Login fehlgeschlagen.');
-    }
-    console.error(error);
-  }
-};
-
-  const handleRegister = async () => {
-    try {
-      isLoading.value = true;
-      const password = registerForm.password;
-      const hasMinLength = password.length >= 8;
-      const hasLetter = /[a-zA-Z]/.test(password);
-      const hasNumber = /\d/.test(password);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
-        registerStatus.message = 'Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.';
-        registerStatus.success = false;
-        return;
-      }
-      const phone = registerForm.phone.trim();
-      const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
-      if (!germanPhoneRegex.test(phone)) {
-        registerStatus.message = 'Bitte eine gültige deutsche Telefonnummer eingeben.';
-        registerStatus.success = false;
-        return;
-      }
-<<<<<<< HEAD
+    };
     
+    const navigateOptions = (direction: number) => {
+      if (!isOpen.value) {
+        isOpen.value = true;
+        return;
+      }
+      
+      const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
+      let newIndex = currentIndex + direction;
+      
+      if (newIndex < 0) newIndex = roleOptions.length - 1;
+      else if (newIndex >= roleOptions.length) newIndex = 0;
+      
       // Nur fokussieren, nicht auswählen
       const optionElements = document.querySelectorAll('.dropdown-option');
       if (optionElements[newIndex]) {
@@ -672,14 +450,143 @@ export default defineComponent({
       }
     };
     
+    // Anmeldung verarbeiten
+    const handleLogin = async () => {
+      try {
+        isLoading.value = true;
+        loginStatus.message = '';
+        
+        const loginData: Record<string, string> = {};
+        const trimmedInput = loginForm.email.trim();
+        
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
+        if (isEmail) loginData.email = trimmedInput;
+        else loginData.username = trimmedInput;
+        
+        loginData.password = loginForm.password;
+        
+        const response = await axios.post(
+          'http://localhost:8080/auth/local/login',
+          loginData,
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+        
+        const { access_token, refresh_token } = response.data;
+        
+        // Token speichern
+        localStorage.setItem('accessToken', access_token);
+        localStorage.setItem('refreshToken', refresh_token);
+        
+        loginStatus.success = true;
+        loginStatus.message = 'Anmeldung erfolgreich! Du wirst weitergeleitet...';
+        
+        // Nach kurzer Verzögerung weiterleiten
+        setTimeout(() => {
+          // Prüfen, ob es eine Redirect-URL gibt
+          const redirectPath = route.query.redirect as string || '/member/dashboard';
+          router.push(redirectPath);
+        }, 1000);
+      } catch (error: any) {
+        loginStatus.success = false;
+        if (error.response?.status === 401) {
+          loginStatus.message = 'Benutzername/E-Mail oder Passwort ist falsch.';
+        } else {
+          loginStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
+        }
+        console.error('Login error:', error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+    
+    // Registrierung verarbeiten
+    const handleRegister = async () => {
+      // Prüfe, ob Passwörter übereinstimmen
+      if (registerForm.password !== registerForm.passwordConfirm) {
+        registerStatus.success = false;
+        registerStatus.message = 'Die Passwörter stimmen nicht überein.';
+        return;
+      }
+      
+      try {
+        isLoading.value = true;
+        registerStatus.message = '';
+        
+        const password = registerForm.password;
+        const hasMinLength = password.length >= 8;
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        
+        if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
+          registerStatus.message = 'Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.';
+          registerStatus.success = false;
+          return;
+        }
+        
+        const phone = registerForm.phone.trim();
+        const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
+        
+        if (!germanPhoneRegex.test(phone)) {
+          registerStatus.message = 'Bitte eine gültige deutsche Telefonnummer eingeben.';
+          registerStatus.success = false;
+          return;
+        }
+        
+        const registerData = {
+          firstname: registerForm.firstName.trim(),
+          lastname: registerForm.lastName.trim(),
+          birthdate: registerForm.dob,
+          username: registerForm.username.trim(),
+          role: registerForm.role.trim(),
+          email: registerForm.email.trim(),
+          phone: phone,
+          password: registerForm.password,
+        };
+        
+        const response = await axios.post('http://localhost:8080/auth/local/register', registerData);
+        registerStatus.message = 'Registrierung erfolgreich!';
+        registerStatus.success = true;
+        console.log('Antwort:', response.data);
+        
+        // Tab zur Anmeldung wechseln
+        setTimeout(() => {
+          activeTab.value = 'login';
+          
+          // Anmeldedaten vorausfüllen
+          loginForm.email = registerForm.email;
+          
+          // Formular zurücksetzen
+          registerForm.firstName = '';
+          registerForm.lastName = '';
+          registerForm.username = '';
+          registerForm.role = '';
+          registerForm.dob = '';
+          registerForm.phone = '';
+          registerForm.email = '';
+          registerForm.password = '';
+          registerForm.passwordConfirm = '';
+          registerForm.agreeTerms = false;
+          passwordStrength.value = 0;
+          passwordMatch.value = null;
+        }, 1500);
+      } catch (error: any) {
+        registerStatus.success = false;
+        if (error.response?.data?.message) {
+          registerStatus.message = `Fehler: ${error.response.data.message}`;
+        } else {
+          registerStatus.message = 'Ein unerwarteter Fehler ist aufgetreten.';
+        }
+        console.error('Register error:', error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+    
     onMounted(() => {
       document.addEventListener('click', handleClickOutside);
-      
-      // Prüfen, ob bereits angemeldet
-      if (authService.isLoggedIn()) {
-        // Falls bereits angemeldet, zur geschützten Seite weiterleiten
-        router.push('/member/dashboard');
-      }
       
       // Bei Redirect-Parameter den Login-Tab aktivieren
       if (route.query.redirect) {
@@ -722,52 +629,6 @@ export default defineComponent({
       navigateOptions
     };
   }
-=======
-      const registerData = {
-        firstname: registerForm.firstName.trim(),
-        lastname: registerForm.lastName.trim(),
-        birthdate: registerForm.dob,
-        username: registerForm.username.trim(),
-        role: registerForm.role.trim(),
-        email: registerForm.email.trim(),
-        phone: phone,
-        password: registerForm.password,
-      };
-      const response = await axios.post('http://localhost:8080/auth/local/register', registerData);
-      registerStatus.message = 'Registrierung erfolgreich!';
-      registerStatus.success = true;
-      console.log('Antwort:', response.data);
-      activeTab.value = 'login';
-    } catch (error: any) {
-      registerStatus.success = false;
-      if (error.response?.data?.message) registerStatus.message = `Fehler: ${error.response.data.message}`;
-      else registerStatus.message = 'Ein unerwarteter Fehler ist aufgetreten.';
-      console.error(error);
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  return {
-    activeTab,
-    loginForm,
-    registerForm,
-    handleLogin,
-    handleRegister,
-    isOpen,
-    roleOptions,
-    selectedOption,
-    toggleDropdown,
-    closeDropdown,
-    selectOption,
-    navigateOptions,
-    loginStatus,
-    registerStatus,
-    isLoading
-  };
-}
-
->>>>>>> dev
 });
 </script>
 
