@@ -55,10 +55,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch, onUnmounted } from 'vue';
+import { defineComponent, ref, onMounted, watch, onUnmounted, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import AdminSidebar from '@/components/admin/AdminSidebar.vue';
 import { authService } from '@/services/auth.service';
+
+// Asynchroner Import, um zirkuläre Abhängigkeiten zu vermeiden
+const AdminSidebar = defineAsyncComponent(() => import('@/components/admin/AdminSidebar.vue'));
 
 export default defineComponent({
   name: 'AdminLayout',

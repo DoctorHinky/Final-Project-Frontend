@@ -2,11 +2,10 @@
 ./.gitignore
 ./.vscode
 ./.vscode/extensions.json
+./FrontendStruktur.txt
 ./index.html
-./ordnerstruktur.txt
 ./package.json
 ./package-lock.json
-./Projekt-Ordnerstruktur.txt
 ./public
 ./readme.md
 ./src
@@ -15,9 +14,8 @@
 ./src/assets
 ./src/assets/images
 ./src/assets/images/AuthorIcon1.jpg
+./src/assets/images/AvatarIcon1.webp
 ./src/assets/images/Logo.png
-./src/assets/images/Logo1.png
-./src/assets/images/Logo3.png
 ./src/components
 ./src/components/admin
 ./src/components/admin/AdminSidebar.vue
@@ -30,6 +28,7 @@
 ./src/components/admin/users
 ./src/components/admin/users/UserDetail.vue
 ./src/components/admin/users/UserList.vue
+./src/components/admin/users/UserProfileEdit.vue
 ./src/components/admin/users/UserSearch.vue
 ./src/components/layout
 ./src/components/layout/AdminLayout.vue
@@ -99,7 +98,6 @@
 ./src/components/pages/DashboardPages/Settings/NotificationSettings.vue
 ./src/components/pages/DashboardPages/Settings/PrivacySettings.vue
 ./src/components/pages/DashboardPages/Settings/ProfileSettings.vue
-./src/components/pages/DashboardPages/Settings/ProfilSettings.vue
 ./src/components/pages/LandingPage
 ./src/components/pages/LandingPage/Authors.vue
 ./src/components/pages/LandingPage/CommunitySection.vue

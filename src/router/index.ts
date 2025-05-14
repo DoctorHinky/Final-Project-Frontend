@@ -73,7 +73,6 @@ const routes: Array<RouteRecordRaw> = [
         name: 'TermsOfService',
         component: TermsOfService
       },
-      // 404-Seite als Kind der AppLayout-Komponente
       {
         path: '404',
         name: 'NotFound',
@@ -82,22 +81,18 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   
-  // Geschützte Routen für eingeloggte Benutzer
   {
     path: '/member',
-    beforeEnter: requireAuth, // Navigation Guard für geschützte Routen
+    beforeEnter: requireAuth,
     children: [
       {
         path: 'dashboard',
         name: 'MemberDashboard',
         component: Dashboard,
-        // Query-Parameter für das Tab (Menüpunkt)
         props: (route) => ({ 
           defaultTab: route.query.tab || 'overview' 
         })
       },
-      // Diese Routen können später durch tatsächliche Komponenten ersetzt werden,
-      // diese werden nun durch das Dashboard mit Tabs abgedeckt
       {
         path: 'profile',
         name: 'UserProfile',
@@ -128,7 +123,6 @@ const routes: Array<RouteRecordRaw> = [
         name: 'UserNotifications',
         redirect: { name: 'MemberDashboard', query: { tab: 'notifications' } }
       },
-      // Route für Settings-Seite
       {
         path: 'settings',
         name: 'MemberSettings',
@@ -137,7 +131,6 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   
-  // Admin-Routen
   {
     path: '/admin',
     children: [
@@ -151,11 +144,19 @@ const routes: Array<RouteRecordRaw> = [
         name: 'AdminDashboard',
         component: () => import('../pages/admin/Dashboard.vue'),
         beforeEnter: requireAdminAuth
+      },
+      {
+        path: 'tickets',
+        name: 'AdminTickets',
+        component: () => import('../pages/admin/Tickets.vue'),
+        beforeEnter: requireAdminAuth,
+        props: (route) => ({
+          ticketId: route.query.id || null
+        })
       }
     ]
   },
   
-  // Fallback-Route für nicht gefundene Seiten - umgeleitet zur 404-Seite
   {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'NotFound' }

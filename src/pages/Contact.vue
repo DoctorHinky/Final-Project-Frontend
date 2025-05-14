@@ -60,7 +60,44 @@
 
           <div class="form-group">
             <label for="subject">Betreff *</label>
-            <input type="text" id="subject" v-model="formData.subject" required />
+            <div class="subject-field">
+              <select id="subject" v-model="formData.subject" required class="subject-select">
+                <option value="" disabled selected>Bitte wählen...</option>
+                <optgroup label="Allgemeine Anfragen">
+                  <option value="Beratung">Beratungsgespräch anfragen</option>
+                  <option value="Information">Informationsmaterial anfordern</option>
+                  <option value="Workshop">Frage zu Workshops/Veranstaltungen</option>
+                </optgroup>
+                <optgroup label="Accountbezogene Anfragen">
+                  <option value="Registrierung">Probleme bei der Registrierung</option>
+                  <option value="Anmeldung">Anmeldeprobleme</option>
+                  <option value="Passwort">Passwort zurücksetzen</option>
+                  <option value="Konto">Kontoverwaltung</option>
+                </optgroup>
+                <optgroup label="Inhaltliche Anfragen">
+                  <option value="Artikel">Frage zu einem Artikel</option>
+                  <option value="Expertise">Expertenmeinung einholen</option>
+                  <option value="Kooperation">Kooperationsanfrage</option>
+                </optgroup>
+                <optgroup label="Sonstige Anfragen">
+                  <option value="Feedback">Feedback geben</option>
+                  <option value="Technisch">Technische Probleme melden</option>
+                  <option value="Presse">Presseanfrage</option>
+                  <option value="Karriere">Karriere/Stellenangebote</option>
+                  <option value="Sonstiges">Sonstige Anfrage</option>
+                </optgroup>
+              </select>
+              <div class="select-arrow">▼</div>
+            </div>
+            <input 
+              v-if="formData.subject === 'Sonstiges'" 
+              type="text" 
+              id="customSubject" 
+              v-model="formData.customSubject" 
+              placeholder="Bitte gib deinen Betreff ein..." 
+              class="custom-subject" 
+              required 
+            />
           </div>
 
           <div class="form-group">
@@ -109,16 +146,26 @@ export default defineComponent({
       name: '',
       email: '',
       subject: '',
+      customSubject: '',
       message: '',
       privacy: false
     });
 
     const submitForm = () => {
+      // Für Ticketsystem: Betreff anpassen wenn "Sonstiges" gewählt wurde
+      const finalSubject = formData.subject === 'Sonstiges' 
+        ? `Sonstiges: ${formData.customSubject}` 
+        : formData.subject;
+      
+      // Hier könnten Daten an ein Backend gesendet werden
+      console.log('Sende Anfrage mit Betreff:', finalSubject);
+      
       alert('Vielen Dank für deine Nachricht! Wir werden uns so schnell wie möglich bei dir melden.');
       // Formular zurücksetzen
       formData.name = '';
       formData.email = '';
       formData.subject = '';
+      formData.customSubject = '';
       formData.message = '';
       formData.privacy = false;
     };
@@ -335,6 +382,7 @@ export default defineComponent({
         &:nth-child(3),
         &:nth-child(4),
         &:nth-child(5),
+        &:nth-child(6),
         &:last-child {
           grid-column: 1 / -1;
         }
@@ -352,7 +400,8 @@ export default defineComponent({
         }
 
         input,
-        textarea {
+        textarea,
+        select {
           width: 100%;
           padding: map.get(vars.$spacing, m);
           resize: none;
@@ -362,6 +411,37 @@ export default defineComponent({
               @include mixins.form-element($theme);
             }
           }
+        }
+
+        // Spezieller Stil für das Dropdown
+        .subject-field {
+          position: relative;
+          
+          .subject-select {
+            appearance: none;
+            padding-right: 2.5rem;
+            cursor: pointer;
+          }
+          
+          .select-arrow {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 0.8rem;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+        
+        // Stil für das zusätzliche Betreff-Feld
+        .custom-subject {
+          margin-top: map.get(vars.$spacing, s);
         }
 
         &.checkbox {
@@ -409,9 +489,9 @@ export default defineComponent({
           transform: scale(1.05) !important;
         }
           
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              @include mixins.button-style($theme, 'medium', true);
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            @include mixins.button-style($theme, 'medium', true);
           }
         }
       }

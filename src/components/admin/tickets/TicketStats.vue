@@ -1,0 +1,259 @@
+<!-- src/components/admin/tickets/TicketStats.vue -->
+<template>
+  <div class="ticket-stats">
+    <div class="stats-grid">
+      <!-- Alle Tickets -->
+      <div class="stat-card total-card" @click="emitFilterByStatus('')">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 5v2"></path>
+            <path d="M15 11v2"></path>
+            <path d="M15 17v2"></path>
+            <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.total || 0 }}</div>
+          <div class="stat-label">Alle Tickets</div>
+        </div>
+      </div>
+
+      <!-- Offene Tickets -->
+      <div class="stat-card open-card" @click="emitFilterByStatus(TicketStatus.OPEN)">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.byStatus?.open || 0 }}</div>
+          <div class="stat-label">Offen</div>
+        </div>
+      </div>
+
+      <!-- In Bearbeitung -->
+      <div class="stat-card in-progress-card" @click="emitFilterByStatus(TicketStatus.IN_PROGRESS)">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.byStatus?.in_progress || 0 }}</div>
+          <div class="stat-label">In Bearbeitung</div>
+        </div>
+      </div>
+
+      <!-- Wartend -->
+      <div class="stat-card waiting-card" @click="emitFilterByStatus(TicketStatus.WAITING)">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="2" x2="12" y2="6"></line>
+            <line x1="12" y1="18" x2="12" y2="22"></line>
+            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+            <line x1="2" y1="12" x2="6" y2="12"></line>
+            <line x1="18" y1="12" x2="22" y2="12"></line>
+            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.byStatus?.waiting || 0 }}</div>
+          <div class="stat-label">Wartend</div>
+        </div>
+      </div>
+
+      <!-- Gelöst -->
+      <div class="stat-card resolved-card" @click="emitFilterByStatus(TicketStatus.RESOLVED)">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.byStatus?.resolved || 0 }}</div>
+          <div class="stat-label">Gelöst</div>
+        </div>
+      </div>
+
+      <!-- Geschlossen -->
+      <div class="stat-card closed-card" @click="emitFilterByStatus(TicketStatus.CLOSED)">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.byStatus?.closed || 0 }}</div>
+          <div class="stat-label">Geschlossen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import { TicketStatus } from '@/services/ticket.service';
+
+export default defineComponent({
+  name: 'TicketStats',
+  props: {
+    stats: {
+      type: Object,
+      default: () => ({
+        total: 0,
+        byStatus: {},
+        byPriority: {},
+        byCategory: {}
+      })
+    }
+  },
+  emits: ['filter-by-status'],
+  setup(props, { emit }) {
+    // Enum für den Template-Zugriff
+    const TicketStatusEnum = TicketStatus;
+    
+    // Status-Filter Event auslösen
+    const emitFilterByStatus = (status: string) => {
+      emit('filter-by-status', status);
+    };
+    
+    return {
+      TicketStatus,
+      emitFilterByStatus
+    };
+  }
+});
+</script>
+
+<style lang="scss" scoped>
+.ticket-stats {
+  margin-bottom: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 4px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  &.total-card {
+    border-left-color: #777;
+    
+    .stat-icon {
+      background-color: rgba(119, 119, 119, 0.2);
+      color: #777;
+    }
+  }
+  
+  &.open-card {
+    border-left-color: #42a5f5;
+    
+    .stat-icon {
+      background-color: rgba(33, 150, 243, 0.1);
+      color: #42a5f5;
+    }
+  }
+  
+  &.in-progress-card {
+    border-left-color: #ba68c8;
+    
+    .stat-icon {
+      background-color: rgba(156, 39, 176, 0.1);
+      color: #ba68c8;
+    }
+  }
+  
+  &.waiting-card {
+    border-left-color: #ffd54f;
+    
+    .stat-icon {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffd54f;
+    }
+  }
+  
+  &.resolved-card {
+    border-left-color: #81c784;
+    
+    .stat-icon {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: #81c784;
+    }
+  }
+  
+  &.closed-card {
+    border-left-color: #bdbdbd;
+    
+    .stat-icon {
+      background-color: rgba(158, 158, 158, 0.1);
+      color: #bdbdbd;
+    }
+  }
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+}
+
+.stat-info {
+  flex: 1;
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 4px;
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: #bbb;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

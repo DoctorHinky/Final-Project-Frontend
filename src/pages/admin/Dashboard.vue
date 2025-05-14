@@ -67,6 +67,7 @@ export default defineComponent({
         case 'all-users': return 'Alle User';
         case 'all-authors': return 'Alle Autoren';
         case 'active-posts': return 'Active Posts';
+        case 'tickets': return 'Ticket Management';
         case 'staff-team': return 'Staff Team';
         default: return 'Admin Dashboard';
       }
@@ -78,12 +79,20 @@ export default defineComponent({
 
     // Menü-Änderung Handler
     const handleMenuChange = (tabId: string) => {
-      activeTab.value = tabId;
-      
-      // URL aktualisieren, ohne Neuladen der Seite
-      router.push({
-        query: { ...route.query, tab: tabId }
-      });
+      // Wenn "tickets" ausgewählt wird, zur Tickets-Seite navigieren und activeTab setzen
+      if (tabId === 'tickets') {
+        activeTab.value = tabId;
+        router.push('/admin/tickets');
+      } else {
+        // Bei anderen Tabs im Dashboard bleiben und nur den Tab ändern
+        activeTab.value = tabId;
+        
+        // URL aktualisieren, ohne Neuladen der Seite
+        router.push({
+          path: '/admin/dashboard',
+          query: { tab: tabId }
+        });
+      }
     };
 
     // User Details anzeigen
