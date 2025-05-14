@@ -6,7 +6,7 @@
       <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
     </a>
     <div class="sidebar-header">
-      <img src="@/assets/images/AvatarIcon1.webp" alt="Account Logo" class="account-logo" />
+     <img src="../../assets/images/AvatarIcon1.webp" alt="Account Logo" class="account-logo" />
       <div class="header-content">
       </div>
       <button class="close-sidebar" @click="$emit('close')">×</button>

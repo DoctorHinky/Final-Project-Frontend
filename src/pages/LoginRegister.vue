@@ -324,6 +324,9 @@ import {
 } from "vue";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid';
+import { useRouter, useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 export default defineComponent({
   name: "LoginRegister",
