@@ -4,44 +4,50 @@
     <div class="container">
       <div class="auth-container">
         <div class="tabs">
-          <button 
-            class="tab" 
-            :class="{ active: activeTab === 'login' }" 
+          <button
+            class="tab"
+            :class="{ active: activeTab === 'login' }"
             @click="activeTab = 'login'"
           >
             Anmelden
           </button>
-          <button 
-            class="tab" 
-            :class="{ active: activeTab === 'register' }" 
+          <button
+            class="tab"
+            :class="{ active: activeTab === 'register' }"
             @click="activeTab = 'register'"
           >
             Registrieren
           </button>
         </div>
-        
+
         <!-- Login Formular -->
         <div class="form-container" v-if="activeTab === 'login'">
           <h2>Willkommen zurück!</h2>
           <p>Melde dich an, um auf dein persönliches Profil zuzugreifen.</p>
-          
-          <div v-if="loginStatus.message" :class="['status-message', loginStatus.success ? 'success' : 'error']">
+
+          <div
+            v-if="loginStatus.message"
+            :class="[
+              'status-message',
+              loginStatus.success ? 'success' : 'error',
+            ]"
+          >
             {{ loginStatus.message }}
           </div>
-          
+
           <form @submit.prevent="handleLogin">
             <div class="form-group">
               <label for="login-email">E-Mail</label>
-              <input 
-                type="email" 
-                id="login-email" 
-                v-model="loginForm.email" 
-                placeholder="deine@email.de" 
+              <input
+                type="email"
+                id="login-email"
+                v-model="loginForm.email"
+                placeholder="deine@email.de"
                 required
               />
               <div class="hint-text">Testlogin: test@example.com</div>
             </div>
-            
+
             <div class="form-group">
               <label for="login-password">Passwort</label>
               <div class="password-input-container">
@@ -64,121 +70,147 @@
               </div>
               <div class="hint-text">Testpasswort: password123</div>
             </div>
-            
+
             <div class="form-options">
               <label class="checkbox-container">
                 <input type="checkbox" v-model="loginForm.rememberMe" />
                 Angemeldet bleiben
               </label>
-              
+
               <a href="#" class="forgot-password">Passwort vergessen?</a>
             </div>
-            
+
             <button type="submit" class="submit-button" :disabled="isLoading">
               <span v-if="isLoading">Wird angemeldet...</span>
               <span v-else>Anmelden</span>
             </button>
           </form>
         </div>
-        
+
         <!-- Register Formular -->
         <div class="form-container" v-if="activeTab === 'register'">
           <h2>Werde Teil unserer Community</h2>
           <p>Erstelle ein Konto, um alle Funktionen nutzen zu können.</p>
-          
-          <div v-if="registerStatus.message" :class="['status-message', registerStatus.success ? 'success' : 'error']">
+
+          <div
+            v-if="registerStatus.message"
+            :class="[
+              'status-message',
+              registerStatus.success ? 'success' : 'error',
+            ]"
+          >
             {{ registerStatus.message }}
           </div>
-          
+
           <form @submit.prevent="handleRegister">
             <div class="form-group">
               <label for="register-first-name">Vorname</label>
-              <input 
-                type="text" 
-                id="register-first-name" 
-                v-model="registerForm.firstName" 
-                placeholder="Vorname" 
+              <input
+                type="text"
+                id="register-first-name"
+                v-model="registerForm.firstName"
+                placeholder="Vorname"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-last-name">Nachname</label>
-              <input 
-                type="text" 
-                id="register-last-name" 
-                v-model="registerForm.lastName" 
-                placeholder="Nachname" 
+              <input
+                type="text"
+                id="register-last-name"
+                v-model="registerForm.lastName"
+                placeholder="Nachname"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-username">Benutzername</label>
-              <input 
-                type="text" 
-                id="register-username" 
-                v-model="registerForm.username" 
-                placeholder="Benutzername" 
+              <input
+                type="text"
+                id="register-username"
+                v-model="registerForm.username"
+                placeholder="Benutzername"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-role">Rolle</label>
               <div class="custom-dropdown">
-                <div class="dropdown-selected" @click="toggleDropdown" :class="{ 'active': isOpen }" tabindex="0"
-                  @keydown.enter="toggleDropdown" @keydown.space="toggleDropdown" @keydown.up="navigateOptions(-1)"
-                  @keydown.down="navigateOptions(1)" @keydown.esc="closeDropdown">
+                <div
+                  class="dropdown-selected"
+                  @click="toggleDropdown"
+                  :class="{ active: isOpen }"
+                  tabindex="0"
+                  @keydown.enter="toggleDropdown"
+                  @keydown.space="toggleDropdown"
+                  @keydown.up="navigateOptions(-1)"
+                  @keydown.down="navigateOptions(1)"
+                  @keydown.esc="closeDropdown"
+                >
                   <span>{{ selectedOption.text }}</span>
                   <span class="dropdown-arrow">▼</span>
                 </div>
 
-                <div class="dropdown-options" :class="{ 'show': isOpen }">
-                  <div v-for="(option, index) in roleOptions" :key="option.value" class="dropdown-option"
-                    :class="{ 'selected': option.value === selectedOption.value }" @click="selectOption(option)"
-                    tabindex="0" @keydown.enter="selectOption(option)" :data-index="index">
+                <div class="dropdown-options" :class="{ show: isOpen }">
+                  <div
+                    v-for="(option, index) in roleOptions"
+                    :key="option.value"
+                    class="dropdown-option"
+                    :class="{ selected: option.value === selectedOption.value }"
+                    @click="selectOption(option)"
+                    tabindex="0"
+                    @keydown.enter="selectOption(option)"
+                    :data-index="index"
+                  >
                     {{ option.text }}
                   </div>
                 </div>
 
-                <!-- Hidden input für Form-Übermittlung -->
-                <input type="hidden" id="register-role" name="role" v-model="registerForm.role">
+                <!-- Hidden input for form submission -->
+                <input
+                  type="hidden"
+                  id="register-role"
+                  name="role"
+                  v-model="registerForm.role"
+                />
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="register-dob">Geburtsdatum</label>
-              <input 
-                type="date" 
-                id="register-dob" 
-                v-model="registerForm.dob" 
+              <input
+                type="date"
+                id="register-dob"
+                v-model="registerForm.dob"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-phone">Telefon</label>
-              <input 
-                type="tel" 
-                id="register-phone" 
-                v-model="registerForm.phone" 
-                placeholder="Telefonnummer" 
+              <input
+                type="tel"
+                id="register-phone"
+                v-model="registerForm.phone"
+                placeholder="Telefonnummer"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-email">E-Mail</label>
-              <input 
-                type="email" 
-                id="register-email" 
-                v-model="registerForm.email" 
-                placeholder="deine@email.de" 
+              <input
+                type="email"
+                id="register-email"
+                v-model="registerForm.email"
+                placeholder="deine@email.de"
                 required
               />
             </div>
-            
+
             <div class="form-group">
               <label for="register-password">Passwort</label>
               <div class="password-input-container">
@@ -254,15 +286,23 @@
                 </span>
               </div>
             </div>
-            
+
             <div class="form-options">
               <label class="checkbox-container">
-                <input type="checkbox" v-model="registerForm.agreeTerms" required />
+                <input
+                  type="checkbox"
+                  v-model="registerForm.agreeTerms"
+                  required
+                />
                 <span class="checkmark"></span>
-                <span>Ich stimme den <a href="#" class="terms-link">Nutzungsbedingungen</a> zu</span>
+                <span
+                  >Ich stimme den
+                  <a href="#" class="terms-link">Nutzungsbedingungen</a>
+                  zu</span
+                >
               </label>
             </div>
-            
+
             <button type="submit" class="submit-button" :disabled="isLoading">
               <span v-if="isLoading">Wird registriert...</span>
               <span v-else>Konto erstellen</span>
@@ -275,13 +315,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline';
+import {
+  defineComponent,
+  ref,
+  reactive,
+  onMounted,
+  onBeforeUnmount,
+} from "vue";
+import axios from "axios";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 export default defineComponent({
-  name: 'LoginRegister',
+  name: "LoginRegister",
   components: {
     EyeIcon,
     EyeSlashIcon,
@@ -633,10 +678,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .login-register-page {
   min-height: calc(100vh - 130px);
@@ -646,27 +691,27 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl) 0;
   position: relative;
   z-index: 100;
-  
+
   .auth-container {
     max-width: 500px;
     width: 100%;
     margin: 0 auto;
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border-radius: map.get(map.get(vars.$layout, border-radius), large);
         border: 2px solid mixins.theme-color($theme, border-medium);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
         overflow: hidden;
       }
     }
   }
-  
+
   .tabs {
     display: flex;
     width: 100%;
-    
+
     .tab {
       flex: 1;
       padding: map.get(vars.$spacing, m) 0;
@@ -677,12 +722,12 @@ export default defineComponent({
       transition: all map.get(vars.$transitions, default);
       position: relative;
       overflow: hidden;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, nav-item-bg);
           color: mixins.theme-color($theme, text-primary);
-          
+
           &.active {
             background: mixins.theme-gradient($theme, nav-active);
             color: white;
@@ -691,51 +736,56 @@ export default defineComponent({
       }
     }
   }
-  
+
   .form-container {
     padding: map.get(vars.$spacing, xl);
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-    
+
     // Status-Meldungen
     .status-message {
       padding: map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       margin-bottom: map.get(vars.$spacing, l);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      
+
       &.success {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
+            background-color: rgba(
+              mixins.theme-color($theme, accent-green),
+              0.15
+            );
             color: mixins.theme-color($theme, accent-green);
-            border: 1px solid rgba(mixins.theme-color($theme, accent-green), 0.3);
+            border: 1px
+              solid
+              rgba(mixins.theme-color($theme, accent-green), 0.3);
           }
         }
       }
-      
+
       &.error {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(255, 100, 100, 0.15);
             color: #ff6464;
@@ -744,41 +794,49 @@ export default defineComponent({
         }
       }
     }
-    
+
     .form-group {
       margin-bottom: map.get(vars.$spacing, l);
-      
+
       label {
         display: block;
         margin-bottom: map.get(vars.$spacing, xs);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
-      input, select {
+
+      input,
+      select {
         width: 100%;
         padding: map.get(vars.$spacing, s);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             border: 1px solid mixins.theme-color($theme, border-light);
-            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+            border-radius: map.get(
+              map.get(vars.$layout, border-radius),
+              medium
+            );
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
-            
+
             &::placeholder {
               color: mixins.theme-color($theme, text-tertiary);
             }
-            
+
             &:focus {
               outline: none;
               border-color: mixins.theme-color($theme, accent-teal);
-              box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+              box-shadow: 0
+                0
+                0
+                2px
+                rgba(mixins.theme-color($theme, accent-teal), 0.3);
             }
           }
         }
@@ -906,12 +964,11 @@ export default defineComponent({
           outline: none;
           font-size: map.get(map.get(vars.$fonts, sizes), base);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
-              @if $theme =='dark' {
+              @if $theme == "dark" {
                 background-color: rgba(15, 36, 25, 0.8);
-              }
-              @else {
+              } @else {
                 background-color: rgba(255, 255, 255, 0.7);
               }
 
@@ -922,12 +979,20 @@ export default defineComponent({
               &:hover,
               &:focus {
                 border-color: mixins.theme-color($theme, accent-teal);
-                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                box-shadow: 0
+                  0
+                  0
+                  2px
+                  rgba(mixins.theme-color($theme, accent-teal), 0.2);
               }
 
               &.active {
                 border-color: mixins.theme-color($theme, accent-teal);
-                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                box-shadow: 0
+                  0
+                  0
+                  2px
+                  rgba(mixins.theme-color($theme, accent-teal), 0.2);
               }
             }
           }
@@ -937,7 +1002,7 @@ export default defineComponent({
             font-size: 0.8rem;
             transition: transform 0.2s ease;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -963,11 +1028,14 @@ export default defineComponent({
           max-height: 250px;
           overflow-y: auto;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, card-bg);
               border: 1px solid mixins.theme-color($theme, border-light);
-              border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+              border-radius: map.get(
+                map.get(vars.$layout, border-radius),
+                medium
+              );
               box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
           }
@@ -985,10 +1053,12 @@ export default defineComponent({
             outline: none;
             font-size: map.get(map.get(vars.$fonts, sizes), base);
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
-                border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.2);
+                border-bottom: 1px
+                  solid
+                  rgba(mixins.theme-color($theme, border-light), 0.2);
 
                 &:hover,
                 &:focus {
@@ -997,7 +1067,10 @@ export default defineComponent({
 
                 &.selected {
                   font-weight: map.get(map.get(vars.$fonts, weights), bold);
-                  background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+                  background-color: rgba(
+                    mixins.theme-color($theme, accent-teal),
+                    0.1
+                  );
                 }
 
                 &:last-child {
@@ -1008,50 +1081,51 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Hints für Testdaten
       .hint-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         margin-top: map.get(vars.$spacing, xxs);
         font-style: italic;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
         }
       }
     }
-    
+
     .form-options {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: map.get(vars.$spacing, l);
-      
+
       .checkbox-container {
         display: flex;
         align-items: center;
         cursor: pointer;
-        
+
         input[type="checkbox"] {
           margin-right: map.get(vars.$spacing, xs);
           width: auto;
         }
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
-      a.terms-link, a.forgot-password {
-        @each $theme in ('light', 'dark') {
+
+      a.terms-link,
+      a.forgot-password {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal) !important;
             text-decoration: none;
-            
+
             &:hover {
               text-decoration: underline;
             }
@@ -1059,7 +1133,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     .submit-button {
       margin-top: map.get(vars.$spacing, xl);
       width: 100%;
@@ -1070,17 +1144,17 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       transform: scale(1.05);
       transition: all 0.5s;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-          
+
           &:hover {
             transform: translateY(-3px);
-            @include mixins.glow('green', 'small', $theme);
+            @include mixins.glow("green", "small", $theme);
           }
-          
+
           &:disabled {
             opacity: 0.7;
             cursor: not-allowed;
