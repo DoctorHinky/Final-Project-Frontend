@@ -51,18 +51,22 @@
             <div class="form-group">
               <label for="login-password">Passwort</label>
               <div class="password-input-container">
-                <input 
-                  :type="showLoginPassword ? 'text' : 'password'" 
-                  id="login-password" 
-                  v-model="loginForm.password" 
-                  placeholder="Dein Passwort" 
+                <input
+                  :type="showLoginPassword ? 'text' : 'password'"
+                  id="login-password"
+                  v-model="loginForm.password"
+                  placeholder="Dein Passwort"
                   required
                 />
-                <button 
-                  type="button" 
-                  class="password-toggle" 
+                <button
+                  type="button"
+                  class="password-toggle"
                   @click="showLoginPassword = !showLoginPassword"
-                  :aria-label="showLoginPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                  :aria-label="
+                    showLoginPassword
+                      ? 'Passwort verbergen'
+                      : 'Passwort anzeigen'
+                  "
                 >
                   <EyeSlashIcon v-if="showLoginPassword" class="icon" />
                   <EyeIcon v-else class="icon" />
@@ -214,67 +218,91 @@
             <div class="form-group">
               <label for="register-password">Passwort</label>
               <div class="password-input-container">
-                <input 
-                  :type="showRegisterPassword ? 'text' : 'password'" 
-                  id="register-password" 
-                  v-model="registerForm.password" 
-                  placeholder="Erstelle ein sicheres Passwort" 
+                <input
+                  :type="showRegisterPassword ? 'text' : 'password'"
+                  id="register-password"
+                  v-model="registerForm.password"
+                  placeholder="Erstelle ein sicheres Passwort"
                   required
                   @input="checkPasswordStrength"
                 />
-                <button 
-                  type="button" 
-                  class="password-toggle" 
+                <button
+                  type="button"
+                  class="password-toggle"
                   @click="showRegisterPassword = !showRegisterPassword"
-                  :aria-label="showRegisterPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                  :aria-label="
+                    showRegisterPassword
+                      ? 'Passwort verbergen'
+                      : 'Passwort anzeigen'
+                  "
                 >
                   <EyeSlashIcon v-if="showRegisterPassword" class="icon" />
                   <EyeIcon v-else class="icon" />
                 </button>
               </div>
-              
+
               <!-- Passwort-Stärke-Anzeige -->
-              <div class="password-strength-container" v-if="registerForm.password">
-                <div class="password-strength-label">Passwortstärke: {{ passwordStrengthText }}</div>
+              <div
+                class="password-strength-container"
+                v-if="registerForm.password"
+              >
+                <div class="password-strength-label">
+                  Passwortstärke: {{ passwordStrengthText }}
+                </div>
                 <div class="password-strength-bar">
-                  <div 
-                    class="password-strength-fill" 
+                  <div
+                    class="password-strength-fill"
                     :style="{ width: passwordStrength + '%' }"
                     :class="passwordStrengthClass"
                   ></div>
                 </div>
-                <div class="password-strength-tips" v-if="passwordStrength < 70">
+                <div
+                  class="password-strength-tips"
+                  v-if="passwordStrength < 70"
+                >
                   Für ein sicheres Passwort verwende Groß- und Kleinbuchstaben,
                   Zahlen und Sonderzeichen.
                 </div>
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="register-password-confirm">Passwort bestätigen</label>
               <div class="password-input-container">
-                <input 
-                  :type="showRegisterPasswordConfirm ? 'text' : 'password'" 
-                  id="register-password-confirm" 
-                  v-model="registerForm.passwordConfirm" 
-                  placeholder="Passwort erneut eingeben" 
+                <input
+                  :type="showRegisterPasswordConfirm ? 'text' : 'password'"
+                  id="register-password-confirm"
+                  v-model="registerForm.passwordConfirm"
+                  placeholder="Passwort erneut eingeben"
                   required
                 />
-                <button 
-                  type="button" 
-                  class="password-toggle" 
-                  @click="showRegisterPasswordConfirm = !showRegisterPasswordConfirm"
-                  :aria-label="showRegisterPasswordConfirm ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                <button
+                  type="button"
+                  class="password-toggle"
+                  @click="
+                    showRegisterPasswordConfirm = !showRegisterPasswordConfirm
+                  "
+                  :aria-label="
+                    showRegisterPasswordConfirm
+                      ? 'Passwort verbergen'
+                      : 'Passwort anzeigen'
+                  "
                 >
-                  <EyeSlashIcon v-if="showRegisterPasswordConfirm" class="icon" />
+                  <EyeSlashIcon
+                    v-if="showRegisterPasswordConfirm"
+                    class="icon"
+                  />
                   <EyeIcon v-else class="icon" />
                 </button>
               </div>
-              
+
               <!-- Passwort-Übereinstimmungs-Hinweis -->
-              <div 
-                v-if="registerForm.passwordConfirm && passwordMatch !== null" 
-                :class="['password-match-message', passwordMatch ? 'match-success' : 'match-error']"
+              <div
+                v-if="registerForm.passwordConfirm && passwordMatch !== null"
+                :class="[
+                  'password-match-message',
+                  passwordMatch ? 'match-success' : 'match-error',
+                ]"
               >
                 <span v-if="passwordMatch">
                   <CheckCircleIcon class="check-icon" />
@@ -324,9 +352,14 @@ import {
 } from "vue";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid';
-import { useRouter, useRoute } from 'vue-router';
-import { computed } from 'vue';
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/solid";
+import { useRouter, useRoute } from "vue-router";
+import { computed } from "vue";
 
 export default defineComponent({
   name: "LoginRegister",
@@ -334,255 +367,269 @@ export default defineComponent({
     EyeIcon,
     EyeSlashIcon,
     CheckCircleIcon,
-    XCircleIcon
+    XCircleIcon,
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const activeTab = ref('login');
+    const activeTab = ref("login");
     const isLoading = ref(false);
-    
+
     // Password-Toggle-Variablen
     const showLoginPassword = ref(false);
     const showRegisterPassword = ref(false);
     const showRegisterPasswordConfirm = ref(false);
-    
+
     // Passwort-Stärke-Variablen
     const passwordStrength = ref(0);
-    
+
     // Passwort-Übereinstimmungs-Variable
     const passwordMatch = ref(null);
-    
+
     // Passwort-Stärke-Texte und -Klassen berechnen
     const passwordStrengthText = computed(() => {
-      if (passwordStrength.value <= 25) return 'Sehr schwach';
-      if (passwordStrength.value <= 50) return 'Schwach';
-      if (passwordStrength.value <= 75) return 'Mittel';
-      return 'Stark';
+      if (passwordStrength.value <= 25) return "Sehr schwach";
+      if (passwordStrength.value <= 50) return "Schwach";
+      if (passwordStrength.value <= 75) return "Mittel";
+      return "Stark";
     });
-    
+
     const passwordStrengthClass = computed(() => {
-      if (passwordStrength.value <= 25) return 'strength-very-weak';
-      if (passwordStrength.value <= 50) return 'strength-weak';
-      if (passwordStrength.value <= 75) return 'strength-medium';
-      return 'strength-strong';
+      if (passwordStrength.value <= 25) return "strength-very-weak";
+      if (passwordStrength.value <= 50) return "strength-weak";
+      if (passwordStrength.value <= 75) return "strength-medium";
+      return "strength-strong";
     });
-    
+
     // Funktion zum Prüfen der Passwortstärke
     const checkPasswordStrength = () => {
       const password = registerForm.password;
-      
+
       // Wenn kein Passwort, dann 0% Stärke
       if (!password) {
         passwordStrength.value = 0;
         return;
       }
-      
+
       let strength = 0;
-      
+
       // Grundlegende Längenprüfung
       if (password.length >= 8) strength += 25;
       if (password.length >= 12) strength += 10;
-      
+
       // Prüfung auf Buchstaben, Zahlen und Sonderzeichen
       const hasLowerCase = /[a-z]/.test(password);
       const hasUpperCase = /[A-Z]/.test(password);
       const hasNumbers = /\d/.test(password);
-      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
-      
+      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
+        password
+      );
+
       if (hasLowerCase) strength += 10;
       if (hasUpperCase) strength += 15;
       if (hasNumbers) strength += 15;
       if (hasSpecialChars) strength += 25;
-      
+
       // Begrenzung auf maximal 100%
       passwordStrength.value = Math.min(strength, 100);
-      
+
       // Wenn Bestätigungspasswort existiert, prüfe Übereinstimmung
       if (registerForm.passwordConfirm) {
         checkPasswordMatch();
       }
     };
-    
+
     // Status-Meldungen
     const loginStatus = reactive({
       success: false,
-      message: ''
+      message: "",
     });
-    
+
     const registerStatus = reactive({
       success: false,
-      message: ''
+      message: "",
     });
-    
+
     // Login-Formular
     const loginForm = reactive({
-      email: '',
-      password: '',
-      rememberMe: false
+      email: "",
+      password: "",
+      rememberMe: false,
     });
-    
+
     // Passwort-Übereinstimmung prüfen
     const checkPasswordMatch = () => {
       if (!registerForm.passwordConfirm) {
         passwordMatch.value = null;
         return;
       }
-      
-      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
+
+      passwordMatch.value =
+        registerForm.password === registerForm.passwordConfirm;
     };
-    
+
     // Register-Formular
     const registerForm = reactive({
-      firstName: '',
-      lastName: '',
-      username: '',
-      role: '',
-      dob: '',
-      phone: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      agreeTerms: false
+      firstName: "",
+      lastName: "",
+      username: "",
+      role: "",
+      dob: "",
+      phone: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+      agreeTerms: false,
     });
-    
+
     // Dropdown-Funktionalität
     const isOpen = ref(false);
-    
+
     const roleOptions = [
-      { value: '', text: 'Wähle eine Rolle' },
-      { value: 'parent', text: 'Eltern' },
-      { value: 'child', text: 'Kind' }
+      { value: "", text: "Wähle eine Rolle" },
+      { value: "parent", text: "Eltern" },
+      { value: "child", text: "Kind" },
     ];
-    
+
     const selectedOption = ref(roleOptions[0]);
-    
+
     const toggleDropdown = () => {
       isOpen.value = !isOpen.value;
     };
-    
+
     const closeDropdown = () => {
       isOpen.value = false;
     };
-    
+
     const selectOption = (option: { value: string; text: string }) => {
       selectedOption.value = option;
       registerForm.role = option.value;
       closeDropdown();
     };
-    
+
     const navigateOptions = (direction: number) => {
       if (!isOpen.value) {
         isOpen.value = true;
         return;
       }
-      
-      const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
+
+      const currentIndex = roleOptions.findIndex(
+        (option) => option.value === selectedOption.value.value
+      );
       let newIndex = currentIndex + direction;
-      
+
       if (newIndex < 0) newIndex = roleOptions.length - 1;
       else if (newIndex >= roleOptions.length) newIndex = 0;
-      
+
       // Nur fokussieren, nicht auswählen
-      const optionElements = document.querySelectorAll('.dropdown-option');
+      const optionElements = document.querySelectorAll(".dropdown-option");
       if (optionElements[newIndex]) {
         (optionElements[newIndex] as HTMLElement).focus();
       }
     };
-    
+
     // Klick außerhalb schließt Dropdown
     const handleClickOutside = (event: MouseEvent) => {
-      const dropdown = document.querySelector('.custom-dropdown');
-      if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
+      const dropdown = document.querySelector(".custom-dropdown");
+      if (
+        dropdown &&
+        !dropdown.contains(event.target as Node) &&
+        isOpen.value
+      ) {
         closeDropdown();
       }
     };
-    
+
     // Anmeldung verarbeiten
     const handleLogin = async () => {
       try {
         isLoading.value = true;
-        loginStatus.message = '';
-        
+        loginStatus.message = "";
+
         const loginData: Record<string, string> = {};
         const trimmedInput = loginForm.email.trim();
-        
+
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
         if (isEmail) loginData.email = trimmedInput;
         else loginData.username = trimmedInput;
-        
+
         loginData.password = loginForm.password;
-        
+
         const response = await axios.post(
-          'http://localhost:8080/auth/local/login',
+          "https://final-project-backend-rsqk.onrender.com/auth/local/login",
           loginData,
           {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" },
           }
         );
-        
+
         const { access_token, refresh_token } = response.data;
-        
+
         // Token speichern
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('refreshToken', refresh_token);
-        
+        localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+
         loginStatus.success = true;
-        loginStatus.message = 'Anmeldung erfolgreich! Du wirst weitergeleitet...';
-        
+        loginStatus.message =
+          "Anmeldung erfolgreich! Du wirst weitergeleitet...";
+
         // Nach kurzer Verzögerung weiterleiten
         setTimeout(() => {
           // Prüfen, ob es eine Redirect-URL gibt
-          const redirectPath = route.query.redirect as string || '/member/dashboard';
+          const redirectPath =
+            (route.query.redirect as string) || "/member/dashboard";
           router.push(redirectPath);
         }, 1000);
       } catch (error: any) {
         loginStatus.success = false;
         if (error.response?.status === 401) {
-          loginStatus.message = 'Benutzername/E-Mail oder Passwort ist falsch.';
+          loginStatus.message = "Benutzername/E-Mail oder Passwort ist falsch.";
         } else {
-          loginStatus.message = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.';
+          loginStatus.message =
+            "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
         }
-        console.error('Login error:', error);
+        console.error("Login error:", error);
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     // Registrierung verarbeiten
     const handleRegister = async () => {
       // Prüfe, ob Passwörter übereinstimmen
       if (registerForm.password !== registerForm.passwordConfirm) {
         registerStatus.success = false;
-        registerStatus.message = 'Die Passwörter stimmen nicht überein.';
+        registerStatus.message = "Die Passwörter stimmen nicht überein.";
         return;
       }
-      
+
       try {
         isLoading.value = true;
-        registerStatus.message = '';
-        
+        registerStatus.message = "";
+
         const password = registerForm.password;
         const hasMinLength = password.length >= 8;
         const hasLetter = /[a-zA-Z]/.test(password);
         const hasNumber = /\d/.test(password);
         const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        
+
         if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
-          registerStatus.message = 'Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.';
+          registerStatus.message =
+            "Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.";
           registerStatus.success = false;
           return;
         }
-        
+
         const phone = registerForm.phone.trim();
         const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
-        
+
         if (!germanPhoneRegex.test(phone)) {
-          registerStatus.message = 'Bitte eine gültige deutsche Telefonnummer eingeben.';
+          registerStatus.message =
+            "Bitte eine gültige deutsche Telefonnummer eingeben.";
           registerStatus.success = false;
           return;
         }
-        
+
         const registerData = {
           firstname: registerForm.firstName.trim(),
           lastname: registerForm.lastName.trim(),
@@ -593,29 +640,32 @@ export default defineComponent({
           phone: phone,
           password: registerForm.password,
         };
-        
-        const response = await axios.post('http://localhost:8080/auth/local/register', registerData);
-        registerStatus.message = 'Registrierung erfolgreich!';
+
+        const response = await axios.post(
+          "https://final-project-backend-rsqk.onrender.com/local/register",
+          registerData
+        );
+        registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
-        console.log('Antwort:', response.data);
-        
+        console.log("Antwort:", response.data);
+
         // Tab zur Anmeldung wechseln
         setTimeout(() => {
-          activeTab.value = 'login';
-          
+          activeTab.value = "login";
+
           // Anmeldedaten vorausfüllen
           loginForm.email = registerForm.email;
-          
+
           // Formular zurücksetzen
-          registerForm.firstName = '';
-          registerForm.lastName = '';
-          registerForm.username = '';
-          registerForm.role = '';
-          registerForm.dob = '';
-          registerForm.phone = '';
-          registerForm.email = '';
-          registerForm.password = '';
-          registerForm.passwordConfirm = '';
+          registerForm.firstName = "";
+          registerForm.lastName = "";
+          registerForm.username = "";
+          registerForm.role = "";
+          registerForm.dob = "";
+          registerForm.phone = "";
+          registerForm.email = "";
+          registerForm.password = "";
+          registerForm.passwordConfirm = "";
           registerForm.agreeTerms = false;
           passwordStrength.value = 0;
           passwordMatch.value = null;
@@ -625,27 +675,27 @@ export default defineComponent({
         if (error.response?.data?.message) {
           registerStatus.message = `Fehler: ${error.response.data.message}`;
         } else {
-          registerStatus.message = 'Ein unerwarteter Fehler ist aufgetreten.';
+          registerStatus.message = "Ein unerwarteter Fehler ist aufgetreten.";
         }
-        console.error('Register error:', error);
+        console.error("Register error:", error);
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     onMounted(() => {
-      document.addEventListener('click', handleClickOutside);
-      
+      document.addEventListener("click", handleClickOutside);
+
       // Bei Redirect-Parameter den Login-Tab aktivieren
       if (route.query.redirect) {
-        activeTab.value = 'login';
+        activeTab.value = "login";
       }
     });
-    
+
     onBeforeUnmount(() => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     });
-    
+
     return {
       activeTab,
       loginForm,
@@ -674,9 +724,9 @@ export default defineComponent({
       toggleDropdown,
       closeDropdown,
       selectOption,
-      navigateOptions
+      navigateOptions,
     };
-  }
+  },
 });
 </script>
 
@@ -844,17 +894,17 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Password-Input-Container für den Toggle-Button
       .password-input-container {
         position: relative;
         display: flex;
         align-items: center;
-        
+
         input {
           padding-right: 40px; // Platz für den Button
         }
-        
+
         .password-toggle {
           position: absolute;
           right: 8px;
@@ -867,16 +917,16 @@ export default defineComponent({
           display: flex;
           align-items: center;
           justify-content: center;
-          
+
           .icon {
             width: 20px;
             height: 20px;
           }
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
-              
+
               &:hover {
                 color: mixins.theme-color($theme, text-primary);
               }
@@ -884,70 +934,70 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Passwort-Stärke-Anzeige
       .password-strength-container {
         margin-top: map.get(vars.$spacing, s);
-        
+
         .password-strength-label {
           display: flex;
           justify-content: space-between;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
-        
+
         .password-strength-bar {
           height: 6px;
           width: 100%;
           margin: 4px 0;
           border-radius: 3px;
           overflow: hidden;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
             }
           }
-          
+
           .password-strength-fill {
             height: 100%;
             transition: width 0.3s ease;
-            
+
             &.strength-very-weak {
               background-color: #ff4d4d;
             }
-            
+
             &.strength-weak {
               background-color: #ffaa00;
             }
-            
+
             &.strength-medium {
               background-color: #ffdd00;
             }
-            
+
             &.strength-strong {
               background-color: #00cc66;
             }
           }
         }
-        
+
         .password-strength-tips {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           margin-top: 4px;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
           }
         }
       }
-      
+
       // Benutzerdefiniertes Dropdown-Menü
       .custom-dropdown {
         position: relative;
