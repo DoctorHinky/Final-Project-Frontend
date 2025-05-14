@@ -27,7 +27,6 @@ export default defineComponent({
     AppFooter
   },
   setup() {
-    // Theme State aus localStorage oder default (light)
     const isLightTheme = ref(localStorage.getItem('theme') !== 'dark');
     
     const toggleTheme = () => {

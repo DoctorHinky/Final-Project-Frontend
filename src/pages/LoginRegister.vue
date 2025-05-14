@@ -275,11 +275,17 @@
 </template>
 
 <script lang="ts">
+<<<<<<< HEAD
 import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/services/auth.service';
 // Import Heroicons
 import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline';
+=======
+import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import axios from 'axios';
+import { useRouter, useRoute } from 'vue-router';
+>>>>>>> dev
 
 export default defineComponent({
   name: 'LoginRegister',
@@ -290,6 +296,7 @@ export default defineComponent({
     XCircleIcon
   },
   setup() {
+<<<<<<< HEAD
     const router = useRouter();
     const route = useRoute();
     const activeTab = ref('login');
@@ -502,23 +509,153 @@ export default defineComponent({
     const selectOption = (option: { value: string; text: string }) => {
       selectedOption.value = option;
       registerForm.role = option.value;
+=======
+  const router = useRouter();
+  const route = useRoute();
+  const activeTab = ref('login');
+  const isLoading = ref(false);
+
+  const loginForm = reactive({
+    email: '',
+    password: '',
+    rememberMe: false
+  });
+
+  const registerForm = reactive({
+    firstName: '',
+    lastName: '',
+    username: '',
+    role: '',
+    dob: '',
+    phone: '',
+    email: '',
+    password: '',
+    agreeTerms: false
+  });
+
+  // ✅ NEW: login and register status
+  const loginStatus = reactive({
+    message: '',
+    success: false
+  });
+
+  const registerStatus = reactive({
+    message: '',
+    success: false
+  });
+
+  const isOpen = ref(false);
+  const roleOptions = [
+    { value: '', text: 'Wähle eine Rolle' },
+    { value: 'parent', text: 'Eltern' },
+    { value: 'child', text: 'Kind' }
+  ];
+  const selectedOption = ref(roleOptions[0]);
+
+  const toggleDropdown = () => {
+    isOpen.value = !isOpen.value;
+  };
+
+  const closeDropdown = () => {
+    isOpen.value = false;
+  };
+
+  const selectOption = (option: { value: string; text: string }) => {
+    selectedOption.value = option;
+    registerForm.role = option.value;
+    closeDropdown();
+  };
+
+  const navigateOptions = (direction: number) => {
+    if (!isOpen.value) {
+      isOpen.value = true;
+      return;
+    }
+    const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) newIndex = roleOptions.length - 1;
+    else if (newIndex >= roleOptions.length) newIndex = 0;
+    const optionElements = document.querySelectorAll('.dropdown-option');
+    if (optionElements[newIndex]) (optionElements[newIndex] as HTMLElement).focus();
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    const dropdown = document.querySelector('.custom-dropdown');
+    if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
+>>>>>>> dev
       closeDropdown();
-    };
-    
-    const navigateOptions = (direction: number) => {
-      if (!isOpen.value) {
-        isOpen.value = true;
+    }
+  };
+
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+    if (route.query.redirect) activeTab.value = 'login';
+  });
+
+  onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
+  });
+
+ const handleLogin = async () => {
+  try {
+    const loginData: Record<string, string> = {};
+    const trimmedInput = loginForm.email.trim();
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
+    if (isEmail) loginData.email = trimmedInput;
+    else loginData.username = trimmedInput;
+
+    loginData.password = loginForm.password;
+
+    const response = await axios.post(
+      'http://localhost:8080/auth/local/login',
+      loginData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    const { access_token, refresh_token } = response.data;
+
+    // ✅ Token speichern
+    localStorage.setItem('accessToken', access_token);
+    localStorage.setItem('refreshToken', refresh_token);
+
+    alert('Login erfolgreich!');
+    activeTab.value = 'login';
+    // Optional: zur Dashboard-Seite wechseln
+    // router.push('/dashboard');
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      alert('Benutzername/E-Mail oder Passwort ist falsch.');
+    } else {
+      alert('Login fehlgeschlagen.');
+    }
+    console.error(error);
+  }
+};
+
+  const handleRegister = async () => {
+    try {
+      isLoading.value = true;
+      const password = registerForm.password;
+      const hasMinLength = password.length >= 8;
+      const hasLetter = /[a-zA-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
+        registerStatus.message = 'Das Passwort muss mindestens 8 Zeichen lang sein und Buchstaben, Zahlen sowie Sonderzeichen enthalten.';
+        registerStatus.success = false;
         return;
       }
-    
-      const currentIndex = roleOptions.findIndex(option => option.value === selectedOption.value.value);
-      let newIndex = currentIndex + direction;
-    
-      if (newIndex < 0) {
-        newIndex = roleOptions.length - 1;
-      } else if (newIndex >= roleOptions.length) {
-        newIndex = 0;
+      const phone = registerForm.phone.trim();
+      const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
+      if (!germanPhoneRegex.test(phone)) {
+        registerStatus.message = 'Bitte eine gültige deutsche Telefonnummer eingeben.';
+        registerStatus.success = false;
+        return;
       }
+<<<<<<< HEAD
     
       // Nur fokussieren, nicht auswählen
       const optionElements = document.querySelectorAll('.dropdown-option');
@@ -585,6 +722,52 @@ export default defineComponent({
       navigateOptions
     };
   }
+=======
+      const registerData = {
+        firstname: registerForm.firstName.trim(),
+        lastname: registerForm.lastName.trim(),
+        birthdate: registerForm.dob,
+        username: registerForm.username.trim(),
+        role: registerForm.role.trim(),
+        email: registerForm.email.trim(),
+        phone: phone,
+        password: registerForm.password,
+      };
+      const response = await axios.post('http://localhost:8080/auth/local/register', registerData);
+      registerStatus.message = 'Registrierung erfolgreich!';
+      registerStatus.success = true;
+      console.log('Antwort:', response.data);
+      activeTab.value = 'login';
+    } catch (error: any) {
+      registerStatus.success = false;
+      if (error.response?.data?.message) registerStatus.message = `Fehler: ${error.response.data.message}`;
+      else registerStatus.message = 'Ein unerwarteter Fehler ist aufgetreten.';
+      console.error(error);
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return {
+    activeTab,
+    loginForm,
+    registerForm,
+    handleLogin,
+    handleRegister,
+    isOpen,
+    roleOptions,
+    selectedOption,
+    toggleDropdown,
+    closeDropdown,
+    selectOption,
+    navigateOptions,
+    loginStatus,
+    registerStatus,
+    isLoading
+  };
+}
+
+>>>>>>> dev
 });
 </script>
 
