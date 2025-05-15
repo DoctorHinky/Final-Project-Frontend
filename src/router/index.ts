@@ -148,7 +148,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'tickets',
         name: 'AdminTickets',
-        component: () => import('../pages/admin/Tickets.vue'),
+        component: () => import('../components/admin/tickets/Tickets.vue'),
         beforeEnter: requireAdminAuth,
         props: (route) => ({
           ticketId: route.query.id || null

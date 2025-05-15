@@ -570,16 +570,11 @@ export default defineComponent({
         localStorage.setItem("refreshToken", refresh_token);
 
         loginStatus.success = true;
-        loginStatus.message =
-          "Anmeldung erfolgreich! Du wirst weitergeleitet...";
+        loginStatus.message = "Anmeldung erfolgreich! Du wirst weitergeleitet...";
 
-        // Nach kurzer Verzögerung weiterleiten
-        setTimeout(() => {
-          // Prüfen, ob es eine Redirect-URL gibt
-          const redirectPath =
-            (route.query.redirect as string) || "/member/dashboard";
-          router.push(redirectPath);
-        }, 1000);
+        // Direkt zum Dashboard weiterleiten ohne Verzögerung
+        window.location.href = (route.query.redirect as string) || "/member/dashboard";
+        
       } catch (error: any) {
         loginStatus.success = false;
         if (error.response?.status === 401) {
@@ -645,31 +640,30 @@ export default defineComponent({
           "https://final-project-backend-rsqk.onrender.com/auth/local/register",
           registerData
         );
+        
         registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
-        console.log("Antwort:", response.data);
 
-        // Tab zur Anmeldung wechseln
-        setTimeout(() => {
-          activeTab.value = "login";
+        // Sofort zum Login-Tab wechseln
+        activeTab.value = "login";
 
-          // Anmeldedaten vorausfüllen
-          loginForm.email = registerForm.email;
+        // Anmeldedaten vorausfüllen
+        loginForm.email = registerForm.email;
 
-          // Formular zurücksetzen
-          registerForm.firstName = "";
-          registerForm.lastName = "";
-          registerForm.username = "";
-          registerForm.role = "";
-          registerForm.dob = "";
-          registerForm.phone = "";
-          registerForm.email = "";
-          registerForm.password = "";
-          registerForm.passwordConfirm = "";
-          registerForm.agreeTerms = false;
-          passwordStrength.value = 0;
-          passwordMatch.value = null;
-        }, 1500);
+        // Formular zurücksetzen
+        registerForm.firstName = "";
+        registerForm.lastName = "";
+        registerForm.username = "";
+        registerForm.role = "";
+        registerForm.dob = "";
+        registerForm.phone = "";
+        registerForm.email = "";
+        registerForm.password = "";
+        registerForm.passwordConfirm = "";
+        registerForm.agreeTerms = false;
+        passwordStrength.value = 0;
+        passwordMatch.value = null;
+        
       } catch (error: any) {
         registerStatus.success = false;
         if (error.response?.data?.message) {
@@ -807,6 +801,7 @@ export default defineComponent({
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin-bottom: map.get(vars.$spacing, l);
+      line-height: 1.6;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {

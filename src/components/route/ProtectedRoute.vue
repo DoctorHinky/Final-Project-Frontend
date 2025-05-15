@@ -32,14 +32,12 @@ export default defineComponent({
       
       // Bei Bedarf weiterleiten (optional - derzeit deaktiviert, da wir stattdessen
       // eine Nachricht anzeigen)
-      /*
       if (!isAuthenticated.value) {
         router.push({
           path: '/login-register',
           query: { redirect: route.fullPath }
         });
       }
-      */
     };
 
     // Beim Mounten Auth-Status prüfen
