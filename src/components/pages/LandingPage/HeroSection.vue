@@ -25,9 +25,19 @@
       </div>
       <div class="hero-visual">
         <div class="illustration">
+          <!-- Hintergrundkreis, wird vor den Elementen definiert -->
+          <div class="background-circle"></div>
+          
+          <!-- Kreispfad (unsichtbar, aber für Entwicklung hilfreich) -->
+          <div class="circle-path"></div>
+          
+          <!-- Animierte Elemente auf dem Kreisrand -->
           <div class="illustration-element leaf1">🍃</div>
           <div class="illustration-element leaf2">🌿</div>
           <div class="illustration-element leaf3">🌱</div>
+          <div class="illustration-element leaf4">🌷</div>
+          
+          <!-- Hauptillustration in der Mitte -->
           <div class="main-illustration">👨‍👩‍👧</div>
         </div>
       </div>
@@ -48,6 +58,25 @@ export default defineComponent({
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
+
+// Keyframes für präzise rotierende Animation
+@keyframes rotate-on-circle {
+  0% {
+    transform: rotate(0deg) translateX(125px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(125px) rotate(-360deg);
+  }
+}
+
+@keyframes rotate-on-circle-reverse {
+  0% {
+    transform: rotate(0deg) translateX(125px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg) translateX(125px) rotate(360deg);
+  }
+}
 
 .hero-section {
   min-height: 85vh;
@@ -257,41 +286,14 @@ export default defineComponent({
     
     .illustration {
       position: relative;
-      width: 300px;
-      height: 300px;
+      width: 350px;
+      height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       
-      .main-illustration {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 8rem;
-        z-index: 2;
-      }
-      
-      .illustration-element {
-        position: absolute;
-        font-size: 3rem;
-        z-index: 1;
-        
-        &.leaf1 {
-          top: 10%;
-          left: 0;
-        }
-        
-        &.leaf2 {
-          top: 70%;
-          left: 10%;
-        }
-        
-        &.leaf3 {
-          top: 20%;
-          right: 10%;
-        }
-      }
-      
-      &::before {
-        content: '';
+      // Hintergrund-Kreis als separates Element
+      .background-circle {
         position: absolute;
         width: 250px;
         height: 250px;
@@ -310,6 +312,59 @@ export default defineComponent({
               transparent 80%
             );
           }
+        }
+      }
+      
+      // Hilfslinie für den Kreisrand (in der Produktion auskommentieren)
+      .circle-path {
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        border: 1px dotted rgba(0, 0, 0, 0.1); // Sehr subtile Hilfsline
+        pointer-events: none; // Verhindert Klicks auf die Hilfsline
+        display: none; // In der Produktion auskommentieren, für Entwicklung einkommentieren
+      }
+      
+      .main-illustration {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 8rem;
+        z-index: 2;
+      }
+      
+      .illustration-element {
+        position: absolute;
+        font-size: 2.5rem;
+        z-index: 1;
+        top: 40%;
+        left: 45%;
+        transform-origin: center;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); // Leichter Schatten für bessere Sichtbarkeit
+        
+        &.leaf1 {
+          animation: rotate-on-circle 30s linear infinite;
+        }
+        
+        &.leaf2 {
+          animation: rotate-on-circle-reverse 30s linear infinite;
+          animation-delay: -7.5s; // Genau ein Viertel der Gesamtdauer
+        }
+        
+        &.leaf3 {
+          animation: rotate-on-circle 30s linear infinite;
+          animation-delay: -15s; // Genau die Hälfte der Gesamtdauer
+        }
+        
+        &.leaf4 {
+          animation: rotate-on-circle-reverse 30s linear infinite;
+          animation-delay: -22.5s; // Genau drei Viertel der Gesamtdauer
         }
       }
     }
