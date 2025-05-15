@@ -642,7 +642,7 @@ export default defineComponent({
         };
 
         const response = await axios.post(
-          "https://final-project-backend-rsqk.onrender.com/local/register",
+          "https://final-project-backend-rsqk.onrender.com/auth/local/register",
           registerData
         );
         registerStatus.message = "Registrierung erfolgreich!";
