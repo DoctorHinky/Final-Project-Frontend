@@ -4,10 +4,7 @@
     <div class="chapter-header">
       <span class="chapter-number">Kapitel {{ chapterNumber }}</span>
       <div class="chapter-actions">
-        <button @click="toggleQuizSection" class="action-btn quiz-btn" :title="showQuizLocal ? 'Quiz schließen' : 'Quiz bearbeiten'">
-          <QuestionMarkCircleIcon class="icon-size" />
-          <span>{{ showQuizLocal ? 'Quiz schließen' : 'Quiz bearbeiten' }}</span>
-        </button>
+        <!-- Quiz-Button entfernt -->
         <button @click="$emit('remove')" class="action-btn delete-btn">
           <TrashIcon class="icon-size" />
           <span>Löschen</span>
@@ -42,14 +39,7 @@
       @input="updateChapter"
     ></textarea>
     
-    <!-- Quiz-Bereich -->
-    <div v-if="showQuizLocal" class="chapter-quiz-section">
-      <QuizEditor 
-        v-model="chapterLocal.quiz" 
-        @update:model-value="updateChapter" 
-        @add-question="keepQuizOpen"
-      />
-    </div>
+    <!-- Quiz-Bereich entfernt -->
     
     <!-- Button zum Speichern des Kapitels -->
     <div class="chapter-save-action">
@@ -68,33 +58,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, toRefs, computed, watch } from 'vue';
-import { TrashIcon, ArrowDownOnSquareIcon as SaveIcon, ArrowPathIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
+import { defineComponent, ref, PropType, toRefs, watch } from 'vue';
+import { TrashIcon, ArrowDownOnSquareIcon as SaveIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import ImageUploader from './ImageUploader.vue';
-import QuizEditor from './QuizEditor.vue';
-
-interface QuizAnswer {
-  text: string;
-}
-
-interface QuizQuestion {
-  text: string;
-  answers: QuizAnswer[];
-  correctAnswer: number;
-}
-
-interface Quiz {
-  questions: QuizQuestion[];
-}
+// QuizEditor wird nicht mehr importiert
 
 interface Chapter {
   title: string;
   content: string;
   chapterImage?: string;
-  quiz?: Quiz;
   isDragging?: boolean;
   isSaving?: boolean;
-  showQuiz?: boolean;
 }
 
 export default defineComponent({
@@ -103,9 +77,7 @@ export default defineComponent({
     TrashIcon,
     SaveIcon,
     ArrowPathIcon,
-    QuestionMarkCircleIcon,
-    ImageUploader,
-    QuizEditor
+    ImageUploader
   },
   props: {
     modelValue: {
@@ -116,66 +88,26 @@ export default defineComponent({
       type: Number,
       required: true
     },
-    showQuiz: {
-      type: Boolean,
-      default: false
-    },
     isSaving: {
       type: Boolean,
       default: false
     }
   },
-  emits: ['update:modelValue', 'save', 'remove', 'toggle-quiz'],
+  emits: ['update:modelValue', 'save', 'remove'],
   setup(props, { emit }) {
-    const { modelValue, showQuiz } = toRefs(props);
+    const { modelValue } = toRefs(props);
     
     // Lokale Kopie des Kapitels erstellen
     const chapterLocal = ref<Chapter>({...modelValue.value});
-    
-    // Lokaler Status, ob das Quiz angezeigt wird
-    const showQuizLocal = ref(showQuiz.value);
     
     // Kapitel aktualisieren, wenn sich modelValue ändert
     watch(modelValue, (newValue) => {
       chapterLocal.value = {...newValue};
     });
     
-    // Synchronisieren des showQuiz Props mit dem lokalen Zustand
-    watch(showQuiz, (newValue) => {
-      showQuizLocal.value = newValue;
-    });
-    
-    // Quiz-Bereich öffnen/schließen
-    const toggleQuizSection = () => {
-      showQuizLocal.value = !showQuizLocal.value;
-      
-      // Erstelle ein Quiz-Objekt falls noch nicht vorhanden
-      if (showQuizLocal.value && (!chapterLocal.value.quiz || !chapterLocal.value.quiz.questions)) {
-        chapterLocal.value.quiz = {
-          questions: []
-        };
-      }
-      
-      // Emittiere Event, damit der Eltern-Komponente den Zustand kennt
-      emit('toggle-quiz');
-      updateChapter();
-    };
-    
-    // Diese Funktion wird aufgerufen, wenn eine neue Frage hinzugefügt wird
-    const keepQuizOpen = () => {
-      // Stellt sicher, dass das Quiz sichtbar bleibt
-      showQuizLocal.value = true;
-      // Hier könnten zusätzliche Aktionen ausgeführt werden, falls nötig
-    };
-    
     // Aktualisiere die Parent-Komponente über Änderungen
     const updateChapter = () => {
-      // Füge showQuiz-Status dem Kapitel hinzu
-      const updatedChapter = {
-        ...chapterLocal.value,
-        showQuiz: showQuizLocal.value
-      };
-      emit('update:modelValue', updatedChapter);
+      emit('update:modelValue', chapterLocal.value);
     };
     
     // Speichern des Kapitels
@@ -190,11 +122,8 @@ export default defineComponent({
     
     return {
       chapterLocal,
-      showQuizLocal,
       updateChapter,
-      saveChapter,
-      toggleQuizSection,
-      keepQuizOpen
+      saveChapter
     };
   }
 });
@@ -271,17 +200,6 @@ export default defineComponent({
           border-color: rgba(244, 67, 54, 0.5);
         }
       }
-      
-      &.quiz-btn {
-        background-color: rgba(33, 150, 243, 0.1);
-        color: #2196f3;
-        border: 1px solid rgba(33, 150, 243, 0.3);
-        
-        &:hover {
-          background-color: rgba(33, 150, 243, 0.2);
-          border-color: rgba(33, 150, 243, 0.5);
-        }
-      }
     }
   }
 }
@@ -322,18 +240,6 @@ export default defineComponent({
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
       border: 1px solid mixins.theme-color($theme, border-light);
-    }
-  }
-}
-
-.chapter-quiz-section {
-  padding: map.get(vars.$spacing, m);
-  border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-  
-  @each $theme in ('light', 'dark') {
-    .theme-#{$theme} & {
-      background-color: rgba(33, 150, 243, 0.05);
-      border: 1px solid rgba(33, 150, 243, 0.2);
     }
   }
 }

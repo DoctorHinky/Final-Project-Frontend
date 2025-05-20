@@ -44,17 +44,32 @@
             :key="index" 
             v-model="chapters[index]" 
             :chapter-number="index + 1" 
-            :show-quiz="chapter.showQuiz" 
             :is-saving="isSavingChapter(index)" 
             @save="() => saveChapter(index)" 
-            @remove="() => removeChapter(index)" 
-            @toggle-quiz="() => toggleQuiz(index)"
+            @remove="() => removeChapter(index)"
           />
           
           <button @click="addNewChapter" class="add-chapter-btn secondary">
             <PlusIcon class="icon-size mr-2" />
             <span>Weiteres Kapitel</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Globales Quiz für den gesamten Artikel -->
+      <div class="editor-section">
+        <div class="quiz-header-container">
+          <h3 class="quiz-section-title">Quiz für den gesamten Artikel</h3>
+          <button @click="toggleQuiz" class="toggle-quiz-btn">
+            {{ showQuiz ? 'Quiz ausblenden' : 'Quiz bearbeiten' }}
+          </button>
+        </div>
+        
+        <div v-if="showQuiz" class="article-quiz-container">
+          <QuizEditor 
+            v-model="articleQuiz" 
+            @update:model-value="saveToLocalStorage"
+          />
         </div>
       </div>
 
@@ -79,6 +94,11 @@
       <!-- Benachrichtigungen -->
       <div v-if="notification.show" :class="['notification', notification.type]">
         {{ notification.message }}
+      </div>
+      
+      <!-- Lokale Speicherinfo -->
+      <div class="local-storage-info">
+        <small>Änderungen werden automatisch alle 30 Sekunden lokal gespeichert</small>
       </div>
     </div>
 
@@ -109,10 +129,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { defineComponent, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { 
-  PlusIcon, The,
+  PlusIcon,
   ArrowPathIcon
 } from '@heroicons/vue/24/outline';
 import { authorService } from '@/services/author.service';
@@ -120,6 +140,7 @@ import ChapterEditor from './ChapterEditor.vue';
 import ImageUploader from './ImageUploader.vue';
 import DraftsList from './DraftsList.vue';
 import PublishedArticlesList from './PublishedArticlesList.vue';
+import QuizEditor from './QuizEditor.vue';
 
 interface QuizAnswer {
   text: string;
@@ -139,10 +160,8 @@ interface Chapter {
   title: string;
   content: string;
   chapterImage?: string;
-  quiz?: Quiz;
   isDragging: boolean;
   isSaving?: boolean;
-  showQuiz?: boolean;
 }
 
 interface Notification {
@@ -160,8 +179,8 @@ interface Draft {
     title: string;
     content: string;
     chapterImage?: string;
-    quiz?: Quiz;
   }[];
+  quiz?: Quiz;
   status: 'draft';
   lastUpdated: string;
 }
@@ -175,8 +194,8 @@ interface PublishedArticle {
     title: string;
     content: string;
     chapterImage?: string;
-    quiz?: Quiz;
   }[];
+  quiz?: Quiz;
   status: 'published';
   publishDate: string;
 }
@@ -189,7 +208,8 @@ export default defineComponent({
     ChapterEditor,
     ImageUploader,
     DraftsList,
-    PublishedArticlesList
+    PublishedArticlesList,
+    QuizEditor
   },
   setup() {
     const router = useRouter();
@@ -199,6 +219,12 @@ export default defineComponent({
     const chapters = ref<Chapter[]>([]);
     const isSaving = ref(false);
     const savingType = ref<'draft' | 'publish'>('draft');
+
+    // Globales Quiz für den Artikel statt pro Kapitel
+    const articleQuiz = ref<Quiz>({
+      questions: []
+    });
+    const showQuiz = ref(false); // Steuert, ob das Quiz-Panel angezeigt wird
 
     // Für die Entwürfe-Seitenleiste
     const drafts = ref<Draft[]>([]);
@@ -214,6 +240,9 @@ export default defineComponent({
       message: '',
       type: 'info'
     });
+
+    // Lokalspeicherung
+    const LOCAL_STORAGE_KEY = 'article_editor_draft';
     
     // Form-Validierung
     const isFormValid = computed(() => {
@@ -236,6 +265,52 @@ export default defineComponent({
         notification.value.show = false;
       }, 3000);
     };
+
+    // Funktion zum Speichern im localStorage
+    const saveToLocalStorage = () => {
+      const dataToSave = {
+        articleTitle: articleTitle.value,
+        articleDescription: articleDescription.value,
+        coverImage: coverImage.value,
+        chapters: chapters.value,
+        articleQuiz: articleQuiz.value,
+        currentDraftId: currentDraftId.value,
+        lastSaved: new Date().toISOString()
+      };
+      
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
+      } catch (e) {
+        console.error('Fehler beim Speichern in localStorage:', e);
+      }
+    };
+
+    // Funktion zum Laden aus localStorage
+    const loadFromLocalStorage = () => {
+      try {
+        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          
+          // Daten nur laden, wenn sie existieren
+          if (parsedData.articleTitle) articleTitle.value = parsedData.articleTitle;
+          if (parsedData.articleDescription) articleDescription.value = parsedData.articleDescription;
+          if (parsedData.coverImage) coverImage.value = parsedData.coverImage;
+          if (parsedData.chapters) chapters.value = parsedData.chapters;
+          if (parsedData.articleQuiz) articleQuiz.value = parsedData.articleQuiz;
+          if (parsedData.currentDraftId) currentDraftId.value = parsedData.currentDraftId;
+          
+          showNotification('Automatisch gespeicherter Entwurf wiederhergestellt', 'info');
+        }
+      } catch (e) {
+        console.error('Fehler beim Laden aus localStorage:', e);
+      }
+    };
+
+    // Toggle-Funktion für das Quiz-Panel
+    const toggleQuiz = () => {
+      showQuiz.value = !showQuiz.value;
+    };
     
     // Kapitel-Funktionen
     const addNewChapter = () => {
@@ -243,30 +318,18 @@ export default defineComponent({
         title: '',
         content: '',
         isDragging: false,
-        isSaving: false,
-        showQuiz: false,
-        quiz: {
-          questions: []
-        }
+        isSaving: false
       });
+      
+      // Änderung im localStorage speichern
+      saveToLocalStorage();
     };
     
     const removeChapter = (index: number) => {
       chapters.value.splice(index, 1);
-    };
-    
-    // Quiz-Funktionen
-    const toggleQuiz = (index: number) => {
-      if (chapters.value[index]) {
-        chapters.value[index].showQuiz = !chapters.value[index].showQuiz;
-        
-        // Initialisiere das Quiz, falls noch nicht vorhanden
-        if (!chapters.value[index].quiz) {
-          chapters.value[index].quiz = {
-            questions: []
-          };
-        }
-      }
+      
+      // Änderung im localStorage speichern
+      saveToLocalStorage();
     };
     
     // Kapitel speichern
@@ -284,13 +347,15 @@ export default defineComponent({
           title: chapters.value[index].title,
           content: chapters.value[index].content,
           chapterImage: chapters.value[index].chapterImage,
-          quiz: chapters.value[index].quiz,
           chapterNumber: index + 1,
           parentArticleId: currentDraftId.value || null 
         };
         
         // Simuliere API-Aufruf
         await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Änderung im localStorage speichern
+        saveToLocalStorage();
         
         showNotification(`Kapitel ${index + 1} erfolgreich gespeichert`, 'success');
       } catch (error) {
@@ -322,18 +387,26 @@ export default defineComponent({
         articleDescription.value = draft.description;
         coverImage.value = draft.coverImage;
         
-        // Kapitel laden
+        // Kapitel laden (ohne Quiz)
         chapters.value = draft.chapters.map(chapter => ({
           title: chapter.title,
           content: chapter.content,
           chapterImage: chapter.chapterImage,
-          quiz: chapter.quiz,
           isDragging: false,
-          isSaving: false,
-          showQuiz: false // Quiz anfangs ausblenden
+          isSaving: false
         }));
         
+        // Globales Quiz laden, falls vorhanden
+        if (draft.quiz) {
+          articleQuiz.value = draft.quiz;
+        } else {
+          articleQuiz.value = { questions: [] };
+        }
+        
         currentDraftId.value = draft.id;
+        
+        // Auch im localStorage speichern
+        saveToLocalStorage();
         
         showNotification('Entwurf wurde geladen', 'success');
       } catch (error) {
@@ -356,6 +429,8 @@ export default defineComponent({
         // Falls der aktuell geladene Entwurf gelöscht wird, Formular zurücksetzen
         if (draftId === currentDraftId.value) {
           resetForm();
+          // Auch lokalen Speicher löschen
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
         }
         
         // Entwurf vom Service löschen
@@ -401,14 +476,22 @@ export default defineComponent({
           title: chapter.title,
           content: chapter.content,
           chapterImage: chapter.chapterImage,
-          quiz: chapter.quiz,
           isDragging: false,
-          isSaving: false,
-          showQuiz: false // Quiz anfangs ausblenden
+          isSaving: false
         }));
+        
+        // Globales Quiz laden, falls vorhanden
+        if (article.quiz) {
+          articleQuiz.value = article.quiz;
+        } else {
+          articleQuiz.value = { questions: [] };
+        }
         
         // Temporäre ID erstellen, damit wir wissen, dass es sich um einen bearbeiteten veröffentlichten Artikel handelt
         currentDraftId.value = `edit_${article.id}`;
+        
+        // Auch im localStorage speichern
+        saveToLocalStorage();
         
         showNotification('Artikel wurde zum Bearbeiten geladen', 'success');
       } catch (error) {
@@ -469,17 +552,31 @@ export default defineComponent({
       articleTitle.value = '';
       articleDescription.value = '';
       coverImage.value = '';
-      chapters.value = [{ 
-        title: '', 
-        content: '', 
-        isDragging: false,
-        isSaving: false,
-        showQuiz: false,
-        quiz: {
-          questions: []
-        }
-      }];
+      chapters.value = [];
+      articleQuiz.value = { questions: [] };
+      showQuiz.value = false;
       currentDraftId.value = null;
+    };
+
+    // Auto-Save Intervalle starten
+    const startAutoSaveInterval = () => {
+      // Auto-Save alle 30 Sekunden im localStorage
+      const autoSaveInterval = setInterval(() => {
+        if (articleTitle.value.trim() !== '' || chapters.value.length > 0) {
+          // Nur im localStorage speichern, nicht über API
+          saveToLocalStorage();
+        }
+      }, 30000);
+      
+      // Reguläres API-Backup alle 5 Minuten, wenn Titel vorhanden ist
+      const apiBackupInterval = setInterval(() => {
+        if (articleTitle.value.trim() !== '') {
+          saveAsDraft();
+        }
+      }, 300000);
+      
+      // Beide Intervalle zurückgeben, um sie später zu löschen
+      return { autoSaveInterval, apiBackupInterval };
     };
     
     // Speicher- und Veröffentlichungsfunktionen
@@ -487,6 +584,9 @@ export default defineComponent({
       try {
         isSaving.value = true;
         savingType.value = 'draft';
+        
+        // Lokale Speicherung durchführen
+        saveToLocalStorage();
         
         // Prüfen, ob mindestens ein Kapitel existiert
         if (chapters.value.length === 0) {
@@ -497,8 +597,7 @@ export default defineComponent({
         const chaptersToSave = chapters.value.map(chapter => ({
           title: chapter.title,
           content: chapter.content,
-          chapterImage: chapter.chapterImage,
-          quiz: chapter.quiz
+          chapterImage: chapter.chapterImage
         }));
         
         // Artikel-Daten zusammenstellen
@@ -508,6 +607,7 @@ export default defineComponent({
           description: articleDescription.value,
           coverImage: coverImage.value,
           chapters: chaptersToSave,
+          quiz: articleQuiz.value, // Globales Quiz für den Artikel
           status: 'draft',
           lastUpdated: new Date().toISOString()
         };
@@ -556,8 +656,7 @@ export default defineComponent({
         const chaptersToSave = chapters.value.map(chapter => ({
           title: chapter.title,
           content: chapter.content,
-          chapterImage: chapter.chapterImage,
-          quiz: chapter.quiz
+          chapterImage: chapter.chapterImage
         }));
         
         // Artikel-Daten zusammenstellen
@@ -567,6 +666,7 @@ export default defineComponent({
           description: articleDescription.value,
           coverImage: coverImage.value,
           chapters: chaptersToSave,
+          quiz: articleQuiz.value, // Globales Quiz für den Artikel
           status: 'published',
           publishDate: new Date().toISOString()
         };
@@ -589,6 +689,9 @@ export default defineComponent({
           
           // Formular zurücksetzen
           resetForm();
+          
+          // Nach erfolgreicher Veröffentlichung auch localStorage leeren
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
         } else {
           showNotification('Fehler beim Veröffentlichen des Artikels', 'error');
         }
@@ -608,10 +711,8 @@ export default defineComponent({
         return;
       }
       
-      // Initial ein leeres Kapitel hinzufügen
-      if (chapters.value.length === 0) {
-        addNewChapter();
-      }
+      // Zuerst versuchen, aus localStorage zu laden
+      loadFromLocalStorage();
       
       // Entwürfe und veröffentlichte Artikel laden
       await Promise.all([refreshDrafts(), refreshPublishedArticles()]);
@@ -625,16 +726,18 @@ export default defineComponent({
         }
       }
       
-      // Auto-Save alle 60 Sekunden
-      const autoSaveInterval = setInterval(() => {
-        if (articleTitle.value.trim() !== '') {
-          saveAsDraft();
-        }
-      }, 60000);
+      // Auto-Save Intervalle starten
+      const { autoSaveInterval, apiBackupInterval } = startAutoSaveInterval();
       
-      // Intervall beim Verlassen der Komponente löschen
+      // Event-Listener für "beforeunload" hinzufügen, um Änderungen zu speichern,
+      // wenn der Benutzer die Seite verlässt
+      window.addEventListener('beforeunload', saveToLocalStorage);
+      
+      // Intervalle und Event-Listener beim Verlassen der Komponente löschen
       onBeforeUnmount(() => {
         clearInterval(autoSaveInterval);
+        clearInterval(apiBackupInterval);
+        window.removeEventListener('beforeunload', saveToLocalStorage);
       });
     });
     
@@ -648,12 +751,17 @@ export default defineComponent({
       notification,
       isFormValid,
       
+      // Globales Quiz
+      articleQuiz,
+      showQuiz,
+      toggleQuiz,
+      saveToLocalStorage,
+      
       // Kapitel-Verwaltung
       addNewChapter,
       removeChapter,
       saveChapter,
       isSavingChapter,
-      toggleQuiz,
       
       // Artikel-Verwaltung
       saveAsDraft,
@@ -688,7 +796,6 @@ export default defineComponent({
 .article-editor-layout {
   display: flex;
   gap: map.get(vars.$spacing, xl);
-  max-width: 1600px;
   margin: 0 auto;
   align-items: flex-start;
   
@@ -702,7 +809,7 @@ export default defineComponent({
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
   flex: 1;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   position: relative;
   
@@ -979,6 +1086,75 @@ export default defineComponent({
 
 .spinning {
   animation: spin 1s linear infinite;
+}
+
+/* Neue Styles für das globale Quiz */
+.quiz-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: map.get(vars.$spacing, m);
+  border-bottom: 1px solid;
+  
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      border-color: mixins.theme-color($theme, border-light);
+    }
+  }
+}
+
+.quiz-section-title {
+  font-size: map.get(map.get(vars.$fonts, sizes), large);
+  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+  margin: 0;
+  
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-primary);
+    }
+  }
+}
+
+.toggle-quiz-btn {
+  display: flex;
+  align-items: center;
+  gap: map.get(vars.$spacing, xs);
+  padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+  border-radius: map.get(map.get(vars.$layout, border-radius), small);
+  cursor: pointer;
+  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+  transition: all 0.3s ease;
+  border: none;
+  
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: rgba(33, 150, 243, 0.1);
+      color: #2196f3;
+      border: 1px solid rgba(33, 150, 243, 0.3);
+      
+      &:hover {
+        background-color: rgba(33, 150, 243, 0.2);
+        border-color: rgba(33, 150, 243, 0.5);
+      }
+    }
+  }
+}
+
+.article-quiz-container {
+  padding: map.get(vars.$spacing, m);
+}
+
+.local-storage-info {
+  text-align: center;
+  margin-top: map.get(vars.$spacing, m);
+  
+  small {
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
 }
 
 @keyframes slideIn {

@@ -36,7 +36,6 @@ export default defineComponent({
 
 .create-article-page {
   padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
-  max-width: 1600px;
   margin: 0 auto;
   
   .page-title {

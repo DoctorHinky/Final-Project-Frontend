@@ -24,6 +24,7 @@
         v-for="article in articles" 
         :key="article.id" 
         class="article-item"
+        @click="$emit('edit', article)"
       >
         <div class="article-info">
           <h4 class="article-title">{{ article.title || 'Ohne Titel' }}</h4>
@@ -34,9 +35,7 @@
           <button @click.stop="$emit('view', article.id)" class="action-button-icon view" title="Artikel ansehen">
             <EyeIcon class="action-icon" />
           </button>
-          <button @click.stop="$emit('edit', article)" class="action-button-icon edit" title="Artikel bearbeiten">
-            <PencilIcon class="action-icon" />
-          </button>
+          <!-- Bearbeiten-Button entfernt -->
           <button @click.stop="$emit('delete', article.id)" class="action-button-icon delete" title="Artikel löschen">
             <TrashIcon class="action-icon" />
           </button>
@@ -48,13 +47,20 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { ArrowPathIcon, DocumentIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import { ArrowPathIcon, DocumentIcon, EyeIcon, TrashIcon } from '@heroicons/vue/24/outline';
 
 interface Chapter {
   title: string;
   content: string;
   chapterImage?: string;
-  quiz?: any;
+}
+
+interface Quiz {
+  questions: {
+    text: string;
+    answers: { text: string }[];
+    correctAnswer: number;
+  }[];
 }
 
 interface PublishedArticle {
@@ -63,6 +69,7 @@ interface PublishedArticle {
   description: string;
   coverImage: string;
   chapters: Chapter[];
+  quiz?: Quiz;
   status: 'published';
   publishDate: string;
 }
@@ -73,7 +80,6 @@ export default defineComponent({
     ArrowPathIcon,
     DocumentIcon,
     EyeIcon,
-    PencilIcon,
     TrashIcon
   },
   props: {
@@ -313,10 +319,6 @@ export default defineComponent({
       &.view:hover {
         background-color: rgba(mixins.theme-color($theme, accent-teal), 0.2);
         color: mixins.theme-color($theme, accent-teal);
-      }
-      
-      &.edit:hover {
-        color: mixins.theme-color($theme, primary);
       }
       
       &.delete:hover {

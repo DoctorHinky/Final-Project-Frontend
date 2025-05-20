@@ -19,7 +19,6 @@ interface Chapter {
   title: string;
   content: string;
   chapterImage?: string;
-  quiz?: Quiz;
 }
 
 interface Article {
@@ -28,6 +27,7 @@ interface Article {
   description: string;
   coverImage: string;
   chapters: Chapter[];
+  quiz?: Quiz; // Quiz ist jetzt auf Artikelebene statt pro Kapitel
   status: 'draft' | 'published';
   lastUpdated?: string;
   publishDate?: string;
@@ -124,6 +124,7 @@ class AuthorService {
             description: articleData.description,
             coverImage: articleData.coverImage,
             chapters: articleData.chapters,
+            quiz: articleData.quiz, // Quiz auf Artikelebene
             lastUpdated: new Date().toISOString()
           };
         } else {
@@ -248,7 +249,7 @@ class AuthorService {
     });
   }
   
-  // Ein Kapitel mit seinem Bild und Quiz aktualisieren
+  // Ein Kapitel aktualisieren (ohne Quiz)
   async updateChapter(articleId: string, chapterIndex: number, chapterData: Chapter): Promise<ServiceResult> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -316,6 +317,7 @@ class AuthorService {
           description: article.description,
           coverImage: article.coverImage,
           chapters: article.chapters,
+          quiz: article.quiz, // Auch das Quiz kopieren
           status: 'draft'
         };
         
@@ -330,8 +332,8 @@ class AuthorService {
     });
   }
   
-  // Funktion zum Speichern eines Quiz für ein bestimmtes Kapitel
-  async saveQuiz(articleId: string, chapterIndex: number, quizData: Quiz): Promise<ServiceResult> {
+  // Funktion zum Speichern eines Quiz für einen Artikel (jetzt auf Artikelebene)
+  async saveArticleQuiz(articleId: string, quizData: Quiz): Promise<ServiceResult> {
     return new Promise((resolve) => {
       setTimeout(async () => {
         try {
@@ -346,27 +348,35 @@ class AuthorService {
             return;
           }
           
-          // Kapitel aktualisieren
-          if (article.chapters[chapterIndex]) {
-            // Kapitel mit Quiz-Daten aktualisieren
-            const updatedChapter = {
-              ...article.chapters[chapterIndex],
-              quiz: quizData
-            };
+          // Quiz auf Artikelebene speichern
+          const isPublished = article.status === 'published';
+          
+          if (isPublished) {
+            // Veröffentlichten Artikel aktualisieren
+            const publishedArticles: Article[] = JSON.parse(localStorage.getItem('published_articles') || '[]');
+            const articleIndex = publishedArticles.findIndex(a => a.id === articleId);
             
-            // Kapitel-Update an die updateChapter-Funktion delegieren
-            const result = await this.updateChapter(articleId, chapterIndex, updatedChapter);
-            
-            resolve({
-              success: result.success,
-              message: result.success ? 'Quiz erfolgreich gespeichert' : 'Fehler beim Speichern des Quiz'
-            });
+            if (articleIndex !== -1) {
+              publishedArticles[articleIndex].quiz = quizData;
+              publishedArticles[articleIndex].lastUpdated = new Date().toISOString();
+              localStorage.setItem('published_articles', JSON.stringify(publishedArticles));
+            }
           } else {
-            resolve({
-              success: false,
-              message: 'Kapitel nicht gefunden'
-            });
+            // Entwurf aktualisieren
+            const drafts: Article[] = JSON.parse(localStorage.getItem('article_drafts') || '[]');
+            const draftIndex = drafts.findIndex(d => d.id === articleId);
+            
+            if (draftIndex !== -1) {
+              drafts[draftIndex].quiz = quizData;
+              drafts[draftIndex].lastUpdated = new Date().toISOString();
+              localStorage.setItem('article_drafts', JSON.stringify(drafts));
+            }
           }
+          
+          resolve({
+            success: true,
+            message: 'Quiz erfolgreich gespeichert'
+          });
         } catch (error) {
           console.error('Fehler beim Speichern des Quiz:', error);
           resolve({
@@ -378,7 +388,7 @@ class AuthorService {
     });
   }
   
-  // Funktion zum Abrufen der Quiz-Ergebnisse eines Benutzers
+  // Funktion zum Abrufen der Quiz-Ergebnisse eines Benutzers (jetzt für den gesamten Artikel)
   async getUserQuizResults(userId: string, articleId: string): Promise<any> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -387,21 +397,23 @@ class AuthorService {
         resolve({
           userId,
           articleId,
-          results: [
-            { chapterIndex: 0, score: 80, completedAt: new Date().toISOString() },
-            { chapterIndex: 1, score: 90, completedAt: new Date().toISOString() }
-          ]
+          results: {
+            score: 85,
+            completedAt: new Date().toISOString(),
+            correctAnswers: 17,
+            totalQuestions: 20
+          }
         });
       }, 300);
     });
   }
   
-  // Funktion zum Speichern von Quiz-Ergebnissen eines Benutzers
-  async saveQuizResults(userId: string, articleId: string, chapterIndex: number, score: number): Promise<ServiceResult> {
+  // Funktion zum Speichern von Quiz-Ergebnissen eines Benutzers (jetzt für den gesamten Artikel)
+  async saveQuizResults(userId: string, articleId: string, score: number, correctAnswers: number, totalQuestions: number): Promise<ServiceResult> {
     return new Promise((resolve) => {
       setTimeout(() => {
         // Hier würde in einer realen Anwendung das Speichern der Ergebnisse stattfinden
-        console.log(`Quiz-Ergebnisse gespeichert: Benutzer=${userId}, Artikel=${articleId}, Kapitel=${chapterIndex}, Punktzahl=${score}`);
+        console.log(`Quiz-Ergebnisse gespeichert: Benutzer=${userId}, Artikel=${articleId}, Punktzahl=${score}, Korrekte Antworten=${correctAnswers}/${totalQuestions}`);
         
         resolve({
           success: true,
