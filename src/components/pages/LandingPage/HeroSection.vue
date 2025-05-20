@@ -19,8 +19,8 @@
           </div>
         </div>
         <div class="hero-cta">
-          <button class="btn-primary">Loslegen</button>
-          <button class="btn-secondary">Mehr erfahren</button>
+            <router-link to="/login-register" class="btn-primary">Loslegen</router-link>
+            <button class="btn-secondary" @click="$router.push({ hash: '#content' })">Mehr erfahren</button>
         </div>
       </div>
       <div class="hero-visual">
@@ -236,19 +236,22 @@ export default defineComponent({
     @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
       flex-direction: column;
     }
-    
-    .btn-primary, .btn-secondary {
+
+    // Spezifisches Styling für router-link mit .btn-primary
+    .btn-primary.router-link-active,
+    .btn-primary.router-link-exact-active,
+    .btn-primary {
+      display: inline-block;
+      text-decoration: none;
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       cursor: pointer;
       transition: transform map.get(vars.$transitions, default),
-                 box-shadow map.get(vars.$transitions, default);
-                 transform: scale(1.05)
-    }
-    
-    .btn-primary {
+                  box-shadow map.get(vars.$transitions, default);
+      transform: scale(1.05);
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           @include mixins.button-style($theme, 'medium', true);
@@ -256,7 +259,22 @@ export default defineComponent({
       }
     }
     
+    .btn-primary:hover,
+    .btn-primary:focus {
+      transform: scale(1.08) translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+      outline: none;
+    }
+    
     .btn-secondary {
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      cursor: pointer;
+      transition: transform map.get(vars.$transitions, default),
+                 box-shadow map.get(vars.$transitions, default);
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: transparent;

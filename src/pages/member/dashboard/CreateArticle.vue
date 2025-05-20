@@ -35,6 +35,7 @@ export default defineComponent({
 @use '@/style/base/mixins' as mixins;
 
 .create-article-page {
+  @include animations.fade-in(0.5s);
   padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
   margin: 0 auto;
   

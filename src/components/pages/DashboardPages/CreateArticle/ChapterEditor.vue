@@ -11,36 +11,21 @@
         </button>
       </div>
     </div>
-    
-    <input 
-      type="text" 
-      v-model="chapterLocal.title" 
-      class="chapter-title-input" 
-      placeholder="Kapitel Titel" 
-      @input="updateChapter"
-    />
-    
+
+    <input type="text" v-model="chapterLocal.title" class="chapter-title-input" placeholder="Kapitel Titel"
+      @input="updateChapter" />
+
     <!-- Kapitel-Bild -->
     <div class="chapter-image-container">
-      <ImageUploader 
-        v-model="chapterLocal.chapterImage" 
-        label="Kapitelbild" 
-        :show-help="false" 
-        :is-small="true" 
-        alt="Kapitelbild" 
-        @update:model-value="updateChapter"
-      />
+      <ImageUploader v-model="chapterLocal.chapterImage" label="Kapitelbild" :show-help="false" :is-small="true"
+        alt="Kapitelbild" @update:model-value="updateChapter" />
     </div>
-    
-    <textarea 
-      v-model="chapterLocal.content" 
-      class="chapter-content-textarea" 
-      placeholder="Inhalt hier einfügen"
-      @input="updateChapter"
-    ></textarea>
-    
+
+    <textarea v-model="chapterLocal.content" class="chapter-content-textarea" placeholder="Inhalt hier einfügen"
+      @input="updateChapter"></textarea>
+
     <!-- Quiz-Bereich entfernt -->
-    
+
     <!-- Button zum Speichern des Kapitels -->
     <div class="chapter-save-action">
       <button @click="saveChapter" class="chapter-save-btn" :disabled="isSaving">
@@ -96,30 +81,30 @@ export default defineComponent({
   emits: ['update:modelValue', 'save', 'remove'],
   setup(props, { emit }) {
     const { modelValue } = toRefs(props);
-    
+
     // Lokale Kopie des Kapitels erstellen
-    const chapterLocal = ref<Chapter>({...modelValue.value});
-    
+    const chapterLocal = ref<Chapter>({ ...modelValue.value });
+
     // Kapitel aktualisieren, wenn sich modelValue ändert
     watch(modelValue, (newValue) => {
-      chapterLocal.value = {...newValue};
+      chapterLocal.value = { ...newValue };
     });
-    
+
     // Aktualisiere die Parent-Komponente über Änderungen
     const updateChapter = () => {
       emit('update:modelValue', chapterLocal.value);
     };
-    
+
     // Speichern des Kapitels
     const saveChapter = () => {
       if (!chapterLocal.value.title.trim() || !chapterLocal.value.content.trim()) {
         alert('Bitte Titel und Inhalt des Kapitels ausfüllen.');
         return;
       }
-      
+
       emit('save');
     };
-    
+
     return {
       chapterLocal,
       updateChapter,
@@ -140,11 +125,13 @@ export default defineComponent({
   gap: map.get(vars.$spacing, m);
   padding: map.get(vars.$spacing, m);
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-  
+  transition: all 0.4s ease-out;
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
+      transition: all 0.4s ease-out;
     }
   }
 }
@@ -158,10 +145,11 @@ export default defineComponent({
 .chapter-number {
   font-weight: map.get(map.get(vars.$fonts, weights), bold);
   font-size: map.get(map.get(vars.$fonts, sizes), medium);
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
+      transition: all 0.4s ease-out;
     }
   }
 }
@@ -181,20 +169,22 @@ export default defineComponent({
   gap: map.get(vars.$spacing, xs);
   padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
   border-radius: map.get(map.get(vars.$layout, border-radius), small);
-  
+  transition: all 0.4s ease-out;
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
-      
+      transition: all 0.4s ease-out;
+
       &:hover {
         background-color: mixins.theme-color($theme, hover-color);
       }
-      
+
       &.delete-btn {
         background-color: rgba(244, 67, 54, 0.1);
         color: #f44336;
         border: 1px solid rgba(244, 67, 54, 0.3);
-        
+
         &:hover {
           background-color: rgba(244, 67, 54, 0.2);
           border-color: rgba(244, 67, 54, 0.5);
@@ -213,11 +203,12 @@ export default defineComponent({
   outline: none;
   background: transparent;
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
       border: 1px solid mixins.theme-color($theme, border-light);
+      transition: all 0.4s ease-out;
     }
   }
 }
@@ -236,11 +227,12 @@ export default defineComponent({
   width: 100%;
   background: transparent;
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
       border: 1px solid mixins.theme-color($theme, border-light);
+      transition: all 0.4s ease-out;
     }
   }
 }
@@ -261,18 +253,19 @@ export default defineComponent({
   font-weight: map.get(map.get(vars.$fonts, weights), medium);
   transition: all 0.3s ease;
   border: none;
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       color: mixins.theme-color($theme, text-secondary);
       border: 1px solid mixins.theme-color($theme, border-medium);
-      
+      transition: all 0.4s ease-out;
+
       &:hover:not(:disabled) {
         color: mixins.theme-color($theme, text-primary);
         border-color: mixins.theme-color($theme, primary);
       }
-      
+
       &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -299,6 +292,7 @@ export default defineComponent({
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

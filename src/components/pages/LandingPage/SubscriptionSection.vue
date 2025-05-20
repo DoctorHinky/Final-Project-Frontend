@@ -1,54 +1,95 @@
 <template>
   <section class="section subscription-section" id="sub">
-    <h2>Mehr dazu erfahren</h2>
+    <div class="section-header">
+      <h2>Mehr dazu erfahren</h2>
+      <div class="header-decoration"></div>
+    </div>
 
     <div class="subscription">
       <div class="subscription-info">
-        <p>Melde dich für den Newsletter an und erhalte regelmäßig neue Artikel und Informationen zu für dich relevanten
-          Themen.</p>
-        <p v-html="bulletPoints"></p>
+        <div class="info-content">
+          <div class="info-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          <p class="info-text">Melde dich für den Newsletter an und erhalte regelmäßig neue Artikel und Informationen zu für dich relevanten Themen.</p>
+          <div class="benefits">
+            <div class="benefit-item">
+              <div class="benefit-icon">✓</div>
+              <span>Zweimal im Monat neue Inhalte</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">✓</div>
+              <span>Kostenlos und jederzeit kündbar</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">✓</div>
+              <span>Du bleibst immer auf dem neuesten Stand</span>
+            </div>
+          </div>
+        </div>
+        <div class="decoration-circle"></div>
       </div>
 
       <div class="form-container">
-        <div class="form-group">
-          <label for="name">Vorname</label>
-          <input type="text" id="name" placeholder="Dein Name">
-        </div>
-
-        <div class="form-group">
-          <label for="email">E-Mail</label>
-          <input type="email" id="email" placeholder="Deine E-Mail">
-        </div>
-
-        <div class="form-group">
-          <label for="age">Alter der Kinder</label>
-          <div class="custom-dropdown">
-            <div class="dropdown-selected" @click="toggleDropdown" :class="{ 'active': isOpen }" tabindex="0"
-              @keydown.enter="toggleDropdown" @keydown.space="toggleDropdown" @keydown.up="navigateOptions(-1)"
-              @keydown.down="navigateOptions(1)" @keydown.esc="closeDropdown">
-              <span>{{ selectedOption.text }}</span>
-              <span class="dropdown-arrow">▼</span>
+        <div class="form-header">Newsletter anmelden</div>
+        <div class="form-content">
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input type="text" id="name" placeholder=" ">
+              <label for="name">Vorname</label>
+              <div class="input-focus-bg"></div>
             </div>
-
-            <div class="dropdown-options" :class="{ 'show': isOpen }">
-              <div v-for="(option, index) in options" :key="option.value" class="dropdown-option"
-                :class="{ 'selected': option.value === selectedOption.value }" @click="selectOption(option)"
-                tabindex="0" @keydown.enter="selectOption(option)" :data-index="index">
-                {{ option.text }}
-              </div>
-            </div>
-
-            <!-- Hidden input for form submission -->
-            <input type="hidden" id="age" name="age" :value="selectedOption.value">
           </div>
-        </div>
 
-        <button class="btn">Anmelden</button>
+          <div class="form-group">
+            <div class="input-wrapper">
+              <input type="email" id="email" placeholder=" ">
+              <label for="email">E-Mail</label>
+              <div class="input-focus-bg"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="dropdown-label">Alter der Kinder</label>
+            <div class="custom-dropdown">
+              <div class="dropdown-selected" @click="toggleDropdown" :class="{ 'active': isOpen }" tabindex="0"
+                @keydown.enter="toggleDropdown" @keydown.space="toggleDropdown" @keydown.up="navigateOptions(-1)"
+                @keydown.down="navigateOptions(1)" @keydown.esc="closeDropdown">
+                <span>{{ selectedOption.text }}</span>
+                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+
+              <div class="dropdown-options" :class="{ 'show': isOpen }">
+                <div v-for="(option, index) in options" :key="option.value" class="dropdown-option"
+                  :class="{ 'selected': option.value === selectedOption.value }" @click="selectOption(option)"
+                  tabindex="0" @keydown.enter="selectOption(option)" :data-index="index">
+                  {{ option.text }}
+                </div>
+              </div>
+
+              <!-- Hidden input for form submission -->
+              <input type="hidden" id="age" name="age" :value="selectedOption.value">
+            </div>
+          </div>
+
+          <button class="btn">
+            <span>Anmelden</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <p class="footnote">* Deine Daten werden vertraulich und ausschließlich für die Zusendung des Newsletters verwendet.
-      Du kannst dich jederzeit mit einem Klick einfach abmelden, wenn diese gegen die Bedingungen verstoßen.</p>
+      Du kannst dich jederzeit mit einem Klick einfach abmelden.</p>
   </section>
 </template>
 
@@ -58,8 +99,6 @@ import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
 export default defineComponent({
   name: 'SubscriptionSection',
   setup() {
-    const bulletPoints = '• Zweimal im Monat neue Inhalte<br>• Kostenlos und jederzeit kündbar<br>• Du bleibst immer auf dem neuesten Stand';
-
     const options = [
       { value: '', text: 'Bitte wählen' },
       { value: '0-3', text: '0-3 Jahre' },
@@ -123,7 +162,6 @@ export default defineComponent({
     });
 
     return {
-      bulletPoints,
       options,
       selectedOption,
       isOpen,
@@ -144,94 +182,327 @@ export default defineComponent({
 
 .subscription-section {
   @include animations.scroll-fade-in;
-
-  h2 {
-    font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
-    font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        @include mixins.section-header($theme);
+  padding: 4rem 0;
+  position: relative;
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    position: relative;
+    
+    h2 {
+      font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
+      font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
+      position: relative;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: linear-gradient(
+            90deg, 
+            mixins.theme-color($theme, accent-green) 0%, 
+            mixins.theme-color($theme, accent-teal) 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+    }
+    
+    .header-decoration {
+      width: 80px;
+      height: 4px;
+      border-radius: 2px;
+      margin: 0 auto;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: linear-gradient(
+            90deg, 
+            mixins.theme-color($theme, accent-green) 0%, 
+            mixins.theme-color($theme, accent-teal) 100%
+          );
+        }
       }
     }
   }
 
   .subscription {
-    @include mixins.grid(1fr 1fr, auto, map.get(vars.$spacing, xxl));
-    margin-top: map.get(vars.$spacing, xxl);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
 
-    @include mixins.responsive('tablet') {
+    @media (max-width: 900px) {
       grid-template-columns: 1fr;
     }
 
     .subscription-info,
     .form-container {
       position: relative;
-
+      border-radius: 16px;
+      transition: all 0.4s ease;
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
-          padding: map.get(vars.$spacing, xl);
-          border-radius: map.get(map.get(vars.$layout, border-radius), large);
-          border: 2px solid mixins.theme-color($theme, border-light);
-          @include mixins.shadow('medium', $theme);
-          transition: all map.get(vars.$transitions, default);
+          box-shadow: 
+            0 10px 30px rgba(0, 0, 0, 0.05),
+            0 1px 3px rgba(0, 0, 0, 0.03);
         }
       }
-
+      
       &:hover {
-        transform: scale(1.02);
-      }
-    }
-
-    .subscription-info:hover {
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          @include mixins.glow('green', 'medium', $theme);
-          border-color: mixins.theme-color($theme, accent-green);
+        transform: translateY(-8px);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            box-shadow: 
+              0 20px 40px rgba(0, 0, 0, 0.08),
+              0 2px 5px rgba(0, 0, 0, 0.05);
+          }
         }
       }
     }
 
-    .form-container:hover {
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          @include mixins.glow('teal', 'medium', $theme);
-          border-color: mixins.theme-color($theme, accent-teal);
+    .subscription-info {
+      position: relative;
+      z-index: 2;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: linear-gradient(
+              to bottom,
+              mixins.theme-color($theme, accent-green) 0%,
+              mixins.theme-color($theme, accent-teal) 100%
+            );
+          }
+        }
+      }
+      
+      .info-content {
+        padding: 2.5rem;
+        position: relative;
+        z-index: 2;
+      }
+      
+      .info-icon {
+        margin-bottom: 1.5rem;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-green);
+          }
+        }
+      }
+      
+      .info-text {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+      
+      .benefits {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        
+        .benefit-item {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          
+          .benefit-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: mixins.theme-color($theme, accent-green);
+                color: white;
+              }
+            }
+          }
+          
+          span {
+            font-size: 1rem;
+            line-height: 1.5;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+      }
+      
+      .decoration-circle {
+        position: absolute;
+        bottom: -80px;
+        right: -80px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        z-index: 1;
+        opacity: 0.05;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: mixins.theme-color($theme, accent-green);
+          }
         }
       }
     }
 
-    p {
-      font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      margin-bottom: map.get(vars.$spacing, l);
-      line-height: 1.8;
-
-      &:last-child {
-        margin-bottom: 0;
+    .form-container {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: linear-gradient(
+              to right,
+              mixins.theme-color($theme, accent-teal) 0%,
+              mixins.theme-color($theme, accent-green) 100%
+            );
+          }
+        }
+      }
+      
+      .form-header {
+        padding: 1.5rem 2.5rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+            border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
+          }
+        }
+      }
+      
+      .form-content {
+        padding: 2rem 2.5rem;
       }
     }
   }
 
   .form-group {
-    margin-bottom: map.get(vars.$spacing, l);
-
-    label {
+    margin-bottom: 1.6rem;
+    
+    .dropdown-label {
       display: block;
-      margin-bottom: map.get(vars.$spacing, s);
-      font-weight: map.get(map.get(vars.$fonts, weights), bold);
-
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-
-    input {
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          @include mixins.form-element($theme);
+    
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 0.5rem;
+      
+      input {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        background: transparent;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+            border: 1px solid mixins.theme-color($theme, border-medium);
+            
+            &:focus {
+              outline: none;
+              border-color: mixins.theme-color($theme, accent-teal);
+            }
+            
+            &:focus + label, &:not(:placeholder-shown) + label {
+              transform: translateY(-130%) scale(0.85);
+              background-color: mixins.theme-color($theme, secondary-bg);
+              padding: 0 8px;
+              color: mixins.theme-color($theme, accent-teal);
+            }
+            
+            &:focus ~ .input-focus-bg {
+              opacity: 1;
+            }
+          }
+        }
+      }
+      
+      label {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        pointer-events: none;
+        transition: all 0.2s ease;
+        z-index: 3;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-tertiary);
+          }
+        }
+      }
+      
+      .input-focus-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        opacity: 0;
+        z-index: 1;
+        transition: opacity 0.3s ease;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: rgba(mixins.theme-color($theme, accent-teal), 0.05);
+          }
         }
       }
     }
@@ -240,50 +511,39 @@ export default defineComponent({
       position: relative;
       width: 100%;
       font-family: map.get(vars.$fonts, primary);
+      z-index: 10;
 
       .dropdown-selected {
         width: 100%;
-        padding: 0.9rem 1.2rem;
+        padding: 1rem 1.2rem;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        position: relative;
-        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        border-radius: 8px;
         outline: none;
-        font-size: map.get(map.get(vars.$fonts, sizes), base);
+        transition: all 0.3s ease;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            @if $theme == 'dark' {
-              background-color: rgba(15, 36, 25, 0.8);
-            }
-
-            @else {
-              background-color: rgba(255, 255, 255, 0.7);
-            }
-
+            background-color: transparent;
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-medium);
-            transition: all map.get(vars.$transitions, default);
 
-            &:hover,
-            &:focus {
+            &:hover, &:focus {
               border-color: mixins.theme-color($theme, accent-teal);
-              box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
             }
 
             &.active {
               border-color: mixins.theme-color($theme, accent-teal);
-              box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
+              background: rgba(mixins.theme-color($theme, accent-teal), 0.05);
             }
           }
         }
 
         .dropdown-arrow {
-          font-size: 0.8rem;
           transition: transform 0.2s ease;
-
+          
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
@@ -298,23 +558,22 @@ export default defineComponent({
 
       .dropdown-options {
         position: absolute;
-        top: calc(100% + 5px);
+        top: calc(100% + 8px);
         left: 0;
         right: 0;
-        z-index: 100;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        transition: all 0.3s ease;
         max-height: 250px;
         overflow-y: auto;
+        border-radius: 8px;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, card-bg);
+            background-color: mixins.theme-color($theme, secondary-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
           }
         }
 
@@ -325,24 +584,23 @@ export default defineComponent({
         }
 
         .dropdown-option {
-          padding: 12px 16px;
+          padding: 0.9rem 1.2rem;
           cursor: pointer;
-          outline: none;
-          font-size: map.get(map.get(vars.$fonts, sizes), base);
+          transition: background 0.2s ease;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
-              border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.2);
+              border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.1);
 
-              &:hover,
-              &:focus {
-                background-color: mixins.theme-color($theme, hover-color);
+              &:hover, &:focus {
+                background-color: rgba(mixins.theme-color($theme, accent-teal), 0.05);
               }
 
               &.selected {
-                font-weight: map.get(map.get(vars.$fonts, weights), bold);
+                font-weight: 600;
                 background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+                color: mixins.theme-color($theme, accent-teal);
               }
 
               &:last-child {
@@ -356,25 +614,57 @@ export default defineComponent({
   }
 
   .btn {
-    display: inline-block;
-    margin-top: map.get(vars.$spacing, m);
-    @include animations.shine-effect;
-
-    &:hover {
-      transform: scale(1.05) !important;
-    }
-
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        @include mixins.button-style($theme, 'medium', true);
+        background: linear-gradient(
+          90deg, 
+          mixins.theme-color($theme, accent-teal) 0%, 
+          mixins.theme-color($theme, accent-green) 100%
+        );
+        color: white;
+        box-shadow: 0 8px 15px rgba(mixins.theme-color($theme, accent-teal), 0.2);
       }
+    }
+    
+    &:hover {
+      transform: translateY(-3px);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          box-shadow: 0 12px 20px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+        }
+      }
+      
+      svg {
+        transform: translateX(3px);
+      }
+    }
+    
+    svg {
+      transition: transform 0.2s ease;
     }
   }
 
   .footnote {
-    font-size: map.get(map.get(vars.$fonts, sizes), small);
-    margin-top: map.get(vars.$spacing, xxl);
+    font-size: 0.85rem;
+    margin-top: 2.5rem;
     text-align: center;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
     line-height: 1.6;
 
     @each $theme in ('light', 'dark') {

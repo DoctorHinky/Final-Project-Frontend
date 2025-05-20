@@ -4,29 +4,52 @@
     
     <div class="quiz-container">
       <div class="quiz-question">
-        <p>Kennst du dich auch nicht immer gut mit deinem Kind aus? Du bist nicht allein! Hier findest du hilfreiche Tipps und Ideen, was du tun kannst, wenn du mal nicht weiter weißt.<br>Probier doch mal unser Quiz aus und finde heraus, welcher Erziehungstyp du bist!</p>
+        <div class="question-content intro">
+          <p>Kennst du dich auch nicht immer gut mit deinem Kind aus? Du bist nicht allein! Hier findest du hilfreiche Tipps und Ideen, was du tun kannst, wenn du mal nicht weiter weißt.<br>Probier doch mal unser Quiz aus und finde heraus, welcher Erziehungstyp du bist!</p>
+          <div class="decoration-element"></div>
+        </div>
       </div>
       
       <div class="quiz-question">
-        <p>Weißt du, in welchen Phasen dein Kind natürlich schwieriger wird? Die berühmten Trotzphasen kommen mit:</p>
-        <p class="options">
-          a) ungefähr mit 2-3 Jahren<br>
-          b) nur bei schlecht erzogenen Kindern<br>
-          c) etwa mit 13-14 Jahren
-        </p>
+        <div class="question-content">
+          <p>Weißt du, in welchen Phasen dein Kind natürlich schwieriger wird? Die berühmten Trotzphasen kommen mit:</p>
+          <div class="options-container">
+            <p class="options">
+              <span class="option-item"><span class="option-marker">a</span>ungefähr mit 2-3 Jahren</span>
+              <span class="option-item"><span class="option-marker">b</span>nur bei schlecht erzogenen Kindern</span>
+              <span class="option-item"><span class="option-marker">c</span>etwa mit 13-14 Jahren</span>
+              <span class="option-item"><span class="option-marker">d</span>in regelmäßigen Abständen während der Entwicklung</span>
+            </p>
+          </div>
+        </div>
       </div>
       
       <div class="quiz-question">
-        <p>Was war für dich die spannendste Artikelreihe? Lass uns wissen, was dir gefallen hat und wir erweitern unser Angebot für euch!</p>
+        <div class="question-content">
+          <p>Was war für dich die spannendste Artikelreihe? Lass uns wissen, was dir gefallen hat und wir erweitern unser Angebot für euch!</p>
+          <div class="options-container">
+            <p class="options">
+              <span class="option-item"><span class="option-marker">a</span>Kommunikation mit Kindern</span>
+              <span class="option-item"><span class="option-marker">b</span>Umgang mit schwierigen Phasen</span>
+              <span class="option-item"><span class="option-marker">c</span>Förderung von Selbstständigkeit</span>
+              <span class="option-item"><span class="option-marker">d</span>Gesunde Entwicklung unterstützen</span>
+            </p>
+          </div>
+        </div>
       </div>
       
       <div class="quiz-question">
-        <p>Du bist auf der Suche nach konkreten und positiven Hilfen für deinen Alltag mit Kind?</p>
-        <p class="options">
-          a) Ja, ich bin oft überfordert<br>
-          b) Nur manchmal bei schwierigen Situationen<br>
-          c) Nein, mir fällt immer eine gute Lösung ein
-        </p>
+        <div class="question-content">
+          <p>Du bist auf der Suche nach konkreten und positiven Hilfen für deinen Alltag mit Kind?</p>
+          <div class="options-container">
+            <p class="options">
+              <span class="option-item"><span class="option-marker">a</span>Ja, ich bin oft überfordert</span>
+              <span class="option-item"><span class="option-marker">b</span>Nur manchmal bei schwierigen Situationen</span>
+              <span class="option-item"><span class="option-marker">c</span>Nein, mir fällt immer eine gute Lösung ein</span>
+              <span class="option-item"><span class="option-marker">d</span>Ich suche eher nach Austausch mit anderen Eltern</span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -70,6 +93,8 @@ export default defineComponent({
     
     .quiz-question {
       position: relative;
+      overflow: hidden;
+      
       /* Pseudo-Element für bessere Hover-Fläche */
       &::before {
         content: '';
@@ -84,7 +109,6 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
-          padding: map.get(vars.$spacing, xl);
           border-radius: map.get(map.get(vars.$layout, border-radius), large);
           border: 2px solid mixins.theme-color($theme, border-light);
           @include mixins.shadow('medium', $theme);
@@ -164,26 +188,113 @@ export default defineComponent({
         }
       }
       
-      p {
-        font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        margin-bottom: map.get(vars.$spacing, l);
-        line-height: 1.8;
+      /* Hier beginnt das neue, modernere Styling für den inneren Bereich */
+      .question-content {
         position: relative;
-        z-index: 2; /* Über dem Pseudo-Element */
+        padding: map.get(vars.$spacing, xl);
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
         
-        &:last-child {
-          margin-bottom: 0;
+        &.intro {
+          text-align: center;
+          justify-content: center;
+          
+          .decoration-element {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 0;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: linear-gradient(
+                  135deg,
+                  mixins.theme-color($theme, accent-green) 0%,
+                  mixins.theme-color($theme, accent-teal) 100%
+                );
+              }
+            }
+          }
         }
-      }
-      
-      .options {
-        font-size: map.get(map.get(vars.$fonts, sizes), base);
-        position: relative;
-        z-index: 2; /* Über dem Pseudo-Element */
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
+        p {
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          margin-bottom: map.get(vars.$spacing, l);
+          line-height: 1.8;
+          position: relative;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+        
+        .options-container {
+          margin-top: auto;
+          position: relative;
+          border-radius: 12px;
+          padding: 1.2rem;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: rgba(mixins.theme-color($theme, border-light), 0.3);
+            }
+          }
+          
+          .options {
+            font-size: map.get(map.get(vars.$fonts, sizes), base);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+            
+            .option-item {
+              display: flex;
+              align-items: flex-start;
+              line-height: 1.4;
+              transition: transform 0.2s ease;
+              
+              &:hover {
+                transform: translateX(5px);
+              }
+              
+              .option-marker {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                margin-right: 10px;
+                flex-shrink: 0;
+                font-weight: 600;
+                font-size: 0.85rem;
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    background: rgba(mixins.theme-color($theme, accent-teal), 0.15);
+                    color: mixins.theme-color($theme, accent-teal);
+                  }
+                }
+              }
+            }
           }
         }
       }

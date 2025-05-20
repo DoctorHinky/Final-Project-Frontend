@@ -788,10 +788,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @use 'sass:map';
+@use '@/style/base/animations';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 
 .article-editor-layout {
+  @include animations.fade-in(0.5s);
   display: flex;
   gap: map.get(vars.$spacing, xl);
   margin: 0 auto;
@@ -827,6 +829,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -837,6 +840,7 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
         }
       }
     }
@@ -851,6 +855,7 @@ export default defineComponent({
       .theme-#{$theme} & {
         border: 1px solid mixins.theme-color($theme, border-medium);
         transition: all 0.4s ease-out;
+          transition: all 0.4s ease-out;
       }
     }
   }
@@ -867,6 +872,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
       }
     }
   }
@@ -894,11 +900,13 @@ export default defineComponent({
     background: transparent;
     flex: 1;
     border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    resize: none ;
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         border: 1px solid mixins.theme-color($theme, border-light);
+          transition: all 0.4s ease-out;
       }
     }
   }
@@ -931,6 +939,7 @@ export default defineComponent({
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
+          transition: all 0.4s ease-out;
         
         &:hover {
           transform: translateY(-2px);
@@ -968,6 +977,7 @@ export default defineComponent({
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
+          transition: all 0.4s ease-out;
       }
     }
   }
@@ -996,6 +1006,7 @@ export default defineComponent({
           background-color: mixins.theme-color($theme, card-bg);
           color: mixins.theme-color($theme, text-secondary);
           border: 1px solid mixins.theme-color($theme, border-medium);
+          transition: all 0.4s ease-out;
           
           &:hover:not(:disabled) {
             color: mixins.theme-color($theme, text-primary);
@@ -1010,6 +1021,7 @@ export default defineComponent({
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
+          transition: all 0.4s ease-out;
           
           &:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -1099,6 +1111,7 @@ export default defineComponent({
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
+          transition: all 0.4s ease-out;
     }
   }
 }
@@ -1111,6 +1124,7 @@ export default defineComponent({
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
+          transition: all 0.4s ease-out;
     }
   }
 }
@@ -1131,6 +1145,7 @@ export default defineComponent({
       background-color: rgba(76, 175, 80, 0.1); // green background
       color: #4caf50; // green text
       border: 1px solid rgba(76, 175, 80, 0.3); // green border
+          transition: all 0.4s ease-out;
 
       &:hover {
         background-color: rgba(76, 175, 80, 0.2);
@@ -1152,6 +1167,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
       }
     }
   }

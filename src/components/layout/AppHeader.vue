@@ -200,13 +200,10 @@ export default defineComponent({
 
 // Navigation
 .nav-tabs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
   margin-bottom: map.get(vars.$spacing, s);
+  padding: 1rem;
 
 
   .nav-tab {

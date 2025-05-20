@@ -12,7 +12,6 @@
 ./.vite/deps/vue-router.js.map
 ./.vscode
 ./.vscode/extensions.json
-./FrontendStruktur.txt
 ./index.html
 ./ordnerstruktur.txt
 ./package.json
@@ -63,7 +62,12 @@
 ./src/components/pages/DashboardPages
 ./src/components/pages/DashboardPages/CreateArticle
 ./src/components/pages/DashboardPages/CreateArticle/ArticleEditor.vue
+./src/components/pages/DashboardPages/CreateArticle/ChapterEditor.vue
+./src/components/pages/DashboardPages/CreateArticle/DraftsList.vue
+./src/components/pages/DashboardPages/CreateArticle/ImageUploader.vue
 ./src/components/pages/DashboardPages/CreateArticle/index.ts
+./src/components/pages/DashboardPages/CreateArticle/PublishedArticlesList.vue
+./src/components/pages/DashboardPages/CreateArticle/QuizEditor.vue
 ./src/components/pages/DashboardPages/Favorites
 ./src/components/pages/DashboardPages/Favorites/ConfirmDialog.vue
 ./src/components/pages/DashboardPages/Favorites/EmptyState.vue

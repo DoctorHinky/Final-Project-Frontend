@@ -20,13 +20,8 @@
     </div>
 
     <div v-else class="drafts-list">
-      <div 
-        v-for="draft in drafts" 
-        :key="draft.id" 
-        class="draft-item"
-        :class="{ 'active': selectedDraftId === draft.id }"
-        @click="$emit('select', draft)"
-      >
+      <div v-for="draft in drafts" :key="draft.id" class="draft-item"
+        :class="{ 'active': selectedDraftId === draft.id }" @click="$emit('select', draft)">
         <!-- Vorschaubild hinzugefügt -->
         <div class="draft-thumbnail" v-if="draft.coverImage">
           <img :src="draft.coverImage" alt="Artikelbild" />
@@ -101,7 +96,7 @@ export default defineComponent({
     const refreshDrafts = () => {
       emit('refresh');
     };
-    
+
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('de-DE', {
@@ -112,7 +107,7 @@ export default defineComponent({
         minute: '2-digit'
       }).format(date);
     };
-    
+
     return {
       refreshDrafts,
       formatDate
@@ -131,7 +126,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   height: fit-content;
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
@@ -139,32 +134,32 @@ export default defineComponent({
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
   }
-  
+
   .sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin: 0;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     .refresh-btn {
       background: transparent;
       border: none;
@@ -175,16 +170,16 @@ export default defineComponent({
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      
+
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
-          
+
           &:hover:not(:disabled) {
             background-color: mixins.theme-color($theme, hover-color);
             color: mixins.theme-color($theme, primary);
           }
-          
+
           &:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -195,7 +190,8 @@ export default defineComponent({
   }
 }
 
-.drafts-loading, .no-drafts {
+.drafts-loading,
+.no-drafts {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -203,24 +199,25 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl) 0;
   gap: map.get(vars.$spacing, s);
   text-align: center;
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
+      transition: all 0.4s ease-out;
     }
   }
-  
+
   .icon-size-lg {
     width: 40px;
     height: 40px;
     opacity: 0.6;
   }
-  
+
   p {
     margin: map.get(vars.$spacing, xs) 0 0;
     font-weight: map.get(map.get(vars.$fonts, weights), medium);
   }
-  
+
   small {
     font-size: map.get(map.get(vars.$fonts, sizes), small);
     opacity: 0.8;
@@ -232,7 +229,7 @@ export default defineComponent({
   flex-direction: column;
   max-height: 400px;
   overflow-y: auto;
-  
+
   .draft-item {
     display: grid;
     grid-template-columns: 50px 1fr auto;
@@ -242,45 +239,49 @@ export default defineComponent({
     border-bottom: 1px solid;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    
+    transition: all 0.4s ease-out;
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
-        
+        transition: all 0.4s ease-out;
+
         &:hover {
           background-color: mixins.theme-color($theme, hover-color);
         }
-        
+
         &.active {
           background-color: rgba(0, 100, 255, 0.1);
           border-left: 3px solid mixins.theme-color($theme, primary);
         }
       }
     }
-    
+
     .draft-thumbnail {
       width: 50px;
       height: 50px;
       border-radius: map.get(map.get(vars.$layout, border-radius), small);
       overflow: hidden;
-      
+      transition: all 0.4s ease-out;
+
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
-      
+
       &.placeholder {
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, hover-color);
+            transition: all 0.4s ease-out;
           }
         }
-        
+
         .placeholder-icon {
           width: 24px;
           height: 24px;
@@ -288,11 +289,11 @@ export default defineComponent({
         }
       }
     }
-    
+
     .draft-info {
       flex: 1;
       min-width: 0;
-      
+
       .draft-title {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
@@ -300,26 +301,30 @@ export default defineComponent({
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+        transition: all 0.4s ease-out;
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
           }
         }
       }
-      
-      .draft-date, .draft-chapters {
+
+      .draft-date,
+      .draft-chapters {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         margin: 0;
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease-out;
           }
         }
       }
     }
-    
+
     .draft-actions {
       display: flex;
       gap: 0;
@@ -340,27 +345,28 @@ export default defineComponent({
   position: relative;
   transition: all 0.2s ease;
   margin: 0 2px;
-  
+
   .action-icon {
     width: 18px;
     height: 18px;
   }
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: rgba(mixins.theme-color($theme, hover-color), 0.9);
       color: mixins.theme-color($theme, text-secondary);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      
+      transition: all 0.4s ease-out;
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
       }
-      
+
       &.edit:hover {
         color: mixins.theme-color($theme, primary);
       }
-      
+
       &.delete:hover {
         background-color: rgba(#f44336, 0.2);
         color: #f44336;
@@ -387,6 +393,7 @@ export default defineComponent({
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
