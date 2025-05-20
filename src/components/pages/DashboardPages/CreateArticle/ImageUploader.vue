@@ -198,18 +198,19 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   position: relative;
-  
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
-  
+
   .remove-image {
     position: absolute;
     top: map.get(vars.$spacing, xs);
     right: map.get(vars.$spacing, xs);
-    background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(105, 65, 65, 0.6);
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -218,7 +219,20 @@ export default defineComponent({
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    
+    border: none;
+    padding: 0;
+    transition: all 0.3s ease;
+    &:hover {
+      background-color: rgba(177, 31, 31, 0.6);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+      /* fallback color, can be overridden by theme */
+    }
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, danger);

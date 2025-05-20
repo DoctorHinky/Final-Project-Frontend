@@ -26,6 +26,14 @@
         class="article-item"
         @click="$emit('edit', article)"
       >
+        <!-- Vorschaubild hinzugefügt -->
+        <div class="article-thumbnail" v-if="article.coverImage">
+          <img :src="article.coverImage" alt="Artikelbild" />
+        </div>
+        <div class="article-thumbnail placeholder" v-else>
+          <DocumentIcon class="placeholder-icon" />
+        </div>
+
         <div class="article-info">
           <h4 class="article-title">{{ article.title || 'Ohne Titel' }}</h4>
           <p class="article-date">Veröffentlicht: {{ formatDate(article.publishDate) }}</p>
@@ -35,7 +43,6 @@
           <button @click.stop="$emit('view', article.id)" class="action-button-icon view" title="Artikel ansehen">
             <EyeIcon class="action-icon" />
           </button>
-          <!-- Bearbeiten-Button entfernt -->
           <button @click.stop="$emit('delete', article.id)" class="action-button-icon delete" title="Artikel löschen">
             <TrashIcon class="action-icon" />
           </button>
@@ -230,8 +237,9 @@ export default defineComponent({
   overflow-y: auto;
   
   .article-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: map.get(vars.$spacing, s);
     align-items: center;
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
@@ -244,6 +252,37 @@ export default defineComponent({
         
         &:hover {
           background-color: mixins.theme-color($theme, hover-color);
+        }
+      }
+    }
+    
+    .article-thumbnail {
+      width: 50px;
+      height: 50px;
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
+      overflow: hidden;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      &.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, hover-color);
+          }
+        }
+        
+        .placeholder-icon {
+          width: 24px;
+          height: 24px;
+          opacity: 0.5;
         }
       }
     }

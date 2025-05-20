@@ -677,11 +677,9 @@ export default defineComponent({
         if (result.success) {
           showNotification('Artikel erfolgreich veröffentlicht', 'success');
           
-          // Wenn es sich um einen Entwurf handelte, diesen löschen
+          // Den Entwurf aus der lokalen Liste entfernen (ohne ihn auf dem Server zu löschen)
           if (currentDraftId.value && !isEditingPublishedArticle) {
-            await authorService.deleteDraft(currentDraftId.value);
-            // Entwürfe aktualisieren
-            refreshDrafts();
+            drafts.value = drafts.value.filter(d => d.id !== currentDraftId.value);
           }
           
           // Veröffentlichte Artikel aktualisieren
@@ -874,11 +872,13 @@ export default defineComponent({
   }
   
   .main-info {
+    width: 100%;
+    height: 300px;
     display: flex;
     flex-direction: column;
     gap: map.get(vars.$spacing, m);
     padding: map.get(vars.$spacing, m);
-    
+
     @media (min-width: 768px) {
       flex-direction: row;
     }
@@ -1125,16 +1125,16 @@ export default defineComponent({
   font-weight: map.get(map.get(vars.$fonts, weights), medium);
   transition: all 0.3s ease;
   border: none;
-  
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: rgba(33, 150, 243, 0.1);
-      color: #2196f3;
-      border: 1px solid rgba(33, 150, 243, 0.3);
-      
+      background-color: rgba(76, 175, 80, 0.1); // green background
+      color: #4caf50; // green text
+      border: 1px solid rgba(76, 175, 80, 0.3); // green border
+
       &:hover {
-        background-color: rgba(33, 150, 243, 0.2);
-        border-color: rgba(33, 150, 243, 0.5);
+        background-color: rgba(76, 175, 80, 0.2);
+        border-color: rgba(76, 175, 80, 0.5);
       }
     }
   }

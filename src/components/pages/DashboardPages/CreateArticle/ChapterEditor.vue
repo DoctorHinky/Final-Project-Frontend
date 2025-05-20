@@ -223,6 +223,7 @@ export default defineComponent({
 }
 
 .chapter-image-container {
+  max-width: 300px;
   margin-bottom: map.get(vars.$spacing, m);
 }
 

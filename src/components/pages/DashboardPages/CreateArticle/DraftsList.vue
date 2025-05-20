@@ -27,6 +27,14 @@
         :class="{ 'active': selectedDraftId === draft.id }"
         @click="$emit('select', draft)"
       >
+        <!-- Vorschaubild hinzugefügt -->
+        <div class="draft-thumbnail" v-if="draft.coverImage">
+          <img :src="draft.coverImage" alt="Artikelbild" />
+        </div>
+        <div class="draft-thumbnail placeholder" v-else>
+          <DocumentIcon class="placeholder-icon" />
+        </div>
+
         <div class="draft-info">
           <h4 class="draft-title">{{ draft.title || 'Ohne Titel' }}</h4>
           <p class="draft-date">Bearbeitet: {{ formatDate(draft.lastUpdated) }}</p>
@@ -226,8 +234,9 @@ export default defineComponent({
   overflow-y: auto;
   
   .draft-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: map.get(vars.$spacing, s);
     align-items: center;
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
@@ -245,6 +254,37 @@ export default defineComponent({
         &.active {
           background-color: rgba(0, 100, 255, 0.1);
           border-left: 3px solid mixins.theme-color($theme, primary);
+        }
+      }
+    }
+    
+    .draft-thumbnail {
+      width: 50px;
+      height: 50px;
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
+      overflow: hidden;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      &.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, hover-color);
+          }
+        }
+        
+        .placeholder-icon {
+          width: 24px;
+          height: 24px;
+          opacity: 0.5;
         }
       }
     }
