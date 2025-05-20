@@ -1,3 +1,4 @@
+<!-- src/pages/member/Dashboard.vue -->
 <template>
   <MemberLayout 
     :page-title="getPageTitle()" 
@@ -23,10 +24,12 @@ import Favorites from '@/pages/member/dashboard/Favorites.vue';
 import Friends from '@/pages/member/dashboard/Friends.vue';
 import Notifications from '@/pages/member/dashboard/Notifications.vue';
 import Settings from '@/pages/member/dashboard/Settings.vue';
-import Library from '@/pages/member/dashboard/Library.vue'; // Neue Bibliothek-Komponente
+import Library from '@/pages/member/dashboard/Library.vue'; // Bibliothek-Komponente
+import ArticleEditor from '@/components/pages/DashboardPages/CreateArticle'; // Neue Artikel-Editor Komponente
 
-// Auth-Service für Benutzerüberprüfung
+// Services
 import { authService } from '@/services/auth.service';
+import { authorService } from '@/services/author.service';
 
 export default defineComponent({
   name: 'MemberDashboard',
@@ -38,7 +41,8 @@ export default defineComponent({
     Friends,
     Notifications,
     Settings,
-    Library // Neue Komponente registrieren
+    Library,
+    ArticleEditor // Neue Komponente registrieren
   },
   props: {
     // Standardtab aus der Routerkonfiguration
@@ -54,20 +58,40 @@ export default defineComponent({
     // Aktiver Menüpunkt
     const activeMenu = ref(props.defaultTab || 'overview');
     
+    // Überprüfen, ob Benutzer ein Autor ist
+    const isAuthor = computed(() => {
+      return authorService.isAuthor();
+    });
+    
     // Komponenten-Mapping
-    const componentMap = markRaw({
-      'overview': Overview,
-      'my-articles': MyArticles,
-      'favorites': Favorites,
-      'friends': Friends,
-      'notifications': Notifications,
-      'settings': Settings,
-      'library': Library // Neue Komponente im Mapping
+    const componentMap = computed(() => {
+      const map: Record<string, any> = {
+        'overview': Overview,
+        'my-articles': MyArticles,
+        'favorites': Favorites,
+        'friends': Friends,
+        'notifications': Notifications,
+        'settings': Settings,
+        'library': Library
+      };
+      
+      // Nur für Autoren verfügbar
+      if (isAuthor.value) {
+        map['create-article'] = ArticleEditor;
+      }
+      
+      return markRaw(map);
     });
     
     // Aktuelle Komponente basierend auf Menüauswahl
     const currentComponent = computed(() => {
-      return componentMap[activeMenu.value as keyof typeof componentMap] || Overview;
+      // Wenn der Tab 'create-article' ist, aber der Benutzer kein Autor ist,
+      // zeigen wir die Übersicht an
+      if (activeMenu.value === 'create-article' && !isAuthor.value) {
+        return componentMap.value['overview'];
+      }
+      
+      return componentMap.value[activeMenu.value as keyof typeof componentMap.value] || componentMap.value['overview'];
     });
     
     // Seitentitel basierend auf aktivem Menü
@@ -77,6 +101,8 @@ export default defineComponent({
           return 'Dashboard';
         case 'my-articles':
           return 'Meine Artikel';
+        case 'create-article':
+          return 'Artikel erstellen';
         case 'favorites':
           return 'Favoriten';
         case 'friends':
@@ -94,6 +120,13 @@ export default defineComponent({
     
     // Menü ändern
     const changeMenu = (menuItem: string) => {
+      // Wenn der Tab 'create-article' ist, aber der Benutzer kein Autor ist,
+      // passiert nichts oder wir leiten um
+      if (menuItem === 'create-article' && !isAuthor.value) {
+        console.warn('Nur Autoren können Artikel erstellen.');
+        return;
+      }
+      
       activeMenu.value = menuItem;
       
       // URL aktualisieren ohne Neuladen
@@ -103,8 +136,7 @@ export default defineComponent({
     
     // Initialisierung
     onMounted(() => {
-      // Authentifizierung überprüfen (hier wird die authService.isLoggedIn() Methode verwendet, 
-      // die in der Router-Konfiguration verwendet wird)
+      // Authentifizierung überprüfen
       if (!authService.isLoggedIn()) {
         router.push('/login-register');
         return;
@@ -112,9 +144,17 @@ export default defineComponent({
       
       // Tab aus URL-Query-Parameter laden, falls vorhanden
       const tabParam = route.query.tab as string;
-      if (tabParam && Object.keys(componentMap).includes(tabParam)) {
-        activeMenu.value = tabParam;
-      } else if (props.defaultTab && Object.keys(componentMap).includes(props.defaultTab)) {
+      if (tabParam) {
+        // Validieren, ob der Tab existiert und für den Benutzer zugänglich ist
+        if (tabParam === 'create-article' && !isAuthor.value) {
+          // Wenn der Benutzer kein Autor ist, aber den Artikel-Erstellungs-Tab aufruft,
+          // leiten wir zur Übersicht um
+          activeMenu.value = 'overview';
+          router.replace({ query: { ...route.query, tab: 'overview' } });
+        } else if (Object.keys(componentMap.value).includes(tabParam)) {
+          activeMenu.value = tabParam;
+        }
+      } else if (props.defaultTab && Object.keys(componentMap.value).includes(props.defaultTab)) {
         // Ansonsten den defaultTab verwenden, falls gültig
         activeMenu.value = props.defaultTab;
       }
@@ -124,7 +164,8 @@ export default defineComponent({
       activeMenu,
       currentComponent,
       getPageTitle,
-      changeMenu
+      changeMenu,
+      isAuthor
     };
   }
 });

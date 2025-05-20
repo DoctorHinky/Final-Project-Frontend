@@ -10,6 +10,7 @@ import TermsOfService from '../pages/TermsOfService.vue';
 import AppLayout from '../components/layout/AppLayout.vue';
 import Dashboard from '../pages/member/Dashboard.vue';
 import { authService } from '../services/auth.service';
+import { authorService } from '../services/author.service'; // Neuer Import
 
 // Navigation Guard für geschützte Routen
 const requireAuth = (to: any, from: any, next: any) => {
@@ -33,6 +34,18 @@ const requireAdminAuth = (to: any, from: any, next: any) => {
     next({ 
       path: '/admin', 
       query: { redirect: to.fullPath } 
+    });
+  }
+};
+
+// Navigation Guard für Autor-Routen
+const requireAuthorAuth = (to: any, from: any, next: any) => {
+  if (authService.isLoggedIn() && authorService.isAuthor()) {
+    next(); // Autor ist eingeloggt, Navigation fortsetzen
+  } else {
+    // Kein Autor, Weiterleitung zum Dashboard
+    next({ 
+      path: '/member/dashboard'
     });
   }
 };
@@ -107,6 +120,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'articles',
         name: 'UserArticles',
         redirect: { name: 'MemberDashboard', query: { tab: 'my-articles' } }
+      },
+      {
+        path: 'create-article',
+        name: 'CreateArticle',
+        beforeEnter: requireAuthorAuth, // Eigener Navigation Guard für Autoren
+        redirect: { name: 'MemberDashboard', query: { tab: 'create-article' } }
       },
       {
         path: 'library',
@@ -193,8 +212,12 @@ router.beforeEach((to, from, next) => {
   const publicPages = ['/', '/login-register', '/contact', '/privacy-policy', '/imprint', '/terms-of-service', '/404', '/admin'];
   const authRequired = !publicPages.includes(to.path) && !to.path.startsWith('/public/');
   const adminRequired = to.path.startsWith('/admin/');
+  const authorRequired = to.path === '/member/create-article' || 
+                        (to.path === '/member/dashboard' && to.query.tab === 'create-article');
+  
   const loggedIn = authService.isLoggedIn();
   const adminLoggedIn = authService.isAdminLoggedIn();
+  const isAuthor = loggedIn && authorService.isAuthor();
 
   // Wenn der Benutzer bereits eingeloggt ist und versucht, die Login-Seite aufzurufen,
   // leiten wir ihn zur Member-Startseite weiter
@@ -213,6 +236,13 @@ router.beforeEach((to, from, next) => {
     return next({
       path: '/admin',
       query: { redirect: to.fullPath }
+    });
+  }
+
+  // Bei geschützten Autor-Routen prüfen, ob der Benutzer ein Autor ist
+  if (authorRequired && !isAuthor) {
+    return next({
+      path: '/member/dashboard'
     });
   }
 

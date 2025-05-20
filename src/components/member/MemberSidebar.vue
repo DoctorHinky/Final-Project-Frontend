@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -43,8 +43,10 @@ import {
   BellIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  PencilIcon // Neues Icon für Artikel erstellen
 } from '@heroicons/vue/24/outline';
+import { authorService } from '@/services/author.service'; // AuthorService importieren
 
 export default defineComponent({
   name: 'MemberSidebar',
@@ -56,7 +58,8 @@ export default defineComponent({
     BellIcon,
     Cog6ToothIcon,
     DocumentTextIcon,
-    ArrowRightOnRectangleIcon
+    ArrowRightOnRectangleIcon,
+    PencilIcon // Neues Icon registrieren
   },
   props: {
     isOpen: {
@@ -70,16 +73,35 @@ export default defineComponent({
   },
   emits: ['select-menu', 'close', 'logout'],
   setup(props, { emit }) {
-    // Menüelemente definieren
-    const menuItems = ref([
-      { id: 'overview', text: 'Übersicht', icon: ChartBarIcon },
-      { id: 'my-articles', text: 'Meine Artikel', icon: DocumentTextIcon },
-      { id: 'library', text: 'Bibliothek', icon: BookOpenIcon },
-      { id: 'favorites', text: 'Favoriten', icon: HeartIcon },
-      { id: 'friends', text: 'Freunde', icon: UserGroupIcon },
-      { id: 'notifications', text: 'Benachrichtigungen', icon: BellIcon },
-      { id: 'settings', text: 'Einstellungen', icon: Cog6ToothIcon }
-    ]);
+    // Autor-Status überprüfen
+    const isAuthor = ref(false);
+    
+    // Menüelemente als Computed-Property, die sich bei Änderung des Autor-Status aktualisiert
+    const menuItems = computed(() => {
+      const baseItems = [
+        { id: 'overview', text: 'Übersicht', icon: ChartBarIcon },
+        { id: 'my-articles', text: 'Meine Artikel', icon: DocumentTextIcon },
+      ];
+      
+      // Menüpunkt für Artikel-Erstellung nur für Autoren hinzufügen
+      if (isAuthor.value) {
+        baseItems.push({ id: 'create-article', text: 'Artikel erstellen', icon: PencilIcon });
+      }
+      
+      return [
+        ...baseItems,
+        { id: 'library', text: 'Bibliothek', icon: BookOpenIcon },
+        { id: 'favorites', text: 'Favoriten', icon: HeartIcon },
+        { id: 'friends', text: 'Freunde', icon: UserGroupIcon },
+        { id: 'notifications', text: 'Benachrichtigungen', icon: BellIcon },
+        { id: 'settings', text: 'Einstellungen', icon: Cog6ToothIcon }
+      ];
+    });
+
+    // Bei Montage der Komponente den Autor-Status abrufen
+    onMounted(() => {
+      isAuthor.value = authorService.isAuthor();
+    });
 
     // Menüpunkt auswählen
     const selectMenuItem = (itemId: string) => {
@@ -88,7 +110,8 @@ export default defineComponent({
 
     return {
       menuItems,
-      selectMenuItem
+      selectMenuItem,
+      isAuthor
     };
   }
 });
