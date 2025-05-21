@@ -26,14 +26,37 @@
           @input="emitUpdate" />
 
         <div class="answers-container">
-          <div v-for="(answer, aIndex) in question.answers" :key="`a-${qIndex}-${aIndex}`" class="answer-item">
-            <div class="answer-input-group">
-              <input type="radio" :id="`correct-${qIndex}-${aIndex}`" :name="`correct-${qIndex}`"
-                :checked="aIndex === question.correctAnswer" @change="() => setCorrectAnswer(qIndex, aIndex)" />
-              <label :for="`correct-${qIndex}-${aIndex}`" class="correct-label">Richtig</label>
-              <input type="text" v-model="question.answers[aIndex].text" class="answer-input"
-                :placeholder="`Antwort ${aIndex + 1}`" @input="emitUpdate" />
+          <div class="answers-grid">
+            <div v-for="(answer, aIndex) in question.answers" :key="`a-${qIndex}-${aIndex}`" 
+                class="answer-item" 
+                :class="{ 'single-answer': question.answers.length % 2 !== 0 && aIndex === question.answers.length - 1 }">
+              <div class="answer-input-group">
+                <input type="radio" :id="`correct-${qIndex}-${aIndex}`" :name="`correct-${qIndex}`"
+                  :checked="aIndex === question.correctAnswer" @change="() => setCorrectAnswer(qIndex, aIndex)" />
+                <label :for="`correct-${qIndex}-${aIndex}`" class="correct-label">Richtig</label>
+                <div class="answer-input-wrapper">
+                  <input type="text" v-model="question.answers[aIndex].text" class="answer-input"
+                    :placeholder="`Antwort ${aIndex + 1}`" @input="emitUpdate" />
+                  <button 
+                    class="remove-answer-btn" 
+                    @click="() => removeAnswer(qIndex, aIndex)"
+                    :disabled="question.answers.length <= 2"
+                    :aria-label="`Antwort ${aIndex + 1} löschen`">
+                    <TrashIcon class="icon-size-sm" />
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
+          
+          <div class="quiz-actions quiz-actions-centered">
+            <button 
+              v-if="question.answers.length < 6" 
+              @click="() => addAnswer(qIndex)" 
+              class="add-answer-btn">
+              <PlusIcon class="icon-size-sm mr-1" />
+              <span>Weitere Antwort hinzufügen</span>
+            </button>
           </div>
         </div>
       </div>
@@ -54,7 +77,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType, watch, computed, toRefs, onMounted, reactive } from 'vue';
-import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon, XMarkIcon, TrashIcon } from '@heroicons/vue/24/outline';
 
 interface QuizAnswer {
   text: string;
@@ -74,7 +97,8 @@ export default defineComponent({
   name: 'QuizEditor',
   components: {
     PlusIcon,
-    XMarkIcon
+    XMarkIcon,
+    TrashIcon
   },
   props: {
     modelValue: {
@@ -155,6 +179,40 @@ export default defineComponent({
       }
     };
 
+    // Eine neue Antwort zu einer Frage hinzufügen
+    const addAnswer = (questionIndex: number) => {
+      if (localQuiz.questions && localQuiz.questions[questionIndex]) {
+        const question = localQuiz.questions[questionIndex];
+        if (question.answers.length < 6) { // Maximale Anzahl von Antworten begrenzen
+          question.answers.push({ text: '' });
+          emitUpdate();
+        }
+      }
+    };
+
+    // Eine Antwort entfernen
+    const removeAnswer = (questionIndex: number, answerIndex: number) => {
+      if (localQuiz.questions && localQuiz.questions[questionIndex]) {
+        const question = localQuiz.questions[questionIndex];
+        
+        // Mindestens 2 Antworten beibehalten
+        if (question.answers.length > 2) {
+          // Wenn die zu löschende Antwort die korrekte ist, setze correctAnswer auf 0
+          if (question.correctAnswer === answerIndex) {
+            question.correctAnswer = 0;
+          } 
+          // Wenn die zu löschende Antwort vor der korrekten Antwort liegt, müssen wir correctAnswer anpassen
+          else if (question.correctAnswer > answerIndex) {
+            question.correctAnswer -= 1;
+          }
+          
+          // Antwort entfernen
+          question.answers.splice(answerIndex, 1);
+          emitUpdate();
+        }
+      }
+    };
+
     // Korrekte Antwort festlegen
     const setCorrectAnswer = (questionIndex: number, answerIndex: number) => {
       if (localQuiz.questions && localQuiz.questions[questionIndex]) {
@@ -167,6 +225,8 @@ export default defineComponent({
       localQuiz,
       addQuestion,
       removeQuestion,
+      addAnswer,
+      removeAnswer,
       setCorrectAnswer,
       emitUpdate
     };
@@ -215,7 +275,7 @@ export default defineComponent({
     padding: map.get(vars.$spacing, l) 0;
   }
 
-  .add-question-btn {
+  .add-question-btn, .add-answer-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,6 +303,27 @@ export default defineComponent({
           background-color: color-mix(in srgb, #2196f3 90%, black 10%);
           transform: translateY(-2px);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
+  
+  .add-answer-btn {
+    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
+    margin-top: map.get(vars.$spacing, s);
+    width: fit-content;
+    
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: transparent;
+        color: #2196f3;
+        border: 1px dashed #2196f3;
+        
+        &:hover {
+          background-color: rgba(33, 150, 243, 0.1);
+          transform: translateY(-1px);
+          box-shadow: none;
         }
       }
     }
@@ -291,18 +372,17 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 60px;
       transition: all 0.4s ease-out;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          color: #f44336;
+          color: #ffffff;
           transition: all 0.4s ease-out;
 
           &:hover {
-            background-color: rgba(244, 67, 54, 0.1);
-            border-radius: 50%;
+            background-color: rgba(185, 15, 2, 0.5);
+            border-radius: 20px;
           }
         }
       }
@@ -331,17 +411,37 @@ export default defineComponent({
     }
 
     .answers-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: map.get(vars.$spacing, s);
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
+      
+      .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: map.get(vars.$spacing, m);
+        
+        .answer-item {
+          &.single-answer {
+            grid-column: 1 / -1;
+            max-width: 50%;
+            margin: 0 auto;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          
+          .answer-item {
+            &.single-answer {
+              max-width: 100%;
+            }
+          }
+        }
       }
     }
 
     .answer-item {
-      margin-bottom: map.get(vars.$spacing, s);
+      margin-bottom: map.get(vars.$spacing, xs);
 
       .answer-input-group {
         display: flex;
@@ -358,29 +458,80 @@ export default defineComponent({
           white-space: nowrap;
 
           @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-secondary);
-            }
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
           }
+        }
+        
+        .answer-input-wrapper {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          position: relative;
         }
 
         .answer-input {
           flex: 1;
           padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+          padding-right: 35px; // Platz für den Löschen-Button
           border-radius: map.get(map.get(vars.$layout, border-radius), small);
+          width: 100%;
 
           @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, card-bg);
-              color: mixins.theme-color($theme, text-primary);
-              border: 1px solid mixins.theme-color($theme, border-light);
-              transition: all 0.4s ease-out;
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          color: mixins.theme-color($theme, text-primary);
+          border: 1px solid mixins.theme-color($theme, border-light);
+          transition: all 0.4s ease-out;
 
-              &:focus {
-                border-color: #2196f3;
-                outline: none;
-              }
-            }
+          &:focus {
+            border-color: #2196f3;
+            outline: none;
+          }
+        }
+          }
+        }
+        
+        .remove-answer-btn {
+          position: absolute;
+          border: none;
+          right: 8px;
+          background: transparent;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 60px;
+          height: 30px;
+          transition: all 0.2s ease-out;
+          
+          &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        display: none;
+          }
+
+          // Heroicon SVG färben
+          .icon-size-sm {
+        color: #f44336 !important; // Standard: Rot für Löschen
+        transition: color 0.3s;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: #f44336 !important;
+          }
+        }
+          }
+
+          @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: #f44336 !important;
+
+          &:hover:not(:disabled) {
+            background-color: rgba(185, 15, 2, 0.5);
+          }
+        }
           }
         }
       }
@@ -391,6 +542,11 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     margin-top: map.get(vars.$spacing, m);
+    
+    &.quiz-actions-centered {
+      justify-content: center;
+      margin-top: map.get(vars.$spacing, m);
+    }
   }
 
   .questions-limit-notice {
