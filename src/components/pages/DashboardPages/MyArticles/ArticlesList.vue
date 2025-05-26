@@ -14,41 +14,60 @@
       <div v-if="viewMode === 'grid'" class="grid-view">
         <div v-for="article in filteredArticles" :key="article.id" class="article-card"
           @click="openArticleReader(article)">
-          <div class="card-label">{{ article.category }}</div>
-          <h3 class="card-title">{{ article.title }}</h3>
-          <p class="card-preview">{{ article.preview }}</p>
-
-          <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
-          <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
-            <div class="progress-bar">
-              <div class="progress-fill"
-                :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
-            </div>
-            <div class="progress-text">
-              <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
-              <span class="last-read">{{ article.lastRead }}</span>
+          <!-- Artikel-Bild -->
+          <div class="article-image">
+            <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
+            <div v-else class="image-placeholder">
+              <span class="placeholder-icon">📚</span>
             </div>
           </div>
+          
+          <div class="card-content">
+            <!-- Meta-Informationen direkt nach dem Bild -->
+            <div class="article-meta">
+              <span class="meta-category">{{ article.category }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-date">{{ article.date }}</span>
+            </div>
 
-          <div class="card-meta">
-            <span class="card-date">{{ article.date }}</span>
+            <!-- Titel -->
+            <h3 class="card-title">{{ article.title }}</h3>
+            
+            <!-- Beschreibung -->
+            <p class="card-preview">{{ article.preview }}</p>
+
+            <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
+            <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
+              <div class="progress-bar">
+                <div class="progress-fill"
+                  :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+              </div>
+              <div class="progress-text">
+                <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
+                <span class="last-read">{{ article.lastRead }}</span>
+              </div>
+            </div>
+
+            <!-- Tags -->
             <div class="card-tags">
               <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
                 {{ tag }}
               </span>
             </div>
-          </div>
 
-          <!-- Aktionsbuttons für jeden Artikel -->
-          <div class="card-actions">
-            <button class="action-button read" @click.stop="openArticleReader(article)">
-              <span v-if="article.currentChapter">Weiterlesen</span>
-              <span v-else>Jetzt lesen</span>
-            </button>
-            <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
-              @click.stop="toggleBookmark(article)">
-              {{ article.status === 'bookmarked' ? '★' : '☆' }}
-            </button>
+            <!-- Aktionsbuttons -->
+            <div class="card-actions">
+              <button class="action-button read" @click.stop="openArticleReader(article)">
+                <span v-if="article.currentChapter">Weiterlesen</span>
+                <span v-else>Jetzt lesen</span>
+              </button>
+              <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
+                @click.stop="toggleBookmark(article)">
+                {{ article.status === 'bookmarked' ? '★' : '☆' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -57,11 +76,24 @@
       <div v-else-if="viewMode === 'list'" class="list-view">
         <div v-for="article in filteredArticles" :key="article.id" class="article-list-item"
           @click="openArticleReader(article)">
-          <div class="list-item-main">
-            <div class="list-item-header">
-              <div class="card-label">{{ article.category }}</div>
-              <span class="card-date">{{ article.date }}</span>
+          <!-- Artikel-Bild in Listenansicht -->
+          <div class="list-item-image">
+            <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
+            <div v-else class="image-placeholder">
+              <span class="placeholder-icon">📚</span>
             </div>
+          </div>
+          
+          <div class="list-item-main">
+            <!-- Meta-Informationen -->
+            <div class="article-meta">
+              <span class="meta-category">{{ article.category }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
+              <span class="meta-separator">•</span>
+              <span class="meta-date">{{ article.date }}</span>
+            </div>
+            
             <h3 class="card-title">{{ article.title }}</h3>
             <p class="card-preview">{{ article.preview }}</p>
 
@@ -118,6 +150,7 @@ interface Article {
   totalChapters?: number;
   lastRead?: string;
   status?: string;
+  coverImage?: string;
   quiz?: {
     enabled: boolean;
     questions: Array<{
@@ -193,15 +226,16 @@ export default defineComponent({
     &.grid {
       .grid-view {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: map.get(vars.$spacing, l);
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: map.get(vars.$spacing, xl);
 
         @media (max-width: 992px) {
-          grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: map.get(vars.$spacing, l);
         }
 
         @media (max-width: 768px) {
-          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
 
         @media (max-width: 576px) {
@@ -219,67 +253,163 @@ export default defineComponent({
       }
     }
 
-    // Artikelkarte für Rasteransicht
+    // Moderne Artikelkarte für Grid
     .article-card {
       position: relative;
-      padding: map.get(vars.$spacing, l);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      border-radius: map.get(map.get(vars.$layout, border-radius), large);
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
-
-      @media (max-width: 768px) {
-        padding: map.get(vars.$spacing, m);
-      }
+      overflow: hidden;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                      0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
           &:hover {
-            transform: translateY(-5px);
-            @include mixins.shadow('medium', $theme);
-            border-color: mixins.theme-color($theme, accent-green);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: transparent;
+
+            .article-image img {
+              transform: scale(1.08);
+            }
           }
         }
       }
 
-      .card-label {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        padding: 4px 12px;
-        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      // Artikel-Bild
+      .article-image {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        overflow: hidden;
 
         @media (max-width: 768px) {
-          top: 10px;
-          right: 10px;
-          padding: 3px 10px;
-          font-size: 11px;
+          height: 200px;
         }
 
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background: mixins.theme-gradient($theme, primary);
-            color: white;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .image-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: linear-gradient(135deg, 
+                mixins.theme-color($theme, primary) 0%, 
+                mixins.theme-color($theme, accent-teal) 100%);
+            }
+          }
+
+          &::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+          }
+
+          .placeholder-icon {
+            font-size: 4rem;
+            opacity: 0.8;
+            z-index: 1;
+
+            @media (max-width: 768px) {
+              font-size: 3rem;
+            }
+          }
+        }
+      }
+
+      // Karten-Inhalt
+      .card-content {
+        padding: map.get(vars.$spacing, l);
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+
+        @media (max-width: 768px) {
+          padding: map.get(vars.$spacing, m);
+        }
+      }
+
+      // Meta-Informationen
+      .article-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: map.get(vars.$spacing, xs);
+        margin-bottom: map.get(vars.$spacing, m);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+        @media (max-width: 768px) {
+          font-size: 12px;
+          margin-bottom: map.get(vars.$spacing, s);
+        }
+
+        .meta-category {
+          font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, primary);
+            }
+          }
+        }
+
+        .meta-author {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
+          }
+        }
+
+        .meta-date {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
+            }
+          }
+        }
+
+        .meta-separator {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
+              opacity: 0.5;
+            }
           }
         }
       }
 
       .card-title {
-        margin-top: map.get(vars.$spacing, s);
         margin-bottom: map.get(vars.$spacing, m);
-        font-size: map.get(map.get(vars.$fonts, sizes), large);
+        font-size: map.get(map.get(vars.$fonts, sizes), xl);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        padding-right: 80px; // Platz für das Label
+        line-height: 1.3;
 
         @media (max-width: 768px) {
-          font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          padding-right: 70px;
+          font-size: map.get(map.get(vars.$fonts, sizes), large);
           margin-bottom: map.get(vars.$spacing, s);
         }
 
@@ -299,6 +429,7 @@ export default defineComponent({
         -webkit-box-orient: vertical;
         overflow: hidden;
         flex-grow: 1;
+        line-height: 1.6;
 
         @media (max-width: 768px) {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
@@ -325,7 +456,7 @@ export default defineComponent({
           height: 6px;
           border-radius: 3px;
           overflow: hidden;
-          margin-bottom: map.get(vars.$spacing, xxs);
+          margin-bottom: map.get(vars.$spacing, xs);
 
           @media (max-width: 768px) {
             height: 4px;
@@ -339,6 +470,7 @@ export default defineComponent({
 
           .progress-fill {
             height: 100%;
+            transition: width 0.3s ease;
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
@@ -377,52 +509,30 @@ export default defineComponent({
         }
       }
 
-      .card-meta {
+      // Tags
+      .card-tags {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-wrap: wrap;
+        gap: map.get(vars.$spacing, xs);
         margin-bottom: map.get(vars.$spacing, m);
 
-        @media (max-width: 768px) {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: map.get(vars.$spacing, xs);
-        }
-
-        .card-date {
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-          @media (max-width: 768px) {
-            font-size: 11px;
-          }
+        .card-tag {
+          padding: 4px 10px;
+          border-radius: map.get(map.get(vars.$layout, border-radius), small);
+          font-size: 12px;
+          font-weight: map.get(map.get(vars.$fonts, weights), medium);
+          transition: all 0.2s;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-tertiary);
-            }
-          }
-        }
+              background-color: mixins.theme-color($theme, secondary-bg);
+              color: mixins.theme-color($theme, text-secondary);
+              border: 1px solid transparent;
 
-        .card-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: map.get(vars.$spacing, xs);
-
-          .card-tag {
-            padding: 2px 8px;
-            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-            font-size: 11px;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
-                color: mixins.theme-color($theme, accent-teal);
-                border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-
-                &:hover {
-                  background-color: mixins.theme-color($theme, accent-teal);
-                  color: white;
-                }
+              &:hover {
+                background-color: mixins.theme-color($theme, primary);
+                color: white;
+                transform: translateY(-2px);
               }
             }
           }
@@ -433,64 +543,87 @@ export default defineComponent({
       .card-actions {
         display: flex;
         gap: map.get(vars.$spacing, s);
-        height: 40px; // Feste Höhe für die Aktionsleiste
+        margin-top: auto;
 
         .action-button {
-          height: 100%; // Volle Höhe nehmen
-          padding: 0 map.get(vars.$spacing, m);
-          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          height: 45px;
+          padding: 0 map.get(vars.$spacing, l);
+          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           cursor: pointer;
-          transition: all 0.3s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: none;
           display: flex;
           align-items: center;
           justify-content: center;
 
           @media (max-width: 768px) {
-            padding: 0 map.get(vars.$spacing, s);
+            height: 40px;
+            padding: 0 map.get(vars.$spacing, m);
             font-size: 12px;
           }
 
           &.read {
-            flex: 3; // Lese-Button nimmt etwas mehr Platz ein
+            flex: 1;
+            position: relative;
+            overflow: hidden;
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;
 
+                &::before {
+                  content: '';
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  width: 0;
+                  height: 0;
+                  border-radius: 50%;
+                  background: rgba(255, 255, 255, 0.2);
+                  transform: translate(-50%, -50%);
+                  transition: width 0.6s, height 0.6s;
+                }
+
                 &:hover {
                   transform: translateY(-2px);
-                  @include mixins.shadow('small', $theme);
+
+                  &::before {
+                    width: 300px;
+                    height: 300px;
+                  }
                 }
               }
             }
           }
 
           &.bookmark {
-            flex: 1; // Lesezeichen-Button nimmt weniger Platz ein, aber bleibt proportional
-            min-width: 40px; // Mindestbreite für den Stern
+            width: 50px;
+            font-size: 1.2rem;
 
             @media (max-width: 768px) {
-              min-width: 32px;
+              width: 45px;
             }
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background-color: transparent;
-                color: mixins.theme-color($theme, text-primary);
-                border: 1px solid mixins.theme-color($theme, border-medium);
+                background-color: mixins.theme-color($theme, secondary-bg);
+                color: mixins.theme-color($theme, text-secondary);
+                border: 2px solid mixins.theme-color($theme, border-light);
 
                 &:hover {
                   background-color: mixins.theme-color($theme, hover-color);
+                  border-color: mixins.theme-color($theme, accent-yellow);
+                  color: mixins.theme-color($theme, accent-yellow);
+                  transform: translateY(-2px);
                 }
 
                 &.active {
-                  background-color: rgba(249, 202, 36, 0.1);
-                  color: #F9CA24;
-                  border-color: #F9CA24;
+                  background-color: mixins.theme-color($theme, accent-yellow);
+                  color: white;
+                  border-color: mixins.theme-color($theme, accent-yellow);
                 }
               }
             }
@@ -499,14 +632,14 @@ export default defineComponent({
       }
     }
 
-    // Artikel-Listenelement für Listenansicht
+    // Moderne Listenansicht
     .article-list-item {
       display: flex;
       justify-content: space-between;
       padding: map.get(vars.$spacing, l);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      border-radius: map.get(map.get(vars.$layout, border-radius), large);
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       gap: map.get(vars.$spacing, l);
 
       @media (max-width: 768px) {
@@ -522,54 +655,119 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
+          box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
           &:hover {
-            transform: translateY(-3px);
-            @include mixins.shadow('small', $theme);
-            border-color: mixins.theme-color($theme, accent-green);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: transparent;
+          }
+        }
+      }
+
+      // Artikel-Bild in Listenansicht
+      .list-item-image {
+        flex-shrink: 0;
+        width: 160px;
+        height: 120px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        overflow: hidden;
+
+        @media (max-width: 768px) {
+          width: 140px;
+          height: 100px;
+        }
+
+        @media (max-width: 576px) {
+          width: 100%;
+          height: 200px;
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s ease;
+        }
+
+        &:hover img {
+          transform: scale(1.05);
+        }
+
+        .image-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: linear-gradient(135deg, 
+                mixins.theme-color($theme, primary) 0%, 
+                mixins.theme-color($theme, accent-teal) 100%);
+            }
+          }
+
+          .placeholder-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
           }
         }
       }
 
       .list-item-main {
         flex: 1;
-        min-width: 0; // Für Textbegrenzung
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
 
-        .list-item-header {
+        .article-meta {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          flex-wrap: wrap;
+          gap: map.get(vars.$spacing, xs);
           margin-bottom: map.get(vars.$spacing, s);
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-          .card-label {
-            padding: 4px 12px;
-            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
+          @media (max-width: 768px) {
+            font-size: 12px;
+          }
+
+          .meta-category {
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
-
-            @media (max-width: 768px) {
-              padding: 3px 10px;
-              font-size: 11px;
-            }
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background: mixins.theme-gradient($theme, primary);
-                color: white;
+                color: mixins.theme-color($theme, primary);
               }
             }
           }
 
-          .card-date {
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-            @media (max-width: 768px) {
-              font-size: 11px;
+          .meta-author {
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
             }
+          }
 
+          .meta-date {
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
+              }
+            }
+          }
+
+          .meta-separator {
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-tertiary);
+                opacity: 0.5;
               }
             }
           }
@@ -579,6 +777,7 @@ export default defineComponent({
           margin-bottom: map.get(vars.$spacing, s);
           font-size: map.get(map.get(vars.$fonts, sizes), large);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          line-height: 1.3;
 
           @media (max-width: 768px) {
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
@@ -599,6 +798,7 @@ export default defineComponent({
           line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+          line-height: 1.5;
 
           @media (max-width: 768px) {
             font-size: map.get(map.get(vars.$fonts, sizes), small);
@@ -624,7 +824,7 @@ export default defineComponent({
             height: 6px;
             border-radius: 3px;
             overflow: hidden;
-            margin-bottom: map.get(vars.$spacing, xxs);
+            margin-bottom: map.get(vars.$spacing, xs);
 
             @media (max-width: 768px) {
               height: 4px;
@@ -638,6 +838,7 @@ export default defineComponent({
 
             .progress-fill {
               height: 100%;
+              transition: width 0.3s ease;
 
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
@@ -682,19 +883,22 @@ export default defineComponent({
           gap: map.get(vars.$spacing, xs);
 
           .card-tag {
-            padding: 2px 8px;
-            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            font-size: 12px;
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            transition: all 0.2s;
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
-                color: mixins.theme-color($theme, accent-teal);
-                border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                background-color: mixins.theme-color($theme, secondary-bg);
+                color: mixins.theme-color($theme, text-secondary);
+                border: 1px solid transparent;
 
                 &:hover {
-                  background-color: mixins.theme-color($theme, accent-teal);
+                  background-color: mixins.theme-color($theme, primary);
                   color: white;
+                  transform: translateY(-2px);
                 }
               }
             }
@@ -708,22 +912,21 @@ export default defineComponent({
         flex-direction: column;
         gap: map.get(vars.$spacing, s);
         align-self: center;
-        width: 120px; // Feste Breite für die Aktionsleiste in der Listenansicht
 
         @media (max-width: 576px) {
           flex-direction: row;
           width: 100%;
-          margin-top: map.get(vars.$spacing, s);
+          margin-top: map.get(vars.$spacing, m);
         }
 
         .action-button {
-          height: 40px; // Feste Höhe für beide Buttons
-          padding: 0 map.get(vars.$spacing, m);
-          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          height: 40px;
+          padding: 0 map.get(vars.$spacing, l);
+          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           cursor: pointer;
-          transition: all 0.3s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: none;
           white-space: nowrap;
           display: flex;
@@ -731,9 +934,9 @@ export default defineComponent({
           justify-content: center;
 
           @media (max-width: 768px) {
-            padding: 0 map.get(vars.$spacing, s);
+            padding: 0 map.get(vars.$spacing, m);
             font-size: 12px;
-            height: 36px; // Etwas kleiner auf mobilen Geräten
+            height: 36px;
           }
 
           @media (max-width: 576px) {
@@ -741,6 +944,8 @@ export default defineComponent({
           }
 
           &.read {
+            min-width: 120px;
+
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
@@ -748,31 +953,37 @@ export default defineComponent({
 
                 &:hover {
                   transform: translateY(-2px);
-                  @include mixins.shadow('small', $theme);
                 }
               }
             }
           }
 
           &.bookmark {
+            width: 50px;
+            font-size: 1.2rem;
+
             @media (max-width: 576px) {
-              flex: 0 0 40px; // Feste Breite in der mobilen Listenansicht
+              width: 50px;
+              flex: 0 0 50px;
             }
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background-color: transparent;
-                color: mixins.theme-color($theme, text-primary);
-                border: 1px solid mixins.theme-color($theme, border-medium);
+                background-color: mixins.theme-color($theme, secondary-bg);
+                color: mixins.theme-color($theme, text-secondary);
+                border: 2px solid mixins.theme-color($theme, border-light);
 
                 &:hover {
                   background-color: mixins.theme-color($theme, hover-color);
+                  border-color: mixins.theme-color($theme, accent-yellow);
+                  color: mixins.theme-color($theme, accent-yellow);
+                  transform: translateY(-2px);
                 }
 
                 &.active {
-                  background-color: rgba(249, 202, 36, 0.1);
-                  color: #F9CA24;
-                  border-color: #F9CA24;
+                  background-color: mixins.theme-color($theme, accent-yellow);
+                  color: white;
+                  border-color: mixins.theme-color($theme, accent-yellow);
                 }
               }
             }
@@ -780,6 +991,16 @@ export default defineComponent({
         }
       }
     }
+  }
+}
+
+// Animation für Shimmer-Effekt
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
   }
 }
 </style>

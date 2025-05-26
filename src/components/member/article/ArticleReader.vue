@@ -29,6 +29,12 @@
     
     <!-- Artikel-Inhalt -->
     <div class="article-content">
+      <!-- Hero-Bild -->
+      <div v-if="article.coverImage" class="article-hero-image">
+        <img :src="article.coverImage" :alt="article.title" />
+        <div class="image-overlay"></div>
+      </div>
+      
       <div class="article-header">
         <div class="article-category">{{ article.category }}</div>
         <h1>{{ article.title }}</h1>
@@ -202,6 +208,63 @@
           </div>
         </div>
       </div>
+      
+      <!-- Kommentarbereich - nur anzeigen wenn nicht im Quiz-Modus -->
+      <div v-if="!showQuiz && isLastChapter" class="comments-section">
+        <h2 class="comments-title">Kommentare & Feedback</h2>
+        
+        <!-- Kommentar-Formular -->
+        <div class="comment-form">
+          <h3>Hinterlasse einen Kommentar</h3>
+          <textarea 
+            v-model="newComment" 
+            placeholder="Was denkst du über diesen Artikel? Teile deine Gedanken mit anderen Lesern..."
+            class="comment-textarea"
+            rows="4"
+          ></textarea>
+          <div class="comment-form-actions">
+            <button 
+              class="submit-comment-btn" 
+              @click="submitComment"
+              :disabled="!newComment.trim()"
+            >
+              Kommentar veröffentlichen
+            </button>
+          </div>
+        </div>
+        
+        <!-- Bestehende Kommentare -->
+        <div class="comments-list">
+          <div v-if="comments.length === 0" class="no-comments">
+            <p>Noch keine Kommentare vorhanden. Sei der Erste!</p>
+          </div>
+          
+          <div v-else>
+            <div v-for="comment in comments" :key="comment.id" class="comment-item">
+              <div class="comment-header">
+                <div class="comment-author-info">
+                  <div class="comment-avatar">
+                    {{ comment.author.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="comment-author">{{ comment.author }}</div>
+                    <div class="comment-date">{{ formatDate(comment.date) }}</div>
+                  </div>
+                </div>
+                <div class="comment-actions">
+                  <button class="like-button" :class="{ liked: comment.liked }" @click="toggleLike(comment)">
+                    <span class="like-icon">{{ comment.liked ? '❤️' : '🤍' }}</span>
+                    <span class="like-count">{{ comment.likes }}</span>
+                  </button>
+                </div>
+              </div>
+              <div class="comment-content">
+                {{ comment.content }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -230,7 +293,17 @@ interface Article {
   currentChapter?: number;
   totalChapters?: number;
   status?: string;
+  coverImage?: string; // Neu hinzugefügt
   quiz?: ArticleQuiz;
+}
+
+interface Comment {
+  id: number;
+  author: string;
+  content: string;
+  date: Date;
+  likes: number;
+  liked: boolean;
 }
 
 export default defineComponent({
@@ -245,6 +318,28 @@ export default defineComponent({
   setup(props, { emit }) {
     // Kapitel-Verwaltung
     const currentChapter = ref(props.article.currentChapter || 1);
+    
+    // Kommentar-Verwaltung
+    const newComment = ref('');
+    const comments = ref<Comment[]>([
+      // Beispiel-Kommentare (später durch echte Daten aus Backend ersetzen)
+      {
+        id: 1,
+        author: 'Maria Schmidt',
+        content: 'Sehr informativer Artikel! Die Kapitelaufteilung macht das Lesen sehr angenehm.',
+        date: new Date('2024-03-15T10:30:00'),
+        likes: 5,
+        liked: false
+      },
+      {
+        id: 2,
+        author: 'Thomas Weber',
+        content: 'Das Quiz am Ende war eine tolle Idee. Hat mir geholfen, das Gelesene zu festigen.',
+        date: new Date('2024-03-14T15:45:00'),
+        likes: 3,
+        liked: true
+      }
+    ]);
     
     // Artikel-Inhalt in Absätze und dann in Kapitel aufteilen
     const chapterContent = computed(() => {
@@ -306,6 +401,55 @@ export default defineComponent({
     // Artikel teilen
     const shareArticle = () => {
       alert(`Artikel "${props.article.title}" wird geteilt...`);
+    };
+    
+    // Kommentar einreichen
+    const submitComment = () => {
+      if (!newComment.value.trim()) return;
+      
+      const newCommentObj: Comment = {
+        id: comments.value.length + 1,
+        author: 'Aktueller Nutzer', // Später durch echten Nutzernamen ersetzen
+        content: newComment.value,
+        date: new Date(),
+        likes: 0,
+        liked: false
+      };
+      
+      comments.value.unshift(newCommentObj); // Neue Kommentare oben einfügen
+      newComment.value = ''; // Textfeld leeren
+      
+      // Hier später API-Aufruf zum Speichern des Kommentars
+    };
+    
+    // Like umschalten
+    const toggleLike = (comment: Comment) => {
+      comment.liked = !comment.liked;
+      comment.likes += comment.liked ? 1 : -1;
+      
+      // Hier später API-Aufruf zum Speichern des Like-Status
+    };
+    
+    // Datum formatieren
+    const formatDate = (date: Date) => {
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(hours / 24);
+      
+      if (hours < 1) {
+        return 'Gerade eben';
+      } else if (hours < 24) {
+        return `vor ${hours} Stunde${hours > 1 ? 'n' : ''}`;
+      } else if (days < 7) {
+        return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
+      } else {
+        return date.toLocaleDateString('de-DE', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        });
+      }
     };
     
     // Quiz-Verwaltung
@@ -407,7 +551,13 @@ export default defineComponent({
       nextQuestion,
       finishQuiz,
       restartQuiz,
-      backToArticle
+      backToArticle,
+      // Kommentar-Funktionen
+      newComment,
+      comments,
+      submitComment,
+      toggleLike,
+      formatDate
     };
   }
 });
@@ -511,6 +661,37 @@ export default defineComponent({
     max-width: 800px;
     margin: 0 auto;
     padding: 0 map.get(vars.$spacing, l);
+    
+    // Hero-Bild
+    .article-hero-image {
+      margin: 0 calc(-1 * map.get(vars.$spacing, l));
+      margin-bottom: map.get(vars.$spacing, xl);
+      position: relative;
+      height: 400px;
+      overflow: hidden;
+      border-radius: map.get(map.get(vars.$layout, border-radius), large);
+      
+      @media (max-width: 768px) {
+        height: 250px;
+        margin: 0;
+        margin-bottom: map.get(vars.$spacing, l);
+      }
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+      }
+    }
     
     // Artikel-Header
     .article-header {
@@ -1035,6 +1216,259 @@ export default defineComponent({
           
           .result-message {
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Kommentarbereich
+    .comments-section {
+      margin-top: map.get(vars.$spacing, xxl);
+      padding-top: map.get(vars.$spacing, xxl);
+      border-top: 1px solid;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+        }
+      }
+      
+      .comments-title {
+        font-size: map.get(map.get(vars.$fonts, sizes), xl);
+        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        margin-bottom: map.get(vars.$spacing, xl);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+      
+      // Kommentar-Formular
+      .comment-form {
+        margin-bottom: map.get(vars.$spacing, xxl);
+        padding: map.get(vars.$spacing, l);
+        border-radius: map.get(map.get(vars.$layout, border-radius), large);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+          }
+        }
+        
+        h3 {
+          font-size: map.get(map.get(vars.$fonts, sizes), large);
+          font-weight: map.get(map.get(vars.$fonts, weights), medium);
+          margin-bottom: map.get(vars.$spacing, m);
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+        
+        .comment-textarea {
+          width: 100%;
+          padding: map.get(vars.$spacing, m);
+          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          resize: vertical;
+          min-height: 100px;
+          font-family: inherit;
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          line-height: 1.5;
+          border: 1px solid;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, card-bg);
+              color: mixins.theme-color($theme, text-primary);
+              border-color: mixins.theme-color($theme, border-light);
+              
+              &:focus {
+                outline: none;
+                border-color: mixins.theme-color($theme, primary);
+              }
+              
+              &::placeholder {
+                color: mixins.theme-color($theme, text-tertiary);
+              }
+            }
+          }
+        }
+        
+        .comment-form-actions {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: map.get(vars.$spacing, m);
+          
+          .submit-comment-btn {
+            padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: mixins.theme-gradient($theme, primary);
+                color: white;
+                
+                &:hover:not(:disabled) {
+                  transform: translateY(-2px);
+                  @include mixins.shadow('small', $theme);
+                }
+                
+                &:disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Kommentarliste
+      .comments-list {
+        .no-comments {
+          text-align: center;
+          padding: map.get(vars.$spacing, xxl);
+          
+          p {
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-tertiary);
+              }
+            }
+          }
+        }
+        
+        .comment-item {
+          padding: map.get(vars.$spacing, l);
+          margin-bottom: map.get(vars.$spacing, m);
+          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          transition: all 0.3s;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, card-bg);
+              border: 1px solid mixins.theme-color($theme, border-light);
+              
+              &:hover {
+                @include mixins.shadow('small', $theme);
+              }
+            }
+          }
+          
+          .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: map.get(vars.$spacing, m);
+            
+            .comment-author-info {
+              display: flex;
+              gap: map.get(vars.$spacing, m);
+              
+              .comment-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: map.get(map.get(vars.$fonts, weights), bold);
+                font-size: map.get(map.get(vars.$fonts, sizes), large);
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    background: mixins.theme-gradient($theme, primary);
+                    color: white;
+                  }
+                }
+              }
+              
+              .comment-author {
+                font-weight: map.get(map.get(vars.$fonts, weights), medium);
+                margin-bottom: 2px;
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-primary);
+                  }
+                }
+              }
+              
+              .comment-date {
+                font-size: map.get(map.get(vars.$fonts, sizes), small);
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-tertiary);
+                  }
+                }
+              }
+            }
+            
+            .comment-actions {
+              .like-button {
+                display: flex;
+                align-items: center;
+                gap: map.get(vars.$spacing, xs);
+                padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+                border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+                border: 1px solid;
+                background: transparent;
+                cursor: pointer;
+                transition: all 0.2s;
+                
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    border-color: mixins.theme-color($theme, border-light);
+                    color: mixins.theme-color($theme, text-secondary);
+                    
+                    &:hover {
+                      background-color: mixins.theme-color($theme, hover-color);
+                    }
+                    
+                    &.liked {
+                      border-color: #ff6b6b;
+                      background-color: rgba(255, 107, 107, 0.1);
+                      
+                      .like-count {
+                        color: #ff6b6b;
+                      }
+                    }
+                  }
+                }
+                
+                .like-icon {
+                  font-size: 1rem;
+                }
+                
+                .like-count {
+                  font-size: map.get(map.get(vars.$fonts, sizes), small);
+                  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+                }
+              }
+            }
+          }
+          
+          .comment-content {
+            font-size: map.get(map.get(vars.$fonts, sizes), medium);
+            line-height: 1.6;
             
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
