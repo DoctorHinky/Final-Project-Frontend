@@ -10,7 +10,7 @@
     <div class="settings-tabs">
       <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
         @click="activeTab = tab.id">
-        <span class="tab-icon">{{ tab.icon }}</span>
+        <component :is="tab.icon" class="tab-icon" />
         <span>{{ tab.name }}</span>
       </button>
     </div>
@@ -77,6 +77,13 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { 
+  UserIcon, 
+  KeyIcon, 
+  BellIcon, 
+  PaintBrushIcon, 
+  ShieldCheckIcon 
+} from '@heroicons/vue/24/outline';
 
 // Import der neuen Komponenten - alle aus der Barrel-Datei
 import {
@@ -135,7 +142,12 @@ export default defineComponent({
     AccountSettings,
     NotificationSettings,
     AppearanceSettings,
-    PrivacySettings
+    PrivacySettings,
+    UserIcon,
+    KeyIcon,
+    BellIcon,
+    PaintBrushIcon,
+    ShieldCheckIcon
   },
   setup() {
     const router = useRouter();
@@ -143,11 +155,11 @@ export default defineComponent({
     // Aktiver Tab
     const activeTab = ref('profile');
     const tabs = ref<TabItem[]>([
-      { id: 'profile', name: 'Profil', icon: '👤' },
-      { id: 'account', name: 'Konto', icon: '🔒' },
-      { id: 'notifications', name: 'Benachrichtigungen', icon: '🔔' },
-      { id: 'appearance', name: 'Design', icon: '🎨' },
-      { id: 'privacy', name: 'Datenschutz', icon: '🔐' }
+      { id: 'profile', name: 'Profil', icon: 'UserIcon' },
+      { id: 'account', name: 'Konto', icon: 'KeyIcon' },
+      { id: 'notifications', name: 'Benachrichtigungen', icon: 'BellIcon' },
+      { id: 'appearance', name: 'Design', icon: 'PaintBrushIcon' },
+      { id: 'privacy', name: 'Datenschutz', icon: 'ShieldCheckIcon' }
     ]);
 
     // Bestätigungsdialog Funktionalität
@@ -546,7 +558,8 @@ export default defineComponent({
       }
 
       .tab-icon {
-        font-size: 1.2rem;
+        width: 1.25rem;
+        height: 1.25rem;
       }
     }
   }

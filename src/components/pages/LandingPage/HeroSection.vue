@@ -79,12 +79,13 @@ export default defineComponent({
 }
 
 .hero-section {
+  margin: 0 auto;
   min-height: 85vh;
-  display: flex;
-  align-items: center;
   position: relative;
   overflow: hidden;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &::before {
     content: '';

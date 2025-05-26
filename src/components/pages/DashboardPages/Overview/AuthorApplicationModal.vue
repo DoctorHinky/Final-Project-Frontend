@@ -412,11 +412,12 @@ export default defineComponent({
   .author-modal {
     max-width: 800px;
     width: 100%;
-    max-height: 90vh;
+    min-height: 100vh;
     overflow-y: auto;
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     padding: 0;
     position: relative;
+    top: -100px;
     display: flex;
     flex-direction: column;
 

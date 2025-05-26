@@ -220,6 +220,7 @@ export default defineComponent({
     flex-direction: column;
     gap: map.get(vars.$spacing, s);
     overflow-y: auto;
+      user-select: none;
 
     .nav-item {
       display: flex;
@@ -315,8 +316,8 @@ export default defineComponent({
   border-radius: 50px;
   margin-bottom: map.get(vars.$spacing, m);
   opacity: .9;
-  border: 1px solid #000;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
   &:hover {

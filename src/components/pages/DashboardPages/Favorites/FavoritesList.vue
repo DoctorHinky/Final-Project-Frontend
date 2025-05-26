@@ -217,9 +217,7 @@ export default defineComponent({
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            background: linear-gradient(135deg, 
-              mixins.theme-color($theme, accent-yellow) 0%, 
-              darken(mixins.theme-color($theme, accent-yellow), 10%) 100%);
+            background: mixins.theme-color($theme, secondary-bg);
           }
         }
 

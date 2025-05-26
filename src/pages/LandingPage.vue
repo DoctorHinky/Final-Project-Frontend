@@ -38,6 +38,7 @@ export default defineComponent({
 .LandingPage {
   display: flex;
   flex-direction: column;
+  width: 100vw;
   gap: map.get(vars.$spacing, xxxl);
   padding-bottom: map.get(vars.$spacing, xxxl);
 }
