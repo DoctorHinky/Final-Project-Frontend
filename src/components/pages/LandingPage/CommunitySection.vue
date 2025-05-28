@@ -164,7 +164,8 @@ export default defineComponent({
 
           &:hover {
             transition: all 0.3s;
-            transform: scale(1.1);
+            transform: scale(1.03);
+            user-select: none;
             @include mixins.glow('green', 'medium', $theme);
             border-color: mixins.theme-color($theme, accent-green);
           }

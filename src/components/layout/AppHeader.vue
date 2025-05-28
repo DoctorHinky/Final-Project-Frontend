@@ -8,30 +8,100 @@
           <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
         </router-link>
       </div>
-      <div class="header-actions">
+      
+      <!-- Desktop Header Actions -->
+      <div class="header-actions desktop-only">
         <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
         <router-link to="/login-register" class="login-button">Anmelden</router-link>
       </div>
+      
+      <!-- Mobile Hamburger Menu -->
+      <button 
+        class="hamburger-menu mobile-only"
+        :class="{ active: isMobileMenuOpen }"
+        @click="toggleMobileMenu"
+        aria-label="Navigation öffnen"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
 
-    <nav class="nav-tabs">
-      <a v-for="(tab, index) in tabs" :key="index" class="nav-tab" :class="{ active: activeTab === index }"
-        @click="scrollToSection(tab.id, index)" href="javascript:void(0);">
+    <!-- Desktop Navigation -->
+    <nav class="nav-tabs desktop-only">
+      <a 
+        v-for="(tab, index) in tabs" 
+        :key="index" 
+        class="nav-tab" 
+        :class="{ active: activeTab === index }"
+        @click="scrollToSection(tab.id, index)" 
+        href="javascript:void(0);"
+      >
         {{ tab.name }}
       </a>
     </nav>
+    
+    <!-- Mobile Navigation Overlay -->
+    <transition name="slide-down">
+      <div v-if="isMobileMenuOpen" class="mobile-menu-overlay">
+        <nav class="mobile-nav">
+          <a 
+            v-for="(tab, index) in tabs" 
+            :key="index" 
+            class="mobile-nav-item" 
+            :class="{ active: activeTab === index }"
+            @click="handleMobileNavClick(tab.id, index)"
+          >
+            <component :is="tab.icon" class="nav-icon" />
+            {{ tab.name }}
+          </a>
+          
+          <div class="mobile-actions">
+            <div class="theme-toggle-wrapper">
+              <span class="action-label">Design</span>
+              <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
+            </div>
+            <router-link 
+              to="/login-register" 
+              class="mobile-login-button"
+              @click="closeMobileMenu"
+            >
+              <UserIcon class="login-icon" />
+              Anmelden
+            </router-link>
+          </div>
+        </nav>
+      </div>
+    </transition>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import ThemeToggle from '../ui/ThemeToggle.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { 
+  InformationCircleIcon,
+  BriefcaseIcon,
+  PuzzlePieceIcon,
+  UserGroupIcon,
+  PencilIcon,
+  EnvelopeIcon,
+  UserIcon
+} from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'AppHeader',
   components: {
-    ThemeToggle
+    ThemeToggle,
+    InformationCircleIcon,
+    BriefcaseIcon,
+    PuzzlePieceIcon,
+    UserGroupIcon,
+    PencilIcon,
+    EnvelopeIcon,
+    UserIcon
   },
   props: {
     isLightTheme: {
@@ -43,21 +113,103 @@ export default defineComponent({
   setup(props, { emit }) {
     const activeTab = ref(0);
     const router = useRouter();
+    const route = useRoute();
+    const isMobileMenuOpen = ref(false);
+    const isScrolling = ref(false);
+    const scrollTimeout = ref<number | null>(null);
+    const lastScrollPosition = ref(0);
+    const sectionPositions = ref<Array<{ id: string; top: number; bottom: number }>>([]);
 
     const tabs = [
-      { name: 'Über', id: 'hero' },
-      { name: 'Was wir tun', id: 'content' },
-      { name: 'Quiz', id: 'quiz' },
-      { name: 'Community', id: 'community' },
-      { name: 'Autoren', id: 'Authors' },
-      { name: 'Newsletter', id: 'sub' }
+      { name: 'Über', id: 'hero', icon: InformationCircleIcon },
+      { name: 'Was wir tun', id: 'content', icon: BriefcaseIcon },
+      { name: 'Quiz', id: 'quiz', icon: PuzzlePieceIcon },
+      { name: 'Community', id: 'community', icon: UserGroupIcon },
+      { name: 'Autoren', id: 'Authors', icon: PencilIcon },
+      { name: 'Newsletter', id: 'sub', icon: EnvelopeIcon }
     ];
 
+    // Berechnet die Header-Höhe basierend auf der Bildschirmgröße
+    const headerOffset = computed(() => window.innerWidth > 768 ? 130 : 80);
+
+    // Aktualisiert die Positionen aller Sektionen
+    const updateSectionPositions = () => {
+      sectionPositions.value = tabs.map(tab => {
+        const element = document.getElementById(tab.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          return {
+            id: tab.id,
+            top: rect.top + scrollTop - headerOffset.value - 20, // 20px zusätzlicher Puffer
+            bottom: rect.bottom + scrollTop - headerOffset.value
+          };
+        }
+        return { id: tab.id, top: 0, bottom: 0 };
+      });
+    };
+
+    // Bestimmt die aktive Sektion basierend auf der Scroll-Position
+    const determineActiveSection = () => {
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Spezialfall: Ganz unten auf der Seite
+      if (scrollPosition + windowHeight >= documentHeight - 50) {
+        const lastIndex = tabs.length - 1;
+        if (activeTab.value !== lastIndex) {
+          activeTab.value = lastIndex;
+          emit('tab-change', lastIndex);
+        }
+        return;
+      }
+
+      // Finde die aktuelle Sektion
+      for (let i = sectionPositions.value.length - 1; i >= 0; i--) {
+        const section = sectionPositions.value[i];
+        if (scrollPosition >= section.top) {
+          if (activeTab.value !== i) {
+            activeTab.value = i;
+            emit('tab-change', i);
+          }
+          break;
+        }
+      }
+
+      // Spezialfall: Ganz oben auf der Seite
+      if (scrollPosition < sectionPositions.value[0]?.top) {
+        if (activeTab.value !== 0) {
+          activeTab.value = 0;
+          emit('tab-change', 0);
+        }
+      }
+    };
+
+    // Optimierter Scroll-Handler mit Debouncing
+    const handleScroll = () => {
+      if (!isScrolling.value) {
+        requestAnimationFrame(determineActiveSection);
+      }
+
+      // Clear existing timeout
+      if (scrollTimeout.value) {
+        clearTimeout(scrollTimeout.value);
+      }
+
+      // Set scrolling timeout
+      scrollTimeout.value = window.setTimeout(() => {
+        isScrolling.value = false;
+      }, 150);
+    };
+
+    // Scroll zu einer spezifischen Sektion
     const scrollToSection = (sectionId: string, index: number) => {
+      isScrolling.value = true;
       activeTab.value = index;
 
       // Überprüfen, ob wir uns auf der Homepage befinden
-      if (router.currentRoute.value.path !== '/') {
+      if (route.path !== '/') {
         // Wenn nicht, zuerst zur Homepage navigieren
         router.push('/').then(() => {
           // Kleine Verzögerung, um sicherzustellen, dass die Komponente gemountet ist
@@ -77,28 +229,127 @@ export default defineComponent({
     const scrollToElement = (sectionId: string) => {
       const element = document.getElementById(sectionId);
       if (element) {
-        // Den Header-Offset beim Scrollen berücksichtigen
-        const headerOffset = 130; // Muss konsistent mit dem Layout-Padding-Top sein
         const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset.value;
 
         window.scrollTo({
           top: offsetPosition,
           behavior: 'smooth'
         });
+
+        // Scroll-Tracking nach dem Smooth-Scroll wieder aktivieren
+        setTimeout(() => {
+          isScrolling.value = false;
+          updateSectionPositions();
+        }, 800);
       }
     };
 
     const toggleTheme = () => {
-      // Event an übergeordnete Komponente weiterleiten
       emit('toggle-theme');
     };
+
+    const toggleMobileMenu = () => {
+      isMobileMenuOpen.value = !isMobileMenuOpen.value;
+      document.body.style.overflow = isMobileMenuOpen.value ? 'hidden' : '';
+    };
+
+    const closeMobileMenu = () => {
+      isMobileMenuOpen.value = false;
+      document.body.style.overflow = '';
+    };
+
+    const handleMobileNavClick = (sectionId: string, index: number) => {
+      scrollToSection(sectionId, index);
+      closeMobileMenu();
+    };
+
+    // Resize-Handler für responsive Anpassungen
+    const handleResize = () => {
+      if (window.innerWidth > 768 && isMobileMenuOpen.value) {
+        closeMobileMenu();
+      }
+      // Sektionspositionen bei Resize neu berechnen
+      updateSectionPositions();
+    };
+
+    // Intersection Observer für präziseres Tracking (optional, aber performanter)
+    const setupIntersectionObserver = () => {
+      const options = {
+        rootMargin: `-${headerOffset.value}px 0px -50% 0px`,
+        threshold: [0, 0.25, 0.5, 0.75, 1]
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        if (isScrolling.value) return;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const index = tabs.findIndex(tab => tab.id === entry.target.id);
+            if (index !== -1 && activeTab.value !== index) {
+              activeTab.value = index;
+              emit('tab-change', index);
+            }
+          }
+        });
+      }, options);
+
+      // Beobachte alle Sektionen
+      tabs.forEach(tab => {
+        const element = document.getElementById(tab.id);
+        if (element) {
+          observer.observe(element);
+        }
+      });
+
+      return observer;
+    };
+
+    // Route-Watcher für Navigation zwischen Seiten
+    watch(() => route.path, (newPath) => {
+      if (newPath === '/') {
+        // Wenn zur Homepage navigiert wird, Positionen aktualisieren
+        setTimeout(() => {
+          updateSectionPositions();
+          determineActiveSection();
+        }, 100);
+      }
+    });
+
+    onMounted(() => {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('resize', handleResize);
+      
+      // Initial positions update
+      setTimeout(() => {
+        updateSectionPositions();
+        determineActiveSection();
+      }, 100);
+
+      // Optional: Intersection Observer für noch bessere Performance
+      const observer = setupIntersectionObserver();
+
+      // Cleanup function
+      onUnmounted(() => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleResize);
+        document.body.style.overflow = '';
+        if (scrollTimeout.value) {
+          clearTimeout(scrollTimeout.value);
+        }
+        observer.disconnect();
+      });
+    });
 
     return {
       activeTab,
       tabs,
       scrollToSection,
-      toggleTheme
+      toggleTheme,
+      isMobileMenuOpen,
+      toggleMobileMenu,
+      closeMobileMenu,
+      handleMobileNavClick
     };
   }
 });
@@ -126,9 +377,7 @@ export default defineComponent({
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, primary-bg);
-      /* Hintergrund hinzufügen */
       box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
-      /* Schatten für bessere Sichtbarkeit */
       transition: all 0.4s ease-out;
     }
   }
@@ -137,10 +386,10 @@ export default defineComponent({
   .header-top {
     @include mixins.flex(row, space-between, center, nowrap);
     margin-bottom: map.get(vars.$spacing, s);
-    padding-top: 10px;
+    padding: 10px map.get(vars.$spacing, m) 0;
   }
 
-  // Neuer Container für Theme-Toggle und Login-Button
+  // Header Actions Container
   .header-actions {
     @include mixins.flex(row, flex-end, center, nowrap);
     gap: map.get(vars.$spacing, m);
@@ -153,7 +402,6 @@ export default defineComponent({
 
     a {
       display: flex;
-      /* Stellt sicher, dass der Link das gesamte Logo umfasst */
       align-items: center;
     }
 
@@ -185,7 +433,7 @@ export default defineComponent({
     }
   }
 
-  // Styling für den Login-Button
+  // Login Button
   .login-button {
     display: inline-block;
     text-decoration: none;
@@ -198,13 +446,12 @@ export default defineComponent({
   }
 }
 
-// Navigation
+// Desktop Navigation
 .nav-tabs {
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
   margin-bottom: map.get(vars.$spacing, s);
   padding: 1rem;
-
 
   .nav-tab {
     display: flex;
@@ -259,36 +506,261 @@ export default defineComponent({
   }
 }
 
-// Responsives Design für den Header
-@media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
-  .app-header {
-    height: auto;
-    /* Flexible Höhe auf kleineren Bildschirmen */
-    padding-bottom: map.get(vars.$spacing, m);
+// Hamburger Menu Button
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
 
-    .header-top {
-      @include mixins.flex(row, space-between, center, wrap);
-      margin-bottom: map.get(vars.$spacing, l);
+  span {
+    width: 100%;
+    height: 3px;
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, text-primary);
+      }
+    }
+  }
+
+  &.active {
+    span:first-child {
+      transform: rotate(45deg);
     }
 
-    .header-actions {
-      margin-top: map.get(vars.$spacing, s);
+    span:nth-child(2) {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    span:nth-child(3) {
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+// Mobile Menu Overlay
+.mobile-menu-overlay {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  overflow-y: auto;
+  display: block !important; // Sicherstellen, dass es sichtbar ist
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, primary-bg);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.mobile-nav {
+  padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
+  display: flex;
+  flex-direction: column;
+  gap: map.get(vars.$spacing, m);
+  margin-top: 300px;
+
+  .mobile-nav-item {
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, m);
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    text-decoration: none;
+    font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    font-size: map.get(map.get(vars.$fonts, sizes), base);
+    transition: all 0.3s ease;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+        background-color: mixins.theme-color($theme, nav-item-bg);
+        border: 2px solid transparent;
+
+        &:active,
+        &.active {
+          background: mixins.theme-gradient($theme, nav-active);
+          color: rgba(26, 26, 26, 0.59);
+          border-color: mixins.theme-color($theme, accent);
+          transform: translateX(10px);
+        }
+      }
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+  }
+
+  .mobile-actions {
+    margin-top: map.get(vars.$spacing, xl);
+    padding-top: map.get(vars.$spacing, xl);
+    display: flex;
+    flex-direction: column;
+    gap: map.get(vars.$spacing, l);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        border-top: 2px solid mixins.theme-color($theme, border-light);
+      }
+    }
+
+    .theme-toggle-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 map.get(vars.$spacing, l);
+
+      .action-label {
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+      }
+    }
+
+    .mobile-login-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: map.get(vars.$spacing, m);
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      text-decoration: none;
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      transition: all 0.3s ease;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+          @include mixins.shadow('medium', $theme);
+
+          &:active {
+            transform: scale(0.95);
+          }
+        }
+      }
+
+      .login-icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+// Animations
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-down-enter-from {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.slide-down-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+// Utility Classes
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .app-header {
+    padding: map.get(vars.$spacing, s) 0;
+    border-radius: 0 0 20px 20px;
+    width: 100%;
+    position: fixed;
+    left: 0;
+    transform: none; // Transform entfernen für Mobile
+
+    .header-top {
+      padding: 5px map.get(vars.$spacing, m);
+      margin-bottom: 0;
     }
 
     .logo-image {
-      height: 50px;
-      /* Kleineres Logo auf mobilen Geräten */
+      height: 45px !important;
     }
+  }
 
-    .nav-tabs {
-      justify-content: flex-start;
-      overflow-x: auto;
-      padding-bottom: map.get(vars.$spacing, s);
+  .desktop-only {
+    display: none !important;
+  }
 
-      .nav-tab {
-        flex: 0 0 auto;
-        white-space: nowrap;
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .hamburger-menu {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    .logo-image {
+      height: 40px !important;
+    }
+  }
+
+  .mobile-nav {
+    padding: map.get(vars.$spacing, m);
+
+    .mobile-nav-item {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+
+      .nav-icon {
+        width: 20px;
+        height: 20px;
       }
+    }
+  }
+}
+
+// Tablet specific adjustments
+@media (min-width: 481px) and (max-width: 768px) {
+  .nav-tabs {
+    gap: map.get(vars.$spacing, s);
+    padding: map.get(vars.$spacing, s);
+
+    .nav-tab {
+      width: 120px;
+      font-size: 0.875rem;
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
     }
   }
 }

@@ -1,16 +1,16 @@
 // src/router/index.ts
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import Contact from '../pages/Contact.vue';
+import Imprint from '../pages/Imprint.vue';
+import NotFound from '../pages/NotFound.vue';
 import LandingPage from '../pages/LandingPage.vue';
 import LoginRegister from '../pages/LoginRegister.vue';
-import Contact from '../pages/Contact.vue';
-import NotFound from '../pages/NotFound.vue';
-import PrivacyPolicy from '../pages/PrivacyPolicyPage.vue';
-import Imprint from '../pages/Imprint.vue';
-import TermsOfService from '../pages/TermsOfService.vue';
-import AppLayout from '../components/layout/AppLayout.vue';
 import Dashboard from '../pages/member/Dashboard.vue';
 import { authService } from '../services/auth.service';
-import { authorService } from '../services/author.service'; // Neuer Import
+import TermsOfService from '../pages/TermsOfService.vue';
+import AppLayout from '../components/layout/AppLayout.vue';
+import PrivacyPolicy from '../pages/PrivacyPolicyPage.vue';
+import { authorService } from '../services/author.service'; 
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 
 // Navigation Guard für geschützte Routen
 const requireAuth = (to: any, from: any, next: any) => {

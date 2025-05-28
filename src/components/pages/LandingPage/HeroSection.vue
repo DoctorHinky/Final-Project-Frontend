@@ -3,7 +3,7 @@
     <div class="hero-container">
       <div class="hero-text">
         <h1>Begleitung für die wichtigsten Momente</h1>
-        <p class="hero-subtext">Experten-Wissen und praktische Hilfestellungen für den Familienalltag – von Trotzphase nach der Pubertät.</p>
+        <p class="hero-subtext">Experten-Wissen und praktische Hilfestellungen für den Familienalltag – von Trotzphase bis nach der Pubertät.</p>
         <div class="hero-features">
           <div class="feature">
             <div class="feature-icon">🧠</div>

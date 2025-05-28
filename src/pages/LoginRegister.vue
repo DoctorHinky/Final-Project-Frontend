@@ -92,7 +92,7 @@
         </div>
 
         <!-- Register Formular -->
-        <div class="form-container" v-if="activeTab === 'register'">
+        <div class="form-container registerform" v-if="activeTab === 'register'">
           <h2>Werde Teil unserer Community</h2>
           <p>Erstelle ein Konto, um alle Funktionen nutzen zu können.</p>
 
@@ -742,7 +742,7 @@ export default defineComponent({
   .auth-container {
     max-width: 500px;
     width: 100%;
-    margin: 0 auto;
+    margin: 100px auto;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -1129,20 +1129,8 @@ export default defineComponent({
           }
         }
       }
-
-      // Hints für Testdaten
-      .hint-text {
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
-        margin-top: map.get(vars.$spacing, xxs);
-        font-style: italic;
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-tertiary);
-          }
-        }
-      }
     }
+
 
     .form-options {
       display: flex;
@@ -1212,6 +1200,12 @@ export default defineComponent({
         }
       }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 200px;
   }
 }
 </style>
