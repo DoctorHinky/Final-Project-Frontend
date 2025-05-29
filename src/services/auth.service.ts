@@ -1,160 +1,146 @@
-// src/services/auth.service.ts
-// Erweiterter Authentifizierungsservice mit Admin-Funktionen
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  exp?: number;
+  role?: string;
+  name?: string;
+  email?: string;
+  [key: string]: any;
+}
 
 class AuthService {
-  private isAuthenticated: boolean = false;
-  private isAdmin: boolean = false;
-  private storageKey: string = 'user_auth';
-  private adminStorageKey: string = 'admin_auth';
+  private accessTokenKey = 'access_token';
+  private refreshTokenKey = 'refresh_token';
+  private refreshTimeoutId: any = null;
 
-  constructor() {
-    // Überprüfen, ob der Benutzer bereits eingeloggt ist (beim Neuladen)
-    this.checkAuthStatus();
-  }
+  async login(email: string, password: string): Promise<{ success: boolean; role?: string }> {
+    try {
+      const response = await axios.post('/auth/local/login', { email, password });
+      const { access_token, refresh_token } = response.data;
 
-  // Beim Start prüfen, ob es eine gespeicherte Authentifizierung gibt
-  private checkAuthStatus(): void {
-    const storedAuth = localStorage.getItem(this.storageKey);
-    const adminAuth = localStorage.getItem(this.adminStorageKey);
+      localStorage.setItem(this.accessTokenKey, access_token);
+      localStorage.setItem(this.refreshTokenKey, refresh_token);
 
-    if (storedAuth) {
-      try {
-        JSON.parse(storedAuth);
-        // Hier könnte ein Token-Check erfolgen
-        this.isAuthenticated = true;
-      } catch (e) {
-        // Bei ungültigen Daten, Auth-Status zurücksetzen
-        localStorage.removeItem(this.storageKey);
-        this.isAuthenticated = false;
-      }
-    }
+      const decoded = jwtDecode<DecodedToken>(access_token);
 
-    if (adminAuth) {
-      try {
-        JSON.parse(adminAuth);
-        this.isAdmin = true;
-      } catch (e) {
-        localStorage.removeItem(this.adminStorageKey);
-        this.isAdmin = false;
-      }
+      this.scheduleTokenRefresh(); // ⏱ automatischer Refresh aktivieren
+
+      return { success: true, role: decoded.role };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false };
     }
   }
 
-  // Einfacher Login mit Dummy-Werten
-  login(email: string, password: string): Promise<{ success: boolean, message?: string }> {
-    return new Promise((resolve) => {
-      // Simuliere eine Netzwerkverzögerung
-      setTimeout(() => {
-        // DUMMY: Einfache Validierung für Test-Zwecke
-        // Im echten System würde hier eine API-Anfrage erfolgen
-        if (email === 'test@example.com' && password === 'password123') {
-          const userData = {
-            email: email,
-            name: 'Test Benutzer',
-            token: 'dummy-jwt-token',
-            expires: new Date().getTime() + 24 * 60 * 60 * 1000 // 24 Stunden
-          };
-
-          // Speichern der Benutzerdaten im localStorage
-          localStorage.setItem(this.storageKey, JSON.stringify(userData));
-          this.isAuthenticated = true;
-
-          resolve({ success: true });
-        } else {
-          resolve({
-            success: false,
-            message: 'Ungültige E-Mail oder Passwort. Hinweis: Verwende test@example.com und password123'
-          });
-        }
-      }, 500); // 500ms Verzögerung für realistisches Gefühl
-    });
-  }
-
-  // Admin-Login mit separaten Anmeldedaten
-  adminLogin(username: string, password: string): Promise<{ success: boolean, message?: string }> {
-    return new Promise((resolve) => {
-      // Simuliere eine Netzwerkverzögerung
-      setTimeout(() => {
-        // DUMMY: Einfache Validierung für Admin-Zwecke
-        if (username === 'admin' && password === 'admin123') {
-          const adminData = {
-            username: username,
-            role: 'admin',
-            token: 'admin-jwt-token',
-            expires: new Date().getTime() + 8 * 60 * 60 * 1000 // 8 Stunden
-          };
-          
-          localStorage.setItem(this.adminStorageKey, JSON.stringify(adminData));
-          this.isAdmin = true;
-          
-          resolve({ success: true });
-        } else {
-          resolve({
-            success: false,
-            message: 'Ungültige Admin-Anmeldedaten. Hinweis: Verwende admin und admin123'
-          });
-        }
-      }, 500);
-    });
-  }
-
-  // Benutzer abmelden
   logout(): void {
-    localStorage.removeItem(this.storageKey);
-    this.isAuthenticated = false;
-    // In einer echten Anwendung würde hier eine Anfrage an das Backend gesendet werden
-    // um z.B. den Token zu invalidieren
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    clearTimeout(this.refreshTimeoutId);
   }
 
-  // Admin abmelden
   adminLogout(): void {
-    localStorage.removeItem(this.adminStorageKey);
-    this.isAdmin = false;
+    this.logout();
   }
 
-  // Authentifizierungsstatus abrufen
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.accessTokenKey);
+  }
+
   isLoggedIn(): boolean {
-    return this.isAuthenticated;
+    const token = this.getAccessToken();
+    console.log('[auth] Token gefunden (isLoggedIn):', token);
+    if (!token) return false;
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const now = Date.now() / 1000;
+      return decoded.exp !== undefined && decoded.exp > now;
+    } catch {
+      return false;
+    }
   }
 
-  // Admin-Status prüfen
   isAdminLoggedIn(): boolean {
-    const adminAuth = localStorage.getItem(this.adminStorageKey);
-    return !!adminAuth;
-  }
+    const token = this.getAccessToken();
+    console.log('[auth] Token gefunden (isAdminLoggedIn):', token);
+    if (!token) return false;
 
-  // Alias für isLoggedIn (für Kompatibilität mit neueren Komponenten)
-  // Diese Methode wurde hinzugefügt, um die Naming-Konvention anzugleichen
-  getAuthStatus(): boolean {
-    return this.isLoggedIn();
-  }
-
-  // Benutzerdaten abrufen (falls benötigt)
-  getUserData(): any {
-    const storedAuth = localStorage.getItem(this.storageKey);
-    if (storedAuth) {
-      try {
-        return JSON.parse(storedAuth);
-      } catch (e) {
-        return null;
-      }
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      return decoded.role === 'ADMIN' || decoded.role === 'MODERATOR';
+    } catch {
+      return false;
     }
-    return null;
   }
 
-  // Admin-Daten abrufen
-  getAdminData(): any {
-    const adminAuth = localStorage.getItem(this.adminStorageKey);
-    if (adminAuth) {
-      try {
-        return JSON.parse(adminAuth);
-      } catch (e) {
-        return null;
-      }
+  getUserData(): DecodedToken | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    try {
+      return jwtDecode<DecodedToken>(token);
+    } catch {
+      return null;
     }
-    return null;
+  }
+
+  // ⏱ Automatischer Refresh vor Tokenablauf
+  scheduleTokenRefresh(): void {
+    const token = this.getAccessToken();
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      if (!decoded.exp) return;
+
+      const now = Date.now() / 1000;
+      const refreshTime = decoded.exp - now - 60; // 1 Minute vorher
+
+      if (refreshTime <= 0) {
+        this.refreshAccessToken(); // sofort erneuern
+        return;
+      }
+
+      this.refreshTimeoutId = setTimeout(() => {
+        this.refreshAccessToken();
+      }, refreshTime * 1000);
+    } catch (e) {
+      console.error('Fehler beim Planen des Token-Refresh:', e);
+    }
+  }
+
+  // 🔁 Token manuell erneuern
+  async refreshAccessToken(): Promise<void> {
+    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken) {
+      this.logout();
+      window.location.href = '/login-register';
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        '/auth/refresh',
+        {},
+        {
+          baseURL: 'https://final-project-backend-rsqk.onrender.com',
+          headers: {
+            Authorization: `Bearer ${refreshToken}`
+          }
+        }
+      );
+
+      const newAccessToken = response.data.access_token;
+      localStorage.setItem(this.accessTokenKey, newAccessToken);
+
+      this.scheduleTokenRefresh(); // neuen Timer starten
+    } catch (e) {
+      console.error('Token konnte nicht erneuert werden:', e);
+      this.logout();
+      window.location.href = '/login-register';
+    }
   }
 }
 
-// Exportieren einer Singleton-Instanz
 export const authService = new AuthService();

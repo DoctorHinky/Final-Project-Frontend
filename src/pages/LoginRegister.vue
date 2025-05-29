@@ -343,6 +343,7 @@
 </template>
 
 <script lang="ts">
+
 import {
   defineComponent,
   ref,
@@ -350,8 +351,8 @@ import {
   onMounted,
   onBeforeUnmount,
 } from "vue";
-import axios from "axios";
-import { jwtDecode, JwtPayload } from "jwt-decode";
+import api from "@/services/axiosInstance";
+import { jwtDecode } from "jwt-decode";
 import {
   EyeIcon,
   EyeSlashIcon,
@@ -360,6 +361,9 @@ import {
 } from "@heroicons/vue/24/solid";
 import { useRouter, useRoute } from "vue-router";
 import { computed } from "vue";
+interface DecodedToken {
+  role?: string;
+}
 
 export default defineComponent({
   name: "LoginRegister",
@@ -369,6 +373,7 @@ export default defineComponent({
     CheckCircleIcon,
     XCircleIcon,
   },
+  
   setup() {
     const router = useRouter();
     const route = useRoute();
@@ -541,58 +546,53 @@ export default defineComponent({
     };
 
     // Anmeldung verarbeiten
-    const handleLogin = async () => {
-      try {
-        isLoading.value = true;
-        loginStatus.message = "";
+   const handleLogin = async () => {
+  try {
+    isLoading.value = true;
+    loginStatus.message = "";
 
-        const loginData: Record<string, string> = {};
-        const trimmedInput = loginForm.email.trim();
+    const loginData: Record<string, string> = {};
+    const trimmedInput = loginForm.email.trim();
 
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
-        if (isEmail) loginData.email = trimmedInput;
-        else loginData.username = trimmedInput;
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
+    if (isEmail) loginData.email = trimmedInput;
+    else loginData.username = trimmedInput;
 
-        loginData.password = loginForm.password;
+    loginData.password = loginForm.password;
 
-        const response = await axios.post(
-          "https://final-project-backend-rsqk.onrender.com/auth/local/login",
-          loginData,
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        const { access_token, refresh_token } = response.data;
-
-        // Token speichern
-        localStorage.setItem("accessToken", access_token);
-        localStorage.setItem("refreshToken", refresh_token);
-
-        loginStatus.success = true;
-        loginStatus.message =
-          "Anmeldung erfolgreich! Du wirst weitergeleitet...";
-
-        // Nach kurzer Verzögerung weiterleiten
-        setTimeout(() => {
-          // Prüfen, ob es eine Redirect-URL gibt
-          const redirectPath =
-            (route.query.redirect as string) || "/member/dashboard";
-          router.push(redirectPath);
-        }, 1000);
-      } catch (error: any) {
-        loginStatus.success = false;
-        if (error.response?.status === 401) {
-          loginStatus.message = "Benutzername/E-Mail oder Passwort ist falsch.";
-        } else {
-          loginStatus.message =
-            "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
-        }
-        console.error("Login error:", error);
-      } finally {
-        isLoading.value = false;
+    const response = await api.post(
+      "https://final-project-backend-rsqk.onrender.com/auth/local/login",
+      loginData,
+      {
+        headers: { "Content-Type": "application/json" },
       }
-    };
+    );
+
+    const { access_token, refresh_token } = response.data;
+
+    localStorage.setItem("access_token", access_token);
+    localStorage.setItem("refreshToken", refresh_token);
+
+    loginStatus.success = true;
+    loginStatus.message =
+      "Anmeldung erfolgreich! Du wirst weitergeleitet...";
+
+    console.log("🔁 Weiterleitung erfolgt jetzt");
+    window.location.replace("/member/dashboard");
+  } catch (error: any) {
+    loginStatus.success = false;
+    if (error.response?.status === 401) {
+      loginStatus.message =
+        "Benutzername/E-Mail oder Passwort ist falsch.";
+    } else {
+      loginStatus.message =
+        "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
+    }
+    console.error("Login error:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
     // Registrierung verarbeiten
     const handleRegister = async () => {
@@ -641,7 +641,7 @@ export default defineComponent({
           password: registerForm.password,
         };
 
-        const response = await axios.post(
+        const response = await api.post(
           "https://final-project-backend-rsqk.onrender.com/auth/local/register",
           registerData
         );
