@@ -4,37 +4,40 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineComponent, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   setup() {
     const route = useRoute();
-    
+
     // Funktion zum Anpassen der Body-Klasse basierend auf der aktuellen Route
     const updateBodyClass = () => {
       // Prüfen, ob die aktuelle Route zum Mitgliederbereich gehört
-      const isMemberRoute = route.path.startsWith('/member');
-      
+      const isMemberRoute = route.path.startsWith("/member");
+
       // Body-Klasse entsprechend setzen oder entfernen
       if (isMemberRoute) {
-        document.body.classList.add('member-area');
+        document.body.classList.add("member-area");
       } else {
-        document.body.classList.remove('member-area');
+        document.body.classList.remove("member-area");
       }
     };
-    
+
     // Body-Klasse beim ersten Laden setzen
     onMounted(() => {
       updateBodyClass();
     });
-    
+
     // Body-Klasse aktualisieren, wenn sich die Route ändert
-    watch(() => route.path, () => {
-      updateBodyClass();
-    });
-  }
+    watch(
+      () => route.path,
+      () => {
+        updateBodyClass();
+      }
+    );
+  },
 });
 </script>
 
@@ -47,7 +50,7 @@ export default defineComponent({
 }
 
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   line-height: 1.6;
   min-height: 100vh;
   position: relative;
@@ -73,7 +76,9 @@ button {
   outline: none;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: inherit;
 }
 </style>

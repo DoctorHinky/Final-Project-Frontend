@@ -4,18 +4,8 @@
     <div class="container">
       <div class="auth-container">
         <div class="tabs">
-          <button
-            class="tab"
-            :class="{ active: activeTab === 'login' }"
-            @click="activeTab = 'login'"
-          >
-            Anmelden
-          </button>
-          <button
-            class="tab"
-            :class="{ active: activeTab === 'register' }"
-            @click="activeTab = 'register'"
-          >
+          <button class="tab" :class="{ active: activeTab === 'login' }" @click="activeTab = 'login'">Anmelden</button>
+          <button class="tab" :class="{ active: activeTab === 'register' }" @click="activeTab = 'register'">
             Registrieren
           </button>
         </div>
@@ -25,26 +15,14 @@
           <h2>Willkommen zurück!</h2>
           <p>Melde dich an, um auf dein persönliches Profil zuzugreifen.</p>
 
-          <div
-            v-if="loginStatus.message"
-            :class="[
-              'status-message',
-              loginStatus.success ? 'success' : 'error',
-            ]"
-          >
+          <div v-if="loginStatus.message" :class="['status-message', loginStatus.success ? 'success' : 'error']">
             {{ loginStatus.message }}
           </div>
 
           <form @submit.prevent="handleLogin">
             <div class="form-group">
               <label for="login-email">E-Mail</label>
-              <input
-                type="email"
-                id="login-email"
-                v-model="loginForm.email"
-                placeholder="deine@email.de"
-                required
-              />
+              <input type="email" id="login-email" v-model="loginForm.email" placeholder="deine@email.de" required />
               <div class="hint-text">Testlogin: test@example.com</div>
             </div>
 
@@ -62,11 +40,7 @@
                   type="button"
                   class="password-toggle"
                   @click="showLoginPassword = !showLoginPassword"
-                  :aria-label="
-                    showLoginPassword
-                      ? 'Passwort verbergen'
-                      : 'Passwort anzeigen'
-                  "
+                  :aria-label="showLoginPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
                 >
                   <EyeSlashIcon v-if="showLoginPassword" class="icon" />
                   <EyeIcon v-else class="icon" />
@@ -96,13 +70,7 @@
           <h2>Werde Teil unserer Community</h2>
           <p>Erstelle ein Konto, um alle Funktionen nutzen zu können.</p>
 
-          <div
-            v-if="registerStatus.message"
-            :class="[
-              'status-message',
-              registerStatus.success ? 'success' : 'error',
-            ]"
-          >
+          <div v-if="registerStatus.message" :class="['status-message', registerStatus.success ? 'success' : 'error']">
             {{ registerStatus.message }}
           </div>
 
@@ -174,34 +142,18 @@
                 </div>
 
                 <!-- Hidden input for form submission -->
-                <input
-                  type="hidden"
-                  id="register-role"
-                  name="role"
-                  v-model="registerForm.role"
-                />
+                <input type="hidden" id="register-role" name="role" v-model="registerForm.role" />
               </div>
             </div>
 
             <div class="form-group">
               <label for="register-dob">Geburtsdatum</label>
-              <input
-                type="date"
-                id="register-dob"
-                v-model="registerForm.dob"
-                required
-              />
+              <input type="date" id="register-dob" v-model="registerForm.dob" required />
             </div>
 
             <div class="form-group">
               <label for="register-phone">Telefon</label>
-              <input
-                type="tel"
-                id="register-phone"
-                v-model="registerForm.phone"
-                placeholder="Telefonnummer"
-                required
-              />
+              <input type="tel" id="register-phone" v-model="registerForm.phone" placeholder="Telefonnummer" required />
             </div>
 
             <div class="form-group">
@@ -230,11 +182,7 @@
                   type="button"
                   class="password-toggle"
                   @click="showRegisterPassword = !showRegisterPassword"
-                  :aria-label="
-                    showRegisterPassword
-                      ? 'Passwort verbergen'
-                      : 'Passwort anzeigen'
-                  "
+                  :aria-label="showRegisterPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
                 >
                   <EyeSlashIcon v-if="showRegisterPassword" class="icon" />
                   <EyeIcon v-else class="icon" />
@@ -242,13 +190,8 @@
               </div>
 
               <!-- Passwort-Stärke-Anzeige -->
-              <div
-                class="password-strength-container"
-                v-if="registerForm.password"
-              >
-                <div class="password-strength-label">
-                  Passwortstärke: {{ passwordStrengthText }}
-                </div>
+              <div class="password-strength-container" v-if="registerForm.password">
+                <div class="password-strength-label">Passwortstärke: {{ passwordStrengthText }}</div>
                 <div class="password-strength-bar">
                   <div
                     class="password-strength-fill"
@@ -256,12 +199,8 @@
                     :class="passwordStrengthClass"
                   ></div>
                 </div>
-                <div
-                  class="password-strength-tips"
-                  v-if="passwordStrength < 70"
-                >
-                  Für ein sicheres Passwort verwende Groß- und Kleinbuchstaben,
-                  Zahlen und Sonderzeichen.
+                <div class="password-strength-tips" v-if="passwordStrength < 70">
+                  Für ein sicheres Passwort verwende Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen.
                 </div>
               </div>
             </div>
@@ -279,19 +218,10 @@
                 <button
                   type="button"
                   class="password-toggle"
-                  @click="
-                    showRegisterPasswordConfirm = !showRegisterPasswordConfirm
-                  "
-                  :aria-label="
-                    showRegisterPasswordConfirm
-                      ? 'Passwort verbergen'
-                      : 'Passwort anzeigen'
-                  "
+                  @click="showRegisterPasswordConfirm = !showRegisterPasswordConfirm"
+                  :aria-label="showRegisterPasswordConfirm ? 'Passwort verbergen' : 'Passwort anzeigen'"
                 >
-                  <EyeSlashIcon
-                    v-if="showRegisterPasswordConfirm"
-                    class="icon"
-                  />
+                  <EyeSlashIcon v-if="showRegisterPasswordConfirm" class="icon" />
                   <EyeIcon v-else class="icon" />
                 </button>
               </div>
@@ -299,10 +229,7 @@
               <!-- Passwort-Übereinstimmungs-Hinweis -->
               <div
                 v-if="registerForm.passwordConfirm && passwordMatch !== null"
-                :class="[
-                  'password-match-message',
-                  passwordMatch ? 'match-success' : 'match-error',
-                ]"
+                :class="['password-match-message', passwordMatch ? 'match-success' : 'match-error']"
               >
                 <span v-if="passwordMatch">
                   <CheckCircleIcon class="check-icon" />
@@ -317,11 +244,7 @@
 
             <div class="form-options">
               <label class="checkbox-container">
-                <input
-                  type="checkbox"
-                  v-model="registerForm.agreeTerms"
-                  required
-                />
+                <input type="checkbox" v-model="registerForm.agreeTerms" required />
                 <span class="checkmark"></span>
                 <span
                   >Ich stimme den
@@ -343,22 +266,10 @@
 </template>
 
 <script lang="ts">
-
-import {
-  defineComponent,
-  ref,
-  reactive,
-  onMounted,
-  onBeforeUnmount,
-} from "vue";
+import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import api from "@/services/axiosInstance";
 import { jwtDecode } from "jwt-decode";
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-} from "@heroicons/vue/24/solid";
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 import { useRouter, useRoute } from "vue-router";
 import { computed } from "vue";
 interface DecodedToken {
@@ -373,7 +284,7 @@ export default defineComponent({
     CheckCircleIcon,
     XCircleIcon,
   },
-  
+
   setup() {
     const router = useRouter();
     const route = useRoute();
@@ -426,9 +337,7 @@ export default defineComponent({
       const hasLowerCase = /[a-z]/.test(password);
       const hasUpperCase = /[A-Z]/.test(password);
       const hasNumbers = /\d/.test(password);
-      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
-        password
-      );
+      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
       if (hasLowerCase) strength += 10;
       if (hasUpperCase) strength += 15;
@@ -469,8 +378,7 @@ export default defineComponent({
         return;
       }
 
-      passwordMatch.value =
-        registerForm.password === registerForm.passwordConfirm;
+      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
     };
 
     // Register-Formular
@@ -518,9 +426,7 @@ export default defineComponent({
         return;
       }
 
-      const currentIndex = roleOptions.findIndex(
-        (option) => option.value === selectedOption.value.value
-      );
+      const currentIndex = roleOptions.findIndex((option) => option.value === selectedOption.value.value);
       let newIndex = currentIndex + direction;
 
       if (newIndex < 0) newIndex = roleOptions.length - 1;
@@ -536,63 +442,52 @@ export default defineComponent({
     // Klick außerhalb schließt Dropdown
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.querySelector(".custom-dropdown");
-      if (
-        dropdown &&
-        !dropdown.contains(event.target as Node) &&
-        isOpen.value
-      ) {
+      if (dropdown && !dropdown.contains(event.target as Node) && isOpen.value) {
         closeDropdown();
       }
     };
 
     // Anmeldung verarbeiten
-   const handleLogin = async () => {
-  try {
-    isLoading.value = true;
-    loginStatus.message = "";
+    const handleLogin = async () => {
+      try {
+        isLoading.value = true;
+        loginStatus.message = "";
 
-    const loginData: Record<string, string> = {};
-    const trimmedInput = loginForm.email.trim();
+        const loginData: Record<string, string> = {};
+        const trimmedInput = loginForm.email.trim();
 
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
-    if (isEmail) loginData.email = trimmedInput;
-    else loginData.username = trimmedInput;
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
+        if (isEmail) loginData.email = trimmedInput;
+        else loginData.username = trimmedInput;
 
-    loginData.password = loginForm.password;
+        loginData.password = loginForm.password;
 
-    const response = await api.post(
-      "https://final-project-backend-rsqk.onrender.com/auth/local/login",
-      loginData,
-      {
-        headers: { "Content-Type": "application/json" },
+        const response = await api.post("/auth/local/login", loginData, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const { access_token, refresh_token } = response.data;
+
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+
+        loginStatus.success = true;
+        loginStatus.message = "Anmeldung erfolgreich! Du wirst weitergeleitet...";
+
+        console.log("🔁 Weiterleitung erfolgt jetzt");
+        window.location.replace("/member/dashboard");
+      } catch (error: any) {
+        loginStatus.success = false;
+        if (error.response?.status === 401) {
+          loginStatus.message = "Benutzername/E-Mail oder Passwort ist falsch.";
+        } else {
+          loginStatus.message = "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
+        }
+        console.error("Login error:", error);
+      } finally {
+        isLoading.value = false;
       }
-    );
-
-    const { access_token, refresh_token } = response.data;
-
-    localStorage.setItem("access_token", access_token);
-    localStorage.setItem("refreshToken", refresh_token);
-
-    loginStatus.success = true;
-    loginStatus.message =
-      "Anmeldung erfolgreich! Du wirst weitergeleitet...";
-
-    console.log("🔁 Weiterleitung erfolgt jetzt");
-    window.location.replace("/member/dashboard");
-  } catch (error: any) {
-    loginStatus.success = false;
-    if (error.response?.status === 401) {
-      loginStatus.message =
-        "Benutzername/E-Mail oder Passwort ist falsch.";
-    } else {
-      loginStatus.message =
-        "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
-    }
-    console.error("Login error:", error);
-  } finally {
-    isLoading.value = false;
-  }
-};
+    };
 
     // Registrierung verarbeiten
     const handleRegister = async () => {
@@ -624,8 +519,7 @@ export default defineComponent({
         const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
 
         if (!germanPhoneRegex.test(phone)) {
-          registerStatus.message =
-            "Bitte eine gültige deutsche Telefonnummer eingeben.";
+          registerStatus.message = "Bitte eine gültige deutsche Telefonnummer eingeben.";
           registerStatus.success = false;
           return;
         }
@@ -641,10 +535,7 @@ export default defineComponent({
           password: registerForm.password,
         };
 
-        const response = await api.post(
-          "https://final-project-backend-rsqk.onrender.com/auth/local/register",
-          registerData
-        );
+        const response = await api.post("/auth/local/register", registerData);
         registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
         console.log("Antwort:", response.data);
@@ -825,14 +716,9 @@ export default defineComponent({
       &.success {
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background-color: rgba(
-              mixins.theme-color($theme, accent-green),
-              0.15
-            );
+            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
             color: mixins.theme-color($theme, accent-green);
-            border: 1px
-              solid
-              rgba(mixins.theme-color($theme, accent-green), 0.3);
+            border: 1px solid rgba(mixins.theme-color($theme, accent-green), 0.3);
           }
         }
       }
@@ -871,10 +757,7 @@ export default defineComponent({
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             border: 1px solid mixins.theme-color($theme, border-light);
-            border-radius: map.get(
-              map.get(vars.$layout, border-radius),
-              medium
-            );
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
 
@@ -885,11 +768,7 @@ export default defineComponent({
             &:focus {
               outline: none;
               border-color: mixins.theme-color($theme, accent-teal);
-              box-shadow: 0
-                0
-                0
-                2px
-                rgba(mixins.theme-color($theme, accent-teal), 0.3);
+              box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.3);
             }
           }
         }
@@ -1032,20 +911,12 @@ export default defineComponent({
               &:hover,
               &:focus {
                 border-color: mixins.theme-color($theme, accent-teal);
-                box-shadow: 0
-                  0
-                  0
-                  2px
-                  rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
               }
 
               &.active {
                 border-color: mixins.theme-color($theme, accent-teal);
-                box-shadow: 0
-                  0
-                  0
-                  2px
-                  rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                box-shadow: 0 0 0 2px rgba(mixins.theme-color($theme, accent-teal), 0.2);
               }
             }
           }
@@ -1085,10 +956,7 @@ export default defineComponent({
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, card-bg);
               border: 1px solid mixins.theme-color($theme, border-light);
-              border-radius: map.get(
-                map.get(vars.$layout, border-radius),
-                medium
-              );
+              border-radius: map.get(map.get(vars.$layout, border-radius), medium);
               box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
           }
@@ -1109,9 +977,7 @@ export default defineComponent({
             @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
-                border-bottom: 1px
-                  solid
-                  rgba(mixins.theme-color($theme, border-light), 0.2);
+                border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.2);
 
                 &:hover,
                 &:focus {
@@ -1120,10 +986,7 @@ export default defineComponent({
 
                 &.selected {
                   font-weight: map.get(map.get(vars.$fonts, weights), bold);
-                  background-color: rgba(
-                    mixins.theme-color($theme, accent-teal),
-                    0.1
-                  );
+                  background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
                 }
 
                 &:last-child {
