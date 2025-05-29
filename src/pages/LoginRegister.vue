@@ -1,4 +1,3 @@
-<!-- src/pages/LoginRegister.vue -->
 <template>
   <div class="login-register-page">
     <div class="container">
@@ -21,9 +20,13 @@
 
           <form @submit.prevent="handleLogin">
             <div class="form-group">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" v-model="loginForm.username" placeholder="Benutzername" />
+            </div>
+
+            <div class="form-group">
               <label for="login-email">E-Mail</label>
-              <input type="email" id="login-email" v-model="loginForm.email" placeholder="deine@email.de" required />
-              <div class="hint-text">Testlogin: test@example.com</div>
+              <input type="email" id="login-email" v-model="loginForm.email" placeholder="deine@email.de" />
             </div>
 
             <div class="form-group">
@@ -46,7 +49,6 @@
                   <EyeIcon v-else class="icon" />
                 </button>
               </div>
-              <div class="hint-text">Testpasswort: password123</div>
             </div>
 
             <div class="form-options">
@@ -176,7 +178,6 @@
                   v-model="registerForm.password"
                   placeholder="Erstelle ein sicheres Passwort"
                   required
-                  @input="checkPasswordStrength"
                 />
                 <button
                   type="button"
@@ -266,15 +267,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onBeforeUnmount } from "vue";
-import api from "@/services/axiosInstance";
-import { jwtDecode } from "jwt-decode";
+import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, watch, computed } from "vue";
 import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/solid";
-import { useRouter, useRoute } from "vue-router";
-import { computed } from "vue";
-interface DecodedToken {
-  role?: string;
-}
+import { useRoute } from "vue-router";
+import api from "@/services/axiosInstance";
+import { usePasswordMatch, usePasswordStrength } from "@/composables/usePasswordUtils";
 
 export default defineComponent({
   name: "LoginRegister",
@@ -286,7 +283,6 @@ export default defineComponent({
   },
 
   setup() {
-    const router = useRouter();
     const route = useRoute();
     const activeTab = ref("login");
     const isLoading = ref(false);
@@ -296,11 +292,56 @@ export default defineComponent({
     const showRegisterPassword = ref(false);
     const showRegisterPasswordConfirm = ref(false);
 
-    // Passwort-Stärke-Variablen
-    const passwordStrength = ref(0);
+    // Status-Meldungen
+    const loginStatus = reactive({ success: false, message: "" });
+    const registerStatus = reactive({ success: false, message: "" });
 
-    // Passwort-Übereinstimmungs-Variable
-    const passwordMatch = ref(null);
+    // Login-Formular
+    const loginForm = reactive({
+      email: "",
+      password: "",
+      username: "",
+      rememberMe: false,
+    });
+
+    // Register-Formular
+    const registerForm = reactive({
+      firstName: "",
+      lastName: "",
+      username: "",
+      role: "",
+      dob: "",
+      phone: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+      agreeTerms: false,
+    });
+
+    // Password Helper Composables
+    const passwordRef = ref(registerForm.password);
+    const passwordConfirmRef = ref(registerForm.passwordConfirm);
+
+    const { passwordStrength, calculateStrength } = usePasswordStrength(passwordRef);
+    const { passwordMatch, checkPasswordMatch } = usePasswordMatch(passwordRef, passwordConfirmRef);
+
+    // Watchers für automatische Validierung
+    watch(
+      () => registerForm.password,
+      (newVal) => {
+        passwordRef.value = newVal;
+        calculateStrength();
+        checkPasswordMatch();
+      }
+    );
+
+    watch(
+      () => registerForm.passwordConfirm,
+      (newVal) => {
+        passwordConfirmRef.value = newVal;
+        checkPasswordMatch();
+      }
+    );
 
     // Passwort-Stärke-Texte und -Klassen berechnen
     const passwordStrengthText = computed(() => {
@@ -315,84 +356,6 @@ export default defineComponent({
       if (passwordStrength.value <= 50) return "strength-weak";
       if (passwordStrength.value <= 75) return "strength-medium";
       return "strength-strong";
-    });
-
-    // Funktion zum Prüfen der Passwortstärke
-    const checkPasswordStrength = () => {
-      const password = registerForm.password;
-
-      // Wenn kein Passwort, dann 0% Stärke
-      if (!password) {
-        passwordStrength.value = 0;
-        return;
-      }
-
-      let strength = 0;
-
-      // Grundlegende Längenprüfung
-      if (password.length >= 8) strength += 25;
-      if (password.length >= 12) strength += 10;
-
-      // Prüfung auf Buchstaben, Zahlen und Sonderzeichen
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasNumbers = /\d/.test(password);
-      const hasSpecialChars = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
-
-      if (hasLowerCase) strength += 10;
-      if (hasUpperCase) strength += 15;
-      if (hasNumbers) strength += 15;
-      if (hasSpecialChars) strength += 25;
-
-      // Begrenzung auf maximal 100%
-      passwordStrength.value = Math.min(strength, 100);
-
-      // Wenn Bestätigungspasswort existiert, prüfe Übereinstimmung
-      if (registerForm.passwordConfirm) {
-        checkPasswordMatch();
-      }
-    };
-
-    // Status-Meldungen
-    const loginStatus = reactive({
-      success: false,
-      message: "",
-    });
-
-    const registerStatus = reactive({
-      success: false,
-      message: "",
-    });
-
-    // Login-Formular
-    const loginForm = reactive({
-      email: "",
-      password: "",
-      rememberMe: false,
-    });
-
-    // Passwort-Übereinstimmung prüfen
-    const checkPasswordMatch = () => {
-      if (!registerForm.passwordConfirm) {
-        passwordMatch.value = null;
-        return;
-      }
-
-      passwordMatch.value = registerForm.password === registerForm.passwordConfirm;
-    };
-
-    // Register-Formular
-    const registerForm = reactive({
-      firstName: "",
-      lastName: "",
-      username: "",
-      role: "",
-      dob: "",
-      phone: "",
-      email: "",
-      password: "",
-      passwordConfirm: "",
-      agreeTerms: false,
     });
 
     // Dropdown-Funktionalität
@@ -458,8 +421,8 @@ export default defineComponent({
 
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
         if (isEmail) loginData.email = trimmedInput;
-        else loginData.username = trimmedInput;
 
+        loginData.username = loginForm.username.trim();
         loginData.password = loginForm.password;
 
         const response = await api.post("/auth/local/login", loginData, {
@@ -468,14 +431,19 @@ export default defineComponent({
 
         const { access_token, refresh_token } = response.data;
 
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refreshToken", refresh_token);
+        if (loginForm.rememberMe === true) {
+          localStorage.setItem("access_token", access_token);
+          localStorage.setItem("refresh_token", refresh_token);
+        } else {
+          sessionStorage.setItem("access_token", access_token);
+          sessionStorage.setItem("refresh_token", refresh_token);
+        }
 
         loginStatus.success = true;
         loginStatus.message = "Anmeldung erfolgreich! Du wirst weitergeleitet...";
 
-        console.log("🔁 Weiterleitung erfolgt jetzt");
-        window.location.replace("/member/dashboard");
+        console.log("Weiterleitung erfolgt jetzt");
+        window.location.replace("member/dashboard");
       } catch (error: any) {
         loginStatus.success = false;
         if (error.response?.status === 401) {
@@ -491,8 +459,8 @@ export default defineComponent({
 
     // Registrierung verarbeiten
     const handleRegister = async () => {
-      // Prüfe, ob Passwörter übereinstimmen
-      if (registerForm.password !== registerForm.passwordConfirm) {
+      // Prüfe, ob Passwörter übereinstimmen mit Helper
+      if (passwordMatch.value === false) {
         registerStatus.success = false;
         registerStatus.message = "Die Passwörter stimmen nicht überein.";
         return;
@@ -540,30 +508,21 @@ export default defineComponent({
         registerStatus.success = true;
         console.log("Antwort:", response.data);
 
-        // Tab zur Anmeldung wechseln
-        setTimeout(() => {
-          activeTab.value = "login";
+        const { access_token, refresh_token } = response.data;
 
-          // Anmeldedaten vorausfüllen
-          loginForm.email = registerForm.email;
+        sessionStorage.setItem("access_token", access_token);
+        sessionStorage.setItem("refresh_token", refresh_token);
 
-          // Formular zurücksetzen
-          registerForm.firstName = "";
-          registerForm.lastName = "";
-          registerForm.username = "";
-          registerForm.role = "";
-          registerForm.dob = "";
-          registerForm.phone = "";
-          registerForm.email = "";
-          registerForm.password = "";
-          registerForm.passwordConfirm = "";
-          registerForm.agreeTerms = false;
-          passwordStrength.value = 0;
-          passwordMatch.value = null;
-        }, 1500);
+        window.location.replace("/admin/dashboard");
       } catch (error: any) {
         registerStatus.success = false;
-        if (error.response?.data?.message) {
+        if (error.response?.status === 400) {
+          registerStatus.message = "Die eingegebenen Daten sind ungültig. Bitte überprüfe deine Eingaben.";
+        } else if (error.response?.status === 403) {
+          registerStatus.message = "Dieser Benutzername oder diese E-Mail-Adresse ist bereits vergeben.";
+        } else if (error.response?.data?.errors) {
+          registerStatus.message = `Fehler: ${error.response.data.errors.map((err: any) => err.message).join(", ")}`;
+        } else if (error.response?.data?.message) {
           registerStatus.message = `Fehler: ${error.response.data.message}`;
         } else {
           registerStatus.message = "Ein unerwarteter Fehler ist aufgetreten.";
@@ -600,14 +559,12 @@ export default defineComponent({
       showLoginPassword,
       showRegisterPassword,
       showRegisterPasswordConfirm,
-      // Passwort-Stärke
+      // Passwort-Stärke (von Helper)
       passwordStrength,
       passwordStrengthText,
       passwordStrengthClass,
-      checkPasswordStrength,
-      // Passwort-Übereinstimmung
+      // Passwort-Übereinstimmung (von Helper)
       passwordMatch,
-      checkPasswordMatch,
       // Dropdown-Funktionalität
       isOpen,
       roleOptions,

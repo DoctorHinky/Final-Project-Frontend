@@ -1,6 +1,5 @@
 import axios from "axios";
 import { authService } from "./auth.service";
-// import { jwtDecode } from "jwt-decode";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -25,7 +24,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = localStorage.getItem("refresh_token");
+      let refreshToken = localStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        refreshToken = sessionStorage.getItem("refresh_token");
+      }
       if (!refreshToken) {
         authService.logout();
         window.location.href = "/login-register";
@@ -37,7 +39,7 @@ api.interceptors.response.use(
           "/auth/refresh",
           {},
           {
-            baseURL: "https://final-project-backend-rsqk.onrender.com",
+            baseURL: import.meta.env.VITE_BASE_URL,
             headers: {
               Authorization: `Bearer ${refreshToken}`,
             },

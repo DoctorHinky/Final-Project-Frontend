@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 interface DecodedToken {
   exp?: number;
@@ -10,13 +10,13 @@ interface DecodedToken {
 }
 
 class AuthService {
-  private accessTokenKey = 'access_token';
-  private refreshTokenKey = 'refresh_token';
-  private refreshTimeoutId: any = null;
+  private accessTokenKey = "access_token";
+  private refreshTokenKey = "refresh_token";
+  private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   async login(email: string, password: string): Promise<{ success: boolean; role?: string }> {
     try {
-      const response = await axios.post('/auth/local/login', { email, password });
+      const response = await axios.post("/auth/local/login", { email, password });
       const { access_token, refresh_token } = response.data;
 
       localStorage.setItem(this.accessTokenKey, access_token);
@@ -24,11 +24,11 @@ class AuthService {
 
       const decoded = jwtDecode<DecodedToken>(access_token);
 
-      this.scheduleTokenRefresh(); // ⏱ automatischer Refresh aktivieren
+      this.scheduleTokenRefresh(); // automatischer Refresh aktivieren
 
       return { success: true, role: decoded.role };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       return { success: false };
     }
   }
@@ -36,7 +36,9 @@ class AuthService {
   logout(): void {
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
-    clearTimeout(this.refreshTimeoutId);
+    if (this.refreshTimeoutId !== null) {
+      clearTimeout(this.refreshTimeoutId);
+    }
   }
 
   adminLogout(): void {
@@ -44,12 +46,15 @@ class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey);
+    let token = localStorage.getItem(this.accessTokenKey);
+    if (!token) token = sessionStorage.getItem(this.accessTokenKey);
+
+    return token;
   }
 
   isLoggedIn(): boolean {
     const token = this.getAccessToken();
-    console.log('[auth] Token gefunden (isLoggedIn):', token);
+    console.log("[auth] Token gefunden (isLoggedIn):", token);
     if (!token) return false;
 
     try {
@@ -63,12 +68,12 @@ class AuthService {
 
   isAdminLoggedIn(): boolean {
     const token = this.getAccessToken();
-    console.log('[auth] Token gefunden (isAdminLoggedIn):', token);
+    console.log("[auth] Token gefunden (isAdminLoggedIn):", token);
     if (!token) return false;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      return decoded.role === 'ADMIN' || decoded.role === 'MODERATOR';
+      return decoded.role === "ADMIN" || decoded.role === "MODERATOR";
     } catch {
       return false;
     }
@@ -85,7 +90,7 @@ class AuthService {
     }
   }
 
-  // ⏱ Automatischer Refresh vor Tokenablauf
+  // Automatischer Refresh vor Tokenablauf
   scheduleTokenRefresh(): void {
     const token = this.getAccessToken();
     if (!token) return;
@@ -106,28 +111,29 @@ class AuthService {
         this.refreshAccessToken();
       }, refreshTime * 1000);
     } catch (e) {
-      console.error('Fehler beim Planen des Token-Refresh:', e);
+      console.error("Fehler beim Planen des Token-Refresh:", e);
     }
   }
 
   // 🔁 Token manuell erneuern
   async refreshAccessToken(): Promise<void> {
-    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    let refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken) refreshToken = sessionStorage.getItem(this.refreshTokenKey);
     if (!refreshToken) {
       this.logout();
-      window.location.href = '/login-register';
+      window.location.href = "/login-register";
       return;
     }
 
     try {
       const response = await axios.post(
-        '/auth/refresh',
+        "/auth/refresh",
         {},
         {
-          baseURL: 'https://final-project-backend-rsqk.onrender.com',
+          baseURL: import.meta.env.VITE_BASE_URL,
           headers: {
-            Authorization: `Bearer ${refreshToken}`
-          }
+            Authorization: `Bearer ${refreshToken}`,
+          },
         }
       );
 
@@ -136,9 +142,9 @@ class AuthService {
 
       this.scheduleTokenRefresh(); // neuen Timer starten
     } catch (e) {
-      console.error('Token konnte nicht erneuert werden:', e);
+      console.error("Token konnte nicht erneuert werden:", e);
       this.logout();
-      window.location.href = '/login-register';
+      window.location.href = "/login-register";
     }
   }
 }
