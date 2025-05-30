@@ -45,12 +45,7 @@
     </div>
 
     <!-- Leerer Zustand -->
-    <empty-state
-      v-else
-      :search-query="searchQuery"
-      @clear-search="clearSearch"
-      @browse-articles="browseArticles"
-    />
+    <empty-state v-else :search-query="searchQuery" @clear-search="clearSearch" @browse-articles="browseArticles" />
 
     <!-- Bestätigungsdialog -->
     <confirm-dialog
@@ -63,17 +58,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed } from "vue";
 import {
   SearchSection,
   ViewOptions,
   FavoritesGrid,
   FavoritesList,
   EmptyState,
-  ConfirmDialog
-} from '@/components/pages/DashboardPages/Favorites';
+  ConfirmDialog,
+} from "@/components/pages/DashboardPages/Favorites";
 
-interface Favorite {
+export interface Favorite {
   id: number;
   title: string;
   preview: string;
@@ -83,21 +78,21 @@ interface Favorite {
 }
 
 export default defineComponent({
-  name: 'FavoritesDashboard',
+  name: "FavoritesDashboard",
   components: {
     SearchSection,
     ViewOptions,
     FavoritesGrid,
     FavoritesList,
     EmptyState,
-    ConfirmDialog
+    ConfirmDialog,
   },
   setup() {
     // Status
-    const searchQuery = ref('');
-    const sortOption = ref('date-desc');
-    const viewMode = ref('grid');
-    const selectedFavorite = ref<Favorite | null>(null);
+    const searchQuery = ref("");
+    const sortOption = ref("date-desc");
+    const viewMode = ref("grid");
+    const selectedFavorite = ref<Favorite | null>(null as Favorite | null);
     const showConfirmDialog = ref(false);
     const favoriteToRemove = ref<Favorite | null>(null);
 
@@ -106,35 +101,39 @@ export default defineComponent({
       {
         id: 1,
         title: "Digitale Medien im Kindesalter: Fluch oder Segen?",
-        preview: "Eine ausgewogene Betrachtung der Vor- und Nachteile digitaler Medien für Kinder und Empfehlungen für einen gesunden Umgang.",
+        preview:
+          "Eine ausgewogene Betrachtung der Vor- und Nachteile digitaler Medien für Kinder und Empfehlungen für einen gesunden Umgang.",
         category: "Medien",
         author: "Prof. Thomas Becker",
-        date: "28.04.2025"
+        date: "28.04.2025",
       },
       {
         id: 2,
         title: "Wie Musik die kognitive Entwicklung fördert",
-        preview: "Neue Studien zeigen den positiven Einfluss von Musikunterricht auf die Gehirnentwicklung von Kindern.",
+        preview:
+          "Neue Studien zeigen den positiven Einfluss von Musikunterricht auf die Gehirnentwicklung von Kindern.",
         category: "Bildung",
         author: "Julia Wagner",
-        date: "10.04.2025"
+        date: "10.04.2025",
       },
       {
         id: 3,
         title: "Gesunder Schlaf für Kleinkinder",
-        preview: "Schlafexperten erklären, wie viel Schlaf Kinder in unterschiedlichen Altersstufen benötigen und wie Eltern gute Schlafgewohnheiten fördern können.",
+        preview:
+          "Schlafexperten erklären, wie viel Schlaf Kinder in unterschiedlichen Altersstufen benötigen und wie Eltern gute Schlafgewohnheiten fördern können.",
         category: "Gesundheit",
         author: "Dr. Martin Schulz",
-        date: "02.04.2025"
+        date: "02.04.2025",
       },
       {
         id: 4,
         title: "Die Bedeutung des freien Spiels für die kindliche Entwicklung",
-        preview: "Warum unstrukturierte Spielzeit für Kinder wichtiger ist als je zuvor und wie Eltern eine förderliche Spielumgebung schaffen können.",
+        preview:
+          "Warum unstrukturierte Spielzeit für Kinder wichtiger ist als je zuvor und wie Eltern eine förderliche Spielumgebung schaffen können.",
         category: "Entwicklung",
         author: "Prof. Sabine Müller",
-        date: "25.03.2025"
-      }
+        date: "25.03.2025",
+      },
     ]);
 
     // Gefilterte und sortierte Favoriten
@@ -144,29 +143,34 @@ export default defineComponent({
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(favorite =>
-          favorite.title.toLowerCase().includes(query) ||
-          favorite.preview.toLowerCase().includes(query) ||
-          favorite.category.toLowerCase().includes(query) ||
-          favorite.author.toLowerCase().includes(query)
+        result = result.filter(
+          (favorite) =>
+            favorite.title.toLowerCase().includes(query) ||
+            favorite.preview.toLowerCase().includes(query) ||
+            favorite.category.toLowerCase().includes(query) ||
+            favorite.author.toLowerCase().includes(query)
         );
       }
 
       // Sortieren
       switch (sortOption.value) {
-        case 'date-desc':
+        case "date-desc":
           return result.sort((a, b) => {
-            return new Date(b.date.split('.').reverse().join('-')).getTime() -
-              new Date(a.date.split('.').reverse().join('-')).getTime();
+            return (
+              new Date(b.date.split(".").reverse().join("-")).getTime() -
+              new Date(a.date.split(".").reverse().join("-")).getTime()
+            );
           });
-        case 'date-asc':
+        case "date-asc":
           return result.sort((a, b) => {
-            return new Date(a.date.split('.').reverse().join('-')).getTime() -
-              new Date(b.date.split('.').reverse().join('-')).getTime();
+            return (
+              new Date(a.date.split(".").reverse().join("-")).getTime() -
+              new Date(b.date.split(".").reverse().join("-")).getTime()
+            );
           });
-        case 'title-asc':
+        case "title-asc":
           return result.sort((a, b) => a.title.localeCompare(b.title));
-        case 'title-desc':
+        case "title-desc":
           return result.sort((a, b) => b.title.localeCompare(a.title));
         default:
           return result;
@@ -180,12 +184,12 @@ export default defineComponent({
 
     // Suche zurücksetzen
     const clearSearch = () => {
-      searchQuery.value = '';
+      searchQuery.value = "";
     };
 
     // Zu Artikeln navigieren (Platzhalter)
     const browseArticles = () => {
-      console.log('Navigiere zu allen Artikeln');
+      console.log("Navigiere zu allen Artikeln");
       // Später mit Router-Navigation ersetzen
     };
 
@@ -196,7 +200,7 @@ export default defineComponent({
 
     // Favorit lesen
     const readFavorite = (favorite: Favorite) => {
-      console.log('Favorit lesen:', favorite.title);
+      console.log("Favorit lesen:", favorite.title);
       // Später mit Artikelansicht-Navigation ersetzen
     };
 
@@ -215,7 +219,7 @@ export default defineComponent({
     // Favorit entfernen
     const removeFavorite = () => {
       if (favoriteToRemove.value) {
-        const index = favorites.value.findIndex(f => f.id === favoriteToRemove.value!.id);
+        const index = favorites.value.findIndex((f) => f.id === favoriteToRemove.value!.id);
         if (index !== -1) {
           favorites.value.splice(index, 1);
         }
@@ -245,17 +249,17 @@ export default defineComponent({
       readFavorite,
       confirmRemoveFavorite,
       cancelRemove,
-      removeFavorite
+      removeFavorite,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .favorites-dashboard {
   @include animations.fade-in(0.5s);
@@ -271,7 +275,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -281,7 +285,7 @@ export default defineComponent({
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -290,10 +294,10 @@ export default defineComponent({
   }
 
   // Zusätzliche Stile für den Container
-  .favorites-container {
+  /* .favorites-container {
     &.grid, &.list {
       // Gemeinsame Stile für beide Ansichten
     }
-  }
+  } */
 }
 </style>

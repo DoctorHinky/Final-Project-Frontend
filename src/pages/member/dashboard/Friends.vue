@@ -14,11 +14,7 @@
     />
 
     <!-- Tabs für Freunde, Anfragen und Empfehlungen -->
-    <friends-tabs
-      :tabs="tabs"
-      :active-tab="activeTab"
-      @update:active-tab="activeTab = $event"
-    />
+    <friends-tabs :tabs="tabs" :active-tab="activeTab" @update:active-tab="activeTab = $event" />
 
     <!-- Suchleiste -->
     <search-section
@@ -70,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed } from "vue";
 import {
   FriendsStats,
   FriendsTabs,
@@ -78,10 +74,10 @@ import {
   FriendsList,
   RequestsList,
   SuggestionsList,
-  InviteModal
-} from '@/components/pages/DashboardPages/Friends';
+  InviteModal,
+} from "@/components/pages/DashboardPages/Friends";
 
-interface Friend {
+export interface Friend {
   id: number;
   name: string;
   bio: string;
@@ -90,7 +86,7 @@ interface Friend {
   isOnline: boolean;
 }
 
-interface FriendRequest {
+export interface FriendRequest {
   id: number;
   name: string;
   message: string;
@@ -98,7 +94,7 @@ interface FriendRequest {
   mutualFriends: number;
 }
 
-interface FriendSuggestion {
+export interface FriendSuggestion {
   id: number;
   name: string;
   bio: string;
@@ -107,7 +103,7 @@ interface FriendSuggestion {
 }
 
 export default defineComponent({
-  name: 'FriendsDashboard',
+  name: "FriendsDashboard",
   components: {
     FriendsStats,
     FriendsTabs,
@@ -115,90 +111,90 @@ export default defineComponent({
     FriendsList,
     RequestsList,
     SuggestionsList,
-    InviteModal
+    InviteModal,
   },
   setup() {
     // Status
-    const activeTab = ref('friends');
-    const searchQuery = ref('');
+    const activeTab = ref("friends");
+    const searchQuery = ref("");
     const showInviteModal = ref(false);
-    const inviteEmail = ref('');
-    const inviteMessage = ref('');
+    const inviteEmail = ref("");
+    const inviteMessage = ref("");
 
     // Tabs
     const tabs = ref([
-      { id: 'friends', name: 'Meine Freunde' },
-      { id: 'requests', name: 'Anfragen' },
-      { id: 'suggestions', name: 'Empfehlungen' }
+      { id: "friends", name: "Meine Freunde" },
+      { id: "requests", name: "Anfragen" },
+      { id: "suggestions", name: "Empfehlungen" },
     ]);
 
     // Beispieldaten (später durch API-Daten ersetzen)
     const friends = ref<Friend[]>([
       {
         id: 1,
-        name: 'Sarah Müller',
-        bio: 'Mutter von zwei Jungs (3 und 6 Jahre). Leidenschaftliche Hobbyköchin und Outdoor-Fan.',
-        friendSince: '15.03.2025',
+        name: "Sarah Müller",
+        bio: "Mutter von zwei Jungs (3 und 6 Jahre). Leidenschaftliche Hobbyköchin und Outdoor-Fan.",
+        friendSince: "15.03.2025",
         sharedInterests: 4,
-        isOnline: true
+        isOnline: true,
       },
       {
         id: 2,
-        name: 'Michael Weber',
-        bio: 'Vater einer Tochter (4). Software-Entwickler und Fotografie-Enthusiast.',
-        friendSince: '02.04.2025',
+        name: "Michael Weber",
+        bio: "Vater einer Tochter (4). Software-Entwickler und Fotografie-Enthusiast.",
+        friendSince: "02.04.2025",
         sharedInterests: 2,
-        isOnline: false
+        isOnline: false,
       },
       {
         id: 3,
-        name: 'Lisa Becker',
-        bio: 'Mutter von Zwillingen (7). Lehrerin und Yoga-Liebhaberin.',
-        friendSince: '20.04.2025',
+        name: "Lisa Becker",
+        bio: "Mutter von Zwillingen (7). Lehrerin und Yoga-Liebhaberin.",
+        friendSince: "20.04.2025",
         sharedInterests: 3,
-        isOnline: true
-      }
+        isOnline: true,
+      },
     ]);
 
     const pendingRequests = ref<FriendRequest[]>([
       {
         id: 101,
-        name: 'Thomas Schmidt',
-        message: 'Hallo! Ich habe gesehen, dass wir beide Interesse an Montessori-Pädagogik haben.',
-        requestDate: '01.05.2025',
-        mutualFriends: 1
+        name: "Thomas Schmidt",
+        message: "Hallo! Ich habe gesehen, dass wir beide Interesse an Montessori-Pädagogik haben.",
+        requestDate: "01.05.2025",
+        mutualFriends: 1,
       },
       {
         id: 102,
-        name: 'Julia Fischer',
-        message: '',
-        requestDate: '03.05.2025',
-        mutualFriends: 0
-      }
+        name: "Julia Fischer",
+        message: "",
+        requestDate: "03.05.2025",
+        mutualFriends: 0,
+      },
     ]);
 
     const friendSuggestions = ref<FriendSuggestion[]>([
       {
         id: 201,
-        name: 'Markus Wagner',
-        bio: 'Vater von zwei Kindern (5 und 8). IT-Berater und Hobbymusiker.',
+        name: "Markus Wagner",
+        bio: "Vater von zwei Kindern (5 und 8). IT-Berater und Hobbymusiker.",
         mutualFriends: 2,
-        matchReason: 'Interesse an Musikerziehung'
+        matchReason: "Interesse an Musikerziehung",
       },
       {
         id: 202,
-        name: 'Anna Schulz',
-        bio: 'Mutter eines Jungen (3). Kinderärztin und Autorin eines Elternblogs.',
+        name: "Anna Schulz",
+        bio: "Mutter eines Jungen (3). Kinderärztin und Autorin eines Elternblogs.",
         mutualFriends: 0,
-        matchReason: 'Interesse an Gesundheit & Ernährung'
+        matchReason: "Interesse an Gesundheit & Ernährung",
       },
       {
         id: 203,
-        name: 'Daniel Hoffmann',
-        bio: 'Vater von drei Kindern (2, 5, 7). Sportlehrer und Outdoor-Enthusiast.',
+        name: "Daniel Hoffmann",
+        bio: "Vater von drei Kindern (2, 5, 7). Sportlehrer und Outdoor-Enthusiast.",
         mutualFriends: 1,
-        matchReason: 'Interesse an Outdoor-Aktivitäten mit Kindern'
-      }
+        matchReason: "Interesse an Outdoor-Aktivitäten mit Kindern",
+      },
     ]);
 
     // Berechnete Eigenschaften
@@ -211,9 +207,8 @@ export default defineComponent({
       if (!searchQuery.value.trim()) return friends.value;
 
       const query = searchQuery.value.toLowerCase();
-      return friends.value.filter(friend =>
-        friend.name.toLowerCase().includes(query) ||
-        friend.bio.toLowerCase().includes(query)
+      return friends.value.filter(
+        (friend) => friend.name.toLowerCase().includes(query) || friend.bio.toLowerCase().includes(query)
       );
     });
 
@@ -224,12 +219,12 @@ export default defineComponent({
 
     // Suche zurücksetzen
     const clearSearch = () => {
-      searchQuery.value = '';
+      searchQuery.value = "";
     };
 
     // Freund entfernen
     const unfriend = (friendId: number) => {
-      const index = friends.value.findIndex(friend => friend.id === friendId);
+      const index = friends.value.findIndex((friend) => friend.id === friendId);
       if (index !== -1) {
         const friendName = friends.value[index].name;
         if (confirm(`Möchtest du die Freundschaft mit ${friendName} wirklich beenden?`)) {
@@ -240,20 +235,20 @@ export default defineComponent({
 
     // Anfrage annehmen
     const acceptRequest = (requestId: number) => {
-      const request = pendingRequests.value.find(req => req.id === requestId);
+      const request = pendingRequests.value.find((req) => req.id === requestId);
       if (request) {
         // Anfrage annehmen und Freund hinzufügen
         friends.value.push({
           id: request.id,
           name: request.name,
-          bio: 'Neu hinzugefügter Freund',
-          friendSince: new Date().toLocaleDateString('de-DE'),
+          bio: "Neu hinzugefügter Freund",
+          friendSince: new Date().toLocaleDateString("de-DE"),
           sharedInterests: request.mutualFriends,
-          isOnline: false
+          isOnline: false,
         });
 
         // Anfrage entfernen
-        const index = pendingRequests.value.findIndex(req => req.id === requestId);
+        const index = pendingRequests.value.findIndex((req) => req.id === requestId);
         if (index !== -1) {
           pendingRequests.value.splice(index, 1);
         }
@@ -262,7 +257,7 @@ export default defineComponent({
 
     // Anfrage ablehnen
     const declineRequest = (requestId: number) => {
-      const index = pendingRequests.value.findIndex(req => req.id === requestId);
+      const index = pendingRequests.value.findIndex((req) => req.id === requestId);
       if (index !== -1) {
         pendingRequests.value.splice(index, 1);
       }
@@ -271,7 +266,7 @@ export default defineComponent({
     // Anfrage senden
     const sendRequest = (suggestionId: number) => {
       // Empfehlung entfernen (später durch tatsächliche Anfrage-Logik ersetzen)
-      const index = friendSuggestions.value.findIndex(sug => sug.id === suggestionId);
+      const index = friendSuggestions.value.findIndex((sug) => sug.id === suggestionId);
       if (index !== -1) {
         const suggestion = friendSuggestions.value[index];
 
@@ -283,7 +278,7 @@ export default defineComponent({
 
     // Empfehlung ignorieren
     const ignoreSuggestion = (suggestionId: number) => {
-      const index = friendSuggestions.value.findIndex(sug => sug.id === suggestionId);
+      const index = friendSuggestions.value.findIndex((sug) => sug.id === suggestionId);
       if (index !== -1) {
         friendSuggestions.value.splice(index, 1);
       }
@@ -293,8 +288,8 @@ export default defineComponent({
     const sendInvite = () => {
       if (inviteEmail.value.trim()) {
         alert(`Einladung an ${inviteEmail.value} wurde gesendet!`);
-        inviteEmail.value = '';
-        inviteMessage.value = '';
+        inviteEmail.value = "";
+        inviteMessage.value = "";
         showInviteModal.value = false;
       }
     };
@@ -320,17 +315,17 @@ export default defineComponent({
       declineRequest,
       sendRequest,
       ignoreSuggestion,
-      sendInvite
+      sendInvite,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss">
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Global styles for the Friends Dashboard
 .friends-dashboard {
@@ -347,7 +342,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -358,7 +353,7 @@ export default defineComponent({
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -381,7 +376,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -389,7 +384,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-5px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }
@@ -411,7 +406,7 @@ export default defineComponent({
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
           margin: 0 0 map.get(vars.$spacing, xxs) 0;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
               transition: all 0.4s ease-out;
@@ -423,7 +418,7 @@ export default defineComponent({
           margin: 0;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
               transition: all 0.4s ease-out;
@@ -450,7 +445,7 @@ export default defineComponent({
       transition: all 0.3s;
       border: none;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
@@ -479,11 +474,12 @@ export default defineComponent({
 
       input {
         width: 100%;
-        padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m) map.get(vars.$spacing, m);
+        padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl) map.get(vars.$spacing, m)
+          map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
             transition: all 0.4s ease-out;
@@ -501,7 +497,7 @@ export default defineComponent({
         cursor: pointer;
         font-size: 1.2rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -538,7 +534,7 @@ export default defineComponent({
     gap: map.get(vars.$spacing, m);
     overflow: hidden;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -546,7 +542,7 @@ export default defineComponent({
 
         &:hover {
           transform: translateY(-4px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
           border-color: mixins.theme-color($theme, border-medium);
         }
       }
@@ -567,7 +563,7 @@ export default defineComponent({
     position: relative;
     flex-shrink: 0;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 2px solid mixins.theme-color($theme, accent-green);
@@ -579,7 +575,7 @@ export default defineComponent({
       font-size: 2rem;
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -594,7 +590,7 @@ export default defineComponent({
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background-color: #4CAF50; // Green for online
+      background-color: #4caf50; // Green for online
       border: 2px solid white;
     }
   }
@@ -611,7 +607,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -626,7 +622,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       line-height: 1.4;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -642,7 +638,7 @@ export default defineComponent({
       gap: map.get(vars.$spacing, s);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -658,7 +654,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         white-space: nowrap;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             transition: all 0.4s ease-out;
@@ -690,8 +686,10 @@ export default defineComponent({
       border: none;
       transition: all 0.2s ease;
 
-      &.message, &.accept, &.add {
-        @each $theme in ('light', 'dark') {
+      &.message,
+      &.accept,
+      &.add {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
@@ -699,7 +697,7 @@ export default defineComponent({
 
             &:hover {
               transform: translateY(-2px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
             }
           }
         }
@@ -714,7 +712,7 @@ export default defineComponent({
         padding: 0;
         font-size: 18px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
@@ -728,7 +726,7 @@ export default defineComponent({
       }
 
       &.accept {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-green);
             color: white;
@@ -736,8 +734,9 @@ export default defineComponent({
         }
       }
 
-      &.decline, &.ignore {
-        @each $theme in ('light', 'dark') {
+      &.decline,
+      &.ignore {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             color: #ff6b6b; // Red for decline/ignore
@@ -753,7 +752,7 @@ export default defineComponent({
       }
 
       &.add {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-teal);
             color: white;
@@ -770,9 +769,9 @@ export default defineComponent({
       z-index: 10;
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       overflow: hidden;
-      @include mixins.shadow('medium', 'light');
+      @include mixins.shadow("medium", "light");
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -786,7 +785,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             color: #ff6b6b; // Red for delete
@@ -820,7 +819,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       margin-bottom: map.get(vars.$spacing, m);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -833,7 +832,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, l);
       max-width: 500px;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -851,7 +850,7 @@ export default defineComponent({
       align-items: center;
       gap: map.get(vars.$spacing, s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -859,7 +858,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }
@@ -893,10 +892,10 @@ export default defineComponent({
       position: relative;
       @include animations.fade-in(0.3s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
-          @include mixins.shadow('large', $theme);
+          @include mixins.shadow("large", $theme);
           transition: all 0.4s ease-out;
         }
       }
@@ -905,7 +904,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         margin-bottom: map.get(vars.$spacing, m);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -916,7 +915,7 @@ export default defineComponent({
       p {
         margin-bottom: map.get(vars.$spacing, l);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -931,7 +930,7 @@ export default defineComponent({
 
         input,
         textarea {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               @include mixins.form-element($theme);
               transition: all 0.4s ease-out;
@@ -952,7 +951,7 @@ export default defineComponent({
           border: none;
           cursor: pointer;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
@@ -960,7 +959,7 @@ export default defineComponent({
 
               &:hover {
                 transform: translateY(-3px);
-                @include mixins.shadow('medium', $theme);
+                @include mixins.shadow("medium", $theme);
               }
             }
           }
@@ -981,7 +980,7 @@ export default defineComponent({
         cursor: pointer;
         border: none;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             color: mixins.theme-color($theme, text-secondary);

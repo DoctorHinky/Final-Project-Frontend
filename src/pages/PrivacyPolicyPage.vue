@@ -21,14 +21,10 @@
                 </li>
               </ul>
             </nav>
-            
+
             <div class="sidebar-actions">
-              <button @click="printPage" class="action-button">
-                <span class="icon">🖨️</span> Drucken
-              </button>
-              <button @click="downloadPdf" class="action-button">
-                <span class="icon">📥</span> Als PDF
-              </button>
+              <button @click="printPage" class="action-button"><span class="icon">🖨️</span> Drucken</button>
+              <button @click="downloadPdf" class="action-button"><span class="icon">📥</span> Als PDF</button>
             </div>
           </div>
         </aside>
@@ -51,22 +47,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'PrivacyPolicyPage',
+  name: "PrivacyPolicyPage",
   data() {
     return {
       sections: [
         {
-          title: 'Übersicht',
+          title: "Übersicht",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-          `
+          `,
         },
         {
-          title: 'Datenerhebung und -verwendung',
+          title: "Datenerhebung und -verwendung",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <h3>Welche Daten wir sammeln</h3>
@@ -78,10 +74,10 @@ export default defineComponent({
             </ul>
             <h3>Wie wir Ihre Daten verwenden</h3>
             <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          `
+          `,
         },
         {
-          title: 'Cookies und Tracking',
+          title: "Cookies und Tracking",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <h3>Cookie-Kategorien</h3>
@@ -118,10 +114,10 @@ export default defineComponent({
                 </tbody>
               </table>
             </div>
-          `
+          `,
         },
         {
-          title: 'Ihre Rechte',
+          title: "Ihre Rechte",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <div class="info-box">
@@ -135,17 +131,17 @@ export default defineComponent({
                 <li><strong>Recht auf Datenübertragbarkeit:</strong> Duis aute irure dolor in reprehenderit in voluptate velit.</li>
               </ul>
             </div>
-          `
+          `,
         },
         {
-          title: 'Datensicherheit',
+          title: "Datensicherheit",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-          `
+          `,
         },
         {
-          title: 'Änderungen dieser Datenschutzerklärung',
+          title: "Änderungen dieser Datenschutzerklärung",
           content: `
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.</p>
             <div class="version-history">
@@ -156,9 +152,9 @@ export default defineComponent({
                 <li><strong>5. Oktober 2024:</strong> Erstveröffentlichung</li>
               </ul>
             </div>
-          `
-        }
-      ]
+          `,
+        },
+      ],
     };
   },
   methods: {
@@ -168,10 +164,10 @@ export default defineComponent({
         const headerOffset = 100; // Anpassung für den festen Header
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        
+
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     },
@@ -180,77 +176,78 @@ export default defineComponent({
     },
     downloadPdf() {
       // In einer echten Implementierung würde hier PDF-Generierung stattfinden
-      alert('PDF-Download-Funktion wird implementiert.');
-    }
-  }
+      alert("PDF-Download-Funktion wird implementiert.");
+    },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .legal-page {
   padding: 120px 0 60px;
-  
+
   .page-header {
     text-align: center;
     margin-bottom: map.get(vars.$spacing, xxl);
-    
+
     h1 {
       font-size: 2.5rem;
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, s);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, header);
+          background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           display: inline-block;
         }
       }
     }
-    
+
     .last-updated {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
   }
-  
+
   .content-wrapper {
     display: flex;
     gap: map.get(vars.$spacing, xxl);
-    
-    @include mixins.responsive('tablet') {
+
+    @include mixins.responsive("tablet") {
       flex-direction: column;
     }
   }
-  
+
   .sidebar {
     width: 280px;
     flex-shrink: 0;
-    
-    @include mixins.responsive('tablet') {
+
+    @include mixins.responsive("tablet") {
       width: 100%;
       margin-bottom: map.get(vars.$spacing, l);
     }
-    
+
     .sidebar-sticky {
       position: sticky;
       top: 100px;
-      
-      @include mixins.responsive('tablet') {
+
+      @include mixins.responsive("tablet") {
         position: static;
       }
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -258,30 +255,30 @@ export default defineComponent({
           padding: map.get(vars.$spacing, l);
         }
       }
-      
+
       h2 {
         font-size: map.get(map.get(vars.$fonts, sizes), large);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin-bottom: map.get(vars.$spacing, m);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
       }
-      
+
       .toc {
         margin-bottom: map.get(vars.$spacing, xl);
-        
+
         ul {
           list-style: none;
           padding: 0;
           margin: 0;
-          
+
           li {
             margin-bottom: map.get(vars.$spacing, s);
-            
+
             a {
               display: block;
               text-decoration: none;
@@ -289,11 +286,11 @@ export default defineComponent({
               border-radius: map.get(map.get(vars.$layout, border-radius), small);
               font-size: map.get(map.get(vars.$fonts, sizes), medium);
               transition: all map.get(vars.$transitions, default);
-              
-              @each $theme in ('light', 'dark') {
+
+              @each $theme in ("light", "dark") {
                 .theme-#{$theme} & {
                   color: mixins.theme-color($theme, text-primary);
-                  
+
                   &:hover {
                     background-color: mixins.theme-color($theme, hover-color);
                     color: mixins.theme-color($theme, accent-green);
@@ -304,12 +301,12 @@ export default defineComponent({
           }
         }
       }
-      
+
       .sidebar-actions {
         display: flex;
         flex-direction: column;
         gap: map.get(vars.$spacing, s);
-        
+
         .action-button {
           display: flex;
           align-items: center;
@@ -319,20 +316,20 @@ export default defineComponent({
           cursor: pointer;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           transition: all map.get(vars.$transitions, default);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
               border: 1px solid mixins.theme-color($theme, border-light);
-              
+
               &:hover {
                 background-color: mixins.theme-color($theme, hover-color);
                 border-color: mixins.theme-color($theme, accent-teal);
               }
             }
           }
-          
+
           .icon {
             font-size: 1.2em;
           }
@@ -340,102 +337,103 @@ export default defineComponent({
       }
     }
   }
-  
+
   .main-content {
     flex: 1;
-    
+
     .content-section {
       margin-bottom: map.get(vars.$spacing, xxl);
-      
+
       h2 {
         font-size: 1.8rem;
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin-bottom: map.get(vars.$spacing, l);
         padding-bottom: map.get(vars.$spacing, s);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             border-bottom: 2px solid mixins.theme-color($theme, accent-green);
           }
         }
       }
-      
+
       h3 {
         font-size: 1.3rem;
         font-weight: map.get(map.get(vars.$fonts, weights), semibold);
         margin: map.get(vars.$spacing, l) 0 map.get(vars.$spacing, m);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
       }
-      
+
       h4 {
         font-size: 1.1rem;
         font-weight: map.get(map.get(vars.$fonts, weights), semibold);
         margin: map.get(vars.$spacing, m) 0;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
       }
-      
+
       p {
         margin-bottom: map.get(vars.$spacing, m);
         line-height: 1.7;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
-      ul, ol {
+
+      ul,
+      ol {
         margin-bottom: map.get(vars.$spacing, l);
         padding-left: map.get(vars.$spacing, xl);
-        
+
         li {
           margin-bottom: map.get(vars.$spacing, s);
           line-height: 1.6;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
       }
-      
+
       .info-box {
         margin: map.get(vars.$spacing, l) 0;
         padding: map.get(vars.$spacing, l);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border-left: 4px solid mixins.theme-color($theme, accent-green);
           }
         }
       }
-      
+
       .version-history {
         margin-top: map.get(vars.$spacing, l);
-        
+
         ul {
           list-style: none;
           padding-left: 0;
-          
+
           li {
             padding: map.get(vars.$spacing, s) 0;
-            
-            @each $theme in ('light', 'dark') {
+
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 border-bottom: 1px solid mixins.theme-color($theme, border-light);
               }
@@ -444,28 +442,28 @@ export default defineComponent({
         }
       }
     }
-    
+
     .content-footer {
       margin-top: map.get(vars.$spacing, xxl);
       padding-top: map.get(vars.$spacing, l);
       text-align: center;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-top: 1px solid mixins.theme-color($theme, border-light);
         }
       }
-      
+
       p {
         margin-bottom: map.get(vars.$spacing, m);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-      
+
       .contact-link {
         display: inline-block;
         padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
@@ -473,17 +471,17 @@ export default defineComponent({
         text-decoration: none;
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         transition: all map.get(vars.$transitions, default);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, accent-green);
-            
+
             &:hover {
               background-color: mixins.theme-color($theme, accent-green);
               color: #ffffff;
               transform: translateY(-3px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
             }
           }
         }
@@ -496,37 +494,38 @@ export default defineComponent({
 ::v-deep(.table-responsive) {
   overflow-x: auto;
   margin: map.get(vars.$spacing, l) 0;
-  
+
   table {
     width: 100%;
     border-collapse: collapse;
-    
-    th, td {
+
+    th,
+    td {
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
       text-align: left;
     }
-    
+
     th {
       font-weight: map.get(map.get(vars.$fonts, weights), semibold);
     }
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         th {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
           border-bottom: 2px solid mixins.theme-color($theme, border-medium);
         }
-        
+
         td {
           border-bottom: 1px solid mixins.theme-color($theme, border-light);
           color: mixins.theme-color($theme, text-secondary);
         }
-        
+
         tr:last-child td {
           border-bottom: none;
         }
-        
+
         tr:hover td {
           background-color: mixins.theme-color($theme, hover-color);
         }
@@ -537,39 +536,43 @@ export default defineComponent({
 
 // Druckstil
 @media print {
-  .sidebar, 
+  .sidebar,
   .navigation,
-  .header, 
+  .header,
   .footer,
   .sidebar-actions {
     display: none !important;
   }
-  
+
   .legal-page {
     padding: 0;
   }
-  
+
   .content-wrapper {
     display: block;
   }
-  
+
   .main-content {
     width: 100% !important;
   }
-  
+
   .page-header {
     text-align: left;
     border-bottom: 1px solid #000;
     padding-bottom: 1rem;
     margin-bottom: 2rem;
   }
-  
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     color: #000 !important;
     -webkit-text-fill-color: initial !important;
   }
-  
-  p, li {
+
+  p,
+  li {
     color: #333 !important;
   }
 }
