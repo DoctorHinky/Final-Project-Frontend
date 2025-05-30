@@ -68,14 +68,7 @@ import {
   ConfirmDialog,
 } from "@/components/pages/DashboardPages/Favorites";
 
-export interface Favorite {
-  id: number;
-  title: string;
-  preview: string;
-  category: string;
-  author: string;
-  date: string;
-}
+import type { Favorite } from "@/types/Favorite";
 
 export default defineComponent({
   name: "FavoritesDashboard",
@@ -92,7 +85,7 @@ export default defineComponent({
     const searchQuery = ref("");
     const sortOption = ref("date-desc");
     const viewMode = ref("grid");
-    const selectedFavorite = ref<Favorite | null>(null as Favorite | null);
+    const selectedFavorite = ref<Favorite | null>(null);
     const showConfirmDialog = ref(false);
     const favoriteToRemove = ref<Favorite | null>(null);
 
@@ -294,10 +287,11 @@ export default defineComponent({
   }
 
   // Zusätzliche Stile für den Container
-  /* .favorites-container {
-    &.grid, &.list {
+  /*.favorites-container {
+    &.grid,
+    &.list {
       // Gemeinsame Stile für beide Ansichten
     }
-  } */
+  }*/
 }
 </style>

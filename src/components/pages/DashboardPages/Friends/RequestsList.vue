@@ -34,14 +34,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 
-interface FriendRequest {
-  id: number;
-  name: string;
-  message: string;
-  requestDate: string;
-  mutualFriends: number;
-}
-
+import type { FriendRequest } from '@/types/FriendRequest';
 export default defineComponent({
   name: 'RequestsList',
   props: {

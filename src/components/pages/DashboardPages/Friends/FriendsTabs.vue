@@ -15,12 +15,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-
-interface Tab {
-  id: string;
-  name: string;
-}
-
+import type { Tab } from '@/types/Tab';
 export default defineComponent({
   name: 'FriendsTabs',
   props: {

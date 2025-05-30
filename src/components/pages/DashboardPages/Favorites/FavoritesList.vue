@@ -29,15 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-
-interface Favorite {
-  id: number;
-  title: string;
-  preview: string;
-  category: string;
-  author: string;
-  date: string;
-}
+import type { Favorite } from '@/types/Favorite';
 
 export default defineComponent({
   name: 'FavoritesList',

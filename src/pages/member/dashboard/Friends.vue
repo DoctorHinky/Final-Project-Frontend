@@ -76,31 +76,9 @@ import {
   SuggestionsList,
   InviteModal,
 } from "@/components/pages/DashboardPages/Friends";
-
-export interface Friend {
-  id: number;
-  name: string;
-  bio: string;
-  friendSince: string;
-  sharedInterests: number;
-  isOnline: boolean;
-}
-
-export interface FriendRequest {
-  id: number;
-  name: string;
-  message: string;
-  requestDate: string;
-  mutualFriends: number;
-}
-
-export interface FriendSuggestion {
-  id: number;
-  name: string;
-  bio: string;
-  mutualFriends: number;
-  matchReason: string;
-}
+import type { Friend } from "@/types/Friend";
+import type { FriendRequest } from "@/types/FriendRequest";
+import type { FriendSuggestion } from "@/types/FriendSuggestion";
 
 export default defineComponent({
   name: "FriendsDashboard",
@@ -135,24 +113,18 @@ export default defineComponent({
         name: "Sarah Müller",
         bio: "Mutter von zwei Jungs (3 und 6 Jahre). Leidenschaftliche Hobbyköchin und Outdoor-Fan.",
         friendSince: "15.03.2025",
-        sharedInterests: 4,
-        isOnline: true,
       },
       {
         id: 2,
         name: "Michael Weber",
         bio: "Vater einer Tochter (4). Software-Entwickler und Fotografie-Enthusiast.",
         friendSince: "02.04.2025",
-        sharedInterests: 2,
-        isOnline: false,
       },
       {
         id: 3,
         name: "Lisa Becker",
         bio: "Mutter von Zwillingen (7). Lehrerin und Yoga-Liebhaberin.",
         friendSince: "20.04.2025",
-        sharedInterests: 3,
-        isOnline: true,
       },
     ]);
 
@@ -179,21 +151,18 @@ export default defineComponent({
         name: "Markus Wagner",
         bio: "Vater von zwei Kindern (5 und 8). IT-Berater und Hobbymusiker.",
         mutualFriends: 2,
-        matchReason: "Interesse an Musikerziehung",
       },
       {
         id: 202,
         name: "Anna Schulz",
         bio: "Mutter eines Jungen (3). Kinderärztin und Autorin eines Elternblogs.",
         mutualFriends: 0,
-        matchReason: "Interesse an Gesundheit & Ernährung",
       },
       {
         id: 203,
         name: "Daniel Hoffmann",
         bio: "Vater von drei Kindern (2, 5, 7). Sportlehrer und Outdoor-Enthusiast.",
         mutualFriends: 1,
-        matchReason: "Interesse an Outdoor-Aktivitäten mit Kindern",
       },
     ]);
 
@@ -208,7 +177,7 @@ export default defineComponent({
 
       const query = searchQuery.value.toLowerCase();
       return friends.value.filter(
-        (friend) => friend.name.toLowerCase().includes(query) || friend.bio.toLowerCase().includes(query)
+        (friend) => friend.name.toLowerCase().includes(query) || friend.bio?.toLowerCase().includes(query)
       );
     });
 
@@ -243,8 +212,6 @@ export default defineComponent({
           name: request.name,
           bio: "Neu hinzugefügter Freund",
           friendSince: new Date().toLocaleDateString("de-DE"),
-          sharedInterests: request.mutualFriends,
-          isOnline: false,
         });
 
         // Anfrage entfernen

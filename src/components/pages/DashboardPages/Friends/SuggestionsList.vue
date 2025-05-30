@@ -41,13 +41,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 
-interface FriendSuggestion {
-  id: number;
-  name: string;
-  bio: string;
-  mutualFriends: number;
-  matchReason: string;
-}
+import type { FriendSuggestion } from '@/types/FriendSuggestion';
 
 export default defineComponent({
   name: 'SuggestionsList',
