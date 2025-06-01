@@ -1,9 +1,9 @@
 <!-- src/components/pages/DashboardPages/Favorites/FavoritesGrid.vue -->
 <template>
   <div class="grid-view">
-    <div 
-      v-for="favorite in filteredFavorites" 
-      :key="favorite.id" 
+    <div
+      v-for="favorite in filteredFavorites"
+      :key="favorite.id"
       class="favorite-card"
       :class="{ active: selectedFavorite && selectedFavorite.id === favorite.id }"
       @click="selectFavorite(favorite)"
@@ -27,12 +27,12 @@
           <span class="meta-separator">•</span>
           <span class="meta-author">{{ favorite.author }}</span>
           <span class="meta-separator">•</span>
-          <span class="meta-date">{{ favorite.date || 'Kein Datum' }}</span>
+          <span class="meta-date">{{ favorite.date || "Kein Datum" }}</span>
         </div>
 
         <!-- Titel -->
         <h3 class="favorite-title">{{ favorite.title }}</h3>
-        
+
         <!-- Beschreibung -->
         <p class="favorite-excerpt">{{ favorite.preview }}</p>
 
@@ -45,12 +45,8 @@
 
         <!-- Aktionsbuttons -->
         <div class="favorite-actions">
-          <button class="action-button read" @click.stop="readFavorite(favorite)">
-            Lesen
-          </button>
-          <button class="action-button remove" @click.stop="confirmRemove(favorite)">
-            Entfernen
-          </button>
+          <button class="action-button read" @click.stop="readFavorite(favorite)">Lesen</button>
+          <button class="action-button remove" @click.stop="confirmRemove(favorite)">Entfernen</button>
         </div>
       </div>
     </div>
@@ -58,68 +54,53 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-
-interface Favorite {
-  id: number;
-  title: string;
-  preview: string;
-  content?: string;
-  category: string;
-  author: string;
-  date: string;
-  coverImage?: string;
-  tags?: string[];
-  currentChapter?: number;
-  totalChapters?: number;
-  quiz?: any;
-}
-
+import { defineComponent, type PropType } from "vue";
+import type { Favorite } from "@/types/Favorite";
 export default defineComponent({
-  name: 'FavoritesGrid',
+  name: "FavoritesGrid",
   props: {
     filteredFavorites: {
       type: Array as PropType<Favorite[]>,
-      required: true
+      required: true,
     },
     selectedFavorite: {
       type: Object as PropType<Favorite | null>,
-      default: null
-    }
+      default: null,
+    },
   },
-  emits: ['select-favorite', 'read-favorite', 'confirm-remove'],
+  emits: ["select-favorite", "read-favorite", "confirm-remove"],
   setup(_, { emit }) {
     const selectFavorite = (favorite: Favorite) => {
-      emit('select-favorite', favorite);
+      emit("select-favorite", favorite);
     };
 
     const readFavorite = (favorite: Favorite) => {
-      emit('read-favorite', favorite);
+      emit("read-favorite", favorite);
     };
 
     const confirmRemove = (favorite: Favorite) => {
-      emit('confirm-remove', favorite);
+      emit("confirm-remove", favorite);
     };
 
     const formatDate = (dateString: string) => {
-      if (!dateString) return 'Kein Datum';
-      
+      if (!dateString) return "Kein Datum";
+
       try {
         const date = new Date(dateString);
-        
+
         // Prüfen ob das Datum gültig ist
         if (isNaN(date.getTime())) {
-          return 'Ungültiges Datum';
+          return "Ungültiges Datum";
         }
-        
-        return new Intl.DateTimeFormat('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
+
+        return new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
         }).format(date);
       } catch (error) {
-        console.error('Fehler beim Formatieren des Datums:', error);
-        return 'Datumsfehler';
+        console.error("Fehler beim Formatieren des Datums:", error);
+        return "Datumsfehler";
       }
     };
 
@@ -127,16 +108,16 @@ export default defineComponent({
       selectFavorite,
       readFavorite,
       confirmRemove,
-      formatDate
+      formatDate,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .grid-view {
   display: grid;
@@ -165,17 +146,15 @@ export default defineComponent({
     flex-direction: column;
     overflow: hidden;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
         &:hover {
           transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
-                      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           border-color: transparent;
 
           .favorite-image img {
@@ -217,18 +196,18 @@ export default defineComponent({
         justify-content: center;
         position: relative;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, card-bg);
           }
         }
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           width: 200%;
           height: 200%;
-          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
           animation: shimmer 3s infinite;
         }
 
@@ -236,7 +215,7 @@ export default defineComponent({
           font-size: 4rem;
           opacity: 0.8;
           z-index: 1;
-          filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 
           @media (max-width: 768px) {
             font-size: 3rem;
@@ -297,7 +276,7 @@ export default defineComponent({
         text-transform: uppercase;
         letter-spacing: 0.05em;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, primary);
           }
@@ -305,7 +284,7 @@ export default defineComponent({
       }
 
       .meta-author {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -313,7 +292,7 @@ export default defineComponent({
       }
 
       .meta-date {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -321,7 +300,7 @@ export default defineComponent({
       }
 
       .meta-separator {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
             opacity: 0.5;
@@ -341,7 +320,7 @@ export default defineComponent({
         margin-bottom: map.get(vars.$spacing, s);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -365,7 +344,7 @@ export default defineComponent({
         line-clamp: 2;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -385,7 +364,7 @@ export default defineComponent({
         font-size: 12px;
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
@@ -426,13 +405,13 @@ export default defineComponent({
           position: relative;
           overflow: hidden;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
 
               &::before {
-                content: '';
+                content: "";
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -457,7 +436,7 @@ export default defineComponent({
         }
 
         &.remove {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: rgba(255, 107, 107, 0.1);
               color: #ff6b6b;

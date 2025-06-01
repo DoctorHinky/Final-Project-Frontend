@@ -39,15 +39,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, type PropType } from 'vue';
-
-interface Friend {
-  id: number;
-  name: string;
-  bio: string;
-  friendSince: string;
-  sharedInterests: number;
-  isOnline: boolean;
-}
+import type { Friend } from '@/types/Friend';
 
 export default defineComponent({
   name: 'FriendsList',

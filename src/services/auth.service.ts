@@ -12,7 +12,7 @@ interface DecodedToken {
 class AuthService {
   private accessTokenKey = "access_token";
   private refreshTokenKey = "refresh_token";
-  private refreshTimeoutId: any = null;
+  private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   async login(email: string, password: string): Promise<{ success: boolean; role?: string }> {
     try {
@@ -24,7 +24,7 @@ class AuthService {
 
       const decoded = jwtDecode<DecodedToken>(access_token);
 
-      this.scheduleTokenRefresh(); // ⏱ automatischer Refresh aktivieren
+      this.scheduleTokenRefresh(); // automatischer Refresh aktivieren
 
       return { success: true, role: decoded.role };
     } catch (error) {
@@ -36,7 +36,9 @@ class AuthService {
   logout(): void {
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
-    clearTimeout(this.refreshTimeoutId);
+    if (this.refreshTimeoutId !== null) {
+      clearTimeout(this.refreshTimeoutId);
+    }
   }
 
   adminLogout(): void {
@@ -44,7 +46,10 @@ class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey);
+    let token = localStorage.getItem(this.accessTokenKey);
+    if (!token) token = sessionStorage.getItem(this.accessTokenKey);
+
+    return token;
   }
 
   isLoggedIn(): boolean {
@@ -85,7 +90,7 @@ class AuthService {
     }
   }
 
-  // ⏱ Automatischer Refresh vor Tokenablauf
+  // Automatischer Refresh vor Tokenablauf
   scheduleTokenRefresh(): void {
     const token = this.getAccessToken();
     if (!token) return;
@@ -112,7 +117,8 @@ class AuthService {
 
   // 🔁 Token manuell erneuern
   async refreshAccessToken(): Promise<void> {
-    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    let refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken) refreshToken = sessionStorage.getItem(this.refreshTokenKey);
     if (!refreshToken) {
       this.logout();
       window.location.href = "/login-register";
@@ -124,7 +130,7 @@ class AuthService {
         "/auth/refresh",
         {},
         {
-          baseURL: "https://final-project-backend-rsqk.onrender.com",
+          baseURL: import.meta.env.VITE_BASE_URL,
           headers: {
             Authorization: `Bearer ${refreshToken}`,
           },

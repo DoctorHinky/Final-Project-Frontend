@@ -5,11 +5,10 @@ import LoginRegister from "../pages/LoginRegister.vue";
 import Dashboard from "../pages/member/Dashboard.vue";
 import TermsOfService from "../pages/TermsOfService.vue";
 import AppLayout from "../components/layout/AppLayout.vue";
-import Dashboard from "../pages/member/Dashboard.vue";
 import { authService } from "../services/auth.service";
 import { authorService } from "../services/author.service";
 import Contact from "../pages/Contact.vue";
-import PrivacyPolicy from "../pages/PrivacyPolicy.vue";
+import PrivacyPolicy from "../pages/PrivacyPolicyPage.vue";
 import Imprint from "../pages/Imprint.vue";
 import NotFound from "../pages/NotFound.vue";
 import { jwtDecode, type JwtPayload } from "jwt-decode";
@@ -140,7 +139,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "tickets",
         name: "AdminTickets",
-        component: () => import("../pages/admin/Tickets.vue"),
+        component: () => import("../components/admin/tickets/Tickets.vue"),
         beforeEnter: requireAdminRedirect,
         meta: { requiresAdmin: true },
         props: (route) => ({
@@ -158,14 +157,14 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, _, savedPosition) {
     if (savedPosition) return savedPosition;
     if (to.hash) return { el: to.hash, behavior: "smooth", top: 130 };
     return { top: 0 };
   },
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   // Da wir kein echtes Backend haben, führen wir hier eine einfache Auth-Überprüfung durch
   const publicPages = [
     "/",
