@@ -1,5 +1,9 @@
 // src/router/index.ts
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 import LandingPage from "../pages/LandingPage.vue";
 import LoginRegister from "../pages/LoginRegister.vue";
 import Dashboard from "../pages/member/Dashboard.vue";
@@ -11,50 +15,41 @@ import Contact from "../pages/Contact.vue";
 import PrivacyPolicy from "../pages/PrivacyPolicyPage.vue";
 import Imprint from "../pages/Imprint.vue";
 import NotFound from "../pages/NotFound.vue";
-import { jwtDecode, type JwtPayload } from "jwt-decode";
 
-// Navigation Guard für geschützte Routen
-
+// Navigation Guard für geschützte Routen - OHNE async/await
 const requireAuth = (to, from, next) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
+  if (authService.isLoggedIn()) {
     next();
   } else {
-    next({ path: "/login-register" });
+    next({ 
+      path: "/login-register",
+      query: { redirect: to.fullPath }
+    });
   }
 };
 
-const requireAdminRedirect = (to, from, next) => {
-  const token = localStorage.getItem("access_token");
-
-  if (!token) return next("/"); // Kein Token → Main Page
-
-  try {
-    const decoded: JwtPayload & { role: string } = jwtDecode(token);
-    if (decoded.role === "ADMIN" || decoded.role === "MODERATOR") {
-      return next("/admin/dashboard"); // Automatisch weiterleiten
-    } else {
-      return next("/"); // Falsche Rolle → Main Page
-    }
-  } catch (err) {
-    console.error("Fehler beim Token-Dekodieren:", err);
-    return next("/");
-  }
-};
-
-// Navigation Guard für Autor-Routen
-const requireAuthorAuth = (to: any, from: any, next: any) => {
-  if (authService.isLoggedIn() && authorService.isAuthor()) {
-    next(); // Autor ist eingeloggt, Navigafromtion fortsetzen
+// Navigation Guard für Admin-Berechtigung
+const requireAdmin = (to, from, next) => {
+  if (authService.isAdminLoggedIn()) {
+    next();
   } else {
-    // Kein Autor, Weiterleitung zum Dashboard
-    next({
-      path: "/member/dashboard",
+    next({ 
+      path: "/admin/login",
+      query: { redirect: to.fullPath }
     });
   }
 };
 
 // Navigation Guard für Autor-Routen
+const requireAuthorAuth = (to, from, next) => {
+  if (authService.isLoggedIn() && authorService.isAuthor()) {
+    next();
+  } else {
+    next({
+      path: "/member/dashboard",
+    });
+  }
+};
 
 // Routen definieren
 const routes: Array<RouteRecordRaw> = [
@@ -63,17 +58,29 @@ const routes: Array<RouteRecordRaw> = [
     component: AppLayout,
     children: [
       { path: "", name: "Home", component: LandingPage },
-      { path: "login-register", name: "LoginRegister", component: LoginRegister },
-      { path: "/admin/login", name: "AdminLoginPage", component: LoginRegister },
+      {
+        path: "login-register",
+        name: "LoginRegister",
+        component: LoginRegister,
+      },
       { path: "contact", name: "Contact", component: Contact },
-      { path: "privacy-policy", name: "PrivacyPolicy", component: PrivacyPolicy },
+      {
+        path: "privacy-policy",
+        name: "PrivacyPolicy",
+        component: PrivacyPolicy,
+      },
       { path: "imprint", name: "Imprint", component: Imprint },
-      { path: "terms-of-service", name: "TermsOfService", component: TermsOfService },
+      {
+        path: "terms-of-service",
+        name: "TermsOfService",
+        component: TermsOfService,
+      },
       { path: "404", name: "NotFound", component: NotFound },
     ],
   },
   {
     path: "/member",
+    component: AppLayout, // Verwende AppLayout, da MemberLayout fehlt
     beforeEnter: requireAuth,
     children: [
       {
@@ -100,7 +107,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "create-article",
         name: "CreateArticle",
-        beforeEnter: requireAuthorAuth, // Eigener Navigation Guard für Autoren
+        beforeEnter: requireAuthorAuth,
         redirect: { name: "MemberDashboard", query: { tab: "create-article" } },
       },
       {
@@ -127,24 +134,53 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/admin",
-    beforeEnter: requireAdminRedirect,
     children: [
       {
+        path: "",
+        redirect: "/admin/login",
+      },
+      {
+        path: "login",
+        name: "AdminLogin",
+        component: () => import("../pages/admin/Login.vue"),
+        beforeEnter: (to, from, next) => {
+          // Wenn Admin bereits eingeloggt, zum Dashboard
+          if (authService.isAdminLoggedIn()) {
+            next("/admin/dashboard");
+          } else {
+            next();
+          }
+        }
+      },
+      {
         path: "dashboard",
-        name: "AdminDashboard",
-        component: () => import("../pages/admin/Dashboard.vue"),
-        beforeEnter: requireAdminRedirect,
-        meta: { requiresAdmin: true },
+        component: () => import("../components/layout/AdminLayout.vue"),
+        beforeEnter: requireAdmin,
+        children: [
+          {
+            path: "",
+            name: "AdminDashboard",
+            component: () => import("../pages/admin/Dashboard.vue"),
+            props: (route) => ({ 
+              defaultTab: route.query.tab || "overview" 
+            }),
+          },
+        ]
       },
       {
         path: "tickets",
-        name: "AdminTickets",
-        component: () => import("../components/admin/tickets/Tickets.vue"),
-        beforeEnter: requireAdminRedirect,
-        meta: { requiresAdmin: true },
-        props: (route) => ({
-          ticketId: route.query.id || null,
-        }),
+        component: () => import("../components/layout/AdminLayout.vue"),
+        beforeEnter: requireAdmin,
+        children: [
+          {
+            path: "",
+            name: "AdminTickets",
+            component: () => import("../components/admin/tickets/Tickets.vue"),
+            props: (route) => ({
+              ticketId: route.query.id || null,
+            }),
+          },
+        ]
       },
     ],
   },
@@ -164,69 +200,91 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, _, next) => {
-  // Da wir kein echtes Backend haben, führen wir hier eine einfache Auth-Überprüfung durch
-  const publicPages = [
-    "/",
-    "/login-register",
-    "/contact",
-    "/privacy-policy",
-    "/imprint",
-    "/terms-of-service",
-    "/404",
-    "/admin",
-  ];
-  const authRequired = !publicPages.includes(to.path) && !to.path.startsWith("/public/");
-  const adminRequired = to.path.startsWith("/admin/");
-  const authorRequired =
-    to.path === "/member/create-article" || (to.path === "/member/dashboard" && to.query.tab === "create-article");
+// Globaler Navigation Guard mit Anti-Loop-Mechanismus
+let navigationInProgress = false;
 
-  const loggedIn = authService.isLoggedIn();
-  const adminLoggedIn = authService.isAdminLoggedIn();
-  const isAuthor = loggedIn && authorService.isAuthor();
-
-  const requiresAdmin = to.matched.some((record) => record.meta?.requiresAdmin === true);
-
-  // Adminbereich geschützt → aber nicht eingeloggt
-  if (requiresAdmin && !adminLoggedIn) {
-    return next({ path: "/admin", query: { redirect: to.fullPath } });
+router.beforeEach((to, from, next) => {
+  // Verhindere mehrfache gleichzeitige Navigationen
+  if (navigationInProgress && to.path === from.path) {
+    return next(false);
   }
 
-  // Eingeloggter User auf Login-Seite? → redirect
-  if (to.path === "/login-register" && loggedIn) {
-    return next("/member/dashboard");
-  }
+  navigationInProgress = true;
 
-  // Wenn der Admin bereits eingeloggt ist und versucht, die Admin-Login-Seite aufzurufen,
-  // leiten wir ihn zum Admin-Dashboard weiter
-  if (to.path === "/admin" && adminLoggedIn) {
-    return next("/admin/dashboard");
-  }
+  try {
+    // Öffentliche Seiten definieren
+    const publicPages = [
+      "/",
+      "/login-register",
+      "/contact",
+      "/privacy-policy",
+      "/imprint",
+      "/terms-of-service",
+      "/404",
+      "/admin",
+      "/admin/login",
+    ];
+    
+    const authRequired = !publicPages.includes(to.path) && !to.path.startsWith("/public/");
+    const authorRequired =
+      to.path === "/member/create-article" || 
+      (to.path === "/member/dashboard" && to.query.tab === "create-article");
 
-  // Bei geschützten Admin-Routen prüfen, ob der Admin angemeldet ist
-  if (adminRequired && !adminLoggedIn) {
-    return next({
-      path: "/admin",
-      query: { redirect: to.fullPath },
-    });
-  }
+    const loggedIn = authService.isLoggedIn();
+    const adminLoggedIn = authService.isAdminLoggedIn();
+    const isAuthor = loggedIn && authorService.isAuthor();
 
-  // Bei geschützten Autor-Routen prüfen, ob der Benutzer ein Autor ist
-  if (authorRequired && !isAuthor) {
-    return next({
-      path: "/member/dashboard",
-    });
-  }
+    // Eingeloggter User auf Login-Seite? → redirect
+    if (to.path === "/login-register" && loggedIn) {
+      navigationInProgress = false;
+      return next("/member/dashboard");
+    }
 
-  // Bei geschützten Routen prüfen, ob der Benutzer angemeldet ist
-  if (authRequired && !loggedIn && !adminLoggedIn) {
-    return next({
-      path: "/login-register",
-      query: { redirect: to.fullPath },
-    });
-  }
+    // Admin bereits eingeloggt auf Admin-Login? → redirect
+    if (to.path === "/admin/login" && adminLoggedIn) {
+      navigationInProgress = false;
+      return next("/admin/dashboard");
+    }
 
-  next();
+    // Bei geschützten Autor-Routen prüfen
+    if (authorRequired && !isAuthor) {
+      navigationInProgress = false;
+      return next({
+        path: "/member/dashboard",
+      });
+    }
+
+    // Bei geschützten Routen prüfen
+    if (authRequired && !loggedIn && !adminLoggedIn) {
+      navigationInProgress = false;
+      
+      // Admin-Route?
+      if (to.path.startsWith("/admin/") && to.path !== "/admin/login") {
+        return next({
+          path: "/admin/login",
+          query: { redirect: to.fullPath },
+        });
+      }
+      
+      // Member-Route
+      return next({
+        path: "/login-register",
+        query: { redirect: to.fullPath },
+      });
+    }
+
+    navigationInProgress = false;
+    next();
+  } catch (error) {
+    console.error("Navigation Guard Error:", error);
+    navigationInProgress = false;
+    next();
+  }
+});
+
+// Reset navigation flag nach jedem erfolgreichen Navigationswechsel
+router.afterEach(() => {
+  navigationInProgress = false;
 });
 
 export default router;

@@ -13,7 +13,6 @@
 ./.vscode
 ./.vscode/extensions.json
 ./index.html
-./ordnerstruktur.txt
 ./package.json
 ./package-lock.json
 ./Projektstruktur.txt
@@ -21,6 +20,7 @@
 ./readme.md
 ./src
 ./src/.env
+./src/.gitignore
 ./src/App.vue
 ./src/assets
 ./src/assets/images
@@ -135,6 +135,8 @@
 ./src/components/route/ProtectedRoute.vue
 ./src/components/ui
 ./src/components/ui/ThemeToggle.vue
+./src/composables
+./src/composables/usePasswordUtils.ts
 ./src/main.ts
 ./src/pages
 ./src/pages/admin
@@ -163,6 +165,7 @@
 ./src/services
 ./src/services/auth.service.ts
 ./src/services/author.service.ts
+./src/services/axiosInstance.ts
 ./src/services/cloudinaryService.ts
 ./src/services/ticket.service.ts
 ./src/style
@@ -172,6 +175,13 @@
 ./src/style/base/member-area.scss
 ./src/style/base/mixins.scss
 ./src/style/base/variables.scss
+./src/types
+./src/types/Favorite.ts
+./src/types/favorites.d.ts
+./src/types/Friend.ts
+./src/types/FriendRequest.ts
+./src/types/FriendSuggestion.ts
+./src/types/Tab.ts
 ./src/utils
 ./src/utils/scrollObserver.ts
 ./src/vite-env.d.ts

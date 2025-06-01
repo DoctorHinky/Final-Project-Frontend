@@ -64,16 +64,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-interface DecodedToken {
-  sub: string;
-  email: string;
-  role: string;
-  exp: number;
-  iat: number;
-}
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
   name: "AdminLogin",
@@ -93,41 +84,8 @@ export default defineComponent({
 
     // Überprüfung ob Benutzer bereits eingeloggt ist
     onMounted(() => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        try {
-          const decoded = jwtDecode<DecodedToken>(token);
-
-          // Überprüfen ob Token noch gültig ist
-          const currentTime = Date.now() / 1000;
-          if (decoded.exp > currentTime) {
-            // Rolle extrahieren (verschiedene Möglichkeiten)
-            let userRole = "";
-            if (decoded.role) {
-              userRole = decoded.role;
-            } else if ((decoded as any).roles && Array.isArray((decoded as any).roles)) {
-              userRole = (decoded as any).roles[0];
-            } else if ((decoded as any).user && (decoded as any).user.role) {
-              userRole = (decoded as any).user.role;
-            }
-
-            // Überprüfen ob Benutzer Admin-Rolle hat
-            const normalizedRole = userRole.toLowerCase();
-            if (normalizedRole === "admin" || normalizedRole === "moderator") {
-              router.push("/admin/dashboard");
-            }
-          } else {
-            // Token abgelaufen - entfernen
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("userRole");
-          }
-        } catch (error) {
-          console.error("Token validation error:", error);
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("userRole");
-        }
+      if (authService.isAdminLoggedIn()) {
+        router.push("/admin/dashboard");
       }
     });
 
@@ -137,98 +95,35 @@ export default defineComponent({
         errorMessage.value = "";
         successMessage.value = "";
 
-        // Login-Daten vorbereiten
-        const loginData: Record<string, string> = {};
+        // Direkt den eingegebenen Wert verwenden (Email oder Username)
         const trimmedInput = loginForm.username.trim();
-
-        // Überprüfen ob E-Mail oder Benutzername
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
-        if (isEmail) {
-          loginData.email = trimmedInput;
-        } else {
-          loginData.username = trimmedInput;
-        }
-
-        loginData.password = loginForm.password;
-
-        // API-Anfrage OHNE withCredentials, da das Backend es nicht unterstützt
-        const response = await axios.post(
-          "https://final-project-backend-rsqk.onrender.com/auth/local/login",
-          loginData,
-          {
-            headers: { "Content-Type": "application/json" },
-            // withCredentials: true entfernt wegen CORS-Konflikt
-          }
+        
+        console.log("[Admin Login] Verwende adminLogin Methode mit:", trimmedInput);
+        
+        // Verwende die adminLogin Methode aus authService
+        const result = await authService.adminLogin(
+          trimmedInput, // Kann Email oder Username sein
+          loginForm.password,
+          true // rememberMe = true für Admin
         );
 
-        console.log("Login response:", response.data); // Debug-Ausgabe
+        if (result.success) {
+          successMessage.value = "Anmeldung erfolgreich! Sie werden weitergeleitet...";
 
-        // Da das Backend Tokens im Response Body zurückgibt (wie im ersten Login-Code)
-        const { access_token, refresh_token } = response.data;
-
-        if (!access_token) {
-          errorMessage.value = "Keine Authentifizierungsdaten erhalten.";
-          return;
+          // Weiterleitung zum Admin-Dashboard nach kurzer Verzögerung
+          setTimeout(() => {
+            const redirectTo = (route.query.redirect as string) || "/admin/dashboard";
+            router.push(redirectTo).catch((err) => {
+              console.error("[Admin Login] Router-Fehler:", err);
+              window.location.href = redirectTo;
+            });
+          }, 1000);
+        } else {
+          errorMessage.value = "Zugriff verweigert. Sie benötigen Admin-Rechte.";
         }
-
-        // Token dekodieren um Rolle zu überprüfen
-        let decoded: DecodedToken;
-        try {
-          decoded = jwtDecode<DecodedToken>(access_token);
-          console.log("Decoded token:", decoded); // Debug-Ausgabe
-          console.log("Token content:", JSON.stringify(decoded, null, 2)); // Vollständige Token-Struktur
-        } catch (e) {
-          console.error("Token decode error:", e);
-          errorMessage.value = "Fehler beim Verarbeiten der Anmeldedaten.";
-          return;
-        }
-
-        // Verschiedene mögliche Strukturen für die Rolle prüfen
-        let userRole = "";
-
-        // Möglichkeit 1: role direkt im Token
-        if (decoded.role) {
-          userRole = decoded.role;
-        }
-        // Möglichkeit 2: roles als Array
-        else if ((decoded as any).roles && Array.isArray((decoded as any).roles)) {
-          userRole = (decoded as any).roles[0];
-        }
-        // Möglichkeit 3: user.role verschachtelt
-        else if ((decoded as any).user && (decoded as any).user.role) {
-          userRole = (decoded as any).user.role;
-        }
-
-        console.log("Extracted user role:", userRole);
-
-        // Überprüfen ob Benutzer Admin-Berechtigung hat
-        // Rolle in Kleinbuchstaben konvertieren für den Vergleich
-        const normalizedRole = userRole.toLowerCase();
-
-        if (normalizedRole !== "admin" && normalizedRole !== "moderator") {
-          errorMessage.value = `Zugriff verweigert. Sie benötigen Admin-Rechte. Ihre Rolle: ${
-            userRole || "nicht gefunden"
-          }`;
-
-          // Debug: Zeige komplette Token-Struktur
-          console.error("Vollständiges Token-Objekt:", decoded);
-          return;
-        }
-
-        // Token speichern (wie im normalen Login)
-        localStorage.setItem("accessToken", access_token);
-        localStorage.setItem("refreshToken", refresh_token);
-        localStorage.setItem("userRole", userRole);
-
-        successMessage.value = "Anmeldung erfolgreich! Sie werden weitergeleitet...";
-
-        // Weiterleitung zum Admin-Dashboard nach kurzer Verzögerung
-        setTimeout(() => {
-          const redirectTo = (route.query.redirect as string) || "/admin/dashboard";
-          router.push(redirectTo);
-        }, 1000);
+        
       } catch (error: any) {
-        console.error("Login error:", error);
+        console.error("Admin login error:", error);
 
         if (error.response?.status === 401) {
           errorMessage.value = "Ungültige Anmeldedaten. Bitte überprüfen Sie Benutzername und Passwort.";

@@ -1,6 +1,6 @@
 <!-- src/pages/admin/Dashboard.vue -->
 <template>
-  <AdminLayout :page-title="pageTitle" :active-menu="activeTab" @menu-change="handleMenuChange">
+  <div class="admin-dashboard">
     <!-- User Suche -->
     <UserSearch v-if="activeTab === 'user-search'" @user-selected="viewUserDetails" />
 
@@ -16,6 +16,12 @@
     <!-- Staff Team -->
     <StaffList v-if="activeTab === 'staff-team'" @user-selected="viewUserDetails" />
 
+    <!-- Default/Overview -->
+    <div v-if="activeTab === 'overview' || !activeTab" class="overview-content">
+      <h2>Willkommen im Admin Dashboard</h2>
+      <p>Wählen Sie einen Bereich aus dem Menü aus.</p>
+    </div>
+
     <!-- User Details Modal -->
     <div class="modal-overlay" v-if="showUserDetails" @click="closeUserDetails">
       <div class="modal-container" @click.stop>
@@ -28,13 +34,12 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
 import UserSearch from '@/components/admin/users/UserSearch.vue';
 import UserList from '@/components/admin/users/UserList.vue';
 import AuthorList from '@/components/admin/authors/AuthorList.vue';
@@ -45,7 +50,6 @@ import UserDetail from '@/components/admin/users/UserDetail.vue';
 export default defineComponent({
   name: 'AdminDashboard',
   components: {
-    AdminLayout,
     UserSearch,
     UserList,
     AuthorList,
@@ -60,47 +64,22 @@ export default defineComponent({
     // Aktiver Tab
     const activeTab = ref((route.query.tab as string) || 'user-search');
     
-    // Seitentitel basierend auf dem aktiven Tab
-    const pageTitle = computed(() => {
-      switch (activeTab.value) {
-        case 'user-search': return 'User Suche';
-        case 'all-users': return 'Alle User';
-        case 'all-authors': return 'Alle Autoren';
-        case 'active-posts': return 'Active Posts';
-        case 'tickets': return 'Ticket Management';
-        case 'staff-team': return 'Staff Team';
-        default: return 'Admin Dashboard';
-      }
-    });
-
     // User Details Modal
     const showUserDetails = ref(false);
     const selectedUserId = ref<string | null>(null);
 
-    // Menü-Änderung Handler
-    const handleMenuChange = (tabId: string) => {
-      // Wenn "tickets" ausgewählt wird, zur Tickets-Seite navigieren und activeTab setzen
-      if (tabId === 'tickets') {
-        activeTab.value = tabId;
-        router.push('/admin/tickets');
-      } else {
-        // Bei anderen Tabs im Dashboard bleiben und nur den Tab ändern
-        activeTab.value = tabId;
-        
-        // URL aktualisieren, ohne Neuladen der Seite
-        router.push({
-          path: '/admin/dashboard',
-          query: { tab: tabId }
-        });
+    // Watcher für Route-Änderungen
+    watch(() => route.query.tab, (newTab) => {
+      if (newTab && typeof newTab === 'string') {
+        activeTab.value = newTab;
+        console.log('Dashboard: Tab changed to:', newTab);
       }
-    };
+    });
 
     // User Details anzeigen
     const viewUserDetails = (userId: string) => {
       selectedUserId.value = userId;
       showUserDetails.value = true;
-      
-      // Body-Scroll verhindern, wenn Modal geöffnet ist
       document.body.style.overflow = 'hidden';
     };
 
@@ -108,22 +87,20 @@ export default defineComponent({
     const closeUserDetails = () => {
       showUserDetails.value = false;
       selectedUserId.value = null;
-      
-      // Body-Scroll wiederherstellen
       document.body.style.overflow = '';
     };
 
     // Beim Mounten Tab aus Query-Parameter setzen
     onMounted(() => {
-      if (route.query.tab) {
-        activeTab.value = route.query.tab as string;
+      const tabFromQuery = route.query.tab as string;
+      if (tabFromQuery) {
+        activeTab.value = tabFromQuery;
       }
+      console.log('Dashboard mounted with tab:', activeTab.value);
     });
 
     return {
       activeTab,
-      pageTitle,
-      handleMenuChange,
       showUserDetails,
       selectedUserId,
       viewUserDetails,
@@ -134,6 +111,27 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.admin-dashboard {
+  width: 100%;
+  min-height: calc(100vh - 130px);
+}
+
+.overview-content {
+  text-align: center;
+  padding: 60px 20px;
+  
+  h2 {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+  
+  p {
+    color: #888;
+    font-size: 1.1rem;
+  }
+}
+
 // Modal Styles
 .modal-overlay {
   position: fixed;

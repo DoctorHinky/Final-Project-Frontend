@@ -9,7 +9,7 @@
 
     <!-- Sidebar-Navigation -->
     <nav class="sidebar-nav">
-      <div v-for="(item, index) in menuItems" :key="index" class="nav-item" :class="{ active: activeMenu === item.id }"
+      <div v-for="(item, index) in menuItems" :key="index" class="nav-item" :class="{ active: isActiveItem(item.id) }"
         @click="selectMenuItem(item.id)">
         <span class="nav-icon">
           <component :is="item.icon" class="h-6 w-6" />
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { 
   MagnifyingGlassIcon, 
@@ -69,7 +69,7 @@ export default defineComponent({
     },
     activeMenu: {
       type: String,
-      default: 'users'
+      default: 'user-search'
     }
   },
   emits: ['select-menu', 'close', 'logout'],
@@ -111,35 +111,39 @@ export default defineComponent({
       }
     ]);
 
-    // Menüpunkt auswählen
+    // Prüfen ob ein Item aktiv ist
+    const isActiveItem = (itemId: string) => {
+      // Spezialbehandlung für Tickets
+      if (itemId === 'tickets' && route.path === '/admin/tickets') {
+        return true;
+      }
+      // Für andere Items den activeMenu prop verwenden
+      return props.activeMenu === itemId;
+    };
+
+    // Menüpunkt auswählen - Vereinfachte Version
     const selectMenuItem = (itemId: string) => {
-      // Überprüfen, ob wir uns auf der Tickets-Seite befinden
-      const isOnTicketsPage = route.path === '/admin/tickets';
+      console.log('Sidebar: Selecting menu item:', itemId); // Debug-Log
       
-      // Wenn wir auf der Tickets-Seite sind und einen anderen Tab als "tickets" auswählen
-      if (isOnTicketsPage && itemId !== 'tickets') {
-        // Zum Dashboard mit dem entsprechenden Tab navigieren
+      // IMMER das Event emittieren
+      emit('select-menu', itemId);
+      
+      // Zusätzliche Navigation nur für spezielle Fälle
+      if (itemId === 'tickets') {
+        router.push('/admin/tickets');
+      } else if (route.path === '/admin/tickets') {
+        // Wenn wir auf der Tickets-Seite sind und einen anderen Tab wählen
         router.push({
           path: '/admin/dashboard',
           query: { tab: itemId }
         });
-      } 
-      // Wenn wir "tickets" auswählen
-      else if (itemId === 'tickets') {
-        // Zur Tickets-Seite navigieren
-        router.push({
-          path: '/admin/tickets'
-        });
-      } 
-      // In allen anderen Fällen das Standard-Event auslösen
-      else {
-        emit('select-menu', itemId);
       }
     };
 
     return {
       menuItems,
-      selectMenuItem
+      selectMenuItem,
+      isActiveItem
     };
   }
 });

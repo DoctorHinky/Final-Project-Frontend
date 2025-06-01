@@ -36,15 +36,20 @@
 
     <div class="admin-container" :class="{ 'sidebar-open': isSidebarOpen }">
       <!-- Sidebar Komponente einbinden -->
-      <AdminSidebar :is-open="isSidebarOpen" :active-menu="activeMenu" @select-menu="onMenuSelect"
-        @close="closeSidebar" @logout="handleLogout" />
+      <AdminSidebar 
+        :is-open="isSidebarOpen" 
+        :active-menu="activeMenu" 
+        @select-menu="onMenuSelect"
+        @close="closeSidebar" 
+        @logout="handleLogout" 
+      />
 
       <!-- Hauptinhalt -->
       <main class="admin-content" :class="{ 'sidebar-active': isSidebarOpen }">
-  <div class="content-wrapper">
-    <router-view /> <!-- ← das ist entscheidend -->
-  </div>
-</main>
+        <div class="content-wrapper">
+          <router-view />
+        </div>
+      </main>
     </div>
 
     <!-- Overlay für mobile Ansicht -->
@@ -55,39 +60,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch, onUnmounted, defineAsyncComponent } from 'vue';
-import { useRouter } from 'vue-router';
+import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/services/auth.service';
-
-// Asynchroner Import, um zirkuläre Abhängigkeiten zu vermeiden
-const AdminSidebar = defineAsyncComponent(() => import('@/components/admin/AdminSidebar.vue'));
+import AdminSidebar from '@/components/admin/AdminSidebar.vue';
 
 export default defineComponent({
   name: 'AdminLayout',
   components: {
     AdminSidebar
   },
-  props: {
-    pageTitle: {
-      type: String,
-      default: 'Admin Dashboard'
-    },
-    activeMenu: {
-      type: String,
-      default: 'users'
-    }
-  },
-  emits: ['menu-change'],
-  setup(props, { emit }) {
+  setup() {
     const router = useRouter();
+    const route = useRoute();
     const isSmallScreen = ref(window.innerWidth < 1024);
-    const isSidebarOpen = ref(window.innerWidth >= 1024); // Default offen auf Desktop
+    const isSidebarOpen = ref(window.innerWidth >= 1024);
+
+    // Aktives Menü basierend auf Route
+    const activeMenu = computed(() => {
+      if (route.path.includes('/admin/tickets')) {
+        return 'tickets';
+      }
+      return (route.query.tab as string) || 'user-search';
+    });
+
+    // Seitentitel basierend auf aktivem Menü
+    const pageTitle = computed(() => {
+      switch (activeMenu.value) {
+        case 'user-search': return 'User Suche';
+        case 'all-users': return 'Alle User';
+        case 'all-authors': return 'Alle Autoren';
+        case 'active-posts': return 'Active Posts';
+        case 'tickets': return 'Ticket Management';
+        case 'staff-team': return 'Staff Team';
+        default: return 'Admin Dashboard';
+      }
+    });
 
     // Sidebar umschalten
     const toggleSidebar = () => {
       isSidebarOpen.value = !isSidebarOpen.value;
 
-      // Body-Scroll verhindern bei offener Sidebar auf mobilen Geräten
       if (isSmallScreen.value) {
         document.body.style.overflow = isSidebarOpen.value ? 'hidden' : '';
       }
@@ -98,7 +111,6 @@ export default defineComponent({
       if (isSidebarOpen.value) {
         isSidebarOpen.value = false;
 
-        // Body-Scroll wiederherstellen
         if (isSmallScreen.value) {
           document.body.style.overflow = '';
         }
@@ -107,7 +119,17 @@ export default defineComponent({
 
     // Menüpunkt auswählen
     const onMenuSelect = (menuItem: string) => {
-      emit('menu-change', menuItem);
+      console.log('AdminLayout: Menu selected:', menuItem);
+      
+      // Navigation basierend auf dem ausgewählten Menüpunkt
+      if (menuItem === 'tickets') {
+        router.push('/admin/tickets');
+      } else {
+        router.push({
+          path: '/admin/dashboard',
+          query: { tab: menuItem }
+        });
+      }
 
       // Auf mobilen Geräten Sidebar nach Auswahl schließen
       if (isSmallScreen.value) {
@@ -118,23 +140,21 @@ export default defineComponent({
     // Abmelden
     const handleLogout = () => {
       authService.adminLogout();
-      router.push('/admin');
+      router.push('/admin/login');
     };
 
     // Handler für die Bildschirmgröße
     const handleResize = () => {
       isSmallScreen.value = window.innerWidth < 1024;
 
-      // Sidebar automatisch schließen bei kleinen Bildschirmen
       if (isSmallScreen.value && isSidebarOpen.value) {
         closeSidebar();
       } else if (!isSmallScreen.value && !isSidebarOpen.value && window.innerWidth >= 1200) {
-        // Optional: Sidebar automatisch öffnen auf großen Bildschirmen
         isSidebarOpen.value = true;
       }
     };
 
-    // Debounce-Funktion für bessere Performance
+    // Debounce-Funktion
     const debounce = (fn: Function, ms = 300) => {
       let timeoutId: ReturnType<typeof setTimeout>;
       return (...args: any[]) => {
@@ -143,18 +163,17 @@ export default defineComponent({
       };
     };
 
-    // Event-Listener für Bildschirmgröße
+    // Event-Listener
     onMounted(() => {
-      handleResize(); // Initial aufrufen
+      handleResize();
       window.addEventListener('resize', debounce(handleResize, 250));
       window.addEventListener('orientationchange', handleResize);
     });
 
-    // Event-Listener sauber entfernen
     onUnmounted(() => {
       window.removeEventListener('resize', debounce(handleResize, 250));
       window.removeEventListener('orientationchange', handleResize);
-      document.body.style.overflow = ''; // Scroll-Status zurücksetzen
+      document.body.style.overflow = '';
     });
 
     return {
@@ -163,7 +182,9 @@ export default defineComponent({
       toggleSidebar,
       closeSidebar,
       onMenuSelect,
-      handleLogout
+      handleLogout,
+      pageTitle,
+      activeMenu
     };
   }
 });
@@ -177,7 +198,7 @@ export default defineComponent({
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background: #161616; // Dunkler Hintergrund für Admin-Bereich
+  background: #161616;
   color: #f0f0f0;
 }
 
