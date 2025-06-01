@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import api from "./axiosInstance"; // Importiere die konfigurierte axios Instanz
 
@@ -17,9 +17,24 @@ class AuthService {
   private rememberMe = false;
   private isRefreshing = false;
 
-  async login(email: string, password: string, rememberMe: boolean = false): Promise<{ success: boolean; role?: string }> {
+  async login({
+    username,
+    email,
+    password,
+    rememberMe = false,
+  }: {
+    username?: string;
+    email?: string;
+    password: string;
+    rememberMe?: boolean;
+  }): Promise<{ success: boolean; role?: string }> {
     try {
-      const response = await api.post("/auth/local/login", { email, password });
+      console.log({ username, email, password, rememberMe });
+
+      if (!email && !username) throw new Error("Either email or username must be provided");
+      const payload: { username?: string; email?: string; password: string } = { password };
+
+      const response = await api.post("/auth/local/login", payload);
       const { access_token, refresh_token } = response.data;
 
       this.rememberMe = rememberMe;
@@ -49,13 +64,13 @@ class AuthService {
       clearTimeout(this.refreshTimeoutId);
       this.refreshTimeoutId = null;
     }
-    
+
     // Member-Tokens entfernen
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
     sessionStorage.removeItem(this.accessTokenKey);
     sessionStorage.removeItem(this.refreshTokenKey);
-    
+
     // Refresh-Flag zurücksetzen
     this.isRefreshing = false;
   }
@@ -83,7 +98,7 @@ class AuthService {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
     const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
-    
+
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
     const normalToken = this.getAccessToken();
     if (normalToken) {
@@ -96,7 +111,7 @@ class AuthService {
         // Token ungültig
       }
     }
-    
+
     return null;
   }
 
@@ -111,23 +126,26 @@ class AuthService {
   }
 
   // Admin Login - verwendet die gleiche Logik wie normaler Login
-  async adminLogin(emailOrUsername: string, password: string, rememberMe: boolean = false): Promise<{ success: boolean; role?: string }> {
+  async adminLogin(
+    emailOrUsername: string,
+    password: string,
+    rememberMe: boolean = false
+  ): Promise<{ success: boolean; role?: string }> {
     try {
       // Verwende die normale login Methode, aber prüfe danach Admin-Rechte
       const loginData: any = { password };
       const trimmedInput = emailOrUsername.trim();
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput);
-      
+
       if (isEmail) {
         loginData.email = trimmedInput;
       } else {
         loginData.username = trimmedInput;
       }
 
-
       // Verwende api statt axios direkt
       const response = await api.post("/auth/local/login", loginData, {
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
 
       const { access_token, refresh_token } = response.data;
@@ -137,7 +155,7 @@ class AuthService {
       }
 
       const decoded = jwtDecode<DecodedToken>(access_token);
-      
+
       // Prüfe ob User Admin/Moderator ist
       if (decoded.role !== "ADMIN" && decoded.role !== "MODERATOR") {
         return { success: false };
@@ -164,7 +182,7 @@ class AuthService {
       console.error("Error details:", {
         status: error.response?.status,
         data: error.response?.data,
-        url: error.config?.url
+        url: error.config?.url,
       });
       return { success: false };
     }
@@ -187,12 +205,12 @@ class AuthService {
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const now = Date.now() / 1000;
-      
+
       // Token ist noch gültig
       if (decoded.exp && decoded.exp > now) {
         return true;
       }
-      
+
       // Token ist abgelaufen - KEIN automatischer Refresh hier!
       // Dies verhindert Infinity-Loops bei Protected Routes
       return false;
@@ -208,12 +226,12 @@ class AuthService {
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const now = Date.now() / 1000;
-      
+
       // Prüfe ob Token noch gültig ist UND ob User Admin/Moderator ist
       if (decoded.exp && decoded.exp > now) {
         return decoded.role === "ADMIN" || decoded.role === "MODERATOR";
       }
-      
+
       return false;
     } catch {
       return false;
@@ -247,7 +265,7 @@ class AuthService {
 
       const now = Date.now() / 1000;
       const timeUntilExpiry = decoded.exp - now;
-      
+
       // Token bereits abgelaufen oder weniger als 2 Minuten gültig
       if (timeUntilExpiry <= 120) {
         // Sofortiger Refresh, aber nur wenn nicht bereits läuft
@@ -263,7 +281,6 @@ class AuthService {
       this.refreshTimeoutId = setTimeout(() => {
         this.refreshAccessToken();
       }, refreshTime);
-      
     } catch (e) {
       console.error("Fehler beim Planen des Token-Refresh:", e);
     }
@@ -276,7 +293,7 @@ class AuthService {
     }
 
     const refreshToken = this.getRefreshToken();
-    
+
     if (!refreshToken) {
       this.logout();
       // Keine automatische Weiterleitung hier - lass die App entscheiden
@@ -286,7 +303,6 @@ class AuthService {
     this.isRefreshing = true;
 
     try {
-      
       const response = await api.post(
         "/auth/refresh",
         {},
@@ -298,21 +314,20 @@ class AuthService {
       );
 
       const newAccessToken = response.data.access_token;
-      
+
       // Verwende den gleichen Storage wie beim Login
       const storage = this.getStorage();
       storage.setItem(this.accessTokenKey, newAccessToken);
 
-      
       // Neuen Refresh planen
       this.scheduleTokenRefresh();
-      
+
       this.isRefreshing = false;
       return true;
     } catch (e) {
       console.error("Token konnte nicht erneuert werden:", e);
       this.isRefreshing = false;
-      
+
       // Bei Fehler ausloggen, aber keine automatische Weiterleitung
       this.logout();
       return false;
@@ -331,12 +346,12 @@ class AuthService {
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const now = Date.now() / 1000;
-      
+
       if (decoded.exp && decoded.exp > now) {
         // Token noch gültig
         return true;
       }
-      
+
       // Token abgelaufen - versuche zu refreshen
       return await this.refreshAccessToken();
     } catch {

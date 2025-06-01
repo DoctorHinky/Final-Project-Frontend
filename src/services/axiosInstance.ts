@@ -1,10 +1,8 @@
 import axios from "axios";
 import { authService } from "./auth.service";
 
-const VITE_BASE_URL = "https://final-project-backend-rsqk.onrender.com/";
-
 const api = axios.create({
-  baseURL: VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -27,17 +25,17 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       // Nutze authService für den Token-Refresh
       try {
         await authService.refreshAccessToken();
-        
+
         // Hole den neuen Token über authService
         const newAccessToken = authService.getAccessToken();
-        
+
         if (newAccessToken) {
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
@@ -47,9 +45,12 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
 
 export default api;
+
+// VITE_BASE_URL=http://localhost:4001 # um backend lokal zu testen
+// # VITE_BASE_URL=https://final-project-backend-rsqk.onrender.com # um backend auf render zum laufen zu bringen
