@@ -51,6 +51,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-// VITE_BASE_URL=http://localhost:4001 # um backend lokal zu testen
-// # VITE_BASE_URL=https://final-project-backend-rsqk.onrender.com # um backend auf render zum laufen zu bringen
