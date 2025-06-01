@@ -41,10 +41,10 @@
 
       <!-- Hauptinhalt -->
       <main class="admin-content" :class="{ 'sidebar-active': isSidebarOpen }">
-        <div class="content-wrapper">
-          <slot></slot>
-        </div>
-      </main>
+  <div class="content-wrapper">
+    <router-view /> <!-- ← das ist entscheidend -->
+  </div>
+</main>
     </div>
 
     <!-- Overlay für mobile Ansicht -->

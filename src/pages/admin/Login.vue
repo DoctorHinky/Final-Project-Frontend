@@ -11,11 +11,11 @@
         <div class="form-group">
           <label for="username">Benutzername oder E-Mail</label>
           <div class="input-container">
-            <input 
-              type="text" 
-              id="username" 
-              v-model="loginForm.username" 
-              required 
+            <input
+              type="text"
+              id="username"
+              v-model="loginForm.username"
+              required
               placeholder="Admin-Benutzername oder E-Mail"
               :disabled="isLoading"
             />
@@ -25,11 +25,11 @@
         <div class="form-group">
           <label for="password">Passwort</label>
           <div class="input-container">
-            <input 
-              type="password" 
-              id="password" 
-              v-model="loginForm.password" 
-              required 
+            <input
+              type="password"
+              id="password"
+              v-model="loginForm.password"
+              required
               placeholder="Admin-Passwort"
               :disabled="isLoading"
             />
@@ -62,10 +62,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import { defineComponent, ref, reactive, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 interface DecodedToken {
   sub: string;
@@ -76,33 +76,33 @@ interface DecodedToken {
 }
 
 export default defineComponent({
-  name: 'AdminLogin',
+  name: "AdminLogin",
   setup() {
     const router = useRouter();
     const route = useRoute();
-    
+
     // Reactive states
     const loginForm = reactive({
-      username: '',
-      password: ''
+      username: "",
+      password: "",
     });
-    
+
     const isLoading = ref(false);
-    const errorMessage = ref('');
-    const successMessage = ref('');
+    const errorMessage = ref("");
+    const successMessage = ref("");
 
     // Überprüfung ob Benutzer bereits eingeloggt ist
     onMounted(() => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       if (token) {
         try {
           const decoded = jwtDecode<DecodedToken>(token);
-          
+
           // Überprüfen ob Token noch gültig ist
           const currentTime = Date.now() / 1000;
           if (decoded.exp > currentTime) {
             // Rolle extrahieren (verschiedene Möglichkeiten)
-            let userRole = '';
+            let userRole = "";
             if (decoded.role) {
               userRole = decoded.role;
             } else if ((decoded as any).roles && Array.isArray((decoded as any).roles)) {
@@ -110,23 +110,23 @@ export default defineComponent({
             } else if ((decoded as any).user && (decoded as any).user.role) {
               userRole = (decoded as any).user.role;
             }
-            
+
             // Überprüfen ob Benutzer Admin-Rolle hat
             const normalizedRole = userRole.toLowerCase();
-            if (normalizedRole === 'admin' || normalizedRole === 'moderator') {
-              router.push('/admin/dashboard');
+            if (normalizedRole === "admin" || normalizedRole === "moderator") {
+              router.push("/admin/dashboard");
             }
           } else {
             // Token abgelaufen - entfernen
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('userRole');
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("userRole");
           }
         } catch (error) {
-          console.error('Token validation error:', error);
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('userRole');
+          console.error("Token validation error:", error);
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userRole");
         }
       }
     });
@@ -134,8 +134,8 @@ export default defineComponent({
     const handleLogin = async () => {
       try {
         isLoading.value = true;
-        errorMessage.value = '';
-        successMessage.value = '';
+        errorMessage.value = "";
+        successMessage.value = "";
 
         // Login-Daten vorbereiten
         const loginData: Record<string, string> = {};
@@ -153,21 +153,21 @@ export default defineComponent({
 
         // API-Anfrage OHNE withCredentials, da das Backend es nicht unterstützt
         const response = await axios.post(
-          'https://final-project-backend-rsqk.onrender.com/auth/local/login',
+          "https://final-project-backend-rsqk.onrender.com/auth/local/login",
           loginData,
           {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { "Content-Type": "application/json" },
             // withCredentials: true entfernt wegen CORS-Konflikt
           }
         );
 
-        console.log('Login response:', response.data); // Debug-Ausgabe
+        console.log("Login response:", response.data); // Debug-Ausgabe
 
         // Da das Backend Tokens im Response Body zurückgibt (wie im ersten Login-Code)
         const { access_token, refresh_token } = response.data;
 
         if (!access_token) {
-          errorMessage.value = 'Keine Authentifizierungsdaten erhalten.';
+          errorMessage.value = "Keine Authentifizierungsdaten erhalten.";
           return;
         }
 
@@ -175,17 +175,17 @@ export default defineComponent({
         let decoded: DecodedToken;
         try {
           decoded = jwtDecode<DecodedToken>(access_token);
-          console.log('Decoded token:', decoded); // Debug-Ausgabe
-          console.log('Token content:', JSON.stringify(decoded, null, 2)); // Vollständige Token-Struktur
+          console.log("Decoded token:", decoded); // Debug-Ausgabe
+          console.log("Token content:", JSON.stringify(decoded, null, 2)); // Vollständige Token-Struktur
         } catch (e) {
-          console.error('Token decode error:', e);
-          errorMessage.value = 'Fehler beim Verarbeiten der Anmeldedaten.';
+          console.error("Token decode error:", e);
+          errorMessage.value = "Fehler beim Verarbeiten der Anmeldedaten.";
           return;
         }
 
         // Verschiedene mögliche Strukturen für die Rolle prüfen
-        let userRole = '';
-        
+        let userRole = "";
+
         // Möglichkeit 1: role direkt im Token
         if (decoded.role) {
           userRole = decoded.role;
@@ -199,46 +199,47 @@ export default defineComponent({
           userRole = (decoded as any).user.role;
         }
 
-        console.log('Extracted user role:', userRole);
+        console.log("Extracted user role:", userRole);
 
         // Überprüfen ob Benutzer Admin-Berechtigung hat
         // Rolle in Kleinbuchstaben konvertieren für den Vergleich
         const normalizedRole = userRole.toLowerCase();
-        
-        if (normalizedRole !== 'admin' && normalizedRole !== 'moderator') {
-          errorMessage.value = `Zugriff verweigert. Sie benötigen Admin-Rechte. Ihre Rolle: ${userRole || 'nicht gefunden'}`;
-          
+
+        if (normalizedRole !== "admin" && normalizedRole !== "moderator") {
+          errorMessage.value = `Zugriff verweigert. Sie benötigen Admin-Rechte. Ihre Rolle: ${
+            userRole || "nicht gefunden"
+          }`;
+
           // Debug: Zeige komplette Token-Struktur
-          console.error('Vollständiges Token-Objekt:', decoded);
+          console.error("Vollständiges Token-Objekt:", decoded);
           return;
         }
 
         // Token speichern (wie im normalen Login)
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('refreshToken', refresh_token);
-        localStorage.setItem('userRole', userRole);
+        localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+        localStorage.setItem("userRole", userRole);
 
-        successMessage.value = 'Anmeldung erfolgreich! Sie werden weitergeleitet...';
+        successMessage.value = "Anmeldung erfolgreich! Sie werden weitergeleitet...";
 
         // Weiterleitung zum Admin-Dashboard nach kurzer Verzögerung
         setTimeout(() => {
-          const redirectTo = (route.query.redirect as string) || '/admin/dashboard';
+          const redirectTo = (route.query.redirect as string) || "/admin/dashboard";
           router.push(redirectTo);
         }, 1000);
-
       } catch (error: any) {
-        console.error('Login error:', error);
-        
+        console.error("Login error:", error);
+
         if (error.response?.status === 401) {
-          errorMessage.value = 'Ungültige Anmeldedaten. Bitte überprüfen Sie Benutzername und Passwort.';
+          errorMessage.value = "Ungültige Anmeldedaten. Bitte überprüfen Sie Benutzername und Passwort.";
         } else if (error.response?.status === 403) {
-          errorMessage.value = 'Zugriff verweigert. Sie haben keine Admin-Berechtigung.';
+          errorMessage.value = "Zugriff verweigert. Sie haben keine Admin-Berechtigung.";
         } else if (error.response?.data?.message) {
           errorMessage.value = error.response.data.message;
         } else if (error.request) {
-          errorMessage.value = 'Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.';
+          errorMessage.value = "Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.";
         } else {
-          errorMessage.value = 'Ein unerwarteter Fehler ist aufgetreten.';
+          errorMessage.value = "Ein unerwarteter Fehler ist aufgetreten.";
         }
       } finally {
         isLoading.value = false;
@@ -247,10 +248,10 @@ export default defineComponent({
 
     // Formular zurücksetzen
     const resetForm = () => {
-      loginForm.username = '';
-      loginForm.password = '';
-      errorMessage.value = '';
-      successMessage.value = '';
+      loginForm.username = "";
+      loginForm.password = "";
+      errorMessage.value = "";
+      successMessage.value = "";
     };
 
     return {
@@ -259,17 +260,17 @@ export default defineComponent({
       errorMessage,
       successMessage,
       handleLogin,
-      resetForm
+      resetForm,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .admin-login-page {
   min-height: 100vh;

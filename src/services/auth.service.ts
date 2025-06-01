@@ -1,178 +1,144 @@
-// src/services/auth.service.ts
-import { jwtDecode } from 'jwt-decode';
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 interface DecodedToken {
-  sub: string;
-  email: string;
-  role: string;
-  exp: number;
-  iat: number;
+  exp?: number;
+  role?: string;
+  name?: string;
+  email?: string;
+  [key: string]: any;
 }
 
 class AuthService {
-  /**
-   * Prüft ob ein Benutzer eingeloggt ist
-   */
+  private accessTokenKey = "access_token";
+  private refreshTokenKey = "refresh_token";
+  private refreshTimeoutId: any = null;
+
+  async login(email: string, password: string): Promise<{ success: boolean; role?: string }> {
+    try {
+      const response = await axios.post("/auth/local/login", { email, password });
+      const { access_token, refresh_token } = response.data;
+
+      localStorage.setItem(this.accessTokenKey, access_token);
+      localStorage.setItem(this.refreshTokenKey, refresh_token);
+
+      const decoded = jwtDecode<DecodedToken>(access_token);
+
+      this.scheduleTokenRefresh(); // ⏱ automatischer Refresh aktivieren
+
+      return { success: true, role: decoded.role };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false };
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    clearTimeout(this.refreshTimeoutId);
+  }
+
+  adminLogout(): void {
+    this.logout();
+  }
+
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.accessTokenKey);
+  }
+
   isLoggedIn(): boolean {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAccessToken();
+    console.log("[auth] Token gefunden (isLoggedIn):", token);
     if (!token) return false;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      const currentTime = Date.now() / 1000;
-      
-      // Token ist noch gültig
-      return decoded.exp > currentTime;
-    } catch (error) {
-      console.error('Token validation error:', error);
+      const now = Date.now() / 1000;
+      return decoded.exp !== undefined && decoded.exp > now;
+    } catch {
       return false;
     }
   }
 
-  /**
-   * Prüft ob ein Admin eingeloggt ist
-   */
   isAdminLoggedIn(): boolean {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAccessToken();
+    console.log("[auth] Token gefunden (isAdminLoggedIn):", token);
     if (!token) return false;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      const currentTime = Date.now() / 1000;
-      
-      // Token muss gültig sein
-      if (decoded.exp <= currentTime) {
-        return false;
-      }
-
-      // Rolle extrahieren (verschiedene Möglichkeiten)
-      let userRole = '';
-      if (decoded.role) {
-        userRole = decoded.role;
-      } else if ((decoded as any).roles && Array.isArray((decoded as any).roles)) {
-        userRole = (decoded as any).roles[0];
-      } else if ((decoded as any).user && (decoded as any).user.role) {
-        userRole = (decoded as any).user.role;
-      }
-
-      // Prüfen ob Admin oder Moderator (case-insensitive)
-      const normalizedRole = userRole.toLowerCase();
-      return normalizedRole === 'admin' || normalizedRole === 'moderator';
-      
-    } catch (error) {
-      console.error('Admin token validation error:', error);
+      return decoded.role === "ADMIN" || decoded.role === "MODERATOR";
+    } catch {
       return false;
     }
   }
 
-  /**
-   * Holt die aktuelle Benutzerrolle
-   */
-  getUserRole(): string | null {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return null;
-
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      
-      // Rolle extrahieren
-      if (decoded.role) {
-        return decoded.role;
-      } else if ((decoded as any).roles && Array.isArray((decoded as any).roles)) {
-        return (decoded as any).roles[0];
-      } else if ((decoded as any).user && (decoded as any).user.role) {
-        return (decoded as any).user.role;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error getting user role:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Holt die Benutzerdaten aus dem Token
-   */
   getUserData(): DecodedToken | null {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAccessToken();
     if (!token) return null;
 
     try {
       return jwtDecode<DecodedToken>(token);
-    } catch (error) {
-      console.error('Error decoding token:', error);
+    } catch {
       return null;
     }
   }
 
-  /**
-   * Logout - entfernt alle Token
-   */
-  logout(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('adminRole');
-  }
-
-  /**
-   * Admin Logout
-   */
-  adminLogout(): void {
-    this.logout();
-    // Weiterleitung zur Admin-Login-Seite
-    window.location.href = '/admin';
-  }
-
-  /**
-   * Prüft ob das Token bald abläuft (innerhalb der nächsten 5 Minuten)
-   */
-  isTokenExpiringSoon(): boolean {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return true;
+  // ⏱ Automatischer Refresh vor Tokenablauf
+  scheduleTokenRefresh(): void {
+    const token = this.getAccessToken();
+    if (!token) return;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      const currentTime = Date.now() / 1000;
-      const timeUntilExpiry = decoded.exp - currentTime;
-      
-      // Token läuft in weniger als 5 Minuten ab
-      return timeUntilExpiry < 300;
-    } catch (error) {
-      return true;
+      if (!decoded.exp) return;
+
+      const now = Date.now() / 1000;
+      const refreshTime = decoded.exp - now - 60; // 1 Minute vorher
+
+      if (refreshTime <= 0) {
+        this.refreshAccessToken(); // sofort erneuern
+        return;
+      }
+
+      this.refreshTimeoutId = setTimeout(() => {
+        this.refreshAccessToken();
+      }, refreshTime * 1000);
+    } catch (e) {
+      console.error("Fehler beim Planen des Token-Refresh:", e);
     }
   }
 
-  /**
-   * Erneuert das Access Token mit dem Refresh Token
-   */
-  async refreshToken(): Promise<boolean> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return false;
+  // 🔁 Token manuell erneuern
+  async refreshAccessToken(): Promise<void> {
+    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken) {
+      this.logout();
+      window.location.href = "/login-register";
+      return;
+    }
 
     try {
-      const response = await fetch('https://final-project-backend-rsqk.onrender.com/auth/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refresh_token: refreshToken })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.access_token);
-        if (data.refresh_token) {
-          localStorage.setItem('refreshToken', data.refresh_token);
+      const response = await axios.post(
+        "/auth/refresh",
+        {},
+        {
+          baseURL: "https://final-project-backend-rsqk.onrender.com",
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
         }
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      return false;
+      );
+
+      const newAccessToken = response.data.access_token;
+      localStorage.setItem(this.accessTokenKey, newAccessToken);
+
+      this.scheduleTokenRefresh(); // neuen Timer starten
+    } catch (e) {
+      console.error("Token konnte nicht erneuert werden:", e);
+      this.logout();
+      window.location.href = "/login-register";
     }
   }
 }

@@ -1,5 +1,5 @@
 // src/services/ticket.service.ts
-import axios from 'axios';
+import api from '@/services/axiosInstance';
 import { authService } from './auth.service';
 
 // Ticket-Status-Typen
@@ -209,7 +209,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.get(`${API_URL}/tickets`, {
+        const response = await api.get(`${API_URL}/tickets`, {
           headers: {
             Authorization: `Bearer ${token}`
           },
@@ -233,7 +233,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.get(`${API_URL}/tickets/${id}`, {
+        const response = await api.get(`${API_URL}/tickets/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -272,7 +272,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.post(`${API_URL}/tickets`, ticketData, {
+        const response = await api.post(`${API_URL}/tickets`, ticketData, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -307,7 +307,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.patch(`${API_URL}/tickets/${id}`, updates, {
+        const response = await api.patch(`${API_URL}/tickets/${id}`, updates, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -368,7 +368,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.post(`${API_URL}/tickets/${ticketId}/messages`, {
+        const response = await api.post(`${API_URL}/tickets/${ticketId}/messages`, {
           message,
           userId,
           userName,
@@ -422,7 +422,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.get(`${API_URL}/tickets/stats`, {
+        const response = await api.get(`${API_URL}/tickets/stats`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -471,7 +471,7 @@ export const ticketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         const token = authService.getAdminToken();
-        const response = await axios.get(`${API_URL}/admins`, {
+        const response = await api.get(`${API_URL}/admins`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
