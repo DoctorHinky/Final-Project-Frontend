@@ -4,7 +4,7 @@
     <ContentBlocksSection />
     <QuizSection />
     <CommunitySection />
-    <Authors/>
+    <Authors />
     <SubscriptionSection />
   </main>
 </template>
@@ -40,7 +40,6 @@ export default defineComponent({
   flex-direction: column;
   width: 100vw;
   gap: map.get(vars.$spacing, xxxl);
-  padding-bottom: map.get(vars.$spacing, xxxl);
+  padding: 180px 0px !important;
 }
-
 </style>

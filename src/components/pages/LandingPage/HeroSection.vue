@@ -86,6 +86,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 100px 20px !important; /* Platz für das Sticky Header */
   
   &::before {
     content: '';
