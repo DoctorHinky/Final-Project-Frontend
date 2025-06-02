@@ -1,3 +1,5 @@
+import type { PostCategory } from "./Post.Category.types";
+
 export interface Article {
   id: string;
   title: string;
@@ -7,6 +9,7 @@ export interface Article {
   tags: string[];
   forKids: boolean;
   ageRestriction: number;
+  category: PostCategory;
   isCertifiedAuthor: false;
   authorId: string | null;
   moderatorId: string | null;
