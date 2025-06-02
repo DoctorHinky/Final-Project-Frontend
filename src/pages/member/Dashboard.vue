@@ -26,6 +26,7 @@ import ArticleEditor from "@/components/pages/DashboardPages/CreateArticle"; // 
 // Services
 import { authService } from "@/services/auth.service";
 import { authorService } from "@/services/author.service";
+import type { Article } from "@/types/Article";
 
 export default defineComponent({
   name: "MemberDashboard",
