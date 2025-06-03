@@ -513,7 +513,7 @@ export default defineComponent({
         sessionStorage.setItem("access_token", access_token);
         sessionStorage.setItem("refresh_token", refresh_token);
 
-        window.location.replace("/admin/dashboard");
+        window.location.replace("/member/dashboard");
       } catch (error: any) {
         registerStatus.success = false;
         if (error.response?.status === 400) {
