@@ -1,4 +1,5 @@
 .
+./.env
 ./.gitignore
 ./.vite
 ./.vite/deps
@@ -19,8 +20,6 @@
 ./public
 ./readme.md
 ./src
-./src/.env
-./src/.gitignore
 ./src/App.vue
 ./src/assets
 ./src/assets/images
@@ -168,6 +167,8 @@
 ./src/services/axiosInstance.ts
 ./src/services/cloudinaryService.ts
 ./src/services/ticket.service.ts
+./src/services/user.service.ts
+./src/services/user.types.ts
 ./src/style
 ./src/style/base
 ./src/style/base/animations.scss

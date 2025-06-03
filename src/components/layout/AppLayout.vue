@@ -1,7 +1,7 @@
 <!-- src/components/layout/AppLayout.vue -->
 <template>
   <div class="app-layout" :class="{ 'theme-light': isLightTheme, 'theme-dark': !isLightTheme }">
-    <AppHeader :site-name="'Eltern & Kind'" :is-light-theme="isLightTheme" @toggle-theme="toggleTheme" />
+    <AppHeader :site-name="'LearnToGrow'" :is-light-theme="isLightTheme" @toggle-theme="toggleTheme" />
 
     <div class="main-content">
       <router-view />
@@ -46,21 +46,16 @@ export default defineComponent({
 
 .app-layout {
   min-height: 100vh;
-
-  &.theme-light {
-    background-color: mixins.theme-color('light', primary-bg);
-    color: mixins.theme-color('light', text-primary);
-    transition: all 0.4s ease-out;
+  @each $theme in ('light', 'dark') {
+    &.theme-#{$theme} {
+      background-color: mixins.theme-color($theme, primary-bg);
+      color: mixins.theme-color($theme, text-primary);
+      transition: all 0.4s ease-out;
+    }
   }
-
-  &.theme-dark {
-    background-color: mixins.theme-color('dark', primary-bg);
-    color: mixins.theme-color('dark', text-primary);
-    transition: all 0.4s ease-out;
-  }
-
   .main-content {
     /* Fester Abstand zum Header für alle Seiten */
+    padding-top: 50px;
     /* Anpassbar je nach Höhe des Headers */
   }
 }

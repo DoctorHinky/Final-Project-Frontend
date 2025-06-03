@@ -203,8 +203,6 @@ export default defineComponent({
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  /* Langsamer Background-Toggle mit verzögerter Transition */
-  transition: background 1.5s cubic-bezier(0.19, 1, 0.22, 1), color 0.4s ease-out;
 
   /* Schriftstil nur für h1-h6 Elemente */
   h1,
@@ -216,15 +214,12 @@ export default defineComponent({
     font-family: map.get(vars.$fonts, primary);
   }
 
-  /* Theme-spezifische Hintergründe */
-  &.theme-light {
-    background: linear-gradient(135deg, #e9f7ec, #f8fff9, #ffffff);
-    color: map.get(map.get(vars.$colors, light), text-primary);
-  }
-
-  &.theme-dark {
-    background: linear-gradient(135deg, #081812, #0f2419, #173828);
-    color: map.get(map.get(vars.$colors, dark), text-primary);
+  @each $theme in ('light', 'dark') {
+    &.theme-#{$theme} {
+      background-color: mixins.theme-color($theme, primary-bg);
+      color: mixins.theme-color($theme, text-primary);
+      transition: all 0.4s ease-out;
+    }
   }
 }
 

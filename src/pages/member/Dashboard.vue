@@ -38,7 +38,7 @@ export default defineComponent({
     Notifications,
     Settings,
     Library,
-    ArticleEditor, // Neue Komponente registrieren
+    ArticleEditor, 
   },
   props: {
     // Standardtab aus der Routerkonfiguration
