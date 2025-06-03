@@ -52,6 +52,7 @@
       <div class="sidebar-overlay" v-if="isSidebarOpen && isSmallScreen" @click="closeSidebar" aria-hidden="true"></div>
     </transition>
   </div>
+
 </template>
 
 <script lang="ts">
@@ -84,7 +85,7 @@ export default defineComponent({
     const isSmallScreen = ref(window.innerWidth < 1024);
     const isSidebarOpen = ref(window.innerWidth >= 1024); // Default offen auf Desktop
     const userName = ref('Mitglied');
-    
+
     // Theme-Service verwenden
     const isLightTheme = themeService.isLightTheme;
 
@@ -155,7 +156,7 @@ export default defineComponent({
     // Debounce-Funktion für bessere Performance
     const debounce = (fn: Function, ms = 300) => {
       let timeoutId: ReturnType<typeof setTimeout>;
-      return  (...args: any[]) => {
+      return (...args: any[]) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => fn.apply(this, args), ms);
       };
@@ -351,7 +352,7 @@ export default defineComponent({
   flex: 1;
   min-height: calc(100vh - 70px);
   padding-top: 70px;
-  transition: all 0.4s ease-out; 
+  transition: all 0.4s ease-out;
   position: relative;
 }
 

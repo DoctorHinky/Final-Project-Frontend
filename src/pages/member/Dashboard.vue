@@ -33,12 +33,11 @@ export default defineComponent({
     MemberLayout,
     Overview,
     MyArticles,
-    Favorites,
     Friends,
     Notifications,
     Settings,
     Library,
-    ArticleEditor, 
+    ArticleEditor,
   },
   props: {
     // Standardtab aus der Routerkonfiguration
@@ -64,7 +63,6 @@ export default defineComponent({
       const map: Record<string, any> = {
         overview: Overview,
         "my-articles": MyArticles,
-        favorites: Favorites,
         friends: Friends,
         notifications: Notifications,
         settings: Settings,
@@ -99,8 +97,6 @@ export default defineComponent({
           return "Meine Artikel";
         case "create-article":
           return "Artikel erstellen";
-        case "favorites":
-          return "Favoriten";
         case "friends":
           return "Freunde";
         case "notifications":
@@ -170,7 +166,9 @@ export default defineComponent({
 <style scoped>
 .dashboard-wrapper {
   max-width: 2000px;
-  margin: 0 auto; /* Zentriert den Inhalt horizontal */
-  padding: 0 16px; /* Optional: Innenabstand für kleinere Bildschirme */
+  margin: 0 auto;
+  /* Zentriert den Inhalt horizontal */
+  padding: 0 16px;
+  /* Optional: Innenabstand für kleinere Bildschirme */
 }
 </style>

@@ -81,7 +81,6 @@ export default defineComponent({
       return [
         ...baseItems,
         { id: 'library', text: 'Bibliothek', icon: BookOpenIcon },
-        { id: 'favorites', text: 'Favoriten', icon: HeartIcon },
         { id: 'friends', text: 'Freunde', icon: UserGroupIcon },
         { id: 'notifications', text: 'Benachrichtigungen', icon: BellIcon },
         { id: 'settings', text: 'Einstellungen', icon: Cog6ToothIcon }
