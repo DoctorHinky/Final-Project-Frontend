@@ -29,8 +29,12 @@
 ./src/components
 ./src/components/admin
 ./src/components/admin/AdminSidebar.vue
-./src/components/admin/authors
-./src/components/admin/authors/AuthorList.vue
+./src/components/admin/DeletedUsers
+./src/components/admin/DeletedUsers/DeletedUserDetail.vue
+./src/components/admin/DeletedUsers/DeletedUsers.vue
+./src/components/admin/DeletedUsers/DeletedUsersList.vue
+./src/components/admin/DeletedUsers/DeletedUsersSearch.vue
+./src/components/admin/DeletedUsers/DeletedUsersStatistics.vue
 ./src/components/admin/posts
 ./src/components/admin/posts/PostList.vue
 ./src/components/admin/staff
