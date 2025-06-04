@@ -22,14 +22,6 @@
         <span class="nav-text">{{ item.text }}</span>
       </div>
     </nav>
-
-    <!-- Sidebar-Footer mit Abmelde-Button -->
-    <div class="sidebar-footer">
-      <button class="logout-button" @click="$emit('logout')">
-        <ArrowRightOnRectangleIcon class="h-5 w-5 LogoutIcon" />
-        <span>Abmelden</span>
-      </button>
-    </div>
   </aside>
 </template>
 
@@ -43,7 +35,6 @@ import {
   BellIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
-  ArrowRightOnRectangleIcon,
   PencilIcon // Neues Icon für Artikel erstellen
 } from '@heroicons/vue/24/outline';
 import { authorService } from '@/services/author.service'; // AuthorService importieren
@@ -58,7 +49,6 @@ export default defineComponent({
     BellIcon,
     Cog6ToothIcon,
     DocumentTextIcon,
-    ArrowRightOnRectangleIcon,
     PencilIcon // Neues Icon registrieren
   },
   props: {
@@ -72,7 +62,7 @@ export default defineComponent({
     }
   },
   emits: ['select-menu', 'close', 'logout'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     // Autor-Status überprüfen
     const isAuthor = ref(false);
     
@@ -91,7 +81,6 @@ export default defineComponent({
       return [
         ...baseItems,
         { id: 'library', text: 'Bibliothek', icon: BookOpenIcon },
-        { id: 'favorites', text: 'Favoriten', icon: HeartIcon },
         { id: 'friends', text: 'Freunde', icon: UserGroupIcon },
         { id: 'notifications', text: 'Benachrichtigungen', icon: BellIcon },
         { id: 'settings', text: 'Einstellungen', icon: Cog6ToothIcon }
@@ -258,50 +247,6 @@ export default defineComponent({
 
       .nav-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      }
-    }
-  }
-
-  // Sidebar-Footer
-  .sidebar-footer {
-    padding: map.get(vars.$spacing, m);
-    border-top: 1px solid;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        border-color: mixins.theme-color($theme, border-light);
-        transition: all 0.4s ease-out;
-      }
-    }
-
-    .logout-button {
-      width: 100%;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      padding: map.get(vars.$spacing, m);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-      background: none;
-      border: 1px solid;
-      cursor: pointer;
-      transition: all 0.3s;
-
-      .LogoutIcon {
-        width: 20px;
-      }
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary); // Dynamische Textfarbe
-          border-color: rgb(255, 0, 0);
-          transition: all 0.4s ease-out;
-
-          &:hover {
-            background-color: rgba(255, 0, 0, 0.308);
-            border-color: rgb(255, 0, 0);
-            color: mixins.theme-color($theme, text-primary); // Dynamische Hover-Textfarbe
-          }
-        }
       }
     }
   }

@@ -18,20 +18,8 @@
       </div>
     </nav>
 
-    <!-- Admin-Hinweis -->
-    <div class="admin-restricted">
-      <span class="lock-icon">
-        <LockClosedIcon class="h-4 w-4" />
-      </span>
-      <span>NUR FÜR ADMIN</span>
-    </div>
-
     <!-- Sidebar-Footer mit Abmelde-Button -->
     <div class="sidebar-footer">
-      <button class="logout-button" @click="$emit('logout')">
-        <LogoutIcon class="h-4 w-4 Icon" />
-        <span>Abmelden</span>
-      </button>
     </div>
   </aside>
 </template>
@@ -42,12 +30,11 @@ import { useRouter, useRoute } from 'vue-router';
 import { 
   MagnifyingGlassIcon, 
   UsersIcon, 
-  PencilIcon, 
+  UserMinusIcon,
   DocumentTextIcon, 
   TicketIcon,
   StarIcon,
   LockClosedIcon,
-  ArrowRightOnRectangleIcon as LogoutIcon
 } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
@@ -55,12 +42,11 @@ export default defineComponent({
   components: {
     MagnifyingGlassIcon,
     UsersIcon,
-    PencilIcon,
+    UserMinusIcon,
     DocumentTextIcon,
     TicketIcon,
     StarIcon,
     LockClosedIcon,
-    LogoutIcon
   },
   props: {
     isOpen: {
@@ -69,7 +55,7 @@ export default defineComponent({
     },
     activeMenu: {
       type: String,
-      default: 'user-search'
+      default: ''
     }
   },
   emits: ['select-menu', 'close', 'logout'],
@@ -80,19 +66,9 @@ export default defineComponent({
     // Menüelemente definieren mit HeroIcons
     const menuItems = ref([
       { 
-        id: 'user-search', 
-        text: 'User Suche', 
-        icon: MagnifyingGlassIcon
-      },
-      { 
         id: 'all-users', 
         text: 'Alle User', 
         icon: UsersIcon
-      },
-      { 
-        id: 'all-authors', 
-        text: 'Alle Autoren', 
-        icon: PencilIcon
       },
       { 
         id: 'active-posts', 
@@ -105,6 +81,11 @@ export default defineComponent({
         icon: TicketIcon
       },
       { 
+        id: 'deleted-users', 
+        text: 'Gelöschte User', 
+        icon: UserMinusIcon // Besseres Icon für gelöschte User
+      },
+      { 
         id: 'staff-team', 
         text: 'Staff Team', 
         icon: StarIcon
@@ -113,31 +94,21 @@ export default defineComponent({
 
     // Prüfen ob ein Item aktiv ist
     const isActiveItem = (itemId: string) => {
-      // Spezialbehandlung für Tickets
-      if (itemId === 'tickets' && route.path === '/admin/tickets') {
-        return true;
-      }
-      // Für andere Items den activeMenu prop verwenden
+      // Für alle Items den activeMenu prop verwenden
       return props.activeMenu === itemId;
     };
 
     // Menüpunkt auswählen - Vereinfachte Version
     const selectMenuItem = (itemId: string) => {
-      console.log('Sidebar: Selecting menu item:', itemId); // Debug-Log
       
       // IMMER das Event emittieren
       emit('select-menu', itemId);
       
-      // Zusätzliche Navigation nur für spezielle Fälle
-      if (itemId === 'tickets') {
-        router.push('/admin/tickets');
-      } else if (route.path === '/admin/tickets') {
-        // Wenn wir auf der Tickets-Seite sind und einen anderen Tab wählen
-        router.push({
-          path: '/admin/dashboard',
-          query: { tab: itemId }
-        });
-      }
+      // Für alle Items zum Dashboard mit Tab navigieren
+      router.push({
+        path: '/admin/dashboard',
+        query: { tab: itemId }
+      });
     };
 
     return {
@@ -198,6 +169,7 @@ export default defineComponent({
       font-size: 1.5rem;
       cursor: pointer;
       color: #888;
+      transition: color 0.3s ease;
 
       &:hover {
         color: #fff;
@@ -222,6 +194,7 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s;
       color: #a0a0a0;
+      position: relative;
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
@@ -232,7 +205,17 @@ export default defineComponent({
         background: linear-gradient(135deg, #333, #222);
         color: #ff9800;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        border-left: 3px solid #ff9800;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background-color: #ff9800;
+          border-radius: 0 3px 3px 0;
+        }
       }
 
       .nav-icon {
@@ -242,31 +225,18 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         width: 24px;
+        height: 24px;
+
+        svg {
+          width: 24px;
+          height: 24px;
+        }
       }
 
       .nav-text {
         font-weight: 500;
+        font-size: 0.95rem;
       }
-    }
-  }
-
-  // Admin-Hinweis
-  .admin-restricted {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    gap: 8px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #ff9800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-top: 1px dashed #333;
-    background-color: rgba(255, 152, 0, 0.1);
-
-    .lock-icon {
-      color: #ff9800;
     }
   }
 
@@ -274,32 +244,7 @@ export default defineComponent({
   .sidebar-footer {
     padding: 16px;
     border-top: 1px solid #333;
-
-    .logout-button {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      padding: 12px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #600, #800);
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 500;
-
-      &:hover {
-        background: linear-gradient(135deg, #700, #900);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-    }
   }
-}
-.Icon{
-  width: 20px;
 }
 
 // Medienquery für große Bildschirme
@@ -312,5 +257,23 @@ export default defineComponent({
       transform: translateX(0);
     }
   }
+}
+
+// Scrollbar Styling
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: #1c1c1c;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>

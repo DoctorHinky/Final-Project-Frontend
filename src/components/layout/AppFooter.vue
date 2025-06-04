@@ -48,11 +48,10 @@
             schwierigen Zeiten.</p>
           <div class="social-icons">
             <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              <!-- Heroicon: camera -->
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
               </svg>
             </a>
           </div>
@@ -282,20 +281,30 @@ export default defineComponent({
             justify-content: center;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            transform: translateZ(0);
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
                 color: mixins.theme-color($theme, accent-teal);
                 transition: all 0.4s ease;
+                box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, accent-teal), 0.15);
 
                 &:hover {
-                  transform: translateY(-5px);
+                  transform: translateY(-8px) translateZ(20px) scale(1.1);
                   background-color: mixins.theme-color($theme, accent-teal);
                   color: white;
-                  box-shadow: 0 5px 15px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+                  box-shadow: 
+                    0 15px 35px rgba(mixins.theme-color($theme, accent-teal), 0.4),
+                    0 5px 15px rgba(0, 0, 0, 0.08);
+                }
+
+                &:active {
+                  transform: translateY(-4px) scale(1.05);
+                  transition: all 0.1s ease;
                 }
               }
             }

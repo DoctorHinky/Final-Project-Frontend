@@ -52,6 +52,7 @@
       <div class="sidebar-overlay" v-if="isSidebarOpen && isSmallScreen" @click="closeSidebar" aria-hidden="true"></div>
     </transition>
   </div>
+
 </template>
 
 <script lang="ts">
@@ -60,6 +61,7 @@ import { useRouter } from 'vue-router';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import MemberSidebar from '@/components/member/MemberSidebar.vue';
 import { authService } from '@/services/auth.service';
+import { themeService } from '@/services/theme.service';
 
 export default defineComponent({
   name: 'MemberLayout',
@@ -82,8 +84,10 @@ export default defineComponent({
     const router = useRouter();
     const isSmallScreen = ref(window.innerWidth < 1024);
     const isSidebarOpen = ref(window.innerWidth >= 1024); // Default offen auf Desktop
-    const isLightTheme = ref(localStorage.getItem('theme') !== 'dark');
     const userName = ref('Mitglied');
+
+    // Theme-Service verwenden
+    const isLightTheme = themeService.isLightTheme;
 
     // Benutzerdaten abrufen
     onMounted(() => {
@@ -127,8 +131,7 @@ export default defineComponent({
 
     // Theme umschalten
     const toggleTheme = () => {
-      isLightTheme.value = !isLightTheme.value;
-      localStorage.setItem('theme', isLightTheme.value ? 'light' : 'dark');
+      themeService.toggleTheme();
     };
 
     // Abmelden
@@ -153,7 +156,7 @@ export default defineComponent({
     // Debounce-Funktion für bessere Performance
     const debounce = (fn: Function, ms = 300) => {
       let timeoutId: ReturnType<typeof setTimeout>;
-      return  (...args: any[]) => {
+      return (...args: any[]) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => fn.apply(this, args), ms);
       };
@@ -203,8 +206,6 @@ export default defineComponent({
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  /* Langsamer Background-Toggle mit verzögerter Transition */
-  transition: background 1.5s cubic-bezier(0.19, 1, 0.22, 1), color 0.4s ease-out;
 
   /* Schriftstil nur für h1-h6 Elemente */
   h1,
@@ -216,15 +217,12 @@ export default defineComponent({
     font-family: map.get(vars.$fonts, primary);
   }
 
-  /* Theme-spezifische Hintergründe */
-  &.theme-light {
-    background: linear-gradient(135deg, #e9f7ec, #f8fff9, #ffffff);
-    color: map.get(map.get(vars.$colors, light), text-primary);
-  }
-
-  &.theme-dark {
-    background: linear-gradient(135deg, #081812, #0f2419, #173828);
-    color: map.get(map.get(vars.$colors, dark), text-primary);
+  @each $theme in ('light', 'dark') {
+    &.theme-#{$theme} {
+      background-color: mixins.theme-color($theme, primary-bg);
+      color: mixins.theme-color($theme, text-primary);
+      transition: all 0.4s ease-out;
+    }
   }
 }
 
@@ -354,7 +352,7 @@ export default defineComponent({
   flex: 1;
   min-height: calc(100vh - 70px);
   padding-top: 70px;
-  transition: all 0.4s ease-out; 
+  transition: all 0.4s ease-out;
   position: relative;
 }
 
