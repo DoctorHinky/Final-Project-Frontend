@@ -1,24 +1,24 @@
-<!-- src/components/admin/users/UserList.vue -->
+<!-- src/components/admin/users/DeletedUsersList.vue -->
 <template>
-  <div class="user-list-container">
+  <div class="deleted-users-container">
     <div class="list-header">
-      <h2>Alle Benutzer</h2>
+      <h2>Gelöschte Benutzer</h2>
       <div class="header-actions">
         <div class="filter-container">
-          <!-- Custom Dropdown -->
-          <div class="custom-select" :class="{ open: isDropdownOpen }">
-            <div class="select-trigger" @click="toggleDropdown">
-              <span>{{ getFilterLabel(userFilter) }}</span>
+          <!-- Custom Dropdown für Löschgrund -->
+          <div class="custom-select" :class="{ open: isReasonDropdownOpen }">
+            <div class="select-trigger" @click="toggleReasonDropdown">
+              <span>{{ getReasonLabel(reasonFilter) }}</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </div>
-            <div class="select-options" v-if="isDropdownOpen">
+            <div class="select-options" v-if="isReasonDropdownOpen">
               <div class="select-option" 
-                   v-for="option in filterOptions" 
+                   v-for="option in reasonOptions" 
                    :key="option.value"
-                   :class="{ selected: userFilter === option.value }"
-                   @click="selectFilter(option.value)">
+                   :class="{ selected: reasonFilter === option.value }"
+                   @click="selectReasonFilter(option.value)">
                 {{ option.label }}
               </div>
             </div>
@@ -35,96 +35,71 @@
       </div>
     </div>
 
-    <div class="users-table-container">
-      <table class="users-table">
+    <div class="deleted-users-table-container">
+      <table class="deleted-users-table">
         <thead>
           <tr>
             <th class="col-id">ID</th>
             <th class="col-name">Name</th>
             <th class="col-email">E-Mail</th>
-            <th class="col-status">Status</th>
-            <th class="col-type">Typ</th>
+            <th class="col-reason">Löschgrund</th>
+            <th class="col-date">Gelöscht am</th>
+            <th class="col-deletedby">Gelöscht von</th>
             <th class="col-actions">Aktionen</th>
           </tr>
         </thead>
         <tbody v-if="isLoading">
           <tr>
-            <td colspan="6" class="loading-cell">
+            <td colspan="7" class="loading-cell">
               <div class="loading-spinner"></div>
-              <span>Lade Benutzerdaten...</span>
+              <span>Lade gelöschte Benutzerdaten...</span>
             </td>
           </tr>
         </tbody>
-        <tbody v-else-if="filteredUsers.length === 0">
+        <tbody v-else-if="filteredDeletedUsers.length === 0">
           <tr>
-            <td colspan="6" class="empty-cell">
+            <td colspan="7" class="empty-cell">
               <div class="empty-message">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
                 </svg>
-                <p>Keine Benutzer gefunden</p>
+                <p>Keine gelöschten Benutzer gefunden</p>
               </div>
             </td>
           </tr>
         </tbody>
         <tbody v-else>
           <tr
-            v-for="user in paginatedUsers"
+            v-for="user in paginatedDeletedUsers"
             :key="user.id"
-            @click="viewUserDetails(user.id)"
-            class="user-row"
+            @click="viewDeletedUserDetails(user)"
+            class="deleted-user-row"
             :class="{ 'hidden-user': hiddenUsers.has(user.id) }"
           >
             <td class="col-id">{{ user.id }}</td>
             <td class="col-name">
               <div class="user-name-cell">
-                <div class="user-avatar">
-                  <span v-if="!user.avatarUrl">{{
-                    getUserInitials(user)
-                  }}</span>
-                  <img
-                    v-else
-                    :src="user.avatarUrl"
-                    :alt="`Avatar von ${user.name}`"
-                  />
+                <div class="user-avatar deleted">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
                 </div>
                 <span>{{ user.name }}</span>
               </div>
             </td>
             <td class="col-email">{{ user.email }}</td>
-            <td class="col-status">
-              <span
-                class="status-badge"
-                :class="{
-                  active: user.status === 'active',
-                  inactive: user.status === 'inactive',
-                }"
-              >
-                {{ user.status === "active" ? "Aktiv" : "Inaktiv" }}
+            <td class="col-reason">
+              <span class="reason-badge" :class="getReasonClass(user.deletionReason)">
+                {{ getReasonText(user.deletionReason) }}
               </span>
             </td>
-            <td class="col-type">
-              <span
-                :class="{
-                  'text-red-600 font-bold': user.role === 'ADMIN',
-                  'text-blue-600 font-semibold': user.role === 'AUTHOR',
-                  'text-gray-800': user.role === 'USER',
-                }"
-              >
-                {{ roleLabel(user.role) }}
-              </span>
-            </td>
+            <td class="col-date">{{ formatDate(user.deletedAt) }}</td>
+            <td class="col-deletedby">{{ user.deletedBy }}</td>
             <td class="col-actions">
               <button
                 class="action-button hide-button"
@@ -163,15 +138,11 @@
                 </svg>
               </button>
               <button
-                class="action-button toggle-button"
-                :class="{
-                  deactivate: user.status === 'active',
-                  activate: user.status === 'inactive',
-                }"
-                @click.stop="toggleUserStatus(user)"
+                class="action-button restore-button"
+                @click.stop="restoreUser(user)"
+                title="Benutzer wiederherstellen"
               >
                 <svg
-                  v-if="user.status === 'active'"
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
                   height="18"
@@ -182,11 +153,16 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                  <circle cx="16" cy="12" r="3"></circle>
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                 </svg>
+              </button>
+              <button
+                class="action-button delete-permanent-button"
+                @click.stop="permanentDeleteUser(user)"
+                title="Endgültig löschen"
+              >
                 <svg
-                  v-else
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
                   height="18"
@@ -197,8 +173,10 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                  <circle cx="8" cy="12" r="3"></circle>
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
                 </svg>
               </button>
             </td>
@@ -265,143 +243,123 @@
         :disabled="currentPage === 1"
         @click="currentPage--"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
-      <span class="page-info"
-        >Seite {{ currentPage }} von {{ totalPages }}</span
-      >
+      <span class="page-info">Seite {{ currentPage }} von {{ totalPages }}</span>
 
       <button
         class="pagination-button"
         :disabled="currentPage === totalPages"
         @click="currentPage++"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
     </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
-import type { User } from "@/services/user.types";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import UserService from "@/services/user.service";
 
-type UserRole = "ADMIN" | "AUTHOR" | "USER" | "MODERATOR";
+type DeletionReason = "VIOLATION" | "SELF_DELETION" | "ADMIN_DELETION" | "INACTIVITY" | "OTHER";
+
+interface DeletedUser {
+  id: string;
+  name: string;
+  email: string;
+  deletionReason: DeletionReason;
+  deletedAt: Date;
+  deletedBy: string;
+  additionalInfo?: string;
+}
 
 export default defineComponent({
-  name: "UserList",
-  emits: ["user-selected"],
+  name: "DeletedUsersList",
+  emits: ["user-selected", "user-restored", "user-permanently-deleted"],
   setup(props, { emit }) {
-    const users = ref<User[]>([]);
+    const deletedUsers = ref<DeletedUser[]>([]);
     const isLoading = ref(true);
     const searchQuery = ref("");
-    const userFilter = ref("all");
+    const reasonFilter = ref("all");
     const currentPage = ref(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 15;
     const showHiddenUsers = ref(false);
     const hiddenUsers = ref(new Set<string>());
-    const isDropdownOpen = ref(false);
+    const isReasonDropdownOpen = ref(false);
 
-    // Filter-Optionen für das Custom Dropdown
-    const filterOptions = [
-      { value: "all", label: "Alle Rollen" },
-      { value: "ADMIN", label: "Admins" },
-      { value: "AUTHOR", label: "Autoren" },
-      { value: "USER", label: "Normale Nutzer" },
+    // Filter-Optionen für Löschgrund
+    const reasonOptions = [
+      { value: "all", label: "Alle Löschgründe" },
+      { value: "VIOLATION", label: "Regelverstöße" },
+      { value: "SELF_DELETION", label: "Eigene Löschung" },
+      { value: "ADMIN_DELETION", label: "Admin-Löschung" },
+      { value: "INACTIVITY", label: "Inaktivität" },
+      { value: "OTHER", label: "Sonstige" },
     ];
 
-    function getFilterLabel(value: string): string {
-      const option = filterOptions.find(opt => opt.value === value);
-      return option ? option.label : "Alle Rollen";
+    function getReasonLabel(value: string): string {
+      const option = reasonOptions.find(opt => opt.value === value);
+      return option ? option.label : "Alle Löschgründe";
     }
 
-    function toggleDropdown() {
-      isDropdownOpen.value = !isDropdownOpen.value;
+    function toggleReasonDropdown() {
+      isReasonDropdownOpen.value = !isReasonDropdownOpen.value;
     }
 
-    function selectFilter(value: string) {
-      userFilter.value = value;
-      isDropdownOpen.value = false;
-      resetPagination();
+    function selectReasonFilter(value: string) {
+      reasonFilter.value = value;
+      isReasonDropdownOpen.value = false;
+      currentPage.value = 1;
     }
 
-    // Klick außerhalb des Dropdowns schließt es
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.custom-select')) {
-        isDropdownOpen.value = false;
-      }
-    }
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside);
-    });
-
-    onUnmounted(() => {
-      document.removeEventListener('click', handleClickOutside);
-    });
-
-    function roleLabel(role: UserRole): string {
-      switch (role) {
-        case "ADMIN":
-          return "Admin";
-        case "AUTHOR":
-          return "Autor";
-        case "USER":
-          return "Nutzer";
-        case "MODERATOR":
-          return "Moderator";
+    function getReasonText(reason: DeletionReason): string {
+      switch (reason) {
+        case "VIOLATION":
+          return "Regelverstoß";
+        case "SELF_DELETION":
+          return "Eigene Löschung";
+        case "ADMIN_DELETION":
+          return "Admin-Löschung";
+        case "INACTIVITY":
+          return "Inaktivität";
+        case "OTHER":
+          return "Sonstige";
         default:
           return "Unbekannt";
       }
     }
 
-    onMounted(async () => {
-      isLoading.value = true;
-      try {
-        const allUsers = await UserService.getAllUsers();
-        console.log("GELADENE ROLLEN:", allUsers.map(u => u.role));
-        users.value = allUsers.map((u) => ({
-          id: u.id,
-          name: u.username,
-          email: u.email,
-          status: u.deactivated ? "inactive" : "active",
-          role: ["ADMIN", "AUTHOR", "USER", "MODERATOR"].includes(u.role)
-            ? (u.role as UserRole)
-            : "USER",
-        }));
-      } catch (error) {
-        console.error("Fehler beim Laden der Benutzer:", error);
-      } finally {
-        isLoading.value = false;
+    function getReasonClass(reason: DeletionReason): string {
+      switch (reason) {
+        case "VIOLATION":
+          return "violation";
+        case "SELF_DELETION":
+          return "self-deletion";
+        case "ADMIN_DELETION":
+          return "admin-deletion";
+        case "INACTIVITY":
+          return "inactivity";
+        default:
+          return "other";
       }
-    });
+    }
+
+    function formatDate(date: Date): string {
+      return new Date(date).toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
     // Benutzer ausblenden/einblenden
     const toggleHideUser = (userId: string) => {
@@ -412,18 +370,140 @@ export default defineComponent({
       }
     };
 
-    // Gefilterte Benutzer
-    const filteredUsers = computed(() => {
-      let result = [...users.value];
+    // Alle ausgeblendeten Benutzer wieder einblenden
+    const unhideAllUsers = () => {
+      hiddenUsers.value.clear();
+      showHiddenUsers.value = false;
+    };
+
+    // Detailansicht öffnen
+    const viewDeletedUserDetails = (user: DeletedUser) => {
+      emit('user-selected', user);
+    };
+
+    // Benutzer wiederherstellen
+    const restoreUser = async (user: DeletedUser) => {
+      if (confirm(`Möchten Sie den Benutzer "${user.name}" wirklich wiederherstellen?`)) {
+        try {
+          // TODO: API-Aufruf implementieren
+          // await UserService.restoreUser(user.id);
+          
+          // Aus der Liste entfernen
+          deletedUsers.value = deletedUsers.value.filter(u => u.id !== user.id);
+          
+          // Event emittieren
+          emit('user-restored', user);
+          
+          alert('Benutzer wurde erfolgreich wiederhergestellt.');
+        } catch (error) {
+          console.error('Fehler beim Wiederherstellen:', error);
+          alert('Fehler beim Wiederherstellen des Benutzers.');
+        }
+      }
+    };
+
+    // Benutzer endgültig löschen
+    const permanentDeleteUser = async (user: DeletedUser) => {
+      if (confirm(`ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!\n\nMöchten Sie den Benutzer "${user.name}" wirklich ENDGÜLTIG löschen?`)) {
+        try {
+          // TODO: API-Aufruf implementieren
+          // await UserService.permanentDeleteUser(user.id);
+          
+          // Aus der Liste entfernen
+          deletedUsers.value = deletedUsers.value.filter(u => u.id !== user.id);
+          
+          // Event emittieren
+          emit('user-permanently-deleted', user);
+          
+          alert('Benutzer wurde endgültig gelöscht.');
+        } catch (error) {
+          console.error('Fehler beim endgültigen Löschen:', error);
+          alert('Fehler beim endgültigen Löschen des Benutzers.');
+        }
+      }
+    };
+
+    // Klick außerhalb des Dropdowns
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-select')) {
+        isReasonDropdownOpen.value = false;
+      }
+    }
+
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+      loadDeletedUsers();
+    });
+
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside);
+    });
+
+    // Gelöschte Benutzer laden
+    const loadDeletedUsers = async () => {
+      isLoading.value = true;
+      try {
+        // TODO: API-Aufruf implementieren
+        // const response = await UserService.getDeletedUsers();
+        
+        // Dummy-Daten für Demonstration
+        deletedUsers.value = [
+          {
+            id: "del_001",
+            name: "Max Mustermann",
+            email: "max.mustermann@example.com",
+            deletionReason: "VIOLATION",
+            deletedAt: new Date("2024-01-15T14:30:00"),
+            deletedBy: "Admin Schmidt",
+            additionalInfo: "Mehrfache Verstöße gegen die Community-Richtlinien"
+          },
+          {
+            id: "del_002",
+            name: "Erika Beispiel",
+            email: "erika.beispiel@example.com",
+            deletionReason: "SELF_DELETION",
+            deletedAt: new Date("2024-02-20T09:15:00"),
+            deletedBy: "System"
+          },
+          {
+            id: "del_003",
+            name: "Klaus Tester",
+            email: "klaus.tester@example.com",
+            deletionReason: "INACTIVITY",
+            deletedAt: new Date("2024-03-01T00:00:00"),
+            deletedBy: "System",
+            additionalInfo: "Automatische Löschung nach 2 Jahren Inaktivität"
+          },
+          {
+            id: "del_004",
+            name: "Maria Demo",
+            email: "maria.demo@example.com",
+            deletionReason: "ADMIN_DELETION",
+            deletedAt: new Date("2024-03-10T16:45:00"),
+            deletedBy: "Admin Weber",
+            additionalInfo: "Auf Anfrage des Benutzers per Support-Ticket"
+          },
+        ];
+      } catch (error) {
+        console.error("Fehler beim Laden gelöschter Benutzer:", error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    // Gefilterte gelöschte Benutzer
+    const filteredDeletedUsers = computed(() => {
+      let result = [...deletedUsers.value];
 
       // Ausgeblendete Benutzer filtern
       if (!showHiddenUsers.value) {
         result = result.filter(user => !hiddenUsers.value.has(user.id));
       }
 
-      // Rollenfilter
-      if (userFilter.value !== "all") {
-        result = result.filter(user => user.role === userFilter.value);
+      // Löschgrund-Filter
+      if (reasonFilter.value !== "all") {
+        result = result.filter(user => user.deletionReason === reasonFilter.value);
       }
 
       // Suchfilter
@@ -440,108 +520,53 @@ export default defineComponent({
     });
 
     // Paginierte Benutzer
-    const paginatedUsers = computed(() => {
+    const paginatedDeletedUsers = computed(() => {
       const startIndex = (currentPage.value - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      return filteredUsers.value.slice(startIndex, endIndex);
+      return filteredDeletedUsers.value.slice(startIndex, endIndex);
     });
 
     // Gesamtzahl der Seiten
     const totalPages = computed(() => {
-      return Math.ceil(filteredUsers.value.length / itemsPerPage);
+      return Math.ceil(filteredDeletedUsers.value.length / itemsPerPage);
     });
 
     // Bei Änderung des Filters oder der Suche zur ersten Seite zurückkehren
-    const resetPagination = () => {
+    watch([reasonFilter, searchQuery], () => {
       currentPage.value = 1;
-    };
-
-    // Beobachter für Filter und Suche
-    const setupWatchers = () => {
-      const watchEffect = (callback: () => void) => {
-        return callback;
-      };
-
-      watchEffect(() => {
-        if (userFilter.value) {
-          resetPagination();
-        }
-      })();
-
-      watchEffect(() => {
-        if (searchQuery.value) {
-          resetPagination();
-        }
-      })();
-    };
-
-    setupWatchers();
-
-    // Benutzerdetails anzeigen
-    const viewUserDetails = (userId: string) => {
-      emit("user-selected", userId);
-    };
-
-    // Benutzerstatus umschalten
-    const toggleUserStatus = async (user: User) => {
-      const newStatus = user.status === "inactive" ? false : true;
-
-      try {
-        await UserService.toggleUserDeactivation(user.id, !newStatus);
-        user.status = newStatus ? "inactive" : "active";
-      } catch (error) {
-        console.error("Aktualisierung fehlgeschlagen:", error);
-        alert("Fehler beim Ändern des Benutzerstatus.");
-      }
-    };
-
-    // Benutzer-Initialen generieren
-    const getUserInitials = (user: User): string => {
-      if (!user.name) return "??";
-
-      const nameParts = user.name.split(" ");
-      if (nameParts.length >= 2) {
-        return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
-      }
-
-      return nameParts[0].substring(0, 2).toUpperCase();
-    };
-
-    // Alle ausgeblendeten Benutzer wieder einblenden
-    const unhideAllUsers = () => {
-      hiddenUsers.value.clear();
-      showHiddenUsers.value = false;
-    };
+    });
 
     return {
-      users,
+      deletedUsers,
       isLoading,
       searchQuery,
-      userFilter,
-      showHiddenUsers,
-      hiddenUsers,
-      filteredUsers,
-      paginatedUsers,
+      reasonFilter,
       currentPage,
       totalPages,
-      viewUserDetails,
-      toggleUserStatus,
+      showHiddenUsers,
+      hiddenUsers,
+      filteredDeletedUsers,
+      paginatedDeletedUsers,
+      isReasonDropdownOpen,
+      reasonOptions,
+      getReasonLabel,
+      toggleReasonDropdown,
+      selectReasonFilter,
+      getReasonText,
+      getReasonClass,
+      formatDate,
       toggleHideUser,
-      getUserInitials,
-      roleLabel,
-      isDropdownOpen,
-      filterOptions,
-      getFilterLabel,
-      toggleDropdown,
-      selectFilter,
       unhideAllUsers,
+      viewDeletedUserDetails,
+      restoreUser,
+      permanentDeleteUser,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
-.user-list-container {
+.deleted-users-container {
   background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -576,7 +601,7 @@ export default defineComponent({
     // Custom Select Dropdown
     .custom-select {
       position: relative;
-      min-width: 150px;
+      min-width: 180px;
 
       .select-trigger {
         padding: 8px 12px;
@@ -643,7 +668,7 @@ export default defineComponent({
 
           &.selected {
             background-color: #3a3a3a;
-            color: #0078d7;
+            color: #ff9800;
             font-weight: 500;
           }
 
@@ -685,12 +710,12 @@ export default defineComponent({
   }
 }
 
-.users-table-container {
+.deleted-users-table-container {
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid #333;
 
-  .users-table {
+  .deleted-users-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
@@ -713,7 +738,7 @@ export default defineComponent({
       z-index: 10;
     }
 
-    .user-row {
+    .deleted-user-row {
       cursor: pointer;
       transition: all 0.3s ease;
 
@@ -753,15 +778,16 @@ export default defineComponent({
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: bold;
-          color: white;
-          font-size: 0.8rem;
           overflow: hidden;
 
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+          &.deleted {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+          }
+
+          svg {
+            width: 20px;
+            height: 20px;
           }
         }
       }
@@ -772,34 +798,26 @@ export default defineComponent({
       color: #a0a0a0;
     }
 
-    .col-status,
-    .col-type {
-      width: 120px;
+    .col-reason {
+      width: 150px;
       text-align: center;
+    }
+
+    .col-date {
+      width: 180px;
+      color: #a0a0a0;
+      font-size: 0.85rem;
+    }
+
+    .col-deletedby {
+      width: 150px;
+      color: #888;
     }
 
     .col-actions {
-      width: 120px;
+      width: 140px;
       text-align: right;
       white-space: nowrap;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      text-align: center;
-
-      &.active {
-        background-color: rgba(46, 204, 113, 0.2);
-        color: #2ecc71;
-      }
-
-      &.inactive {
-        background-color: rgba(231, 76, 60, 0.2);
-        color: #e74c3c;
-      }
     }
 
     .action-button {
@@ -830,24 +848,55 @@ export default defineComponent({
         }
       }
 
-      &.toggle-button {
-        &.activate {
-          background-color: rgba(46, 204, 113, 0.2);
-          color: #2ecc71;
+      &.restore-button {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
 
-          &:hover {
-            background-color: rgba(46, 204, 113, 0.3);
-          }
+        &:hover {
+          background-color: rgba(46, 204, 113, 0.3);
         }
+      }
 
-        &.deactivate {
-          background-color: rgba(231, 76, 60, 0.2);
-          color: #e74c3c;
+      &.delete-permanent-button {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
 
-          &:hover {
-            background-color: rgba(231, 76, 60, 0.3);
-          }
+        &:hover {
+          background-color: rgba(231, 76, 60, 0.3);
         }
+      }
+    }
+
+    .reason-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      text-align: center;
+
+      &.violation {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+      }
+
+      &.self-deletion {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+      }
+
+      &.admin-deletion {
+        background-color: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
+      }
+
+      &.inactivity {
+        background-color: rgba(149, 165, 166, 0.2);
+        color: #95a5a6;
+      }
+
+      &.other {
+        background-color: rgba(155, 89, 182, 0.2);
+        color: #9b59b6;
       }
     }
 
@@ -965,27 +1014,6 @@ export default defineComponent({
   }
 }
 
-// Utility-Klassen für Rollendarstellung
-.text-red-600 {
-  color: #dc2626;
-}
-
-.text-blue-600 {
-  color: #2563eb;
-}
-
-.text-gray-800 {
-  color: #cccccc;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -1011,12 +1039,11 @@ export default defineComponent({
     }
   }
 
-  .users-table {
+  .deleted-users-table {
     font-size: 0.9rem;
 
-    .col-id,
-    .col-status,
-    .col-type {
+    .col-deletedby,
+    .col-date {
       display: none;
     }
   }

@@ -1,4 +1,5 @@
 .
+./.env
 ./.gitignore
 ./.vite
 ./.vite/deps
@@ -19,8 +20,6 @@
 ./public
 ./readme.md
 ./src
-./src/.env
-./src/.gitignore
 ./src/App.vue
 ./src/assets
 ./src/assets/images
@@ -30,8 +29,12 @@
 ./src/components
 ./src/components/admin
 ./src/components/admin/AdminSidebar.vue
-./src/components/admin/authors
-./src/components/admin/authors/AuthorList.vue
+./src/components/admin/DeletedUsers
+./src/components/admin/DeletedUsers/DeletedUserDetail.vue
+./src/components/admin/DeletedUsers/DeletedUsers.vue
+./src/components/admin/DeletedUsers/DeletedUsersList.vue
+./src/components/admin/DeletedUsers/DeletedUsersSearch.vue
+./src/components/admin/DeletedUsers/DeletedUsersStatistics.vue
 ./src/components/admin/posts
 ./src/components/admin/posts/PostList.vue
 ./src/components/admin/staff
@@ -168,6 +171,8 @@
 ./src/services/axiosInstance.ts
 ./src/services/cloudinaryService.ts
 ./src/services/ticket.service.ts
+./src/services/user.service.ts
+./src/services/user.types.ts
 ./src/style
 ./src/style/base
 ./src/style/base/animations.scss
