@@ -18,7 +18,6 @@
       </div>
       <div class="header-right">
         <div class="admin-info">
-          <span class="admin-badge">Admin</span>
           <button class="logout-button" @click="handleLogout">
             <span class="logout-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -89,7 +88,7 @@ export default defineComponent({
       switch (activeMenu.value) {
         case 'user-search': return 'User Suche';
         case 'all-users': return 'Alle User';
-        case 'all-authors': return 'Alle Autoren';
+        case 'deleted-users': return 'Gelöschte Benutzer';
         case 'active-posts': return 'Active Posts';
         case 'tickets': return 'Ticket Management';
         case 'staff-team': return 'Staff Team';
@@ -119,7 +118,6 @@ export default defineComponent({
 
     // Menüpunkt auswählen
     const onMenuSelect = (menuItem: string) => {
-      console.log('AdminLayout: Menu selected:', menuItem);
       
       // Navigation basierend auf dem ausgewählten Menüpunkt
       if (menuItem === 'tickets') {
@@ -139,8 +137,12 @@ export default defineComponent({
 
     // Abmelden
     const handleLogout = () => {
+      // Beide Sessions beenden für vollständiges Logout
       authService.adminLogout();
-      router.push('/admin/login');
+      authService.logout();
+      
+      // Zur allgemeinen Login-Seite navigieren
+      router.push('/login-register');
     };
 
     // Handler für die Bildschirmgröße
@@ -266,25 +268,6 @@ export default defineComponent({
   gap: 12px;
 }
 
-/* Admin-Info-Bereich */
-.admin-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Admin-Abzeichen */
-.admin-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  background-color: #333;
-  color: #ff9800;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  border: 1px solid #ff9800;
-}
 
 /* Abmelde-Button */
 .logout-button {

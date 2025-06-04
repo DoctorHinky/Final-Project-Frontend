@@ -162,25 +162,18 @@ const routes: Array<RouteRecordRaw> = [
             name: "AdminDashboard",
             component: () => import("../pages/admin/Dashboard.vue"),
             props: (route) => ({ 
-              defaultTab: route.query.tab || "overview" 
+              defaultTab: route.query.tab || "all-users" 
             }),
           },
         ]
       },
       {
         path: "tickets",
-        component: () => import("../components/layout/AdminLayout.vue"),
         beforeEnter: requireAdmin,
-        children: [
-          {
-            path: "",
-            name: "AdminTickets",
-            component: () => import("../components/admin/tickets/Tickets.vue"),
-            props: (route) => ({
-              ticketId: route.query.id || null,
-            }),
-          },
-        ]
+        redirect: { 
+          path: "/admin/dashboard", 
+          query: { tab: "tickets" } 
+        }
       },
     ],
   },

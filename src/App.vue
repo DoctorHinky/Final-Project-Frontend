@@ -62,13 +62,6 @@ body {
   padding: 0 2rem;
   width: 100%;
 }
-
-/* Spezielle Stile für den Mitgliederbereich */
-body.member-area {
-  background-color: #000;
-  color: #fff;
-}
-
 /* Basisstile für Formulare und Buttons */
 button {
   cursor: pointer;
