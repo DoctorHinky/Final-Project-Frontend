@@ -1,7 +1,6 @@
 import api from "./axiosInstance";
 import type { User } from "@/services/user.types";
 
-
 class UserService {
   async getAllUsers(): Promise<User[]> {
     const response = await api.get("/user/getAllUsers");
@@ -13,18 +12,22 @@ class UserService {
    * @param userId ID des Benutzers
    * @param deactivate true = Benutzer deaktivieren, false = reaktivieren
    */
-   async toggleUserDeactivation(userId: string, deactivate: boolean): Promise<void> {
-    await api.patch("/user/update", {
-      id: userId,
-      deactivated: deactivate,
-    });
+  async toggleUserDeactivation(userId: string, deactivate: boolean): Promise<void> {
+    await api.patch(
+      "/user/update",
+      {
+        id: userId,
+        deactivated: deactivate,
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
   }
-   async getUserById(userId: string): Promise<User> {
+  async getUserById(userId: string): Promise<User> {
     const response = await api.get(`/user/getUserById/${userId}`);
     return response.data;
   }
 
-   async getUserByUsername(username: string): Promise<User> {
+  async getUserByUsername(username: string): Promise<User> {
     const response = await api.get("/user/getUserByUserName", {
       data: { userName: username },
     });

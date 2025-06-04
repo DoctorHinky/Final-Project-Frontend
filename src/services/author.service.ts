@@ -24,10 +24,11 @@ interface Article {
 } */
 
 interface ServiceResult {
+  status: number;
+  [x: string]: number;
   success: boolean;
-  draftId?: string;
-  articleId?: string;
-  message: string;
+  postId?: string;
+  message?: string;
 }
 
 interface DraftsResult {
@@ -85,7 +86,6 @@ class AuthorService {
 
         resolve({
           success: true,
-          draftId,
           message: "Artikel erfolgreich als Entwurf gespeichert",
         });
       }, 500);
@@ -95,12 +95,10 @@ class AuthorService {
   // Artikel veröffentlichen oder aktualisierten Artikel speichern
   async publishArticle(articleData: any): Promise<ServiceResult> {
     console.log("Veröffentliche Artikel:", articleData);
-    const data = {
-      ...articleData,
-      isPublished: true,
-    };
-
-    return await api.post("/article/create", data);
+    articleData.append("isPublished", "true");
+    return await api.post("/article/create", articleData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   }
 
   // Entwurf löschen

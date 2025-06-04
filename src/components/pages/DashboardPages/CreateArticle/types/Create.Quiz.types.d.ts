@@ -1,10 +1,10 @@
 export type QuizAnswer = {
-  text: string;
+  answer: string;
   isCorrect: boolean;
 };
 
 export type QuizQuestion = {
-  text: string;
+  question: string;
   answers: QuizAnswer[];
 };
 

@@ -504,7 +504,9 @@ export default defineComponent({
           password: registerForm.password,
         };
 
-        const response = await api.post("/auth/local/register", registerData);
+        const response = await api.post("/auth/local/register", registerData, {
+          headers: { "Content-Type": "application/json" },
+        });
         registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
 

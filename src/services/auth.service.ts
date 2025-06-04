@@ -34,7 +34,9 @@ class AuthService {
       if (!email && !username) throw new Error("Either email or username must be provided");
       const payload: { username?: string; email?: string; password: string } = { password };
 
-      const response = await api.post("/auth/local/login", payload);
+      const response = await api.post("/auth/local/login", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
       const { access_token, refresh_token } = response.data;
 
       this.rememberMe = rememberMe;
@@ -143,7 +145,6 @@ class AuthService {
         loginData.username = trimmedInput;
       }
 
-      // Verwende api statt axios direkt
       const response = await api.post("/auth/local/login", loginData, {
         headers: { "Content-Type": "application/json" },
       });
@@ -309,6 +310,7 @@ class AuthService {
         {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
+            "Content-Type": "application/json",
           },
         }
       );

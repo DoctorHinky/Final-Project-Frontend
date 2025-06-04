@@ -534,19 +534,14 @@ export default defineComponent({
     // erstellen der form:
     const createForm = () => {
       const formData = new FormData();
+
       formData.append("title", articleTitle.value);
-      formData.append("quickDescription", articleDescription.value);
-      if (articleTags.length > 0) {
-        articleTags.forEach((tag) => {
-          formData.append("tags", tag);
-        });
-      } else {
-        formData.append("tags", "[]"); // Leeres Array, wenn keine Tags vorhanden sind
-      }
+      formData.append("quickDescription", articleDescription.value.toString());
+      formData.append("tags", articleTags.join(","));
       formData.append("ageRestriction", ageRestriction.toString());
       formData.append("forKids", forKids.toString());
 
-      // Prüfe, ob coverImage ein base64-String ist
+      // === CoverImage (wie bisher) ===
       if (coverImage && typeof coverImage.value === "string" && coverImage.value.startsWith("data:image")) {
         const byteString = atob(coverImage.value.split(",")[1]);
         const mimeString = coverImage.value.split(",")[0].split(":")[1].split(";")[0];
@@ -558,36 +553,45 @@ export default defineComponent({
         }
 
         const blob = new Blob([ab], { type: mimeString });
-        const filename = "cover-image." + mimeString.split("/")[1]; // z.B. "cover-image.webp"
+        const filename = "cover-image." + mimeString.split("/")[1];
         const file = new File([blob], filename, { type: mimeString });
 
         formData.append("image", file);
       }
 
-      const chaptersData = chapters.value.map(({ title, content }, index) => ({
+      // === Kapitel-Texte ===
+      const chaptersData = chapters.value.map(({ title, content }) => ({
         title,
         content,
-        index,
       }));
       formData.append("chapters", JSON.stringify(chaptersData));
 
+      // === Kapitelbilder Base64 → File ===
       chapters.value.forEach((chapter, index) => {
-        if (chapter.chapterImage) {
-          formData.append(`chapterImage_${index}`, chapter.chapterImage);
+        const base64 = chapter.chapterImage;
+
+        if (base64 && typeof base64 === "string" && base64.startsWith("data:image")) {
+          const byteString = atob(base64.split(",")[1]);
+          const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
+
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+
+          const blob = new Blob([ab], { type: mimeString });
+          const filename = `chapter-image-${index}.${mimeString.split("/")[1]}`;
+          const file = new File([blob], filename, { type: mimeString });
+
+          formData.append(`chapterImage_${index}`, file); // ✅ Als echte Datei anhängen
         }
       });
 
+      // === Quizdaten ===
       formData.append("quiz", JSON.stringify(articleQuiz.value));
+      console.log("quiz", JSON.stringify(articleQuiz.value));
 
-      console.log("=== FormData Debug ===");
-      console.log("title:", formData.get("title"));
-      console.log("quickDescription:", formData.get("quickDescription"));
-      console.log("tags:", formData.get("tags"));
-      console.log("ageRestriction:", formData.get("ageRestriction"));
-      console.log("forKids:", formData.get("forKids"));
-      console.log("image:", formData.get("image"));
-      console.log("chapters:", formData.get("chapters"));
-      console.log("quiz:", formData.get("quiz"));
       return formData;
     };
 
@@ -659,39 +663,11 @@ export default defineComponent({
         isSaving.value = true;
         savingType.value = "publish";
 
-        // Prüfen, ob es sich um einen bearbeiteten veröffentlichten Artikel handelt
-        const isEditingPublishedArticle = currentDraftId.value?.startsWith("edit_");
-        const originalArticleId = isEditingPublishedArticle ? currentDraftId.value.replace("edit_", "") : undefined;
-
-        // Quiz-Status aus dem Kapitel-Model entfernen vor dem Speichern
-        const chaptersToSave = chapters.value.map((chapter) => ({
-          title: chapter.title,
-          content: chapter.content,
-          chapterImage: chapter.chapterImage,
-        }));
-
-        // Artikel-Daten zusammenstellen
-        const articleData = {
-          id: originalArticleId || currentDraftId.value || undefined,
-          title: articleTitle.value,
-          description: articleDescription.value,
-          coverImage: coverImage.value,
-          chapters: chaptersToSave,
-          quiz: articleQuiz.value, // Globales Quiz für den Artikel
-          status: "published",
-          publishDate: new Date().toISOString(),
-        };
-
+        const myData = createForm();
         // Veröffentlichen mit dem AuthorService
-        const result = await authorService.publishArticle(createForm());
-
-        if (result.success) {
+        const result = await authorService.publishArticle(myData);
+        if (result.status === 201) {
           showNotification("Artikel erfolgreich veröffentlicht", "success");
-
-          // Den Entwurf aus der lokalen Liste entfernen (ohne ihn auf dem Server zu löschen)
-          if (currentDraftId.value && !isEditingPublishedArticle) {
-            drafts.value = drafts.value.filter((d) => d.id !== currentDraftId.value);
-          }
 
           // Veröffentlichte Artikel aktualisieren
           refreshPublishedArticles();

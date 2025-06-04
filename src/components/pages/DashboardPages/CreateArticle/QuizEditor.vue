@@ -24,7 +24,7 @@
 
         <input
           type="text"
-          v-model="question.text"
+          v-model="question.question"
           class="question-input"
           placeholder="Fragentext eingeben"
           @input="emitUpdate"
@@ -48,7 +48,7 @@
                 <div class="answer-input-wrapper">
                   <input
                     type="text"
-                    v-model="question.answers[aIndex].text"
+                    v-model="question.answers[aIndex].answer"
                     class="answer-input"
                     :placeholder="`Antwort ${aIndex + 1}`"
                     @input="emitUpdate"
@@ -159,12 +159,12 @@ export default defineComponent({
       if (localQuiz.questions.length < 10) {
         // Neue Frage mit Standard-Antworten hinzufügen
         localQuiz.questions.push({
-          text: "",
+          question: "",
           answers: [
-            { text: "", isCorrect: false },
-            { text: "", isCorrect: false },
-            { text: "", isCorrect: false },
-            { text: "", isCorrect: false },
+            { answer: "", isCorrect: false },
+            { answer: "", isCorrect: false },
+            { answer: "", isCorrect: false },
+            { answer: "", isCorrect: false },
           ],
         });
 
@@ -190,7 +190,7 @@ export default defineComponent({
         const question = localQuiz.questions[questionIndex];
         if (question.answers.length < 6) {
           // Maximale Anzahl von Antworten begrenzen
-          question.answers.push({ text: "", isCorrect: false });
+          question.answers.push({ answer: "", isCorrect: false });
           emitUpdate();
         }
       }
