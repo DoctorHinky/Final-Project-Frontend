@@ -37,7 +37,7 @@
 
         <div class="draft-info">
           <h4 class="draft-title">{{ draft.title || "Ohne Titel" }}</h4>
-          <p class="draft-date">Bearbeitet: {{ formatDate(draft.updated_at) }}</p>
+          <p class="draft-date">Bearbeitet: {{ draft.updated_at }}</p>
           <p class="draft-chapters">{{ draft.chapters.length }} Kapitel</p>
         </div>
         <div class="draft-actions">
@@ -86,21 +86,7 @@ export default defineComponent({
       emit("refresh");
     };
 
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(date);
-    };
-
-    return {
-      refreshDrafts,
-      formatDate,
-    };
+    return { refreshDrafts };
   },
 });
 </script>

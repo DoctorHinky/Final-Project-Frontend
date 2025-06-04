@@ -7,6 +7,7 @@ export type Draft = {
   coverImage: string;
   chapters: Chapter[];
   quiz?: Quiz;
-  status: "draft";
+  status: "draft" | "published" | "archived";
   updated_at: string;
+  publishedAt?: string;
 };

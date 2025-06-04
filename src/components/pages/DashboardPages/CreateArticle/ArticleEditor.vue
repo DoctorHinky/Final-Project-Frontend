@@ -531,16 +531,50 @@ export default defineComponent({
     // erstellen der form:
     const createForm = () => {
       const formData = new FormData();
+      console.log("debuggin for create form");
       formData.append("title", articleTitle.value);
+      console.log("title", articleTitle.value);
       formData.append("quickDescription", articleDescription.value);
-      if (coverImage) formData.append("image", coverImage.value);
+      console.log("description", articleDescription.value);
+
+      // Prüfe, ob coverImage ein base64-String ist
+      if (coverImage && typeof coverImage.value === "string" && coverImage.value.startsWith("data:image")) {
+        const byteString = atob(coverImage.value.split(",")[1]);
+        const mimeString = coverImage.value.split(",")[0].split(":")[1].split(";")[0];
+
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        const blob = new Blob([ab], { type: mimeString });
+        const filename = "cover-image." + mimeString.split("/")[1]; // z.B. "cover-image.webp"
+        const file = new File([blob], filename, { type: mimeString });
+
+        formData.append("image", file);
+      }
+
+      console.log("coverImage", coverImage.value);
+
+      const chaptersData = chapters.value.map(({ title, content }, index) => ({
+        title,
+        content,
+        index,
+      }));
+      formData.append("chapters", JSON.stringify(chaptersData));
+      console.log("chapters", chaptersData);
+
       chapters.value.forEach((chapter, index) => {
-        JSON.stringify(chapter);
         if (chapter.chapterImage) {
           formData.append(`chapterImage_${index}`, chapter.chapterImage);
         }
       });
+
       formData.append("quiz", JSON.stringify(articleQuiz.value));
+      console.log("quiz", articleQuiz.value);
+      console.log(formData.get("chapters"));
+      return formData;
     };
 
     // Speicher- und Veröffentlichungsfunktionen
@@ -635,7 +669,7 @@ export default defineComponent({
         };
 
         // Veröffentlichen mit dem AuthorService
-        const result = await authorService.publishArticle(articleData);
+        const result = await authorService.publishArticle(createForm());
 
         if (result.success) {
           showNotification("Artikel erfolgreich veröffentlicht", "success");
