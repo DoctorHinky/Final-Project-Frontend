@@ -16,7 +16,13 @@
       <span>{{ errorMessage }}</span>
     </div>
 
-    <form @submit.prevent="saveProfileSettings" class="settings-form">
+    <!-- Lade-Indikator -->
+    <div v-if="isLoadingProfile" class="loading-container">
+      <span class="loading-spinner"></span>
+      <span>Profildaten werden geladen...</span>
+    </div>
+
+    <form v-else @submit.prevent="saveProfileSettings" class="settings-form">
       <div class="form-group profile-avatar">
         <div 
           class="avatar-preview" 
@@ -27,8 +33,8 @@
           @drop.prevent="onDrop"
           @click="triggerFileInput"
         >
-          <img v-if="profileForm.avatarUrl" :src="profileForm.avatarUrl" alt="Profilbild" class="avatar-image" />
-          <span v-else class="avatar-placeholder">{{ getInitials(profileForm.firstName, profileForm.lastName) }}</span>
+          <img v-if="profileForm.profilePicture" :src="profileForm.profilePicture" alt="Profilbild" class="avatar-image" />
+          <span v-else class="avatar-placeholder">{{ getInitials(profileForm.firstname, profileForm.lastname) }}</span>
           
           <input 
             type="file" 
@@ -47,7 +53,7 @@
             <span>Bild hier ablegen</span>
           </div>
         </div>
-        <p v-if="profileForm.avatarUrl" class="avatar-actions">
+        <p v-if="profileForm.profilePicture" class="avatar-actions">
           <button type="button" class="text-button" @click="removeAvatar">Profilbild entfernen</button>
         </p>
       </div>
@@ -59,7 +65,7 @@
             <span class="lock-icon" title="Nicht editierbar">🔒</span>
           </label>
           <div class="input-container readonly">
-            <input type="text" id="first-name" v-model="profileForm.firstName" disabled class="readonly-field" />
+            <input type="text" id="first-name" v-model="profileForm.firstname" disabled class="readonly-field" />
           </div>
         </div>
 
@@ -69,7 +75,7 @@
             <span class="lock-icon" title="Nicht editierbar">🔒</span>
           </label>
           <div class="input-container readonly">
-            <input type="text" id="last-name" v-model="profileForm.lastName" disabled class="readonly-field" />
+            <input type="text" id="last-name" v-model="profileForm.lastname" disabled class="readonly-field" />
           </div>
         </div>
       </div>
@@ -78,8 +84,9 @@
         <label for="username">Benutzername</label>
         <div class="input-container">
           <input type="text" id="username" v-model="profileForm.username" required class="editable-field"
-            data-field="username" />
+            data-field="username" :disabled="!isUsernameEditable" />
         </div>
+        <span v-if="!isUsernameEditable" class="help-text">Der Benutzername kann nicht geändert werden.</span>
       </div>
 
       <div class="form-group">
@@ -100,14 +107,29 @@
       </div>
 
       <div class="form-group">
+        <label for="shortDescription">Kurzbeschreibung</label>
+        <div class="input-container">
+          <input type="text" id="shortDescription" v-model="profileForm.shortDescription" 
+            placeholder="Eine kurze Beschreibung über dich" class="editable-field" 
+            data-field="shortDescription" maxlength="100" />
+        </div>
+        <span class="help-text">Kurze Beschreibung (max. 100 Zeichen)</span>
+        <span v-if="profileForm.shortDescription" class="character-count"
+          :class="{ warning: profileForm.shortDescription.length > 80, error: profileForm.shortDescription.length > 100 }">
+          {{ profileForm.shortDescription.length }}/100
+        </span>
+      </div>
+
+      <div class="form-group">
         <label for="bio">Über mich</label>
         <div class="input-container">
-          <textarea id="bio" v-model="profileForm.bio" rows="4" class="editable-field" data-field="bio"></textarea>
+          <textarea id="bio" v-model="profileForm.bio" rows="4" class="editable-field" 
+            data-field="bio" placeholder="Erzähle etwas über dich..."></textarea>
         </div>
-        <span class="help-text">Kurze Beschreibung über dich (max. 200 Zeichen)</span>
+        <span class="help-text">Ausführliche Beschreibung über dich (max. 500 Zeichen)</span>
         <span v-if="profileForm.bio" class="character-count"
-          :class="{ warning: profileForm.bio.length > 180, error: profileForm.bio.length > 200 }">
-          {{ profileForm.bio.length }}/200
+          :class="{ warning: profileForm.bio.length > 450, error: profileForm.bio.length > 500 }">
+          {{ profileForm.bio.length }}/500
         </span>
       </div>
 
@@ -127,16 +149,18 @@
 <script lang="ts">
 import { defineComponent, ref, type PropType, watch, onMounted } from 'vue';
 import { cloudinaryUpload, cloudinaryDelete } from '@/services/cloudinaryService';
+import api from '@/services/axiosInstance';
 
 interface ProfileForm {
-  firstName: string;
-  lastName: string;
+  firstname: string;
+  lastname: string;
   username: string;
   email: string;
   phone: string;
   bio: string;
-  avatarUrl: string;
-  avatarPublicId: string | null;
+  shortDescription: string;
+  profilePicture: string;
+  publicId_picture: string | null;
 }
 
 export default defineComponent({
@@ -160,22 +184,28 @@ export default defineComponent({
     // Status für Formularprozesse
     const isSaving = ref(false);
     const isUploading = ref(false);
+    const isLoadingProfile = ref(true);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
     const fileInput = ref<HTMLInputElement | null>(null);
     const isDragging = ref(false);
+    const isUsernameEditable = ref(false); // Normalerweise false, kann je nach Anforderung angepasst werden
     
-    // Profilformular mit neuem Bild-URL-Feld
+    // Originale Daten für Reset-Funktion
+    const originalProfileData = ref<ProfileForm | null>(null);
+    
+    // Profilformular mit echten Feldern aus dem Backend
     const profileForm = ref<ProfileForm>({
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      username: 'max.mustermann',
-      email: 'max@example.com',
-      phone: '+49 123 456789',
-      bio: 'Vater von zwei Kindern (4 und 7 Jahre). Interesse an Erziehungsmethoden und kindlicher Entwicklung.',
-      avatarUrl: '',
-      avatarPublicId: null
+      firstname: '',
+      lastname: '',
+      username: '',
+      email: '',
+      phone: '',
+      bio: '',
+      shortDescription: '',
+      profilePicture: '',
+      publicId_picture: null
     });
     
     // Beobachter für Prop-Änderungen
@@ -191,9 +221,43 @@ export default defineComponent({
       errorMessage.value = newVal;
     });
 
+    // Profildaten vom Backend laden
+    const loadUserProfile = async (): Promise<void> => {
+      try {
+        isLoadingProfile.value = true;
+        const response = await api.get('/user/getMe');
+        const userData = response.data;
+        
+        // Formulardaten mit Backend-Daten füllen
+        profileForm.value = {
+          firstname: userData.firstname || '',
+          lastname: userData.lastname || '',
+          username: userData.username || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          bio: userData.bio || '',
+          shortDescription: userData.shortDescription || '',
+          profilePicture: userData.profilePicture || '',
+          publicId_picture: userData.publicId_picture || null
+        };
+        
+        // Originaldaten für Reset speichern
+        originalProfileData.value = { ...profileForm.value };
+        
+      } catch (error: any) {
+        console.error('Fehler beim Laden der Profildaten:', error);
+        saveError.value = true;
+        errorMessage.value = 'Fehler beim Laden der Profildaten. Bitte versuche es später erneut.';
+      } finally {
+        isLoadingProfile.value = false;
+      }
+    };
+
     // Initialen für Avatar-Platzhalter generieren
     const getInitials = (firstName: string, lastName: string): string => {
-      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+      const first = firstName ? firstName.charAt(0) : '';
+      const last = lastName ? lastName.charAt(0) : '';
+      return (first + last).toUpperCase() || '??';
     };
 
     // Datei-Upload-Funktionen
@@ -240,20 +304,19 @@ export default defineComponent({
         saveError.value = false;
         
         // Wenn es ein vorheriges Bild gibt, löschen wir es
-        if (profileForm.value.avatarPublicId) {
-          await cloudinaryDelete(profileForm.value.avatarPublicId);
+        if (profileForm.value.publicId_picture) {
+          await cloudinaryDelete(profileForm.value.publicId_picture);
         }
         
         // Hochladen des neuen Bildes
         const result = await cloudinaryUpload(file, 'profile_avatars', profileForm.value.username);
         
-        profileForm.value.avatarUrl = result.secureUrl;
-        profileForm.value.avatarPublicId = result.publicId;
+        profileForm.value.profilePicture = result.secureUrl;
+        profileForm.value.publicId_picture = result.publicId;
         
-        saveSuccess.value = true;
-        setTimeout(() => {
-          saveSuccess.value = false;
-        }, 3000);
+        // Automatisch speichern nach Upload
+        await saveProfileSettings();
+        
       } catch (error) {
         saveError.value = true;
         errorMessage.value = 'Fehler beim Hochladen des Bildes. Bitte versuche es erneut.';
@@ -264,18 +327,17 @@ export default defineComponent({
     
     const removeAvatar = async (): Promise<void> => {
       try {
-        if (!profileForm.value.avatarPublicId) return;
+        if (!profileForm.value.publicId_picture) return;
         
         isUploading.value = true;
-        await cloudinaryDelete(profileForm.value.avatarPublicId);
+        await cloudinaryDelete(profileForm.value.publicId_picture);
         
-        profileForm.value.avatarUrl = '';
-        profileForm.value.avatarPublicId = null;
+        profileForm.value.profilePicture = '';
+        profileForm.value.publicId_picture = null;
         
-        saveSuccess.value = true;
-        setTimeout(() => {
-          saveSuccess.value = false;
-        }, 3000);
+        // Automatisch speichern nach Entfernen
+        await saveProfileSettings();
+        
       } catch (error) {
         saveError.value = true;
         errorMessage.value = 'Fehler beim Entfernen des Bildes. Bitte versuche es erneut.';
@@ -286,28 +348,92 @@ export default defineComponent({
 
     // Profilformular zurücksetzen
     const resetProfileForm = (): void => {
+      if (originalProfileData.value) {
+        profileForm.value = { ...originalProfileData.value };
+      }
+      saveSuccess.value = false;
+      saveError.value = false;
       emit('reset-form', 'profile');
     };
 
     // Profil speichern
     const saveProfileSettings = async (): Promise<void> => {
-      isSaving.value = true;
-      // Cloudinary-Bild-Informationen in Formulardaten einschließen
-      emit('save-profile', profileForm.value);
-      setTimeout(() => {
+      try {
+        isSaving.value = true;
+        saveError.value = false;
+        saveSuccess.value = false;
+        
+        // Nur die veränderbaren Felder senden
+        const updateData: any = {
+          email: profileForm.value.email,
+          phone: profileForm.value.phone || '',
+          bio: profileForm.value.bio || '',
+          shortDescription: profileForm.value.shortDescription || ''
+        };
+        
+        // Profilbild nur senden, wenn es geändert wurde
+        if (profileForm.value.profilePicture !== originalProfileData.value?.profilePicture) {
+          updateData.profilePicture = profileForm.value.profilePicture;
+          updateData.publicId_picture = profileForm.value.publicId_picture;
+        }
+        
+        // Username nur senden, wenn editierbar und geändert
+        if (isUsernameEditable.value && profileForm.value.username !== originalProfileData.value?.username) {
+          updateData.username = profileForm.value.username;
+        }
+        
+        await api.patch('/user/updateMe', updateData);
+        
+        // Originaldaten aktualisieren
+        originalProfileData.value = { ...profileForm.value };
+        
+        saveSuccess.value = true;
+        emit('save-profile', profileForm.value);
+        emit('update:showSuccess', true);
+        
+        // Erfolgsmeldung nach 3 Sekunden ausblenden
+        setTimeout(() => {
+          saveSuccess.value = false;
+          emit('update:showSuccess', false);
+        }, 3000);
+        
+      } catch (error: any) {
+        console.error('Fehler beim Speichern der Profildaten:', error);
+        saveError.value = true;
+        emit('update:showError', true);
+        
+        if (error.response?.data?.message) {
+          errorMessage.value = error.response.data.message;
+        } else {
+          errorMessage.value = 'Fehler beim Speichern der Profildaten. Bitte versuche es später erneut.';
+        }
+        
+        // Fehlermeldung nach 5 Sekunden ausblenden
+        setTimeout(() => {
+          saveError.value = false;
+          emit('update:showError', false);
+        }, 5000);
+      } finally {
         isSaving.value = false;
-      }, 1000);
+      }
     };
+
+    // Beim Mounten Profildaten laden
+    onMounted(() => {
+      loadUserProfile();
+    });
 
     return {
       profileForm,
       isSaving,
       isUploading,
+      isLoadingProfile,
       saveSuccess,
       saveError,
       errorMessage,
       fileInput,
       isDragging,
+      isUsernameEditable,
       getInitials,
       resetProfileForm,
       saveProfileSettings,
@@ -353,6 +479,31 @@ export default defineComponent({
         transition: all 0.4s ease-out;
       }
     }
+  }
+}
+
+// Loading Container
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: map.get(vars.$spacing, xxl);
+  gap: map.get(vars.$spacing, m);
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-secondary);
+    }
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: currentColor;
+    animation: spin 1s linear infinite;
   }
 }
 
