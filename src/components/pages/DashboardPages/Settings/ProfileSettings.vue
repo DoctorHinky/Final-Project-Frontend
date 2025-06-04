@@ -86,7 +86,6 @@
           <input type="text" id="username" v-model="profileForm.username" required class="editable-field"
             data-field="username" :disabled="!isUsernameEditable" />
         </div>
-        <span v-if="!isUsernameEditable" class="help-text">Der Benutzername kann nicht geändert werden.</span>
       </div>
 
       <div class="form-group">
@@ -190,7 +189,7 @@ export default defineComponent({
     const errorMessage = ref(props.errorMsg);
     const fileInput = ref<HTMLInputElement | null>(null);
     const isDragging = ref(false);
-    const isUsernameEditable = ref(false); // Normalerweise false, kann je nach Anforderung angepasst werden
+    const isUsernameEditable = ref(true); // Normalerweise false, kann je nach Anforderung angepasst werden
     
     // Originale Daten für Reset-Funktion
     const originalProfileData = ref<ProfileForm | null>(null);

@@ -144,6 +144,7 @@ export default defineComponent({
   padding-top: 6rem;
   margin-top: 3rem;
   overflow: hidden;
+  z-index: 100 !important;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -161,7 +162,6 @@ export default defineComponent({
     overflow: hidden;
     line-height: 0;
     transform: rotate(180deg);
-
     svg {
       position: relative;
       display: block;

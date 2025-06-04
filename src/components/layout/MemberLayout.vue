@@ -37,8 +37,8 @@
     <div class="member-container custom-container" :class="{ 'sidebar-open': isSidebarOpen }">
       <!-- Sidebar Komponente einbinden -->
       <MemberSidebar :is-open="isSidebarOpen" :active-menu="activeMenu" @select-menu="onMenuSelect"
-        @close="closeSidebar" @logout="handleLogout" />
-
+      @close="closeSidebar" @logout="handleLogout" />
+      
       <!-- Hauptinhalt -->
       <main class="member-content custom-content" :class="{ 'sidebar-active': isSidebarOpen }">
         <div class="content-wrapper">
@@ -240,17 +240,22 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(10px);
+  /* Blur- und Sättigungseffekt wie .app-header */
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
   border-radius: 0 0 map.get(map.get(vars.$layout, border-radius), large) map.get(map.get(vars.$layout, border-radius), large);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 0 map.get(vars.$spacing, m);
+  user-select: none;
   /* Langsamer Background-Toggle mit verzögerter Transition */
   transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: rgba(mixins.theme-color($theme, card-bg), 0.95);
+      background-color: if($theme == 'light', rgba(255,255,255,0.65), rgba(30,30,30,0.45));
+      box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
       border-bottom: 1px solid mixins.theme-color($theme, border-light);
+      transition: all 0.4s ease-out;
     }
   }
 }

@@ -386,7 +386,6 @@ export default defineComponent({
       isLoading.value = true;
       try {
         const allUsers = await UserService.getAllUsers();
-        console.log("GELADENE ROLLEN:", allUsers.map(u => u.role));
         users.value = allUsers.map((u) => ({
           id: u.id,
           name: u.username,

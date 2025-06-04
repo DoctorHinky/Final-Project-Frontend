@@ -8,14 +8,12 @@ const api = axios.create({
   },
 });
 
-console.log("Axios instance created with base URL:", api.defaults.baseURL);
-
 // Request Interceptor
 api.interceptors.request.use((config) => {
   const token = authService.getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log("[axios] Token zum Request hinzugefügt");
+    console.log("[AXIOS TOKEN]");
   }
   return config;
 });

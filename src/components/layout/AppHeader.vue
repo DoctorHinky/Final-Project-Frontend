@@ -364,7 +364,7 @@ export default defineComponent({
   position: fixed;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-100px);
   width: 100%;
   padding: map.get(vars.$spacing, m) 0;
   z-index: 1000;
@@ -373,10 +373,15 @@ export default defineComponent({
   justify-content: space-between;
   border-radius: 20px;
   user-select: none;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.65);
+  opacity: 0;
+  animation: navbar-slide-down 2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, primary-bg);
+      background-color: if($theme == 'light', rgba(255,255,255,0.65), rgba(30,30,30,0.45));
       box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
       transition: all 0.4s ease-out;
     }
@@ -385,7 +390,6 @@ export default defineComponent({
   // Container für Logo und Header-Actions
   .header-top {
     @include mixins.flex(row, space-between, center, nowrap);
-    margin-bottom: map.get(vars.$spacing, s);
     padding: 10px map.get(vars.$spacing, m) 0;
   }
 
@@ -443,6 +447,17 @@ export default defineComponent({
         @include mixins.button-style($theme, 'small', true);
       }
     }
+  }
+}
+
+@keyframes navbar-slide-down {
+  0% {
+    transform: translateX(-50%) translateY(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
   }
 }
 

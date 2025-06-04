@@ -119,10 +119,8 @@ export default defineComponent({
             const roleMap: Record<string, string> = {
               'admin': 'Administrator',
               'author': 'Autor',
-              'parent': 'Elternteil',
-              'child': 'Kind',
-              'adult': 'Erwachsener',
-              'user': 'Benutzer'
+              'user': 'Benutzer',
+              'moderator': 'Moderator'
             };
             
             // Rolle für Anzeige setzen
@@ -132,12 +130,6 @@ export default defineComponent({
             // NUR Authors und Admins können Artikel erstellen
             const roleCheck = (decoded.role || '').toLowerCase();
             canCreateArticles.value = roleCheck === 'author' || roleCheck === 'admin';
-            
-            console.log('=== JWT TOKEN INFO ===');
-            console.log('Username:', userName.value);
-            console.log('Role:', userRole.value);
-            console.log('Can create articles:', canCreateArticles.value);
-            console.log('Full decoded token:', decoded);
             
           } catch (e) {
             console.error('Token konnte nicht dekodiert werden:', e);
@@ -190,6 +182,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   padding-top: 70px; // Platz für den Header
+  
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -203,6 +196,17 @@ export default defineComponent({
     left: 0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
     padding-top: 2rem;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.65);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: if($theme == 'light', rgba(255,255,255,0.65), rgba(30,30,30,0.45));
+        box-shadow: 5px 0 15px rgba(mixins.theme-color($theme, shadow-color), 0.1);
+        transition: all 0.4s ease-out;
+      }
+    }
   }
 
   // Sidebar-Header
@@ -266,16 +270,16 @@ export default defineComponent({
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
+      transition: color 0.3s;
 
       @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary);
-          transition: all 0.4s ease-out;
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
 
-          &:hover {
-            color: mixins.theme-color($theme, text-primary);
-          }
+        &:hover {
+        color: mixins.theme-color($theme, text-primary);
         }
+      }
       }
     }
   }
@@ -340,8 +344,6 @@ export default defineComponent({
   border-radius: 50px;
   margin-bottom: map.get(vars.$spacing, m);
   opacity: .9;
-  border: 1px solid #ffffff;
-  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
   &:hover {

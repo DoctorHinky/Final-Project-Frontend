@@ -1,5 +1,7 @@
 # 📘 Projektübersicht: Landing Page & Plattform für Artikel und Community
 
+find . -type d -name "node_modules" -prune -o -type d -name ".git" -prune -o -print | sort > Projektstruktur.txt
+
 ---
 
 ## 📁 Projektstruktur: Pages & Features
