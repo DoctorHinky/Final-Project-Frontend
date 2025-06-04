@@ -31,8 +31,15 @@ class AuthService {
     try {
       console.log({ username, email, password, rememberMe });
 
-      if (!email && !username) throw new Error("Either email or username must be provided");
-      const payload: { username?: string; email?: string; password: string } = { password };
+      if (!email && !username)
+        throw new Error("Either email or username must be provided");
+      const payload: { username?: string; email?: string; password: string } = {
+        password,
+      };
+
+      // DIESE ZEILEN FEHLEN:
+      if (email) payload.email = email;
+      if (username) payload.username = username;
 
       const response = await api.post("/auth/local/login", payload);
       const { access_token, refresh_token } = response.data;
@@ -85,18 +92,26 @@ class AuthService {
 
   getAccessToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
+    return (
+      localStorage.getItem(this.accessTokenKey) ||
+      sessionStorage.getItem(this.accessTokenKey)
+    );
   }
 
   getRefreshToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
+    return (
+      localStorage.getItem(this.refreshTokenKey) ||
+      sessionStorage.getItem(this.refreshTokenKey)
+    );
   }
 
   // Separate Token-Verwaltung für Admin
   getAdminAccessToken(): string | null {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
-    const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
+    const adminToken =
+      localStorage.getItem("admin_access_token") ||
+      sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
 
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
@@ -115,7 +130,11 @@ class AuthService {
     return null;
   }
 
-  setAdminTokens(accessToken: string, refreshToken: string, rememberMe: boolean = false): void {
+  setAdminTokens(
+    accessToken: string,
+    refreshToken: string,
+    rememberMe: boolean = false
+  ): void {
     if (rememberMe) {
       localStorage.setItem("admin_access_token", accessToken);
       localStorage.setItem("admin_refresh_token", refreshToken);

@@ -8,6 +8,8 @@
     <div class="sidebar-header">
      <img src="../../assets/images/AvatarIcon1.webp" alt="Account Logo" class="account-logo" />
       <div class="header-content">
+        <h3 v-if="userName">{{ userName }}</h3>
+        <p v-if="userRole" class="user-role">{{ userRole }}</p>
       </div>
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
@@ -30,26 +32,36 @@ import { defineComponent, ref, computed, onMounted } from 'vue';
 import {
   ChartBarIcon,
   BookOpenIcon,
-  HeartIcon,
   UserGroupIcon,
   BellIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
-  PencilIcon // Neues Icon für Artikel erstellen
+  PencilIcon
 } from '@heroicons/vue/24/outline';
-import { authorService } from '@/services/author.service'; // AuthorService importieren
+import { authorService } from '@/services/author.service';
+
+// TypeScript Interface für Token-Payload
+interface TokenPayload {
+  userId?: string;
+  username?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  roles?: string[];
+  isAdmin?: boolean;
+  isAuthor?: boolean;
+}
 
 export default defineComponent({
   name: 'MemberSidebar',
   components: {
     ChartBarIcon,
     BookOpenIcon,
-    HeartIcon,
     UserGroupIcon,
     BellIcon,
     Cog6ToothIcon,
     DocumentTextIcon,
-    PencilIcon // Neues Icon registrieren
+    PencilIcon
   },
   props: {
     isOpen: {
@@ -63,18 +75,20 @@ export default defineComponent({
   },
   emits: ['select-menu', 'close', 'logout'],
   setup(_, { emit }) {
-    // Autor-Status überprüfen
-    const isAuthor = ref(false);
+    // Prüfe ob User Author oder Admin ist
+    const canCreateArticles = ref(false);
+    const userName = ref('');
+    const userRole = ref('');
     
-    // Menüelemente als Computed-Property, die sich bei Änderung des Autor-Status aktualisiert
+    // Menüelemente als Computed-Property, die sich bei Änderung des Status aktualisiert
     const menuItems = computed(() => {
       const baseItems = [
         { id: 'overview', text: 'Übersicht', icon: ChartBarIcon },
         { id: 'my-articles', text: 'Meine Artikel', icon: DocumentTextIcon },
       ];
       
-      // Menüpunkt für Artikel-Erstellung nur für Autoren hinzufügen
-      if (isAuthor.value) {
+      // Menüpunkt für Artikel-Erstellung nur für Authors und Admins hinzufügen
+      if (canCreateArticles.value) {
         baseItems.push({ id: 'create-article', text: 'Artikel erstellen', icon: PencilIcon });
       }
       
@@ -87,9 +101,60 @@ export default defineComponent({
       ];
     });
 
-    // Bei Montage der Komponente den Autor-Status abrufen
+    // Bei Montage der Komponente die Berechtigung prüfen
     onMounted(() => {
-      isAuthor.value = authorService.isAuthor();
+      try {
+        // Token dekodieren für Benutzerinformationen
+        const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+        if (token) {
+          try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const decoded = JSON.parse(window.atob(base64)) as TokenPayload;
+            
+            // Username direkt aus dem Token
+            userName.value = decoded.username || 'Benutzer';
+            
+            // Rolle anzeigen (auf Deutsch)
+            const roleMap: Record<string, string> = {
+              'admin': 'Administrator',
+              'author': 'Autor',
+              'parent': 'Elternteil',
+              'child': 'Kind',
+              'adult': 'Erwachsener',
+              'user': 'Benutzer'
+            };
+            
+            // Rolle für Anzeige setzen
+            const displayRole = decoded.role || '';
+            userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
+            
+            // NUR Authors und Admins können Artikel erstellen
+            const roleCheck = (decoded.role || '').toLowerCase();
+            canCreateArticles.value = roleCheck === 'author' || roleCheck === 'admin';
+            
+            console.log('=== JWT TOKEN INFO ===');
+            console.log('Username:', userName.value);
+            console.log('Role:', userRole.value);
+            console.log('Can create articles:', canCreateArticles.value);
+            console.log('Full decoded token:', decoded);
+            
+          } catch (e) {
+            console.error('Token konnte nicht dekodiert werden:', e);
+            canCreateArticles.value = false;
+            userName.value = 'Benutzer';
+          }
+        } else {
+          // Kein Token
+          canCreateArticles.value = false;
+          userName.value = 'Benutzer';
+        }
+        
+      } catch (error) {
+        console.error('Fehler beim Prüfen der Berechtigungen:', error);
+        canCreateArticles.value = false;
+        userName.value = 'Benutzer';
+      }
     });
 
     // Menüpunkt auswählen
@@ -100,7 +165,9 @@ export default defineComponent({
     return {
       menuItems,
       selectMenuItem,
-      isAuthor
+      canCreateArticles,
+      userName,
+      userRole
     };
   }
 });
@@ -172,6 +239,18 @@ export default defineComponent({
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
+          }
+        }
+      }
+
+      .user-role {
+        margin: 0;
+        margin-top: 2px;
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
           }
         }
       }

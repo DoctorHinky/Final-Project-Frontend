@@ -162,10 +162,13 @@ export default defineComponent({
       };
     };
 
+    // Debounced resize handler als Konstante speichern
+    const debouncedHandleResize = debounce(handleResize, 250);
+
     // Optimierte Event-Listener für Bildschirmgröße
     onMounted(() => {
       handleResize(); // Initial aufrufen
-      window.addEventListener('resize', debounce(handleResize, 250));
+      window.addEventListener('resize', debouncedHandleResize);
 
       // Seitenorientierung berücksichtigen
       window.addEventListener('orientationchange', handleResize);
@@ -173,7 +176,7 @@ export default defineComponent({
 
     // Event-Listener sauber entfernen
     onUnmounted(() => {
-      window.removeEventListener('resize', debounce(handleResize, 250));
+      window.removeEventListener('resize', debouncedHandleResize);
       window.removeEventListener('orientationchange', handleResize);
       document.body.style.overflow = ''; // Scroll-Status zurücksetzen
     });
