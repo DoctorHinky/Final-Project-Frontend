@@ -5,6 +5,7 @@ export type Draft = {
   title: string;
   description: string;
   coverImage: string;
+  tags: string[];
   chapters: Chapter[];
   quiz?: Quiz;
   status: "draft" | "published" | "archived";

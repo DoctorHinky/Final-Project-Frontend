@@ -527,15 +527,24 @@ export default defineComponent({
       // Beide Intervalle zurückgeben, um sie später zu löschen
       return { autoSaveInterval, apiBackupInterval };
     };
+    let articleTags = ["tag1", "tag2"]; // Beispiel-Tags, hier sollten echte Tags verwendet werden
+    let ageRestriction = 16; // Beispiel-Altersbeschränkung, hier sollte eine echte Altersbeschränkung verwendet werden
+    let forKids = false; // Beispiel, ob der Artikel für Kinder geeignet ist
 
     // erstellen der form:
     const createForm = () => {
       const formData = new FormData();
-      console.log("debuggin for create form");
       formData.append("title", articleTitle.value);
-      console.log("title", articleTitle.value);
       formData.append("quickDescription", articleDescription.value);
-      console.log("description", articleDescription.value);
+      if (articleTags.length > 0) {
+        articleTags.forEach((tag) => {
+          formData.append("tags", tag);
+        });
+      } else {
+        formData.append("tags", "[]"); // Leeres Array, wenn keine Tags vorhanden sind
+      }
+      formData.append("ageRestriction", ageRestriction.toString());
+      formData.append("forKids", forKids.toString());
 
       // Prüfe, ob coverImage ein base64-String ist
       if (coverImage && typeof coverImage.value === "string" && coverImage.value.startsWith("data:image")) {
@@ -555,15 +564,12 @@ export default defineComponent({
         formData.append("image", file);
       }
 
-      console.log("coverImage", coverImage.value);
-
       const chaptersData = chapters.value.map(({ title, content }, index) => ({
         title,
         content,
         index,
       }));
       formData.append("chapters", JSON.stringify(chaptersData));
-      console.log("chapters", chaptersData);
 
       chapters.value.forEach((chapter, index) => {
         if (chapter.chapterImage) {
@@ -572,8 +578,16 @@ export default defineComponent({
       });
 
       formData.append("quiz", JSON.stringify(articleQuiz.value));
-      console.log("quiz", articleQuiz.value);
-      console.log(formData.get("chapters"));
+
+      console.log("=== FormData Debug ===");
+      console.log("title:", formData.get("title"));
+      console.log("quickDescription:", formData.get("quickDescription"));
+      console.log("tags:", formData.get("tags"));
+      console.log("ageRestriction:", formData.get("ageRestriction"));
+      console.log("forKids:", formData.get("forKids"));
+      console.log("image:", formData.get("image"));
+      console.log("chapters:", formData.get("chapters"));
+      console.log("quiz:", formData.get("quiz"));
       return formData;
     };
 
