@@ -4,7 +4,7 @@
     <div class="sidebar-header">
       <h3>Veröffentlichte Artikel</h3>
       <button @click="refreshArticles" class="refresh-btn" :disabled="isLoading" title="Aktualisieren">
-        <ArrowPathIcon :class="['icon-size', { 'spinning': isLoading }]" />
+        <ArrowPathIcon :class="['icon-size', { spinning: isLoading }]" />
       </button>
     </div>
 
@@ -30,7 +30,7 @@
         </div>
 
         <div class="article-info">
-          <h4 class="article-title">{{ article.title || 'Ohne Titel' }}</h4>
+          <h4 class="article-title">{{ article.title || "Ohne Titel" }}</h4>
           <p class="article-date">Veröffentlicht: {{ formatDate(article.publishDate) }}</p>
           <p class="article-chapters">{{ article.chapters.length }} Kapitel</p>
         </div>
@@ -48,81 +48,57 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import { ArrowPathIcon, DocumentIcon, EyeIcon, TrashIcon } from '@heroicons/vue/24/outline';
-
-interface Chapter {
-  title: string;
-  content: string;
-  chapterImage?: string;
-}
-
-interface Quiz {
-  questions: {
-    text: string;
-    answers: { text: string }[];
-    correctAnswer: number;
-  }[];
-}
-
-interface PublishedArticle {
-  id: string;
-  title: string;
-  description: string;
-  coverImage: string;
-  chapters: Chapter[];
-  quiz?: Quiz;
-  status: 'published';
-  publishDate: string;
-}
+import { defineComponent, type PropType } from "vue";
+import { ArrowPathIcon, DocumentIcon, EyeIcon, TrashIcon } from "@heroicons/vue/24/outline";
+import type { PublishedArticle } from "./types";
 
 export default defineComponent({
-  name: 'PublishedArticlesList',
+  name: "PublishedArticlesList",
   components: {
     ArrowPathIcon,
     DocumentIcon,
     EyeIcon,
-    TrashIcon
+    TrashIcon,
   },
   props: {
     articles: {
       type: Array as PropType<PublishedArticle[]>,
-      default: () => []
+      default: () => [],
     },
     isLoading: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['refresh', 'view', 'edit', 'delete'],
-  setup(props, { emit }) {
+  emits: ["refresh", "view", "edit", "delete"],
+  setup(_, { emit }) {
     const refreshArticles = () => {
-      emit('refresh');
+      emit("refresh");
     };
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
     };
 
     return {
       refreshArticles,
-      formatDate
+      formatDate,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .sidebar-section {
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -130,7 +106,7 @@ export default defineComponent({
   flex-direction: column;
   height: fit-content;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -145,7 +121,7 @@ export default defineComponent({
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
@@ -156,7 +132,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin: 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -174,7 +150,7 @@ export default defineComponent({
       height: 32px;
       border-radius: 50%;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
 
@@ -203,7 +179,7 @@ export default defineComponent({
   gap: map.get(vars.$spacing, s);
   text-align: center;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
       transition: all 0.4s ease-out;
@@ -244,7 +220,7 @@ export default defineComponent({
     transition: background-color 0.2s ease;
     transition: all 0.4s ease-out;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
         transition: all 0.4s ease-out;
@@ -272,7 +248,7 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, hover-color);
             transition: all 0.4s ease-out;
@@ -300,7 +276,7 @@ export default defineComponent({
         text-overflow: ellipsis;
         transition: all 0.4s ease-out;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -313,7 +289,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         margin: 0;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -349,7 +325,7 @@ export default defineComponent({
     height: 18px;
   }
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: rgba(mixins.theme-color($theme, hover-color), 0.9);
       color: mixins.theme-color($theme, text-secondary);

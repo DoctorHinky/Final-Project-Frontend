@@ -1,8 +1,14 @@
 <!-- src/components/pages/DashboardPages/CreateArticle/ImageUploader.vue -->
 <template>
-  <div class="image-upload-area" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver"
-    @dragleave="handleDragLeave" :class="{ 'drag-over': isDragging, 'small': isSmall }" @click="triggerFileInput">
-    <div v-if="!modelValue" class="upload-placeholder" :class="{ 'small': isSmall }">
+  <div
+    class="image-upload-area"
+    @drop.prevent="handleDrop"
+    @dragover.prevent="handleDragOver"
+    @dragleave="handleDragLeave"
+    :class="{ 'drag-over': isDragging, small: isSmall }"
+    @click="triggerFileInput"
+  >
+    <div v-if="!modelValue" class="upload-placeholder" :class="{ small: isSmall }">
       <PlusIcon class="icon-size" />
       <span>{{ label }}</span>
       <small v-if="showHelp">{{ helpText }}</small>
@@ -18,43 +24,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
-import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { defineComponent, ref } from "vue";
+import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
-  name: 'ImageUploader',
+  name: "ImageUploader",
   components: {
     PlusIcon,
-    XMarkIcon
+    XMarkIcon,
   },
   props: {
     modelValue: {
       type: String,
-      default: ''
+      default: "",
     },
     label: {
       type: String,
-      default: 'Bild einfügen'
+      default: "Bild einfügen",
     },
     helpText: {
       type: String,
-      default: 'Max 1 Bild'
+      default: "Max 1 Bild",
     },
     showHelp: {
       type: Boolean,
-      default: true
+      default: true,
     },
     alt: {
       type: String,
-      default: 'Bild'
+      default: "Bild",
     },
     isSmall: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  emits: ["update:modelValue"],
+  setup(_, { emit }) {
     const isDragging = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -89,24 +95,29 @@ export default defineComponent({
     };
 
     const handleFile = (file: File) => {
-      if (!file.type.match('image.*')) {
-        alert('Bitte nur Bilder hochladen.');
+      if (!file.type.match("image.*")) {
+        alert("Bitte nur Bilder hochladen.");
         return;
       }
 
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target) {
-          emit('update:modelValue', e.target.result as string);
+          emit("update:modelValue", e.target.result as string);
         }
       };
+
+      reader.onerror = () => {
+        alert("Fehler beim Lesen der Datei.");
+      };
+
       reader.readAsDataURL(file);
     };
 
     const removeImage = () => {
-      emit('update:modelValue', '');
+      emit("update:modelValue", "");
       if (fileInput.value) {
-        fileInput.value.value = '';
+        fileInput.value.value = "";
       }
     };
 
@@ -118,16 +129,16 @@ export default defineComponent({
       handleDragLeave,
       handleDrop,
       handleFileChange,
-      removeImage
+      removeImage,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .image-upload-area {
   min-height: 200px;
@@ -141,7 +152,7 @@ export default defineComponent({
   flex: 1;
   transition: all 0.4s ease-out;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 2px dashed mixins.theme-color($theme, border-medium);
@@ -150,7 +161,7 @@ export default defineComponent({
   }
 
   &.drag-over {
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, hover-color);
         border-color: mixins.theme-color($theme, primary);
@@ -175,7 +186,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, m);
   transition: all 0.4s ease-out;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
       transition: all 0.4s ease-out;
@@ -227,7 +238,7 @@ export default defineComponent({
       /* fallback color, can be overridden by theme */
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, danger);
         transition: all 0.4s ease-out;
