@@ -18,72 +18,101 @@
     </div>
     
     <div v-else class="user-data">
+      <pre style="color: white; font-size: 12px">{{ user }}</pre>
       <div class="user-header">
         <div class="user-avatar">
-          <span v-if="!user.avatarUrl">{{ getUserInitials(user) }}</span>
-          <img v-else :src="user.avatarUrl" :alt="`Avatar von ${user.name}`" />
+          <span v-if="!user.profilePicture">{{ getUserInitials(user) }}</span>
+          <img v-else :src="user.profilePicture" :alt="`Avatar von ${user.firstname} ${user.lastname}`" />
         </div>
         <div class="user-main-info">
-          <h3>{{ user.name }}</h3>
+          <h3>{{ user.firstname }} {{ user.lastname }}</h3>
           <div class="user-badges">
-            <span 
-              class="status-badge" 
-              :class="{ 'active': user.status === 'active', 'inactive': user.status === 'inactive' }"
-            >
-              {{ user.status === 'active' ? 'Aktiv' : 'Inaktiv' }}
+            <span class="type-badge">
+              {{ user.role || 'Benutzer' }}
             </span>
-            <span 
-              class="type-badge" 
-              :class="{ 'author': user.isAuthor }"
-            >
-              {{ user.isAuthor ? 'Autor' : 'Benutzer' }}
+            <span class="status-badge" :class="{ 'active': user.verified, 'inactive': !user.verified }">
+              {{ user.verified ? 'Verifiziert' : 'Nicht verifiziert' }}
             </span>
           </div>
           <p class="user-id">ID: {{ user.id }}</p>
         </div>
+        <div class="user-actions-bar">
+  <button class="action-button deactivate" @click="onSoftDelete">
+    Benutzer löschen
+  </button>
+  <button class="action-button activate" v-if="user?.isDeleted" @click="onRestoreUser">
+    Benutzer wiederherstellen
+  </button>
+  <button class="action-button" @click="onEditUser">
+    Benutzer bearbeiten
+  </button>
+</div>
       </div>
-      
-      <div class="user-actions-bar">
-        <button 
-          class="action-button" 
-          :class="user.status === 'active' ? 'deactivate' : 'activate'"
-          @click="toggleUserStatus"
-        >
-          <svg v-if="user.status === 'active'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-            <circle cx="16" cy="12" r="3"></circle>
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-            <circle cx="8" cy="12" r="3"></circle>
-          </svg>
-          <span>{{ user.status === 'active' ? 'Benutzer deaktivieren' : 'Benutzer aktivieren' }}</span>
-        </button>
-        
-        <button 
-          class="action-button toggle-author" 
-          @click="toggleAuthorStatus"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-          </svg>
-          <span>{{ user.isAuthor ? 'Autoren-Status entfernen' : 'Als Autor markieren' }}</span>
-        </button>
-        
-        <button class="action-button reset-password">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>Passwort zurücksetzen</span>
-        </button>
-      </div>
-      
+
       <div class="user-sections">
+        <div class="section username-info">
+          <h4 class="section-title">Benutzername</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Username</label>
+              <div class="info-value">{{ user.username }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="section system-info">
+  <h4 class="section-title">Systeminformationen</h4>
+  <div class="info-grid">
+    <div class="info-item">
+      <label>Erstellt am</label>
+      <div class="info-value">{{ formatDate(user.createdAt) }}</div>
+    </div>
+    <div class="info-item">
+      <label>Zuletzt aktualisiert</label>
+      <div class="info-value">{{ formatDate(user.updatedAt) }}</div>
+    </div>
+    <div class="info-item">
+      <label>Deaktiviert</label>
+      <div class="info-value">{{ user.deactivated ? 'Ja' : 'Nein' }}</div>
+    </div>
+    <div class="info-item">
+      <label>Gelöscht</label>
+      <div class="info-value">{{ user.isDeleted ? 'Ja' : 'Nein' }}</div>
+    </div>
+    <div class="info-item" v-if="user.isDeleted">
+      <label>Löschgrund</label>
+      <div class="info-value">{{ user.deleteReason || 'Nicht angegeben' }}</div>
+    </div>
+    <div class="info-item" v-if="user.isDeleted">
+      <label>Gelöscht am</label>
+      <div class="info-value">{{ formatDate(user.deletedAt) }}</div>
+    </div>
+    <div class="info-item" v-if="user.isDeleted">
+      <label>Gelöscht von</label>
+      <div class="info-value">{{ user.deletedBy || 'Unbekannt' }}</div>
+    </div>
+    <div class="info-item">
+      <label>Gesperrt für Bewerbungen</label>
+      <div class="info-value">{{ user.blockedForApplication ? 'Ja' : 'Nein' }}</div>
+    </div>
+    <div class="info-item">
+      <label>Autorisiert von</label>
+      <div class="info-value">{{ user.authorizedBy || '—' }}</div>
+    </div>
+    <div class="info-item">
+      <label>Autorisiert am</label>
+      <div class="info-value">{{ formatDate(user.authorizedAt) }}</div>
+    </div>
+    <div class="info-item">
+      <label>Moderiert von</label>
+      <div class="info-value">{{ user.moderatedBy || '—' }}</div>
+    </div>
+    <div class="info-item">
+      <label>Moderiert am</label>
+      <div class="info-value">{{ formatDate(user.moderatedAt) }}</div>
+    </div>
+  </div>
+</div>
+
         <div class="section contact-info">
           <h4 class="section-title">Kontaktinformationen</h4>
           <div class="info-grid">
@@ -102,52 +131,36 @@
           <h4 class="section-title">Kontoinformationen</h4>
           <div class="info-grid">
             <div class="info-item">
-              <label>Registriert am</label>
-              <div class="info-value">{{ formatDate(user.registeredAt) }}</div>
+              <label>Geburtsdatum</label>
+              <div class="info-value">{{ formatDate(user.birthdate) }}</div>
             </div>
             <div class="info-item">
-              <label>Letzte Anmeldung</label>
-              <div class="info-value">{{ formatDate(user.lastLoginAt) }}</div>
+              <label>Rolle</label>
+              <div class="info-value">{{ user.role }}</div>
+            </div>
+            <div class="info-item">
+              <label>Verifiziert</label>
+              <div class="info-value">{{ user.verified ? 'Ja' : 'Nein' }}</div>
             </div>
           </div>
         </div>
-        
-        <div class="section activity-info">
-          <h4 class="section-title">Aktivitätsstatistik</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Artikel gelesen</label>
-              <div class="info-value">{{ user.stats.articlesRead }}</div>
-            </div>
-            <div class="info-item">
-              <label>Favoriten</label>
-              <div class="info-value">{{ user.stats.favorites }}</div>
-            </div>
-            <div class="info-item">
-              <label>Kommentare</label>
-              <div class="info-value">{{ user.stats.comments }}</div>
-            </div>
-            <div class="info-item">
-              <label>Artikel geschrieben</label>
-              <div class="info-value">{{ user.stats.articlesWritten }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div v-if="user.isAuthor" class="section author-info">
-          <h4 class="section-title">Autoreninformationen</h4>
+
+        <div class="section description-info">
+          <h4 class="section-title">Kurzbeschreibung</h4>
           <div class="info-grid">
             <div class="info-item full-width">
-              <label>Bio</label>
-              <div class="info-value">{{ user.authorBio || 'Keine Biografie vorhanden' }}</div>
+              <label>Kurzbeschreibung</label>
+              <div class="info-value">{{ user.shortDescription || 'Keine Kurzbeschreibung vorhanden' }}</div>
             </div>
-            <div class="info-item">
-              <label>Autor seit</label>
-              <div class="info-value">{{ formatDate(user.authorSince) }}</div>
-            </div>
-            <div class="info-item">
-              <label>Fachgebiet</label>
-              <div class="info-value">{{ user.expertise || 'Nicht angegeben' }}</div>
+          </div>
+        </div>
+
+        <div class="section bio-info">
+          <h4 class="section-title">Biografie</h4>
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <label>Biografie</label>
+              <div class="info-value">{{ user.bio || 'Keine Biografie vorhanden' }}</div>
             </div>
           </div>
         </div>
@@ -156,163 +169,98 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import userService from '@/services/user.service';
+import type { User } from '@/types/User.types';
 
-interface UserStats {
-  articlesRead: number;
-  favorites: number;
-  comments: number;
-  articlesWritten: number;
-}
+const props = defineProps<{
+  userId: string;
+}>();
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  avatarUrl?: string;
-  isAuthor: boolean;
-  status: 'active' | 'inactive';
-  registeredAt: Date;
-  lastLoginAt: Date;
-  stats: UserStats;
-  authorBio?: string;
-  authorSince?: Date;
-  expertise?: string;
-}
+const user = ref<User | null>(null);
+const isLoading = ref(true);
 
-export default defineComponent({
-  name: 'UserDetail',
-  props: {
-    userId: {
-      type: String,
-      required: true
-    }
-  },
-  setup(props) {
-    const user = ref<User | null>(null);
-    const isLoading = ref(true);
-
-    onMounted(() => {
-      fetchUserData();
-    });
-
-    // Benutzerdaten abrufen (Dummy-Implementierung)
-    const fetchUserData = () => {
+onMounted(async () => {
+  if (props.userId) {
+    try {
       isLoading.value = true;
-      
-      // Simuliere API-Abruf
-      setTimeout(() => {
-        // Suche den Benutzer mit der angegebenen ID
-        if (props.userId === 'usr_001') {
-          user.value = {
-            id: 'usr_001',
-            name: 'Max Mustermann',
-            email: 'max@example.com',
-            phone: '+49 123 456789',
-            isAuthor: false,
-            status: 'active',
-            registeredAt: new Date('2023-05-15'),
-            lastLoginAt: new Date('2024-05-01'),
-            stats: {
-              articlesRead: 42,
-              favorites: 7,
-              comments: 13,
-              articlesWritten: 0
-            }
-          };
-        } else if (props.userId === 'usr_002') {
-          user.value = {
-            id: 'usr_002',
-            name: 'Anna Schmidt',
-            email: 'anna@example.com',
-            phone: '+49 987 654321',
-            isAuthor: true,
-            status: 'active',
-            registeredAt: new Date('2022-10-22'),
-            lastLoginAt: new Date('2024-05-10'),
-            stats: {
-              articlesRead: 65,
-              favorites: 12,
-              comments: 28,
-              articlesWritten: 15
-            },
-            authorBio: 'Anna ist eine leidenschaftliche Erzieherin mit über 10 Jahren Erfahrung. Sie hat zwei eigene Kinder und ist spezialisiert auf frühkindliche Entwicklung und Lernmethoden.',
-            authorSince: new Date('2023-01-10'),
-            expertise: 'Frühkindliche Entwicklung'
-          };
-        } else {
-          // Unbekannter Benutzer
-          user.value = null;
-        }
-        
-        isLoading.value = false;
-      }, 1000);
-    };
-
-    // Benutzerstatus umschalten
-    const toggleUserStatus = () => {
-      if (user.value) {
-        user.value.status = user.value.status === 'active' ? 'inactive' : 'active';
-        // Hier würde in einer echten Anwendung ein API-Aufruf erfolgen
-      }
-    };
-
-    // Autorenstatus umschalten
-    const toggleAuthorStatus = () => {
-      if (user.value) {
-        user.value.isAuthor = !user.value.isAuthor;
-        
-        // Bei Aktivierung des Autorenstatus Default-Werte setzen
-        if (user.value.isAuthor) {
-          user.value.authorSince = new Date();
-          user.value.authorBio = '';
-          user.value.expertise = '';
-        } else {
-          // Bei Deaktivierung Werte zurücksetzen
-          user.value.authorSince = undefined;
-          user.value.authorBio = undefined;
-          user.value.expertise = undefined;
-        }
-        
-        // Hier würde in einer echten Anwendung ein API-Aufruf erfolgen
-      }
-    };
-
-    // Benutzer-Initialen generieren
-    const getUserInitials = (user: User): string => {
-      if (!user.name) return '??';
-      
-      const nameParts = user.name.split(' ');
-      if (nameParts.length >= 2) {
-        return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
-      }
-      
-      return nameParts[0].substring(0, 2).toUpperCase();
-    };
-
-    // Datum formatieren
-    const formatDate = (date?: Date): string => {
-      if (!date) return 'Unbekannt';
-      
-      return new Date(date).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-    };
-
-    return {
-      user,
-      isLoading,
-      toggleUserStatus,
-      toggleAuthorStatus,
-      getUserInitials,
-      formatDate
-    };
+      const res = await userService.getUserById(props.userId);
+      user.value = res;
+    } catch (err) {
+      console.error('Fehler beim Laden der User-Daten:', err);
+    } finally {
+      isLoading.value = false;
+    }
   }
 });
+
+const formatDate = (date?: string | Date): string => {
+  if (!date) return 'Unbekannt';
+  return new Date(date).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};
+
+const getUserInitials = (user: User): string => {
+  const f = user.firstname?.[0] || '';
+  const l = user.lastname?.[0] || '';
+  return (f + l).toUpperCase();
+};
+const reloadUser = async () => {
+  if (!props.userId) return;
+  try {
+    const res = await userService.getUserById(props.userId);
+    user.value = res;
+  } catch (err) {
+    console.error('Fehler beim Reload:', err);
+  }
+};
+
+const onSoftDelete = async () => {
+  const reason = prompt('Bitte gib den Löschgrund ein:');
+  if (!reason) return;
+
+  try {
+    await userService.deleteUser(props.userId, reason);
+    alert('Benutzer wurde gelöscht');
+    await reloadUser();
+  } catch (err) {
+    console.error(err);
+    alert('Fehler beim Löschen des Benutzers');
+  }
+};
+
+const onRestoreUser = async () => {
+  try {
+    await userService.restoreUser(props.userId);
+    alert('Benutzer wiederhergestellt');
+    await reloadUser();
+  } catch (err) {
+    console.error(err);
+    alert('Fehler beim Wiederherstellen');
+  }
+};
+
+const onEditUser = async () => {
+  const updated = {
+    firstname: prompt('Vorname ändern:', user.value?.firstname),
+    lastname: prompt('Nachname ändern:', user.value?.lastname),
+    phone: prompt('Telefonnummer ändern:', user.value?.phone ?? ''),
+  };
+
+  try {
+    await userService.updateUser(props.userId, updated);
+    alert('Benutzer aktualisiert');
+    await reloadUser();
+  } catch (err) {
+    console.error(err);
+    alert('Fehler beim Aktualisieren');
+  }
+};
+
 </script>
 
 <style lang="scss" scoped>
