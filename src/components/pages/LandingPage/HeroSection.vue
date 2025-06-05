@@ -20,8 +20,14 @@
         </div>
         <div class="hero-cta">
             <router-link to="/login-register" class="btn-primary">Loslegen</router-link>
-            <button class="btn-secondary" @click="$router.push({ hash: '#content' })">Mehr erfahren</button>
+            <button class="btn-secondary" @click="$router.push({ hash: '#content' })">
+              Mehr erfahren
+                <HeroiconsChevronDownIcon class="arrow-down-icon" style="margin-left: 0.5em; vertical-align: middle; width: 1.5em; height: 1.5em;" />
+            </button>
         </div>
+      </div>
+      <div class="ScrollIndicator">
+        <HeroiconsChevronDownIcon class="scroll-indicator-icon" style="width: 2em; height: 2em;" />
       </div>
       <div class="hero-visual">
         <div class="illustration">
@@ -47,9 +53,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { ChevronDownIcon as HeroiconsChevronDownIcon } from '@heroicons/vue/24/solid';
 
 export default defineComponent({
-  name: 'HeroSection'
+  name: 'HeroSection',
+  components: {
+    HeroiconsChevronDownIcon
+  }
 });
 </script>
 
@@ -160,6 +170,50 @@ export default defineComponent({
           color: mixins.theme-color($theme, text-secondary);
         }
       }
+    }
+  }
+
+  // ScrollIndicator mit animierter Bounce- und Fade-in-Animation
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0);
+    }
+    50% {
+      transform: translateX(-50%) translateY(12px);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  .ScrollIndicator {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    opacity: 0;
+    animation:
+      fade-in 1s ease-out 0.5s forwards,
+      bounce 1.5s infinite 1s;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+
+    &:hover {
+      transform: translateX(-50%) scale(1.1);
+      transition: transform map.get(vars.$transitions, default);
     }
   }
   

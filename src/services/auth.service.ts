@@ -29,7 +29,6 @@ class AuthService {
     rememberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
-      console.log({ username, email, password, rememberMe });
 
       if (!email && !username)
         throw new Error("Either email or username must be provided");
