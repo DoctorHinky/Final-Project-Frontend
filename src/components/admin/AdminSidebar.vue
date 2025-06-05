@@ -18,8 +18,14 @@
       </div>
     </nav>
 
-    <!-- Sidebar-Footer mit Abmelde-Button -->
+    <!-- Sidebar-Footer mit Zurück-Button -->
     <div class="sidebar-footer">
+      <button class="back-button" @click="navigateToMemberDashboard">
+        <span class="back-icon">
+          <ArrowLeftIcon class="h-5 w-5" />
+        </span>
+        <span class="back-text">MemberDashboard</span>
+      </button>
     </div>
   </aside>
 </template>
@@ -35,6 +41,7 @@ import {
   TicketIcon,
   StarIcon,
   LockClosedIcon,
+  ArrowLeftIcon,
 } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
@@ -47,6 +54,7 @@ export default defineComponent({
     TicketIcon,
     StarIcon,
     LockClosedIcon,
+    ArrowLeftIcon,
   },
   props: {
     isOpen: {
@@ -111,10 +119,16 @@ export default defineComponent({
       });
     };
 
+    // Navigation zum Member Dashboard
+    const navigateToMemberDashboard = () => {
+      router.push('/member/dashboard');
+    };
+
     return {
       menuItems,
       selectMenuItem,
-      isActiveItem
+      isActiveItem,
+      navigateToMemberDashboard
     };
   }
 });
@@ -244,6 +258,57 @@ export default defineComponent({
   .sidebar-footer {
     padding: 16px;
     border-top: 1px solid #333;
+
+    .back-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+      border: 1px solid #444;
+      border-radius: 8px;
+      color: #b0b0b0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      gap: 10px;
+
+      &:hover {
+        background: linear-gradient(135deg, #333, #252525);
+        color: #fff;
+        border-color: #555;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        .back-icon {
+          transform: translateX(-3px);
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .back-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .back-text {
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+      }
+    }
   }
 }
 
