@@ -4,7 +4,7 @@
     <div class="sidebar-header">
       <h3>Meine Entwürfe</h3>
       <button @click="refreshDrafts" class="refresh-btn" :disabled="isLoading" title="Aktualisieren">
-        <ArrowPathIcon :class="['icon-size', { 'spinning': isLoading }]" />
+        <ArrowPathIcon :class="['icon-size', { spinning: isLoading }]" />
       </button>
     </div>
 
@@ -20,8 +20,13 @@
     </div>
 
     <div v-else class="drafts-list">
-      <div v-for="draft in drafts" :key="draft.id" class="draft-item"
-        :class="{ 'active': selectedDraftId === draft.id }" @click="$emit('select', draft)">
+      <div
+        v-for="draft in drafts"
+        :key="draft.id"
+        class="draft-item"
+        :class="{ active: selectedDraftId === draft.id }"
+        @click="$emit('select', draft)"
+      >
         <!-- Vorschaubild hinzugefügt -->
         <div class="draft-thumbnail" v-if="draft.coverImage">
           <img :src="draft.coverImage" alt="Artikelbild" />
@@ -31,8 +36,8 @@
         </div>
 
         <div class="draft-info">
-          <h4 class="draft-title">{{ draft.title || 'Ohne Titel' }}</h4>
-          <p class="draft-date">Bearbeitet: {{ formatDate(draft.lastUpdated) }}</p>
+          <h4 class="draft-title">{{ draft.title || "Ohne Titel" }}</h4>
+          <p class="draft-date">Bearbeitet: {{ draft.updated_at }}</p>
           <p class="draft-chapters">{{ draft.chapters.length }} Kapitel</p>
         </div>
         <div class="draft-actions">
@@ -49,77 +54,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import { ArrowPathIcon, DocumentIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-
-interface Chapter {
-  title: string;
-  content: string;
-  chapterImage?: string;
-  quiz?: any;
-}
-
-interface Draft {
-  id: string;
-  title: string;
-  description: string;
-  coverImage: string;
-  chapters: Chapter[];
-  status: 'draft';
-  lastUpdated: string;
-}
+import { defineComponent, type PropType } from "vue";
+import { ArrowPathIcon, DocumentIcon, PencilIcon, TrashIcon } from "@heroicons/vue/24/outline";
+import type { Draft } from "./types";
 
 export default defineComponent({
-  name: 'DraftsList',
+  name: "DraftsList",
   components: {
     ArrowPathIcon,
     DocumentIcon,
     PencilIcon,
-    TrashIcon
+    TrashIcon,
   },
   props: {
     drafts: {
       type: Array as PropType<Draft[]>,
-      default: () => []
+      default: () => [],
     },
     isLoading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     selectedDraftId: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
   },
-  emits: ['refresh', 'select', 'edit', 'delete'],
-  setup(props, { emit }) {
+  emits: ["refresh", "select", "edit", "delete"],
+  setup(_, { emit }) {
     const refreshDrafts = () => {
-      emit('refresh');
+      emit("refresh");
     };
 
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date);
-    };
-
-    return {
-      refreshDrafts,
-      formatDate
-    };
-  }
+    return { refreshDrafts };
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .sidebar-section {
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -127,7 +102,7 @@ export default defineComponent({
   flex-direction: column;
   height: fit-content;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -142,7 +117,7 @@ export default defineComponent({
     padding: map.get(vars.$spacing, m);
     border-bottom: 1px solid;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
@@ -153,7 +128,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin: 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -171,7 +146,7 @@ export default defineComponent({
       height: 32px;
       border-radius: 50%;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
 
@@ -200,7 +175,7 @@ export default defineComponent({
   gap: map.get(vars.$spacing, s);
   text-align: center;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
       transition: all 0.4s ease-out;
@@ -241,7 +216,7 @@ export default defineComponent({
     transition: background-color 0.2s ease;
     transition: all 0.4s ease-out;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
         transition: all 0.4s ease-out;
@@ -275,7 +250,7 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, hover-color);
             transition: all 0.4s ease-out;
@@ -303,7 +278,7 @@ export default defineComponent({
         text-overflow: ellipsis;
         transition: all 0.4s ease-out;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -316,7 +291,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         margin: 0;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -351,7 +326,7 @@ export default defineComponent({
     height: 18px;
   }
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: rgba(mixins.theme-color($theme, hover-color), 0.9);
       color: mixins.theme-color($theme, text-secondary);

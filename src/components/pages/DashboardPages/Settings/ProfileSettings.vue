@@ -24,8 +24,8 @@
 
     <form v-else @submit.prevent="saveProfileSettings" class="settings-form">
       <div class="form-group profile-avatar">
-        <div 
-          class="avatar-preview" 
+        <div
+          class="avatar-preview"
           :class="{ 'drag-active': isDragging }"
           @dragenter.prevent="onDragOver"
           @dragover.prevent="onDragOver"
@@ -33,22 +33,21 @@
           @drop.prevent="onDrop"
           @click="triggerFileInput"
         >
-          <img v-if="profileForm.profilePicture" :src="profileForm.profilePicture" alt="Profilbild" class="avatar-image" />
-          <span v-else class="avatar-placeholder">{{ getInitials(profileForm.firstname, profileForm.lastname) }}</span>
-          
-          <input 
-            type="file" 
-            ref="fileInput" 
-            @change="handleFileChange" 
-            accept="image/*" 
-            class="file-input" 
+          <img
+            v-if="profileForm.profilePicture"
+            :src="profileForm.profilePicture"
+            alt="Profilbild"
+            class="avatar-image"
           />
-          
+          <span v-else class="avatar-placeholder">{{ getInitials(profileForm.firstname, profileForm.lastname) }}</span>
+
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="file-input" />
+
           <button type="button" class="change-avatar-btn" title="Profilbild ändern" @click.stop="triggerFileInput">
             <span v-if="isUploading" class="loading-spinner avatar-spinner"></span>
             <span v-else>📷</span>
           </button>
-          
+
           <div v-if="isDragging" class="drop-overlay">
             <span>Bild hier ablegen</span>
           </div>
@@ -83,24 +82,43 @@
       <div class="form-group">
         <label for="username">Benutzername</label>
         <div class="input-container">
-          <input type="text" id="username" v-model="profileForm.username" required class="editable-field"
-            data-field="username" :disabled="!isUsernameEditable" />
+          <input
+            type="text"
+            id="username"
+            v-model="profileForm.username"
+            required
+            class="editable-field"
+            data-field="username"
+            :disabled="!isUsernameEditable"
+          />
         </div>
       </div>
 
       <div class="form-group">
         <label for="email">E-Mail</label>
         <div class="input-container">
-          <input type="email" id="email" v-model="profileForm.email" required class="editable-field"
-            data-field="email" />
+          <input
+            type="email"
+            id="email"
+            v-model="profileForm.email"
+            required
+            class="editable-field"
+            data-field="email"
+          />
         </div>
       </div>
 
       <div class="form-group">
         <label for="phone">Telefonnummer</label>
         <div class="input-container">
-          <input type="tel" id="phone" v-model="profileForm.phone" placeholder="+49 123 456789" class="editable-field"
-            data-field="phone" />
+          <input
+            type="tel"
+            id="phone"
+            v-model="profileForm.phone"
+            placeholder="+49 123 456789"
+            class="editable-field"
+            data-field="phone"
+          />
         </div>
         <span class="help-text">Ihre Telefonnummer im internationalen Format (optional)</span>
       </div>
@@ -108,13 +126,25 @@
       <div class="form-group">
         <label for="shortDescription">Kurzbeschreibung</label>
         <div class="input-container">
-          <input type="text" id="shortDescription" v-model="profileForm.shortDescription" 
-            placeholder="Eine kurze Beschreibung über dich" class="editable-field" 
-            data-field="shortDescription" maxlength="100" />
+          <input
+            type="text"
+            id="shortDescription"
+            v-model="profileForm.shortDescription"
+            placeholder="Eine kurze Beschreibung über dich"
+            class="editable-field"
+            data-field="shortDescription"
+            maxlength="100"
+          />
         </div>
         <span class="help-text">Kurze Beschreibung (max. 100 Zeichen)</span>
-        <span v-if="profileForm.shortDescription" class="character-count"
-          :class="{ warning: profileForm.shortDescription.length > 80, error: profileForm.shortDescription.length > 100 }">
+        <span
+          v-if="profileForm.shortDescription"
+          class="character-count"
+          :class="{
+            warning: profileForm.shortDescription.length > 80,
+            error: profileForm.shortDescription.length > 100,
+          }"
+        >
           {{ profileForm.shortDescription.length }}/100
         </span>
       </div>
@@ -122,12 +152,21 @@
       <div class="form-group">
         <label for="bio">Über mich</label>
         <div class="input-container">
-          <textarea id="bio" v-model="profileForm.bio" rows="4" class="editable-field" 
-            data-field="bio" placeholder="Erzähle etwas über dich..."></textarea>
+          <textarea
+            id="bio"
+            v-model="profileForm.bio"
+            rows="4"
+            class="editable-field"
+            data-field="bio"
+            placeholder="Erzähle etwas über dich..."
+          ></textarea>
         </div>
         <span class="help-text">Ausführliche Beschreibung über dich (max. 500 Zeichen)</span>
-        <span v-if="profileForm.bio" class="character-count"
-          :class="{ warning: profileForm.bio.length > 450, error: profileForm.bio.length > 500 }">
+        <span
+          v-if="profileForm.bio"
+          class="character-count"
+          :class="{ warning: profileForm.bio.length > 450, error: profileForm.bio.length > 500 }"
+        >
           {{ profileForm.bio.length }}/500
         </span>
       </div>
@@ -146,9 +185,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type PropType, watch, onMounted } from 'vue';
-import { cloudinaryUpload, cloudinaryDelete } from '@/services/cloudinaryService';
-import api from '@/services/axiosInstance';
+import { defineComponent, ref, type PropType, watch, onMounted } from "vue";
+import { cloudinaryUpload, cloudinaryDelete } from "@/services/cloudinaryService";
+import api from "@/services/axiosInstance";
 
 interface ProfileForm {
   firstname: string;
@@ -163,22 +202,22 @@ interface ProfileForm {
 }
 
 export default defineComponent({
-  name: 'ProfileSettings',
+  name: "ProfileSettings",
   props: {
     showSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showError: {
       type: Boolean,
-      default: false
+      default: false,
     },
     errorMsg: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  emits: ['reset-form', 'save-profile', 'update:showSuccess', 'update:showError'],
+  emits: ["reset-form", "save-profile", "update:showSuccess", "update:showError"],
   setup(props, { emit }) {
     // Status für Formularprozesse
     const isSaving = ref(false);
@@ -190,63 +229,75 @@ export default defineComponent({
     const fileInput = ref<HTMLInputElement | null>(null);
     const isDragging = ref(false);
     const isUsernameEditable = ref(true); // Normalerweise false, kann je nach Anforderung angepasst werden
-    
+
     // Originale Daten für Reset-Funktion
     const originalProfileData = ref<ProfileForm | null>(null);
-    
+
     // Profilformular mit echten Feldern aus dem Backend
     const profileForm = ref<ProfileForm>({
-      firstname: '',
-      lastname: '',
-      username: '',
-      email: '',
-      phone: '',
-      bio: '',
-      shortDescription: '',
-      profilePicture: '',
-      publicId_picture: null
+      firstname: "",
+      lastname: "",
+      username: "",
+      email: "",
+      phone: "",
+      bio: "",
+      shortDescription: "",
+      profilePicture: "",
+      publicId_picture: null,
     });
-    
+
     // Beobachter für Prop-Änderungen
-    watch(() => props.showSuccess, (newVal) => {
-      saveSuccess.value = newVal;
-    });
-    
-    watch(() => props.showError, (newVal) => {
-      saveError.value = newVal;
-    });
-    
-    watch(() => props.errorMsg, (newVal) => {
-      errorMessage.value = newVal;
-    });
+    watch(
+      () => props.showSuccess,
+      (newVal) => {
+        saveSuccess.value = newVal;
+      }
+    );
+
+    watch(
+      () => props.showError,
+      (newVal) => {
+        saveError.value = newVal;
+      }
+    );
+
+    watch(
+      () => props.errorMsg,
+      (newVal) => {
+        errorMessage.value = newVal;
+      }
+    );
 
     // Profildaten vom Backend laden
     const loadUserProfile = async (): Promise<void> => {
       try {
         isLoadingProfile.value = true;
-        const response = await api.get('/user/getMe');
+        const response = await api.get("/user/getMe", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const userData = response.data;
-        
+
         // Formulardaten mit Backend-Daten füllen
         profileForm.value = {
-          firstname: userData.firstname || '',
-          lastname: userData.lastname || '',
-          username: userData.username || '',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          bio: userData.bio || '',
-          shortDescription: userData.shortDescription || '',
-          profilePicture: userData.profilePicture || '',
-          publicId_picture: userData.publicId_picture || null
+          firstname: userData.firstname || "",
+          lastname: userData.lastname || "",
+          username: userData.username || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          bio: userData.bio || "",
+          shortDescription: userData.shortDescription || "",
+          profilePicture: userData.profilePicture || "",
+          publicId_picture: userData.publicId_picture || null,
         };
-        
+
         // Originaldaten für Reset speichern
         originalProfileData.value = { ...profileForm.value };
-        
       } catch (error: any) {
-        console.error('Fehler beim Laden der Profildaten:', error);
+        console.error("Fehler beim Laden der Profildaten:", error);
         saveError.value = true;
-        errorMessage.value = 'Fehler beim Laden der Profildaten. Bitte versuche es später erneut.';
+        errorMessage.value = "Fehler beim Laden der Profildaten. Bitte versuche es später erneut.";
       } finally {
         isLoadingProfile.value = false;
       }
@@ -254,9 +305,9 @@ export default defineComponent({
 
     // Initialen für Avatar-Platzhalter generieren
     const getInitials = (firstName: string, lastName: string): string => {
-      const first = firstName ? firstName.charAt(0) : '';
-      const last = lastName ? lastName.charAt(0) : '';
-      return (first + last).toUpperCase() || '??';
+      const first = firstName ? firstName.charAt(0) : "";
+      const last = lastName ? lastName.charAt(0) : "";
+      return (first + last).toUpperCase() || "??";
     };
 
     // Datei-Upload-Funktionen
@@ -265,30 +316,30 @@ export default defineComponent({
         fileInput.value.click();
       }
     };
-    
+
     const handleFileChange = async (event: Event): Promise<void> => {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length > 0) {
         await uploadFile(target.files[0]);
       }
     };
-    
+
     const onDragOver = (event: DragEvent): void => {
       isDragging.value = true;
     };
-    
+
     const onDragLeave = (event: DragEvent): void => {
       isDragging.value = false;
     };
-    
+
     const onDrop = async (event: DragEvent): Promise<void> => {
       isDragging.value = false;
       if (event.dataTransfer && event.dataTransfer.files.length > 0) {
         const file = event.dataTransfer.files[0];
-        if (file.type.startsWith('image/')) {
+        if (file.type.startsWith("image/")) {
           await uploadFile(file);
         } else {
-          errorMessage.value = 'Bitte nur Bilder hochladen.';
+          errorMessage.value = "Bitte nur Bilder hochladen.";
           saveError.value = true;
           setTimeout(() => {
             saveError.value = false;
@@ -296,50 +347,48 @@ export default defineComponent({
         }
       }
     };
-    
+
     const uploadFile = async (file: File): Promise<void> => {
       try {
         isUploading.value = true;
         saveError.value = false;
-        
+
         // Wenn es ein vorheriges Bild gibt, löschen wir es
         if (profileForm.value.publicId_picture) {
           await cloudinaryDelete(profileForm.value.publicId_picture);
         }
-        
+
         // Hochladen des neuen Bildes
-        const result = await cloudinaryUpload(file, 'profile_avatars', profileForm.value.username);
-        
+        const result = await cloudinaryUpload(file, "profile_avatars", profileForm.value.username);
+
         profileForm.value.profilePicture = result.secureUrl;
         profileForm.value.publicId_picture = result.publicId;
-        
+
         // Automatisch speichern nach Upload
         await saveProfileSettings();
-        
       } catch (error) {
         saveError.value = true;
-        errorMessage.value = 'Fehler beim Hochladen des Bildes. Bitte versuche es erneut.';
+        errorMessage.value = "Fehler beim Hochladen des Bildes. Bitte versuche es erneut.";
       } finally {
         isUploading.value = false;
       }
     };
-    
+
     const removeAvatar = async (): Promise<void> => {
       try {
         if (!profileForm.value.publicId_picture) return;
-        
+
         isUploading.value = true;
         await cloudinaryDelete(profileForm.value.publicId_picture);
-        
-        profileForm.value.profilePicture = '';
+
+        profileForm.value.profilePicture = "";
         profileForm.value.publicId_picture = null;
-        
+
         // Automatisch speichern nach Entfernen
         await saveProfileSettings();
-        
       } catch (error) {
         saveError.value = true;
-        errorMessage.value = 'Fehler beim Entfernen des Bildes. Bitte versuche es erneut.';
+        errorMessage.value = "Fehler beim Entfernen des Bildes. Bitte versuche es erneut.";
       } finally {
         isUploading.value = false;
       }
@@ -352,7 +401,7 @@ export default defineComponent({
       }
       saveSuccess.value = false;
       saveError.value = false;
-      emit('reset-form', 'profile');
+      emit("reset-form", "profile");
     };
 
     // Profil speichern
@@ -361,56 +410,59 @@ export default defineComponent({
         isSaving.value = true;
         saveError.value = false;
         saveSuccess.value = false;
-        
+
         // Nur die veränderbaren Felder senden
         const updateData: any = {
           email: profileForm.value.email,
-          phone: profileForm.value.phone || '',
-          bio: profileForm.value.bio || '',
-          shortDescription: profileForm.value.shortDescription || ''
+          phone: profileForm.value.phone || "",
+          bio: profileForm.value.bio || "",
+          shortDescription: profileForm.value.shortDescription || "",
         };
-        
+
         // Profilbild nur senden, wenn es geändert wurde
         if (profileForm.value.profilePicture !== originalProfileData.value?.profilePicture) {
           updateData.profilePicture = profileForm.value.profilePicture;
           updateData.publicId_picture = profileForm.value.publicId_picture;
         }
-        
+
         // Username nur senden, wenn editierbar und geändert
         if (isUsernameEditable.value && profileForm.value.username !== originalProfileData.value?.username) {
           updateData.username = profileForm.value.username;
         }
-        
-        await api.patch('/user/updateMe', updateData);
-        
+
+        await api.patch("/user/updateMe", updateData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         // Originaldaten aktualisieren
         originalProfileData.value = { ...profileForm.value };
-        
+
         saveSuccess.value = true;
-        emit('save-profile', profileForm.value);
-        emit('update:showSuccess', true);
-        
+        emit("save-profile", profileForm.value);
+        emit("update:showSuccess", true);
+
         // Erfolgsmeldung nach 3 Sekunden ausblenden
         setTimeout(() => {
           saveSuccess.value = false;
-          emit('update:showSuccess', false);
+          emit("update:showSuccess", false);
         }, 3000);
-        
       } catch (error: any) {
-        console.error('Fehler beim Speichern der Profildaten:', error);
+        console.error("Fehler beim Speichern der Profildaten:", error);
         saveError.value = true;
-        emit('update:showError', true);
-        
+        emit("update:showError", true);
+
         if (error.response?.data?.message) {
           errorMessage.value = error.response.data.message;
         } else {
-          errorMessage.value = 'Fehler beim Speichern der Profildaten. Bitte versuche es später erneut.';
+          errorMessage.value = "Fehler beim Speichern der Profildaten. Bitte versuche es später erneut.";
         }
-        
+
         // Fehlermeldung nach 5 Sekunden ausblenden
         setTimeout(() => {
           saveError.value = false;
-          emit('update:showError', false);
+          emit("update:showError", false);
         }, 5000);
       } finally {
         isSaving.value = false;
@@ -441,18 +493,18 @@ export default defineComponent({
       onDragOver,
       onDragLeave,
       onDrop,
-      removeAvatar
+      removeAvatar,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:color';
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:color";
+@use "@/style/base/animations" as animations;
 
 .settings-section {
   margin-bottom: map.get(vars.$spacing, xxl);
@@ -462,7 +514,7 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -472,7 +524,7 @@ export default defineComponent({
   .section-description {
     margin-bottom: map.get(vars.$spacing, l);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -489,7 +541,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xxl);
   gap: map.get(vars.$spacing, m);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-secondary);
     }
@@ -523,7 +575,7 @@ export default defineComponent({
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -535,7 +587,7 @@ export default defineComponent({
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -568,7 +620,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, xs);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -593,7 +645,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -633,7 +685,7 @@ export default defineComponent({
         padding: map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -652,7 +704,7 @@ export default defineComponent({
       margin-top: map.get(vars.$spacing, xxs);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -670,7 +722,7 @@ export default defineComponent({
       bottom: 10px;
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -706,7 +758,7 @@ export default defineComponent({
       overflow: hidden;
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 3px solid mixins.theme-color($theme, accent-green);
@@ -729,7 +781,7 @@ export default defineComponent({
         font-size: 3rem;
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -762,7 +814,7 @@ export default defineComponent({
         transition: all 0.3s ease;
         z-index: 2;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
@@ -770,7 +822,7 @@ export default defineComponent({
 
             &:hover {
               transform: translateY(-2px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
             }
           }
         }
@@ -812,10 +864,10 @@ export default defineComponent({
         cursor: pointer;
         text-decoration: underline;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
-            
+
             &:hover {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -851,7 +903,7 @@ export default defineComponent({
       align-items: center;
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           &:disabled {
             opacity: 0.5;
@@ -862,7 +914,7 @@ export default defineComponent({
     }
 
     .cancel-button {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
@@ -877,7 +929,7 @@ export default defineComponent({
     }
 
     .save-button {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -885,7 +937,7 @@ export default defineComponent({
 
           &:hover:not(:disabled) {
             transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }

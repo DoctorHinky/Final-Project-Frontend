@@ -1,8 +1,8 @@
 import type { PostCategory } from "./Post.Category.types";
 
 export interface Article {
-  id: string;
-  title: string;
+  id?: string;
+  title?: string;
   quickDescription: string;
   image: string;
   publicId_image: string;

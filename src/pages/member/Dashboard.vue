@@ -130,6 +130,11 @@ export default defineComponent({
     // Initialisierung
     onMounted(() => {
       // Authentifizierung überprüfen
+      const access_token = authService.getAccessToken();
+      if (access_token) {
+        console.log("Access Token vorhanden:", access_token);
+      }
+
       if (!authService.isLoggedIn()) {
         router.push("/login-register");
         return;

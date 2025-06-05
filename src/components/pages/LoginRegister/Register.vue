@@ -14,7 +14,7 @@
           @blur="validateField('firstName')"
           @input="clearFieldError('firstName')"
           placeholder="Vorname"
-          :class="{ 'error': fieldErrors.firstName }"
+          :class="{ error: fieldErrors.firstName }"
         />
         <span v-if="fieldErrors.firstName" class="field-error">{{ fieldErrors.firstName }}</span>
       </div>
@@ -28,7 +28,7 @@
           @blur="validateField('lastName')"
           @input="clearFieldError('lastName')"
           placeholder="Nachname"
-          :class="{ 'error': fieldErrors.lastName }"
+          :class="{ error: fieldErrors.lastName }"
         />
         <span v-if="fieldErrors.lastName" class="field-error">{{ fieldErrors.lastName }}</span>
       </div>
@@ -43,7 +43,7 @@
           @blur="validateField('username')"
           @input="clearFieldError('username')"
           placeholder="Benutzername"
-          :class="{ 'error': fieldErrors.username }"
+          :class="{ error: fieldErrors.username }"
         />
         <span v-if="fieldErrors.username" class="field-error">{{ fieldErrors.username }}</span>
       </div>
@@ -90,27 +90,27 @@
       <!-- Dritte Zeile: Geburtsdatum und Telefon -->
       <div class="form-group forty-width" :class="{ 'has-error': fieldErrors.dob }">
         <label for="register-dob">Geburtsdatum</label>
-        <input 
-          type="date" 
-          id="register-dob" 
-          v-model="registerForm.dob" 
+        <input
+          type="date"
+          id="register-dob"
+          v-model="registerForm.dob"
           @blur="validateField('dob')"
           @input="clearFieldError('dob')"
-          :class="{ 'error': fieldErrors.dob }"
+          :class="{ error: fieldErrors.dob }"
         />
         <span v-if="fieldErrors.dob" class="field-error">{{ fieldErrors.dob }}</span>
       </div>
 
       <div class="form-group sixty-width" :class="{ 'has-error': fieldErrors.phone }">
         <label for="register-phone">Telefon</label>
-        <input 
-          type="tel" 
-          id="register-phone" 
-          v-model="registerForm.phone" 
+        <input
+          type="tel"
+          id="register-phone"
+          v-model="registerForm.phone"
           @blur="validateField('phone')"
           @input="clearFieldError('phone')"
-          placeholder="Telefonnummer" 
-          :class="{ 'error': fieldErrors.phone }"
+          placeholder="Telefonnummer"
+          :class="{ error: fieldErrors.phone }"
         />
         <span v-if="fieldErrors.phone" class="field-error">{{ fieldErrors.phone }}</span>
       </div>
@@ -125,7 +125,7 @@
           @blur="validateField('email')"
           @input="clearFieldError('email')"
           placeholder="deine@email.de"
-          :class="{ 'error': fieldErrors.email }"
+          :class="{ error: fieldErrors.email }"
         />
         <span v-if="fieldErrors.email" class="field-error">{{ fieldErrors.email }}</span>
       </div>
@@ -141,7 +141,7 @@
             @blur="validateField('password')"
             @input="clearFieldError('password')"
             placeholder="Erstelle ein sicheres Passwort"
-            :class="{ 'error': fieldErrors.password }"
+            :class="{ error: fieldErrors.password }"
           />
           <button
             type="button"
@@ -182,7 +182,7 @@
             @blur="validateField('passwordConfirm')"
             @input="clearFieldError('passwordConfirm')"
             placeholder="Passwort erneut eingeben"
-            :class="{ 'error': fieldErrors.passwordConfirm }"
+            :class="{ error: fieldErrors.passwordConfirm }"
           />
           <button
             type="button"
@@ -216,11 +216,7 @@
       <div class="form-group full-width" :class="{ 'has-error': fieldErrors.agreeTerms }">
         <div class="form-options">
           <label class="checkbox-container">
-            <input 
-              type="checkbox" 
-              v-model="registerForm.agreeTerms" 
-              @change="clearFieldError('agreeTerms')"
-            />
+            <input type="checkbox" v-model="registerForm.agreeTerms" @change="clearFieldError('agreeTerms')" />
             <span class="checkmark"></span>
             <span>
               Ich stimme den
@@ -255,8 +251,8 @@ export default defineComponent({
     CheckCircleIcon,
     XCircleIcon,
   },
-  
-  emits: ['register-success'],
+
+  emits: ["register-success"],
 
   setup(props, { emit }) {
     const router = useRouter();
@@ -278,7 +274,7 @@ export default defineComponent({
       email: "",
       password: "",
       passwordConfirm: "",
-      agreeTerms: ""
+      agreeTerms: "",
     });
 
     // Register-Formular
@@ -357,7 +353,7 @@ export default defineComponent({
     const selectOption = (option: { value: string; text: string }) => {
       selectedOption.value = option;
       registerForm.role = option.value;
-      clearFieldError('role');
+      clearFieldError("role");
       closeDropdown();
     };
 
@@ -391,23 +387,23 @@ export default defineComponent({
     // Validierungsfunktionen
     const validateField = (fieldName: string): boolean => {
       let isValid = true;
-      
-      switch(fieldName) {
-        case 'firstName':
+
+      switch (fieldName) {
+        case "firstName":
           if (!registerForm.firstName.trim()) {
             fieldErrors.firstName = "Bitte gib deinen Vornamen ein.";
             isValid = false;
           }
           break;
-          
-        case 'lastName':
+
+        case "lastName":
           if (!registerForm.lastName.trim()) {
             fieldErrors.lastName = "Bitte gib deinen Nachnamen ein.";
             isValid = false;
           }
           break;
-          
-        case 'username':
+
+        case "username":
           if (!registerForm.username.trim()) {
             fieldErrors.username = "Bitte wähle einen Benutzernamen.";
             isValid = false;
@@ -416,22 +412,22 @@ export default defineComponent({
             isValid = false;
           }
           break;
-          
-        case 'role':
+
+        case "role":
           if (!registerForm.role) {
             fieldErrors.role = "Bitte wähle eine Rolle aus.";
             isValid = false;
           }
           break;
-          
-        case 'dob':
+
+        case "dob":
           if (!registerForm.dob) {
             fieldErrors.dob = "Bitte gib dein Geburtsdatum ein.";
             isValid = false;
           }
           break;
-          
-        case 'phone':
+
+        case "phone":
           const germanPhoneRegex = /^(?:\+49|0049|0)\d{10,14}$/;
           if (!registerForm.phone.trim()) {
             fieldErrors.phone = "Bitte gib deine Telefonnummer ein.";
@@ -441,8 +437,8 @@ export default defineComponent({
             isValid = false;
           }
           break;
-          
-        case 'email':
+
+        case "email":
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!registerForm.email.trim()) {
             fieldErrors.email = "Bitte gib deine E-Mail-Adresse ein.";
@@ -452,8 +448,8 @@ export default defineComponent({
             isValid = false;
           }
           break;
-          
-        case 'password':
+
+        case "password":
           const password = registerForm.password;
           if (!password) {
             fieldErrors.password = "Bitte wähle ein Passwort.";
@@ -463,15 +459,15 @@ export default defineComponent({
             const hasLetter = /[a-zA-Z]/.test(password);
             const hasNumber = /\d/.test(password);
             const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-            
+
             if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecialChar) {
               fieldErrors.password = "Mind. 8 Zeichen, Buchstaben, Zahlen und Sonderzeichen erforderlich.";
               isValid = false;
             }
           }
           break;
-          
-        case 'passwordConfirm':
+
+        case "passwordConfirm":
           if (!registerForm.passwordConfirm) {
             fieldErrors.passwordConfirm = "Bitte bestätige dein Passwort.";
             isValid = false;
@@ -480,15 +476,15 @@ export default defineComponent({
             isValid = false;
           }
           break;
-          
-        case 'agreeTerms':
+
+        case "agreeTerms":
           if (!registerForm.agreeTerms) {
             fieldErrors.agreeTerms = "Du musst den Nutzungsbedingungen zustimmen.";
             isValid = false;
           }
           break;
       }
-      
+
       return isValid;
     };
 
@@ -497,7 +493,7 @@ export default defineComponent({
     };
 
     const clearAllErrors = () => {
-      Object.keys(fieldErrors).forEach(key => {
+      Object.keys(fieldErrors).forEach((key) => {
         fieldErrors[key] = "";
       });
     };
@@ -505,16 +501,16 @@ export default defineComponent({
     // Scroll zum ersten Fehlerfeld
     const scrollToFirstError = async () => {
       await nextTick();
-      
-      const firstErrorField = document.querySelector('.form-group.has-error');
+
+      const firstErrorField = document.querySelector(".form-group.has-error");
       if (firstErrorField) {
-        firstErrorField.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        firstErrorField.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
         });
-        
+
         // Fokussiere das Input-Feld
-        const input = firstErrorField.querySelector('input, .dropdown-selected');
+        const input = firstErrorField.querySelector("input, .dropdown-selected");
         if (input) {
           (input as HTMLElement).focus();
         }
@@ -524,20 +520,28 @@ export default defineComponent({
     // Registrierung verarbeiten
     const handleRegister = async () => {
       clearAllErrors();
-      
+
       // Validiere alle Felder
       const fieldsToValidate = [
-        'firstName', 'lastName', 'username', 'role', 
-        'dob', 'phone', 'email', 'password', 'passwordConfirm', 'agreeTerms'
+        "firstName",
+        "lastName",
+        "username",
+        "role",
+        "dob",
+        "phone",
+        "email",
+        "password",
+        "passwordConfirm",
+        "agreeTerms",
       ];
-      
+
       let hasErrors = false;
       for (const field of fieldsToValidate) {
         if (!validateField(field)) {
           hasErrors = true;
         }
       }
-      
+
       if (hasErrors) {
         await scrollToFirstError();
         return;
@@ -557,7 +561,11 @@ export default defineComponent({
           password: registerForm.password,
         };
 
-        const response = await api.post("/auth/local/register", registerData);
+        const response = await api.post("/auth/local/register", registerData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
 
@@ -565,14 +573,14 @@ export default defineComponent({
 
         sessionStorage.setItem("access_token", access_token);
         sessionStorage.setItem("refresh_token", refresh_token);
-        
+
         // Event an Parent-Komponente senden
-        emit('register-success');
+        emit("register-success");
 
         await router.push("/member/dashboard");
       } catch (error: any) {
         registerStatus.success = false;
-        
+
         // Server-seitige Fehler verarbeiten und dem richtigen Feld zuordnen
         if (error.response?.status === 403) {
           // Prüfe, ob es um E-Mail oder Username geht
@@ -580,7 +588,10 @@ export default defineComponent({
           if (errorMessage.toLowerCase().includes("e-mail")) {
             fieldErrors.email = "Diese E-Mail-Adresse ist bereits vergeben.";
             await scrollToFirstError();
-          } else if (errorMessage.toLowerCase().includes("username") || errorMessage.toLowerCase().includes("benutzername")) {
+          } else if (
+            errorMessage.toLowerCase().includes("username") ||
+            errorMessage.toLowerCase().includes("benutzername")
+          ) {
             fieldErrors.username = "Dieser Benutzername ist bereits vergeben.";
             await scrollToFirstError();
           } else {
@@ -600,7 +611,7 @@ export default defineComponent({
           // Allgemeiner Fehler - zeige oben an
           registerStatus.message = "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.";
         }
-        
+
         console.error("Register error:", error);
       } finally {
         isLoading.value = false;
@@ -1104,25 +1115,25 @@ export default defineComponent({
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: map.get(vars.$spacing, m);
-    
+
     .form-group {
       &.half-width {
         grid-column: span 6;
       }
-      
+
       &.forty-width {
         grid-column: span 5;
       }
-      
+
       &.sixty-width {
         grid-column: span 7;
       }
-      
+
       &.full-width {
         grid-column: span 12;
       }
     }
-    
+
     .submit-button {
       grid-column: span 12;
     }

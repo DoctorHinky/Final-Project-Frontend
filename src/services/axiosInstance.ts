@@ -3,9 +3,6 @@ import { authService } from "./auth.service";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Request Interceptor
@@ -13,7 +10,6 @@ api.interceptors.request.use((config) => {
   const token = authService.getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log("[AXIOS TOKEN]");
   }
   return config;
 });

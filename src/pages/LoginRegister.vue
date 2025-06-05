@@ -8,27 +8,19 @@
       </div>
       <div class="grid-overlay"></div>
     </div>
-    
+
     <div class="container">
       <div class="auth-container" :class="{ 'wide-container': activeTab === 'register' }">
         <div class="tabs">
-          <button class="tab" :class="{ active: activeTab === 'login' }" @click="activeTab = 'login'">
-            Anmelden
-          </button>
+          <button class="tab" :class="{ active: activeTab === 'login' }" @click="activeTab = 'login'">Anmelden</button>
           <button class="tab" :class="{ active: activeTab === 'register' }" @click="activeTab = 'register'">
             Registrieren
           </button>
         </div>
         <!-- Login Komponente -->
-        <Login
-          v-if="activeTab === 'login'"
-          @login-success="handleLoginSuccess"
-        />
+        <Login v-if="activeTab === 'login'" @login-success="handleLoginSuccess" />
         <!-- Register Komponente -->
-        <Register
-          v-if="activeTab === 'register'"
-          @register-success="handleRegisterSuccess"
-        />
+        <Register v-if="activeTab === 'register'" @register-success="handleRegisterSuccess" />
       </div>
     </div>
   </div>
@@ -100,10 +92,10 @@ export default defineComponent({
     height: 100%;
     z-index: -1;
     overflow: hidden;
-    
+
     // Dunklerer Basis-Layer
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       width: 100%;
       height: 100%;
@@ -118,7 +110,7 @@ export default defineComponent({
       }
       z-index: 1;
     }
-    
+
     // Kontrast-Filter für knackigere Farben
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -137,23 +129,22 @@ export default defineComponent({
       height: 300%;
       top: -100%;
       left: -100%;
-      
+
       &::before,
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         width: 100%;
         height: 100%;
         top: 0;
         left: 0;
       }
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           @if $theme == "dark" {
             // Haupt-Gradient-Layer - deutlich dunkler
-            background: 
-              radial-gradient(
+            background: radial-gradient(
                 ellipse 80% 50% at 30% 40%,
                 rgba(74, 210, 149, 0.08) 0%,
                 rgba(74, 210, 149, 0.05) 20%,
@@ -173,11 +164,10 @@ export default defineComponent({
                 rgba(74, 210, 149, 0.03) 30%,
                 transparent 80%
               );
-            
+
             // Zweiter Layer für Tiefe - sehr dunkel
             &::before {
-              background:
-                radial-gradient(
+              background: radial-gradient(
                   ellipse 100% 60% at 20% 70%,
                   rgba(74, 210, 149, 0.05) 0%,
                   rgba(53, 204, 208, 0.02) 35%,
@@ -191,22 +181,20 @@ export default defineComponent({
                 );
               animation: gradientMove1 35s ease-in-out infinite;
             }
-            
+
             // Dritter Layer für Bewegung - minimal
             &::after {
-              background:
-                radial-gradient(
-                  ellipse 120% 80% at 60% 50%,
-                  rgba(155, 225, 93, 0.04) 0%,
-                  rgba(74, 210, 149, 0.02) 45%,
-                  transparent 75%
-                );
+              background: radial-gradient(
+                ellipse 120% 80% at 60% 50%,
+                rgba(155, 225, 93, 0.04) 0%,
+                rgba(74, 210, 149, 0.02) 45%,
+                transparent 75%
+              );
               animation: gradientMove2 50s ease-in-out infinite reverse;
             }
           } @else {
             // Light Theme Gradients - auch etwas dunkler
-            background: 
-              radial-gradient(
+            background: radial-gradient(
                 ellipse 80% 50% at 30% 40%,
                 rgba(38, 187, 119, 0.1) 0%,
                 rgba(38, 187, 119, 0.05) 20%,
@@ -226,10 +214,9 @@ export default defineComponent({
                 rgba(38, 187, 119, 0.04) 30%,
                 transparent 80%
               );
-            
+
             &::before {
-              background:
-                radial-gradient(
+              background: radial-gradient(
                   ellipse 100% 60% at 20% 70%,
                   rgba(38, 187, 119, 0.06) 0%,
                   rgba(23, 162, 184, 0.03) 35%,
@@ -243,21 +230,20 @@ export default defineComponent({
                 );
               animation: gradientMove1 35s ease-in-out infinite;
             }
-            
+
             &::after {
-              background:
-                radial-gradient(
-                  ellipse 120% 80% at 60% 50%,
-                  rgba(119, 205, 53, 0.05) 0%,
-                  rgba(38, 187, 119, 0.02) 45%,
-                  transparent 75%
-                );
+              background: radial-gradient(
+                ellipse 120% 80% at 60% 50%,
+                rgba(119, 205, 53, 0.05) 0%,
+                rgba(38, 187, 119, 0.02) 45%,
+                transparent 75%
+              );
               animation: gradientMove2 40s ease-in-out infinite reverse;
             }
           }
         }
       }
-      
+
       animation: gradientFlow 30s ease-in-out infinite;
     }
 
@@ -267,32 +253,30 @@ export default defineComponent({
       width: 100%;
       height: 100%;
       opacity: 0.3; // Noch dunkler
-      
+
       .shape {
         position: absolute;
         border-radius: 50%;
         filter: blur(100px); // Mehr Blur für weichere Kanten
         mix-blend-mode: screen;
         animation: gentleFloat 30s infinite ease-in-out;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             @if $theme == "dark" {
               background: radial-gradient(
                 circle,
-                rgba(74, 210, 149, 0.04) 0%, // Sehr dunkel
-                transparent 50%
+                rgba(74, 210, 149, 0.04) 0%,
+                // Sehr dunkel
+                transparent
+                  50%
               );
             } @else {
-              background: radial-gradient(
-                circle,
-                rgba(38, 187, 119, 0.06) 0%,
-                transparent 50%
-              );
+              background: radial-gradient(circle, rgba(38, 187, 119, 0.06) 0%, transparent 50%);
             }
           }
         }
-        
+
         // Nur 3 sehr subtile Akzente
         @for $i from 1 through 3 {
           &:nth-child(#{$i}) {
@@ -313,8 +297,8 @@ export default defineComponent({
             animation-duration: 40s + $i * 10s;
           }
         }
-        
-        &:nth-child(n+4) {
+
+        &:nth-child(n + 4) {
           display: none;
         }
       }
@@ -325,23 +309,21 @@ export default defineComponent({
       position: absolute;
       width: 100%;
       height: 100%;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           @if $theme == "dark" {
-            background-image: 
-              linear-gradient(rgba(74, 210, 149, 0.02) 1px, transparent 1px),
+            background-image: linear-gradient(rgba(74, 210, 149, 0.02) 1px, transparent 1px),
               linear-gradient(90deg, rgba(74, 210, 149, 0.02) 1px, transparent 1px);
             opacity: 0.3; // Dunkler
           } @else {
-            background-image: 
-              linear-gradient(rgba(38, 187, 119, 0.06) 1px, transparent 1px),
+            background-image: linear-gradient(rgba(38, 187, 119, 0.06) 1px, transparent 1px),
               linear-gradient(90deg, rgba(38, 187, 119, 0.06) 1px, transparent 1px);
             opacity: 0.25;
           }
         }
       }
-      
+
       background-size: 100px 100px; // Größeres Gitter
       animation: gridMove 60s linear infinite; // Langsamere Bewegung
     }
@@ -354,26 +336,24 @@ export default defineComponent({
     transition: max-width 0.3s ease;
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
-    
+
     // Größerer Container für Register-Formular
     &.wide-container {
       max-width: 800px;
     }
-    
+
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         @if $theme == "dark" {
           background-color: rgba(mixins.theme-color($theme, card-bg), 0.75); // Transparenter
           border: 1px solid rgba(mixins.theme-color($theme, border-medium), 0.8);
-          box-shadow: 
-            0 8px 32px 0 rgba(0, 0, 0, 0.5),
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5),
             inset 0 0 0 1px rgba(mixins.theme-color($theme, border-light), 0.3),
             0 0 40px rgba(mixins.theme-color($theme, glow-green), 0.2); // Weniger Glow
         } @else {
           background-color: rgba(mixins.theme-color($theme, card-bg), 0.88);
           border: 1px solid rgba(mixins.theme-color($theme, border-medium), 0.9);
-          box-shadow: 
-            0 8px 32px 0 mixins.theme-color($theme, shadow-color),
+          box-shadow: 0 8px 32px 0 mixins.theme-color($theme, shadow-color),
             inset 0 0 0 1px mixins.theme-color($theme, border-light),
             0 0 40px rgba(mixins.theme-color($theme, glow-green), 0.3);
         }
@@ -386,7 +366,7 @@ export default defineComponent({
   .tabs {
     display: flex;
     width: 100%;
-    
+
     .tab {
       flex: 1;
       padding: map.get(vars.$spacing, m) 0;
@@ -397,34 +377,34 @@ export default defineComponent({
       transition: all map.get(vars.$transitions, default);
       position: relative;
       overflow: hidden;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, nav-item-bg);
           color: mixins.theme-color($theme, text-primary);
-          
+
           &:hover:not(.active) {
             background-color: mixins.theme-color($theme, hover-color);
           }
-          
+
           &.active {
             background: mixins.theme-gradient($theme, nav-active);
             color: white;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            
+
             &::before {
-              content: '';
+              content: "";
               position: absolute;
               top: 0;
               left: -100%;
               width: 100%;
               height: 100%;
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+              background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
               animation: shimmer 3s infinite;
             }
-            
+
             &::after {
-              content: '';
+              content: "";
               position: absolute;
               bottom: 0;
               left: 0;
@@ -442,7 +422,8 @@ export default defineComponent({
 
 // Animationen
 @keyframes gradientFlow {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
   25% {
@@ -457,7 +438,8 @@ export default defineComponent({
 }
 
 @keyframes gradientMove1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   20% {
@@ -475,7 +457,8 @@ export default defineComponent({
 }
 
 @keyframes gradientMove2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
   33% {
@@ -487,7 +470,8 @@ export default defineComponent({
 }
 
 @keyframes gentleFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(0) scale(1);
     opacity: 0.3;
   }
@@ -530,7 +514,7 @@ export default defineComponent({
           animation-duration: 45s, 50s;
         }
       }
-      
+
       .floating-shapes {
         .shape {
           filter: blur(60px);
@@ -543,17 +527,17 @@ export default defineComponent({
           }
         }
       }
-      
+
       .grid-overlay {
         background-size: 60px 60px;
       }
     }
   }
-  
+
   .container {
     margin-top: 200px;
   }
-  
+
   .auth-container {
     &.wide-container {
       max-width: 100%;
@@ -573,7 +557,7 @@ export default defineComponent({
       animation: none;
     }
   }
-  
+
   .tab.active::before {
     animation: none;
   }

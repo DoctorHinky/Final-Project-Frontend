@@ -41,7 +41,9 @@ class AuthService {
       if (email) payload.email = email;
       if (username) payload.username = username;
 
-      const response = await api.post("/auth/local/login", payload);
+      const response = await api.post("/auth/local/login", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
       const { access_token, refresh_token } = response.data;
 
       this.rememberMe = rememberMe;
@@ -162,7 +164,6 @@ class AuthService {
         loginData.username = trimmedInput;
       }
 
-      // Verwende api statt axios direkt
       const response = await api.post("/auth/local/login", loginData, {
         headers: { "Content-Type": "application/json" },
       });
@@ -328,6 +329,7 @@ class AuthService {
         {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
+            "Content-Type": "application/json",
           },
         }
       );
