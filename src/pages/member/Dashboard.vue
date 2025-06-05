@@ -116,7 +116,6 @@ export default defineComponent({
       // Wenn der Tab 'create-article' ist, aber der Benutzer kein Autor ist,
       // passiert nichts oder wir leiten um
       if (menuItem === "create-article" && !isAuthor.value) {
-        console.warn("Nur Autoren können Artikel erstellen.");
         return;
       }
 
@@ -132,7 +131,6 @@ export default defineComponent({
       // Authentifizierung überprüfen
       const access_token = authService.getAccessToken();
       if (access_token) {
-        console.log("Access Token vorhanden:", access_token);
       }
 
       if (!authService.isLoggedIn()) {

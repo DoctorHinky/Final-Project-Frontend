@@ -1,5 +1,5 @@
 <template>
-  <section class="section community-section" id="community">
+  <section class="section community-section" id="community" :class="{'animate': isVisible}" ref="sectionRef">
     <h2>Familienstimmen unserer Community</h2>
 
     <div class="community-content">
@@ -77,10 +77,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 
 export default defineComponent({
-  name: 'CommunitySection'
+  name: 'CommunitySection',
+  setup() {
+    const isVisible = ref(false);
+    const sectionRef = ref<HTMLElement | null>(null);
+
+    const onScroll = () => {
+      if (sectionRef.value) {
+        const rect = sectionRef.value.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          isVisible.value = true;
+        }
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener('scroll', onScroll);
+      onScroll();
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('scroll', onScroll);
+    });
+
+    return {
+      isVisible,
+      sectionRef
+    };
+  }
 });
 </script>
 

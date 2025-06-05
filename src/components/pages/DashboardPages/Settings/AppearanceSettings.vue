@@ -31,7 +31,7 @@
           <input type="radio" name="theme" value="dark" v-model="appearanceSettings.theme" />
           <div class="theme-preview dark-theme">
             <div class="theme-icon">🌙</div>
-            <div class="theme-label">Dunkel</div>
+            <div class="theme-label-dark">Dunkel</div>
           </div>
         </label>
       </div>
@@ -39,7 +39,14 @@
       <h4>Schriftgröße</h4>
       <div class="font-size-selection">
         <div class="font-size-slider">
-          <input type="range" min="1" max="5" step="1" v-model="appearanceSettings.fontSize" />
+          <input 
+            type="range" 
+            min="1" 
+            max="5" 
+            step="1" 
+            v-model="appearanceSettings.fontSize"
+            @input="previewFontSize"
+          />
           <div class="font-size-labels">
             <span>A</span>
             <span>A</span>
@@ -48,10 +55,26 @@
             <span>A</span>
           </div>
         </div>
+        <p class="font-size-preview">
+          {{ getFontSizeLabel(appearanceSettings.fontSize) }}
+        </p>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="save-button" @click="saveAppearanceSettings" :disabled="isSaving">
+        <button 
+          type="button" 
+          class="reset-button" 
+          @click="resetToDefaults"
+          :disabled="isSaving"
+        >
+          Zurücksetzen
+        </button>
+        <button 
+          type="button" 
+          class="save-button" 
+          @click="saveAppearanceSettings" 
+          :disabled="isSaving"
+        >
           <span v-if="isSaving" class="loading-spinner"></span>
           <span v-else>Speichern</span>
         </button>
@@ -61,10 +84,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, watch } from 'vue';
+import { defineComponent, ref, watch, onMounted, onUnmounted } from 'vue';
+import { themeService } from '@/services/theme.service';
 
 interface AppearanceSettings {
-  theme: string;
+  theme: 'light' | 'dark';
   fontSize: number;
 }
 
@@ -92,6 +116,10 @@ export default defineComponent({
     const saveError = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
     
+    // Ursprüngliche Einstellungen für Preview-Rückgängigmachung
+    const originalSettings = ref<AppearanceSettings | null>(null);
+    
+    // Props watchen
     watch(() => props.showSuccess, (newVal) => {
       saveSuccess.value = newVal;
     });
@@ -104,20 +132,92 @@ export default defineComponent({
       errorMessage.value = newVal;
     });
 
-    // Erscheinungsbild-Einstellungen
-    const appearanceSettings = ref<AppearanceSettings>({
-      theme: localStorage.getItem('theme') || 'light',
-      fontSize: 3 // Mittelgroß
+    // Erscheinungsbild-Einstellungen vom Service laden
+    const appearanceSettings = ref<AppearanceSettings>(
+      themeService.getAppearanceSettings()
+    );
+
+    // Theme-Änderungen in Echtzeit anwenden (Preview)
+    watch(() => appearanceSettings.value.theme, (newTheme) => {
+      themeService.setThemeByName(newTheme);
     });
+
+    // Schriftgröße Preview
+    const previewFontSize = () => {
+      themeService.setFontSize(appearanceSettings.value.fontSize);
+    };
+
+    // Schriftgrößen-Label
+    const getFontSizeLabel = (size: number): string => {
+      const labels = [
+        'Sehr klein',
+        'Klein', 
+        'Normal',
+        'Groß',
+        'Sehr groß'
+      ];
+      return labels[size - 1] || 'Normal';
+    };
 
     // Design-Einstellungen speichern
     const saveAppearanceSettings = async (): Promise<void> => {
       isSaving.value = true;
-      emit('save-appearance', appearanceSettings.value);
-      setTimeout(() => {
-        isSaving.value = false;
-      }, 1000);
+      saveSuccess.value = false;
+      saveError.value = false;
+      
+      try {
+        // Settings im Service speichern
+        themeService.setAppearanceSettings(appearanceSettings.value);
+        
+        // Parent-Komponente informieren
+        emit('save-appearance', appearanceSettings.value);
+        
+        // Erfolg anzeigen
+        saveSuccess.value = true;
+        emit('update:showSuccess', true);
+        
+        // Erfolg nach 3 Sekunden ausblenden
+        setTimeout(() => {
+          saveSuccess.value = false;
+          emit('update:showSuccess', false);
+        }, 3000);
+        
+      } catch (error) {
+        saveError.value = true;
+        errorMessage.value = 'Einstellungen konnten nicht gespeichert werden.';
+        emit('update:showError', true);
+      } finally {
+        setTimeout(() => {
+          isSaving.value = false;
+        }, 500);
+      }
     };
+
+    // Auf Standardwerte zurücksetzen
+    const resetToDefaults = () => {
+      appearanceSettings.value = {
+        theme: 'light',
+        fontSize: 3
+      };
+      themeService.setAppearanceSettings(appearanceSettings.value);
+    };
+
+    // Beim Verlassen der Seite: Original wiederherstellen wenn nicht gespeichert
+    const restoreOriginalSettings = () => {
+      if (originalSettings.value && !saveSuccess.value) {
+        themeService.setAppearanceSettings(originalSettings.value);
+      }
+    };
+
+    onMounted(() => {
+      // Aktuelle Einstellungen als Original speichern
+      originalSettings.value = { ...themeService.getAppearanceSettings() };
+    });
+
+    onUnmounted(() => {
+      // Wenn Änderungen nicht gespeichert wurden, Original wiederherstellen
+      restoreOriginalSettings();
+    });
 
     return {
       appearanceSettings,
@@ -125,7 +225,10 @@ export default defineComponent({
       saveSuccess,
       saveError,
       errorMessage,
-      saveAppearanceSettings
+      saveAppearanceSettings,
+      resetToDefaults,
+      previewFontSize,
+      getFontSizeLabel
     };
   }
 });
@@ -140,7 +243,7 @@ export default defineComponent({
   margin-bottom: map.get(vars.$spacing, xxl);
 
   h3 {
-    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    font-size: var(--font-xl);
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
 
@@ -153,6 +256,7 @@ export default defineComponent({
 
   .section-description {
     margin-bottom: map.get(vars.$spacing, l);
+    font-size: var(--font-base);
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -170,6 +274,7 @@ export default defineComponent({
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   display: flex;
   align-items: center;
+  font-size: var(--font-base);
 
   .alert-icon {
     margin-right: map.get(vars.$spacing, m);
@@ -216,7 +321,7 @@ export default defineComponent({
   }
 
   h4 {
-    font-size: map.get(map.get(vars.$fonts, sizes), large);
+    font-size: var(--font-large);
     margin-bottom: map.get(vars.$spacing, m);
 
     @each $theme in ('light', 'dark') {
@@ -273,11 +378,11 @@ export default defineComponent({
       }
 
       &.light-theme {
-        background-color: #f8fff9;
+        background-color: mixins.theme-color('light', card-bg);
       }
 
       &.dark-theme {
-        background-color: #0F2419;
+        background-color: mixins.theme-color('dark', card-bg);
       }
 
       .theme-icon {
@@ -285,19 +390,24 @@ export default defineComponent({
         margin-bottom: map.get(vars.$spacing, s);
       }
 
-      .theme-label {
-        display: flex;
-        justify-content: center;
-        width: 150px;
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+      .theme-label, .theme-label-dark {
+        font-size: var(--font-base);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        background-color: rgba(0, 0, 0, 0.267);
-        border-radius: 20px;
-        padding: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.29);
+        padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+        border-radius: map.get(map.get(vars.$layout, border-radius), small);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 30px;   
+        border: 1px solid white;
+
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
+            color: white;
             transition: all 0.4s ease-out;
           }
         }
@@ -354,6 +464,8 @@ export default defineComponent({
       justify-content: space-between;
 
       span {
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        
         &:nth-child(1) {
           font-size: 0.8rem;
         }
@@ -383,6 +495,18 @@ export default defineComponent({
       }
     }
   }
+
+  .font-size-preview {
+    text-align: center;
+    font-size: var(--font-small);
+    margin-top: map.get(vars.$spacing, s);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
 }
 
 // Formularaktionen
@@ -392,10 +516,39 @@ export default defineComponent({
   gap: map.get(vars.$spacing, m);
   margin-top: map.get(vars.$spacing, xl);
 
+  .reset-button {
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    font-size: var(--font-base);
+    cursor: pointer;
+    border: 2px solid;
+    transition: all 0.3s ease;
+    background: transparent;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+        border-color: mixins.theme-color($theme, border-medium);
+
+        &:hover:not(:disabled) {
+          background-color: mixins.theme-color($theme, hover-color);
+          color: mixins.theme-color($theme, text-primary);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
   .save-button {
     padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
     border-radius: map.get(map.get(vars.$layout, border-radius), medium);
     font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    font-size: var(--font-base);
     cursor: pointer;
     border: none;
     transition: all 0.3s ease;

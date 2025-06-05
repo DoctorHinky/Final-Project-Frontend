@@ -4,24 +4,24 @@
     <h3>Kontoeinstellungen</h3>
     <p class="section-description">Verwalte dein Passwort und deine Kontoeinstellungen</p>
 
-    <!-- Erfolgsmeldung -->
+    <!-- Alert Messages -->
     <div v-if="saveSuccess" class="alert alert-success">
       <span class="alert-icon">✓</span>
       <span>{{ successMessage }}</span>
     </div>
 
-    <!-- Fehlermeldung -->
     <div v-if="saveError" class="alert alert-error">
       <span class="alert-icon">⚠️</span>
       <span>{{ errorMessage }}</span>
     </div>
 
+    <!-- Password Change Card -->
     <div class="settings-card">
       <h4>Passwort ändern</h4>
       <form @submit.prevent="changePassword" class="settings-form">
         <div class="form-group">
           <label for="current-password">Aktuelles Passwort</label>
-          <div class="input-container" :class="{ 'error': passwordErrors.currentPassword }">
+          <div class="input-container" :class="{ error: passwordErrors.currentPassword }">
             <input 
               type="password" 
               id="current-password" 
@@ -37,7 +37,7 @@
 
         <div class="form-group">
           <label for="new-password">Neues Passwort</label>
-          <div class="input-container" :class="{ 'error': passwordErrors.newPassword }">
+          <div class="input-container" :class="{ error: passwordErrors.newPassword }">
             <input 
               type="password" 
               id="new-password" 
@@ -52,14 +52,14 @@
           </span>
           <div v-if="passwordForm.newPassword" class="password-strength" :class="passwordStrength">
             <div class="strength-bar"></div>
-            <span class="strength-text">{{ getPasswordStrengthText() }}</span>
+            <span class="strength-text">{{ passwordStrengthText }}</span>
           </div>
           <span class="help-text">Mindestens 8 Zeichen, inkl. Groß-/Kleinbuchstaben, Zahlen und Sonderzeichen</span>
         </div>
 
         <div class="form-group">
           <label for="confirm-password">Passwort bestätigen</label>
-          <div class="input-container" :class="{ 'error': !passwordsMatch && passwordForm.confirmPassword }">
+          <div class="input-container" :class="{ error: !passwordsMatch && passwordForm.confirmPassword }">
             <input 
               type="password" 
               id="confirm-password" 
@@ -73,12 +73,8 @@
           </span>
         </div>
 
-        <div class="form-actions right">
-          <button 
-            type="submit" 
-            class="save-button" 
-            :disabled="!canSubmitPassword || isChangingPassword"
-          >
+        <div class="form-actions">
+          <button type="submit" class="save-button" :disabled="!canSubmitPassword || isChangingPassword">
             <span v-if="isChangingPassword" class="loading-spinner"></span>
             <span v-else>Passwort ändern</span>
           </button>
@@ -86,53 +82,60 @@
       </form>
     </div>
 
+    <!-- Delete Account Card -->
     <div class="settings-card danger-zone">
       <h4>Konto löschen</h4>
       <p>Wenn du dein Konto löschst, werden alle deine Daten permanent entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
       
-      <!-- Bestätigungsformular für Kontolöschung -->
       <div v-if="showDeleteConfirm" class="delete-confirm-form">
-        <p class="warning-text">⚠️ Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+        <div class="warning-box">
+          <span class="warning-icon">⚠️</span>
+          <p>Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+        </div>
+
+        <div class="legal-info-box">
+          <span class="info-icon">ℹ️</span>
+          <div class="info-content">
+            <strong>Rechtlicher Hinweis:</strong>
+            <p>Aus rechtlichen Gründen werden deine Daten nach der Löschung noch 30 Tage in einem gesicherten Archiv aufbewahrt. Nach Ablauf dieser Frist werden sie unwiderruflich und vollständig gelöscht.</p>
+          </div>
+        </div>
+
         <form @submit.prevent="deleteAccount">
-          <div class="form-group">
-            <label for="delete-reason">Grund für die Löschung (optional)</label>
-            <div class="input-container textarea-container">
+          <div class="form-group delete-reason-group">
+            <label for="delete-reason">Möchtest du uns mitteilen, warum du gehst?</label>
+            <div class="modern-textarea-wrapper">
               <textarea 
                 id="delete-reason" 
                 v-model="deleteForm.deleteReason" 
                 :disabled="isDeletingAccount"
-                placeholder="Teile uns mit, warum du dein Konto löschen möchtest..."
-                rows="4"
+                placeholder="Teile uns deine Erfahrungen mit – dein Feedback hilft uns, besser zu werden..."
+                class="modern-textarea"
               ></textarea>
+              <div class="textarea-decoration">
+                <span class="decoration-line"></span>
+                <span class="decoration-dot"></span>
+              </div>
             </div>
-            <span class="help-text">Du kannst uns optional mitteilen, warum du gehst</span>
+            <span class="help-text">Dein Feedback ist optional, aber wertvoll für uns</span>
           </div>
           
-          <div class="form-group">
+          <div class="form-group confirm-group">
             <label class="checkbox-label">
               <input 
                 type="checkbox" 
                 v-model="deleteForm.confirmDeletion"
                 :disabled="isDeletingAccount"
               />
-              <span>Ich verstehe, dass alle meine Daten permanent gelöscht werden</span>
+              <span> Ich verstehe, dass alle meine Daten permanent gelöscht werden</span>
             </label>
           </div>
           
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="cancel-button" 
-              @click="cancelDelete"
-              :disabled="isDeletingAccount"
-            >
+            <button type="button" class="cancel-buttonPW" @click="cancelDelete" :disabled="isDeletingAccount">
               Abbrechen
             </button>
-            <button 
-              type="submit" 
-              class="danger-button" 
-              :disabled="isDeletingAccount || !deleteForm.confirmDeletion"
-            >
+            <button type="submit" class="danger-button" :disabled="isDeletingAccount || !deleteForm.confirmDeletion">
               <span v-if="isDeletingAccount" class="loading-spinner"></span>
               <span v-else>Konto endgültig löschen</span>
             </button>
@@ -140,12 +143,7 @@
         </form>
       </div>
       
-      <button 
-        v-else
-        type="button" 
-        class="danger-button" 
-        @click="confirmDeleteAccount"
-      >
+      <button v-else type="button" class="danger-button" @click="confirmDeleteAccount">
         Konto löschen
       </button>
     </div>
@@ -168,122 +166,82 @@ interface DeleteForm {
   confirmDeletion: boolean;
 }
 
-interface ValidationErrors {
-  currentPassword?: string;
-  newPassword?: string;
-}
-
 export default defineComponent({
   name: 'AccountSettings',
   props: {
-    showSuccess: {
-      type: Boolean,
-      default: false
-    },
-    showError: {
-      type: Boolean,
-      default: false
-    },
-    errorMsg: {
-      type: String,
-      default: ''
-    }
+    showSuccess: Boolean,
+    showError: Boolean,
+    errorMsg: String
   },
   emits: ['update:showSuccess', 'update:showError', 'password-changed', 'account-deleted'],
   setup(props, { emit }) {
     const router = useRouter();
     
-    // Status für Formularprozesse
+    // State
     const isChangingPassword = ref(false);
     const isDeletingAccount = ref(false);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
-    const errorMessage = ref(props.errorMsg);
+    const errorMessage = ref(props.errorMsg || '');
     const successMessage = ref('');
     const showDeleteConfirm = ref(false);
     
-    // Fehlerobjekte
-    const passwordErrors = ref<ValidationErrors>({});
-    const deleteErrors = ref<{ deleteReason?: string }>({});
+    const passwordErrors = ref<Record<string, string>>({});
     
-    // Beobachter für Prop-Änderungen
-    watch(() => props.showSuccess, (newVal) => {
-      saveSuccess.value = newVal;
-    });
-    
-    watch(() => props.showError, (newVal) => {
-      saveError.value = newVal;
-    });
-    
-    watch(() => props.errorMsg, (newVal) => {
-      errorMessage.value = newVal;
-    });
-
-    // Passwortformular
     const passwordForm = ref<PasswordForm>({
       currentPassword: '',
       newPassword: '',
       confirmPassword: ''
     });
     
-    // Löschformular
     const deleteForm = ref<DeleteForm>({
       deleteReason: '',
       confirmDeletion: false
     });
 
-    // Passwort-Stärke berechnen
+    // Watchers
+    watch(() => props.showSuccess, (val) => saveSuccess.value = val);
+    watch(() => props.showError, (val) => saveError.value = val);
+    watch(() => props.errorMsg, (val) => errorMessage.value = val || '');
+
+    // Computed
     const passwordStrength = computed((): string => {
       const password = passwordForm.value.newPassword;
       if (!password) return '';
-
       if (password.length < 8) return 'weak';
 
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasNumbers = /\d/.test(password);
-      const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const checks = [
+        /[A-Z]/.test(password),
+        /[a-z]/.test(password),
+        /\d/.test(password),
+        /[!@#$%^&*(),.?":{}|<>]/.test(password)
+      ];
 
-      const strength = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChars].filter(Boolean).length;
-
-      if (strength <= 2) return 'weak';
-      if (strength === 3) return 'medium';
-      return 'strong';
+      const strength = checks.filter(Boolean).length;
+      return strength <= 2 ? 'weak' : strength === 3 ? 'medium' : 'strong';
     });
 
-    // Text für Passwort-Stärke
-    const getPasswordStrengthText = (): string => {
-      switch (passwordStrength.value) {
-        case 'weak':
-          return 'Schwach';
-        case 'medium':
-          return 'Mittel';
-        case 'strong':
-          return 'Stark';
-        default:
-          return '';
-      }
-    };
-
-    // Prüfen, ob Passwörter übereinstimmen
-    const passwordsMatch = computed((): boolean => {
-      if (!passwordForm.value.newPassword || !passwordForm.value.confirmPassword) return true;
-      return passwordForm.value.newPassword === passwordForm.value.confirmPassword;
+    const passwordStrengthText = computed(() => {
+      const texts = { weak: 'Schwach', medium: 'Mittel', strong: 'Stark' };
+      return texts[passwordStrength.value] || '';
     });
+
+    const passwordsMatch = computed(() => 
+      !passwordForm.value.newPassword || 
+      !passwordForm.value.confirmPassword || 
+      passwordForm.value.newPassword === passwordForm.value.confirmPassword
+    );
     
-    // Prüfen, ob Passwortformular abgeschickt werden kann
-    const canSubmitPassword = computed((): boolean => {
-      return !!(
-        passwordForm.value.currentPassword &&
-        passwordForm.value.newPassword &&
-        passwordForm.value.confirmPassword &&
-        passwordsMatch.value &&
-        passwordStrength.value !== 'weak'
-      );
-    });
+    const canSubmitPassword = computed(() => 
+      passwordForm.value.currentPassword &&
+      passwordForm.value.newPassword &&
+      passwordForm.value.confirmPassword &&
+      passwordsMatch.value &&
+      passwordStrength.value !== 'weak'
+    );
     
-    // Passwort-Validierung
-    const validatePasswordStrength = (): void => {
+    // Methods
+    const validatePasswordStrength = () => {
       const password = passwordForm.value.newPassword;
       passwordErrors.value.newPassword = '';
       
@@ -294,150 +252,112 @@ export default defineComponent({
       }
     };
 
-    // Passwort ändern
-    const changePassword = async (): Promise<void> => {
+    const showMessage = (message: string, isError = false) => {
+      if (isError) {
+        errorMessage.value = message;
+        saveError.value = true;
+        emit('update:showError', true);
+      } else {
+        successMessage.value = message;
+        saveSuccess.value = true;
+        emit('update:showSuccess', true);
+      }
+      
+      setTimeout(() => {
+        if (isError) {
+          saveError.value = false;
+          emit('update:showError', false);
+        } else {
+          saveSuccess.value = false;
+          emit('update:showSuccess', false);
+        }
+      }, isError ? 5000 : 3000);
+    };
+
+    const changePassword = async () => {
       if (!canSubmitPassword.value) return;
       
       try {
         isChangingPassword.value = true;
-        saveError.value = false;
-        saveSuccess.value = false;
         passwordErrors.value = {};
         
-        const response = await api.patch('/user/updatePassword', {
+        await api.patch('/user/updatePassword', {
           password: passwordForm.value.currentPassword,
           newPassword: passwordForm.value.newPassword
-        }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
         });
         
-        // Erfolg anzeigen
-        successMessage.value = 'Dein Passwort wurde erfolgreich geändert!';
-        saveSuccess.value = true;
-        emit('update:showSuccess', true);
+        showMessage('Dein Passwort wurde erfolgreich geändert!');
         emit('password-changed');
         
-        // Formular zurücksetzen
-        passwordForm.value = {
+        // Reset form
+        Object.assign(passwordForm.value, {
           currentPassword: '',
           newPassword: '',
           confirmPassword: ''
-        };
-        
-        // Erfolgsmeldung nach 3 Sekunden ausblenden
-        setTimeout(() => {
-          saveSuccess.value = false;
-          emit('update:showSuccess', false);
-        }, 3000);
+        });
         
       } catch (error: any) {
         console.error('Fehler beim Ändern des Passworts:', error);
-        saveError.value = true;
-        emit('update:showError', true);
         
-        // Spezifische Fehlerbehandlung
         if (error.response?.status === 401) {
           passwordErrors.value.currentPassword = 'Das aktuelle Passwort ist falsch';
-          errorMessage.value = 'Das aktuelle Passwort ist falsch';
-        } else if (error.response?.data?.message) {
-          errorMessage.value = error.response.data.message;
+          showMessage('Das aktuelle Passwort ist falsch', true);
         } else {
-          errorMessage.value = 'Fehler beim Ändern des Passworts. Bitte versuche es später erneut.';
+          showMessage(
+            error.response?.data?.message || 
+            'Fehler beim Ändern des Passworts. Bitte versuche es später erneut.',
+            true
+          );
         }
-        
-        // Fehlermeldung nach 5 Sekunden ausblenden
-        setTimeout(() => {
-          saveError.value = false;
-          emit('update:showError', false);
-        }, 5000);
       } finally {
         isChangingPassword.value = false;
       }
     };
 
-    // Konto löschen bestätigen
-    const confirmDeleteAccount = (): void => {
+    const confirmDeleteAccount = () => {
       showDeleteConfirm.value = true;
-      deleteForm.value.deleteReason = '';
-      deleteForm.value.confirmDeletion = false;
-      deleteErrors.value = {};
+      deleteForm.value = { deleteReason: '', confirmDeletion: false };
     };
     
-    // Löschvorgang abbrechen
-    const cancelDelete = (): void => {
+    const cancelDelete = () => {
       showDeleteConfirm.value = false;
-      deleteForm.value.deleteReason = '';
-      deleteForm.value.confirmDeletion = false;
-      deleteErrors.value = {};
+      deleteForm.value = { deleteReason: '', confirmDeletion: false };
     };
     
-    // Konto löschen
-    const deleteAccount = async (): Promise<void> => {
-      // Bestätigung prüfen
-      if (!deleteForm.value.confirmDeletion) {
-        return;
-      }
+    const deleteAccount = async () => {
+      if (!deleteForm.value.confirmDeletion) return;
       
       try {
         isDeletingAccount.value = true;
-        saveError.value = false;
-        deleteErrors.value = {};
         
-        // Request-Body vorbereiten
-        const requestBody: any = {};
-        if (deleteForm.value.deleteReason && deleteForm.value.deleteReason.trim()) {
-          requestBody.deleteReason = deleteForm.value.deleteReason.trim();
-        }
+        const requestBody = deleteForm.value.deleteReason?.trim() 
+          ? { deleteReason: deleteForm.value.deleteReason.trim() } 
+          : {};
         
-        // Account löschen
-        await api.patch('/user/deleteMyAccount', requestBody, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        await api.patch('/user/deleteMyAccount', requestBody);
         
-        // Erfolgsmeldung anzeigen
-        successMessage.value = 'Dein Konto wurde erfolgreich gelöscht. Du wirst gleich weitergeleitet...';
-        saveSuccess.value = true;
-        emit('update:showSuccess', true);
+        showMessage('Dein Konto wurde erfolgreich gelöscht. Du wirst gleich weitergeleitet...');
         emit('account-deleted');
         
-        // LocalStorage bereinigen
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+        // Cleanup
+        ['authToken', 'refreshToken', 'user'].forEach(key => localStorage.removeItem(key));
         
-        // Zur Startseite weiterleiten
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
+        setTimeout(() => router.push('/'), 1500);
         
       } catch (error: any) {
         console.error('Fehler beim Löschen des Kontos:', error);
-        
-        // Fehlerbehandlung
-        if (error.response?.data?.message) {
-          errorMessage.value = error.response.data.message;
-        } else {
-          errorMessage.value = 'Fehler beim Löschen des Kontos. Bitte versuche es später erneut.';
-        }
-        
-        saveError.value = true;
-        emit('update:showError', true);
-        
-        // Fehlermeldung nach 5 Sekunden ausblenden
-        setTimeout(() => {
-          saveError.value = false;
-          emit('update:showError', false);
-        }, 5000);
+        showMessage(
+          error.response?.data?.message || 
+          'Fehler beim Löschen des Kontos. Bitte versuche es später erneut.',
+          true
+        );
       } finally {
         isDeletingAccount.value = false;
       }
     };
 
     return {
+      // State
       passwordForm,
       deleteForm,
       isChangingPassword,
@@ -446,13 +366,16 @@ export default defineComponent({
       saveError,
       errorMessage,
       successMessage,
-      passwordStrength,
-      passwordsMatch,
-      canSubmitPassword,
       showDeleteConfirm,
       passwordErrors,
-      deleteErrors,
-      getPasswordStrengthText,
+      
+      // Computed
+      passwordStrength,
+      passwordStrengthText,
+      passwordsMatch,
+      canSubmitPassword,
+      
+      // Methods
       validatePasswordStrength,
       changePassword,
       confirmDeleteAccount,
@@ -469,6 +392,7 @@ export default defineComponent({
 @use '@/style/base/mixins' as mixins;
 @use 'sass:color';
 
+// Base styles
 .settings-section {
   margin-bottom: map.get(vars.$spacing, xxl);
 
@@ -480,6 +404,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
+        transition: all 0.4s ease-out;
       }
     }
   }
@@ -513,29 +438,22 @@ export default defineComponent({
   &.alert-success {
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-primary);
-        transition: all 0.4s ease-out;
-      }
-    }
   }
 
   &.alert-error {
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
+  }
 
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-primary);
-        transition: all 0.4s ease-out;
-      }
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-primary);
+      transition: all 0.4s ease-out;
     }
   }
 }
 
-// Karten für Einstellungsbereiche
+// Cards
 .settings-card {
   margin-bottom: map.get(vars.$spacing, xl);
   padding: map.get(vars.$spacing, xl);
@@ -563,6 +481,7 @@ export default defineComponent({
 
   p {
     margin-bottom: map.get(vars.$spacing, l);
+    line-height: 1.6;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -572,7 +491,6 @@ export default defineComponent({
     }
   }
 
-  // Gefahrenzone (Konto löschen)
   &.danger-zone {
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -581,59 +499,198 @@ export default defineComponent({
       }
     }
 
-    .danger-button {
-      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    .warning-box {
+      display: flex;
+      align-items: center;
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
+      margin-bottom: map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-      font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      cursor: pointer;
-      border: none;
-      background-color: #ff6b6b;
-      color: white;
-      transition: all 0.3s ease;
+      background-color: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
 
-      &:hover:not(:disabled) {
-        background-color: color.adjust(#ff6b6b, $lightness: -10%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+      .warning-icon {
+        font-size: 1.5rem;
+        margin-right: map.get(vars.$spacing, m);
+        color: #ff6b6b;
       }
 
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .loading-spinner {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        margin-right: map.get(vars.$spacing, xs);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: white;
-        animation: spin 1s linear infinite;
+      p {
+        margin: 0;
+        color: #ff6b6b;
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
       }
     }
 
     .delete-confirm-form {
       animation: fadeIn 0.3s ease-out;
 
-      .warning-text {
-        color: #ff6b6b;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        margin-bottom: map.get(vars.$spacing, m);
+      .legal-info-box {
+        display: flex;
+        align-items: flex-start;
+        padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
+        margin-bottom: map.get(vars.$spacing, xl);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.08), rgba(52, 152, 219, 0.03));
+        border: 1px solid rgba(52, 152, 219, 0.2);
+
+        .info-icon {
+          font-size: 1.2rem;
+          margin-right: map.get(vars.$spacing, m);
+          color: #3498db;
+          flex-shrink: 0;
+        }
+
+        .info-content {
+          flex: 1;
+
+          strong {
+            display: block;
+            margin-bottom: map.get(vars.$spacing, xxs);
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
+          }
+
+          p {
+            margin: 0;
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            line-height: 1.6;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+      }
+
+      .delete-reason-group {
+        margin-bottom: map.get(vars.$spacing, xl);
+
+        label {
+          font-size: map.get(map.get(vars.$fonts, sizes), base);
+          margin-bottom: map.get(vars.$spacing, m);
+          display: block;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+
+        .modern-textarea-wrapper {
+          position: relative;
+          max-width: 100%;
+          margin-bottom: map.get(vars.$spacing, s);
+
+          .modern-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: map.get(vars.$spacing, l);
+            border-radius: map.get(map.get(vars.$layout, border-radius), large);
+            resize: none;
+            font-size: map.get(map.get(vars.$fonts, sizes), base);
+            line-height: 1.7;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: linear-gradient(
+                  135deg,
+                  mixins.theme-color($theme, secondary-bg),
+                  color.adjust(mixins.theme-color($theme, secondary-bg), $lightness: -2%)
+                );
+                border: 2px solid mixins.theme-color($theme, border-light);
+                color: mixins.theme-color($theme, text-primary);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, if($theme == 'dark', 0.2, 0.05));
+
+                &::placeholder {
+                  color: mixins.theme-color($theme, text-tertiary);
+                  opacity: 0.8;
+                }
+
+                &:focus {
+                  border-color: #ff6b6b;
+                  transform: translateY(-2px);
+                  box-shadow: 
+                    0 8px 30px rgba(255, 107, 107, 0.15),
+                    0 0 0 3px rgba(255, 107, 107, 0.1);
+                }
+
+                &:hover:not(:focus):not(:disabled) {
+                  border-color: color.adjust(mixins.theme-color($theme, border-light), $lightness: -10%);
+                  box-shadow: 0 6px 25px rgba(0, 0, 0, if($theme == 'dark', 0.25, 0.08));
+                }
+
+                &:disabled {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                  transform: none;
+                }
+              }
+            }
+          }
+
+          .textarea-decoration {
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+            .decoration-line {
+              width: 30px;
+              height: 2px;
+              background: linear-gradient(90deg, transparent, #ff6b6b);
+              margin-right: 8px;
+            }
+
+            .decoration-dot {
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              background: #ff6b6b;
+              animation: pulse 2s infinite;
+            }
+          }
+
+          &:focus-within .textarea-decoration {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+      }
+
+      .confirm-group {
+        margin-bottom: map.get(vars.$spacing, xl);
+        padding: map.get(vars.$spacing, m);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+          }
+        }
       }
     }
   }
 }
 
-// Formularstile
+// Forms
 .settings-form {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 600px;
 
   .form-group {
     margin-bottom: map.get(vars.$spacing, l);
-    position: relative;
 
     label {
       display: block;
@@ -670,7 +727,6 @@ export default defineComponent({
 
           &.error {
             border-color: #e74c3c;
-
             &:focus-within {
               box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
             }
@@ -678,16 +734,13 @@ export default defineComponent({
         }
       }
 
-      input,
-      textarea {
+      input {
         width: 100%;
         border: none;
         background: transparent;
         padding: map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-        resize: vertical;
         font-family: inherit;
-        min-height: 40px;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -703,20 +756,12 @@ export default defineComponent({
 
         &:focus {
           outline: none;
-          box-shadow: none;
         }
 
         &:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
-      }
-
-      // Spezifische Textarea-Styles
-      &.textarea-container textarea {
-        line-height: 1.5;
-        padding-top: map.get(vars.$spacing, m);
-        padding-bottom: map.get(vars.$spacing, m);
       }
     }
 
@@ -737,7 +782,6 @@ export default defineComponent({
       }
     }
 
-    // Passwort-Stärke
     .password-strength {
       margin-top: map.get(vars.$spacing, s);
 
@@ -767,7 +811,6 @@ export default defineComponent({
 
       &.strong .strength-bar {
         width: 100%;
-
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-green);
@@ -778,7 +821,6 @@ export default defineComponent({
 
       .strength-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
@@ -788,13 +830,11 @@ export default defineComponent({
       }
     }
 
-    // Checkbox-Label
     .checkbox-label {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       cursor: pointer;
       user-select: none;
-      font-size: map.get(map.get(vars.$fonts, sizes), base);
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -807,21 +847,10 @@ export default defineComponent({
         width: 20px;
         height: 20px;
         margin-right: map.get(vars.$spacing, m);
+        margin-top: 2px;
         cursor: pointer;
         accent-color: #ff6b6b;
-        
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            border: 2px solid mixins.theme-color($theme, border-medium);
-            background-color: mixins.theme-color($theme, secondary-bg);
-            transition: all 0.4s ease-out;
-          }
-        }
-
-        &:checked {
-          background-color: #ff6b6b;
-          border-color: #ff6b6b;
-        }
+        flex-shrink: 0;
 
         &:disabled {
           opacity: 0.5;
@@ -831,24 +860,18 @@ export default defineComponent({
 
       span {
         flex: 1;
-        line-height: 1.4;
+        line-height: 1.5;
       }
     }
   }
 
-  // Formularaktionen
   .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: map.get(vars.$spacing, m);
     margin-top: map.get(vars.$spacing, xl);
 
-    &.right {
-      justify-content: flex-end;
-    }
-
-    .cancel-button,
-    .save-button {
+    button {
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
@@ -862,37 +885,6 @@ export default defineComponent({
         opacity: 0.5;
         cursor: not-allowed;
       }
-    }
-
-    .cancel-button {
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, secondary-bg);
-          color: mixins.theme-color($theme, text-primary);
-          border: 1px solid mixins.theme-color($theme, border-light);
-          transition: all 0.4s ease-out;
-
-          &:hover:not(:disabled) {
-            background-color: mixins.theme-color($theme, hover-color);
-            border-color: mixins.theme-color($theme, border-medium);
-          }
-        }
-      }
-    }
-
-    .save-button {
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background: mixins.theme-gradient($theme, primary);
-          color: white;
-          transition: all 0.4s ease-out;
-
-          &:hover:not(:disabled) {
-            transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
-          }
-        }
-      }
 
       .loading-spinner {
         display: inline-block;
@@ -905,14 +897,84 @@ export default defineComponent({
         animation: spin 1s linear infinite;
       }
     }
+
+
+
+    .save-button {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+          transition: all 0.4s ease-out;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-3px);
+          }
+          @include mixins.shadow('medium', $theme);
+        }
+      }
+    }
   }
 }
 
-// Animationen
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+// Danger button
+.danger-button {
+  padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+  border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+  cursor: pointer;
+  border: none;
+  background-color: #ff6b6b;
+  color: white;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust(#ff6b6b, $lightness: -10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+    .cancel-buttonPW {
+  padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+  border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, secondary-bg);
+      color: mixins.theme-color($theme, text-primary);
+      border: 1px solid mixins.theme-color($theme, border-light);
+      transition: all 0.4s ease-out;
+
+      &:hover:not(:disabled) {
+        background-color: mixins.theme-color($theme, hover-color);
+        border-color: mixins.theme-color($theme, border-medium);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Animations
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes slideInDown {
@@ -927,11 +989,18 @@ export default defineComponent({
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% {
     opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
   }
 }
 </style>

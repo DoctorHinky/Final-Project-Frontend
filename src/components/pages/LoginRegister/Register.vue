@@ -612,7 +612,6 @@ export default defineComponent({
           registerStatus.message = "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.";
         }
 
-        console.error("Register error:", error);
       } finally {
         isLoading.value = false;
       }

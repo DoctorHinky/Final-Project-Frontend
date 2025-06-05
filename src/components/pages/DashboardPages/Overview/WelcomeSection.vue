@@ -47,16 +47,18 @@ export default defineComponent({
 @use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
+@use '@/style/base/animations' as animations;
 
 // Willkommen-Sektion mit CTA-Button
 .welcome-section {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: flex-start;
   margin-bottom: map.get(vars.$spacing, l);
   padding: map.get(vars.$spacing, l);
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   transition: all 0.3s;
+
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {

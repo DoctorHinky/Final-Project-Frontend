@@ -38,6 +38,7 @@ export default defineComponent({
   @include animations.fade-in(0.5s);
   padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
   margin: 0 auto;
+  user-select: none;
   
   .page-title {
     font-size: map.get(map.get(vars.$fonts, sizes), xxl);

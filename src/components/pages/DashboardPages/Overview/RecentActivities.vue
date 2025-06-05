@@ -2,86 +2,137 @@
 <template>
   <div class="section-container recent-activities">
     <div class="section-header">
-      <h3>Deine Lese-Aktivitäten</h3>
-      <button class="view-all-button" @click="$emit('view-all')">
-        <span>Alle anzeigen</span>
-        <span class="arrow-icon">→</span>
-      </button>
-    </div>
-
-    <!-- Keine Aktivitäten Fallback -->
-    <div v-if="articles.length === 0" class="empty-state">
-      <div class="empty-icon">📚</div>
-      <p>Du hast noch keine Artikel gelesen. Entdecke jetzt neue Inhalte!</p>
-      <button class="discover-button" @click="$emit('discover')">
-        <span class="button-icon">🔍</span>
-        Entdecken
-      </button>
-    </div>
-
-    <!-- Liste der aktuellen Artikel mit Kapitel/Seiten-Angabe -->
-    <div v-else class="article-progress-list">
-      <div v-for="(article, index) in articles" :key="index" class="progress-item"
-        @click="$emit('open-article', article)">
-        <!-- Artikel-Bild -->
-        <div class="article-thumbnail">
-          <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
-          <div v-else class="image-placeholder">
-            <span class="placeholder-icon">📖</span>
-          </div>
-          <!-- Status-Badge -->
-          <div class="status-badge" :class="getStatusClass(article)">
-            {{ getStatusText(article) }}
-          </div>
-        </div>
-
-        <div class="progress-content">
-          <div class="progress-info">
-            <h4>{{ article.title }}</h4>
-            <div class="progress-meta">
-              <span class="meta-category">{{ article.category }}</span>
-              <span class="meta-separator">•</span>
-              <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
-              <span class="meta-separator">•</span>
-              <span class="progress-date">{{ article.lastRead }}</span>
-            </div>
-          </div>
-          
-          <!-- Fortschrittsanzeige -->
-          <div class="progress-section">
-            <div class="progress-details">
-              <span class="chapter-label">Fortschritt:</span>
-              <span class="chapter-progress">{{ article.currentChapter || 0 }}/{{ article.totalChapters || 1 }} Kapitel</span>
-              <span class="progress-percentage">{{ getProgressPercentage(article) }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill"
-                :style="{ width: getProgressPercentage(article) + '%' }"></div>
-            </div>
-          </div>
-        </div>
+      <div class="header-content">
+        <h3>
+          <BookOpenIcon class="icon" />
+          Zuletzt gelesen
+        </h3>
+        <div class="header-subtitle">Setze deine Lernreise fort</div>
       </div>
+      <button 
+        @click="$emit('view-all')" 
+        class="view-all-btn"
+      >
+        Alle anzeigen
+        <ChevronRightIcon class="arrow-icon" />
+      </button>
+    </div>
+
+    <div v-if="articles.length > 0" class="articles-list">
+      <article 
+        v-for="article in articles" 
+        :key="article.id"
+        class="article-card"
+        @click="$emit('open-article', article)"
+      >
+        <div class="article-content">
+          <div class="article-header">
+            <span :class="['status-badge', `status-${article.status}`]">
+              {{ getStatusLabel(article.status) }}
+            </span>
+            <span class="last-read">{{ article.lastRead }}</span>
+          </div>
+
+          <h4 class="article-title">{{ article.title }}</h4>
+
+          <div class="article-meta">
+            <span class="category">
+              <FolderIcon class="meta-icon" />
+              {{ article.category }}
+            </span>
+            <span class="author">
+              <UserIcon class="meta-icon" />
+              {{ article.author }}
+            </span>
+            <span class="reading-time">
+              <ClockIcon class="meta-icon" />
+              {{ article.readingTime }}
+            </span>
+          </div>
+
+          <div class="progress-section">
+            <div class="progress-info">
+              <span class="chapter-info">
+                Kapitel {{ article.currentChapter }} von {{ article.totalChapters }}
+              </span>
+              <span :class="['difficulty', `difficulty-${getDifficultyClass(article.difficulty)}`]">
+                {{ article.difficulty }}
+              </span>
+            </div>
+            
+            <div class="progress-bar">
+              <div 
+                class="progress-fill"
+                :style="{ width: getProgressWidth(article.currentChapter, article.totalChapters) }"
+                :class="{ 'almost-complete': isAlmostComplete(article.currentChapter, article.totalChapters) }"
+              >
+                <span class="progress-glow"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="article-action">
+          <span class="continue-reading">
+            Weiterlesen
+            <ArrowRightIcon class="arrow-icon" />
+          </span>
+        </div>
+      </article>
+    </div>
+
+    <div v-else class="empty-state">
+      <div class="empty-icon">
+        <BookOpenIcon />
+      </div>
+      <h3>Keine kürzlich gelesenen Artikel</h3>
+      <p>Entdecke spannende Artikel und beginne deine Lernreise!</p>
+      <button 
+        @click="$emit('discover')" 
+        class="discover-btn"
+      >
+        Artikel entdecken
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { 
+  BookOpenIcon, 
+  ChevronRightIcon, 
+  FolderIcon, 
+  UserIcon, 
+  ClockIcon, 
+  ArrowRightIcon 
+} from '@heroicons/vue/24/outline';
 
 interface Article {
   id: number;
   title: string;
+  preview?: string;
+  category?: string;
+  author?: string;
+  date?: string;
   status?: string;
   currentChapter?: number;
   totalChapters?: number;
   lastRead?: string;
-  coverImage?: string;
-  category?: string;
-  author?: string;
+  readingTime?: string;
+  difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
 }
 
 export default defineComponent({
   name: 'RecentActivities',
+  components: {
+    BookOpenIcon,
+    ChevronRightIcon,
+    FolderIcon,
+    UserIcon,
+    ClockIcon,
+    ArrowRightIcon
+  },
   props: {
     articles: {
       type: Array as PropType<Article[]>,
@@ -89,35 +140,36 @@ export default defineComponent({
     }
   },
   emits: ['view-all', 'discover', 'open-article'],
-  setup() {
-    const getProgressPercentage = (article: Article) => {
-      if (!article.currentChapter || !article.totalChapters) return 0;
-      return Math.round((article.currentChapter / article.totalChapters) * 100);
-    };
-
-    const getStatusClass = (article: Article) => {
-      const percentage = getProgressPercentage(article);
-      if (percentage === 0) return 'not-started';
-      if (percentage < 30) return 'just-started';
-      if (percentage < 70) return 'in-progress';
-      if (percentage < 100) return 'almost-done';
-      return 'completed';
-    };
-
-    const getStatusText = (article: Article) => {
-      const percentage = getProgressPercentage(article);
-      if (percentage === 0) return 'Neu';
-      if (percentage < 30) return 'Begonnen';
-      if (percentage < 70) return 'Läuft';
-      if (percentage < 100) return 'Fast fertig';
-      return 'Abgeschlossen';
-    };
-
-    return {
-      getProgressPercentage,
-      getStatusClass,
-      getStatusText
-    };
+  
+  methods: {
+    getStatusLabel(status?: string): string {
+      const labels: Record<string, string> = {
+        'in-progress': 'In Bearbeitung',
+        'just-started': 'Gerade begonnen',
+        'almost-done': 'Fast fertig'
+      };
+      return labels[status || ''] || 'Neu';
+    },
+    
+    getProgressWidth(current?: number, total?: number): string {
+      if (!current || !total) return '0%';
+      const percentage = (current / total) * 100;
+      return `${Math.min(percentage, 100)}%`;
+    },
+    
+    isAlmostComplete(current?: number, total?: number): boolean {
+      if (!current || !total) return false;
+      return (current / total) >= 0.8;
+    },
+    
+    getDifficultyClass(difficulty?: string): string {
+      const classes: Record<string, string> = {
+        'Einfach': 'easy',
+        'Mittel': 'medium',
+        'Fortgeschritten': 'advanced'
+      };
+      return classes[difficulty || ''] || 'medium';
+    }
   }
 });
 </script>
@@ -142,61 +194,92 @@ export default defineComponent({
     }
   }
 
-  // Sektionsüberschrift
+  // Section Header
   .section-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: map.get(vars.$spacing, xl);
-
+    
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      gap: map.get(vars.$spacing, xs);
+    }
+    
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
       position: relative;
-
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
-
-          &::after {
-            content: '';
-            position: absolute;
-            width: 50px;
-            height: 4px;
-            bottom: -10px;
-            left: 0;
+        }
+      }
+      
+      .icon {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, primary);
+          }
+        }
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 4px;
+        bottom: -10px;
+        left: 0;
+        border-radius: 2px;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
-            border-radius: 2px;
           }
         }
       }
     }
-
-    .view-all-button {
+    
+    .header-subtitle {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      margin-top: map.get(vars.$spacing, s);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+    
+    .view-all-btn {
       display: flex;
       align-items: center;
       gap: map.get(vars.$spacing, xs);
-      background: none;
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
       border: none;
+      background: none;
+      cursor: pointer;
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      cursor: pointer;
       transition: all 0.3s ease;
-      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-
-      .arrow-icon {
-        font-size: 1.2em;
-        transition: transform 0.3s ease;
-      }
-
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, primary);
-
+          
           &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
+            color: mixins.theme-color($theme, primary-hover);
             
             .arrow-icon {
               transform: translateX(3px);
@@ -204,60 +287,378 @@ export default defineComponent({
           }
         }
       }
+      
+      .arrow-icon {
+        width: 16px;
+        height: 16px;
+        transition: transform 0.3s ease;
+      }
     }
   }
+}
 
-  // Leerer Zustand
+// Recent Activities Specific Styles
+.recent-activities {
+  // Articles List
+  .articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: map.get(vars.$spacing, m);
+  }
+  
+  // Article Card
+  .article-card {
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    padding: map.get(vars.$spacing, l);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: map.get(vars.$spacing, l);
+    
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, secondary-bg);
+        border: 1px solid mixins.theme-color($theme, border-light);
+        
+        &:hover {
+          transform: translateX(8px);
+          border-color: mixins.theme-color($theme, primary);
+          box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+          
+          .continue-reading .arrow-icon {
+            transform: translateX(5px);
+          }
+          
+          .article-title {
+            color: mixins.theme-color($theme, primary);
+          }
+          
+          .progress-fill::after {
+            opacity: 1;
+          }
+        }
+      }
+    }
+    
+    .article-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: map.get(vars.$spacing, m);
+    }
+    
+    // Article Header
+    .article-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: map.get(vars.$spacing, m);
+      
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+        font-size: map.get(map.get(vars.$fonts, sizes), tiny);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, accent-bg);
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+        
+        &.status-in-progress {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, warning-bg);
+              color: mixins.theme-color($theme, warning);
+            }
+          }
+        }
+        
+        &.status-just-started {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, info-bg);
+              color: mixins.theme-color($theme, info);
+            }
+          }
+        }
+        
+        &.status-almost-done {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, success-bg);
+              color: mixins.theme-color($theme, success);
+            }
+          }
+        }
+      }
+      
+      .last-read {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-tertiary);
+          }
+        }
+      }
+    }
+    
+    // Article Title
+    .article-title {
+      font-size: map.get(map.get(vars.$fonts, sizes), large);
+      font-weight: map.get(map.get(vars.$fonts, weights), semibold);
+      margin: 0;
+      transition: color 0.3s ease;
+      line-height: 1.3;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+    
+    // Article Meta
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: map.get(vars.$spacing, l);
+      
+      > span {
+        display: flex;
+        align-items: center;
+        gap: map.get(vars.$spacing, xs);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+        
+        .meta-icon {
+          width: 16px;
+          height: 16px;
+          opacity: 0.7;
+          flex-shrink: 0;
+        }
+      }
+    }
+    
+    // Progress Section
+    .progress-section {
+      display: flex;
+      flex-direction: column;
+      gap: map.get(vars.$spacing, s);
+      
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .chapter-info {
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+          font-weight: map.get(map.get(vars.$fonts, weights), medium);
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+        
+        .difficulty {
+          padding: 3px 10px;
+          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+          font-size: map.get(map.get(vars.$fonts, sizes), tiny);
+          font-weight: map.get(map.get(vars.$fonts, weights), medium);
+          
+          &.difficulty-easy {
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: mixins.theme-color($theme, success-bg);
+                color: mixins.theme-color($theme, success);
+              }
+            }
+          }
+          
+          &.difficulty-medium {
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: mixins.theme-color($theme, warning-bg);
+                color: mixins.theme-color($theme, warning);
+              }
+            }
+          }
+          
+          &.difficulty-advanced {
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: mixins.theme-color($theme, error-bg);
+                color: mixins.theme-color($theme, error);
+              }
+            }
+          }
+        }
+      }
+      
+      .progress-bar {
+        position: relative;
+        height: 8px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), full);
+        overflow: hidden;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, text-tertiary), 0.15);
+          }
+        }
+      }
+      
+      .progress-fill {
+        position: relative;
+        height: 100%;
+        border-radius: map.get(map.get(vars.$layout, border-radius), full);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: mixins.theme-gradient($theme, primary);
+          }
+        }
+        
+        &.almost-complete {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: mixins.theme-gradient($theme, success);
+            }
+          }
+        }
+        
+        // Animated glow effect
+        .progress-glow {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 30px;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.6),
+            transparent
+          );
+          transform: translateX(0);
+          animation: shimmer 2s infinite;
+        }
+      }
+    }
+    
+    // Article Action
+    .article-action {
+      .continue-reading {
+        display: flex;
+        align-items: center;
+        gap: map.get(vars.$spacing, xs);
+        font-size: map.get(map.get(vars.$fonts, sizes), medium);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+        
+        .arrow-icon {
+          width: 20px;
+          height: 20px;
+          transition: transform 0.3s ease;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, primary);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Empty State
   .empty-state {
     text-align: center;
-    padding: map.get(vars.$spacing, xxl) 0;
-
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: map.get(vars.$spacing, m);
+    padding: map.get(vars.$spacing, xxl) map.get(vars.$spacing, xl);
+    
     .empty-icon {
-      font-size: 4rem;
-      margin-bottom: map.get(vars.$spacing, l);
-      opacity: 0.8;
-      animation: float 3s ease-in-out infinite;
+      width: 64px;
+      height: 64px;
+      opacity: 0.3;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+        }
+      }
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
     }
-
+    
+    h3 {
+      font-size: map.get(map.get(vars.$fonts, sizes), xl);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      margin: 0;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+    
     p {
-      margin-bottom: map.get(vars.$spacing, l);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-
+      margin: 0;
+      max-width: 300px;
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-
-    .discover-button {
-      display: inline-flex;
-      align-items: center;
-      gap: map.get(vars.$spacing, s);
-      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    
+    .discover-btn {
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       border: none;
       cursor: pointer;
-      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      .button-icon {
-        font-size: 1.2rem;
-      }
-
+      margin-top: map.get(vars.$spacing, m);
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-
+          
           &:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px -5px rgba(53, 204, 208, 0.3); // fallback color, replace with your primary color's RGB
-            // If you have a CSS variable for the primary color in RGB, use:
-            // box-shadow: 0 10px 20px -5px rgba(var(--color-primary-rgb), 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
           }
         }
       }
@@ -265,274 +666,49 @@ export default defineComponent({
   }
 }
 
-// Aktivitäten-Liste
-.recent-activities {
-  .article-progress-list {
-    display: flex;
-    flex-direction: column;
-    gap: map.get(vars.$spacing, m);
+// Shimmer Animation
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
 
-    .progress-item {
-      display: flex;
-      gap: map.get(vars.$spacing, l);
-      padding: map.get(vars.$spacing, l);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-      @media (max-width: 768px) {
-        padding: map.get(vars.$spacing, m);
-        gap: map.get(vars.$spacing, m);
+// Responsive
+@media (max-width: 768px) {
+  .recent-activities {
+    .section-header {
+      flex-direction: column;
+      gap: map.get(vars.$spacing, m);
+      
+      .view-all-btn {
+        align-self: flex-start;
       }
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, secondary-bg);
-          border: 1px solid mixins.theme-color($theme, border-light);
-
-          &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
-            transform: translateX(8px);
-            border-color: mixins.theme-color($theme, primary);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-            .article-thumbnail img {
-              transform: scale(1.05);
-            }
-          }
-        }
-      }
-
-      // Artikel-Thumbnail
-      .article-thumbnail {
-        position: relative;
-        flex-shrink: 0;
-        width: 120px;
-        height: 90px;
-        border-radius: map.get(map.get(vars.$layout, border-radius), small);
-        overflow: hidden;
-
-        @media (max-width: 576px) {
-          width: 80px;
-          height: 60px;
-        }
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.4s ease;
-        }
-
-        .image-placeholder {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background: mixins.theme-gradient($theme, secondary);
-            }
-          }
-
-          .placeholder-icon {
-            font-size: 2rem;
-            opacity: 0.7;
-          }
-        }
-
-        // Status-Badge
-        .status-badge {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          padding: 4px 10px;
-          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-          font-size: 11px;
-          font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          backdrop-filter: blur(10px);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-
-          &.not-started {
-            background-color: rgba(108, 117, 125, 0.9);
-            color: white;
-          }
-
-          &.just-started {
-            background-color: rgba(249, 202, 36, 0.9);
-            color: white;
-          }
-
-          &.in-progress {
-            background-color: rgba(53, 204, 208, 0.9);
-            color: white;
-          }
-
-          &.almost-done {
-            background-color: rgba(74, 210, 149, 0.9);
-            color: white;
-          }
-
-          &.completed {
-            background-color: rgba(155, 225, 93, 0.9);
-            color: white;
-          }
-        }
-      }
-
-      // Fortschritts-Inhalt
-      .progress-content {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        .progress-info {
-          margin-bottom: map.get(vars.$spacing, s);
-
-          h4 {
-            font-size: map.get(map.get(vars.$fonts, sizes), medium);
-            font-weight: map.get(map.get(vars.$fonts, weights), bold);
-            margin: 0 0 map.get(vars.$spacing, xs) 0;
-            line-height: 1.3;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-primary);
-              }
-            }
-          }
-
-          .progress-meta {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: map.get(vars.$spacing, xs);
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-            @media (max-width: 768px) {
-              font-size: 12px;
-            }
-
-            .meta-category {
-              font-weight: map.get(map.get(vars.$fonts, weights), bold);
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, primary);
-                }
-              }
-            }
-
-            .meta-author {
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, text-secondary);
-                }
-              }
-            }
-
-            .progress-date {
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, text-tertiary);
-                }
-              }
-            }
-
-            .meta-separator {
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, text-tertiary);
-                  opacity: 0.5;
-                }
-              }
-            }
-          }
-        }
-
-        // Fortschrittsbereich
-        .progress-section {
-          .progress-details {
-            display: flex;
-            align-items: center;
-            gap: map.get(vars.$spacing, s);
-            margin-bottom: map.get(vars.$spacing, xs);
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-            .chapter-label {
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, text-tertiary);
-                }
-              }
-            }
-
-            .chapter-progress {
-              font-weight: map.get(map.get(vars.$fonts, weights), bold);
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, primary);
-                }
-              }
-            }
-
-            .progress-percentage {
-              margin-left: auto;
-              font-weight: map.get(map.get(vars.$fonts, weights), bold);
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, accent-green);
-                }
-              }
-            }
-          }
-
-          .progress-bar {
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, border-light);
-              }
-            }
-
-            .progress-fill {
-              height: 100%;
-              border-radius: 4px;
-              transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  background: mixins.theme-gradient($theme, primary);
-                }
-              }
-            }
-          }
-        }
+    }
+    
+    .article-card {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: map.get(vars.$spacing, m);
+      
+      .article-action {
+        align-self: flex-end;
       }
     }
   }
 }
 
-// Animationen
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
+@media (max-width: 480px) {
+  .recent-activities {
+    .article-meta {
+      gap: map.get(vars.$spacing, m);
+      
+      > span {
+        font-size: map.get(map.get(vars.$fonts, sizes), tiny);
+      }
+    }
   }
 }
 </style>

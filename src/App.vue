@@ -6,17 +6,26 @@
 <script lang="ts">
 import { defineComponent, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { themeService } from "@/services/theme.service";
 
 export default defineComponent({
   name: "App",
   setup() {
     const route = useRoute();
-
+    
+    // Theme beim Start initialisieren
+    onMounted(() => {
+      // Theme Service initialisiert sich selbst im Constructor
+      // Hier nur zur Sicherheit nochmal aufrufen
+      const settings = themeService.getAppearanceSettings();
+      themeService.setAppearanceSettings(settings);
+    });
+    
     // Funktion zum Anpassen der Body-Klasse basierend auf der aktuellen Route
     const updateBodyClass = () => {
       // Prüfen, ob die aktuelle Route zum Mitgliederbereich gehört
       const isMemberRoute = route.path.startsWith("/member");
-
+      
       // Body-Klasse entsprechend setzen oder entfernen
       if (isMemberRoute) {
         document.body.classList.add("member-area");
@@ -24,12 +33,12 @@ export default defineComponent({
         document.body.classList.remove("member-area");
       }
     };
-
+    
     // Body-Klasse beim ersten Laden setzen
     onMounted(() => {
       updateBodyClass();
     });
-
+    
     // Body-Klasse aktualisieren, wenn sich die Route ändert
     watch(
       () => route.path,
@@ -62,6 +71,7 @@ body {
   padding: 0 2rem;
   width: 100%;
 }
+
 /* Basisstile für Formulare und Buttons */
 button {
   cursor: pointer;

@@ -59,7 +59,7 @@
 import { defineComponent, ref, computed, onMounted, watch, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
-import MemberSidebar from '@/components/member/MemberSidebar.vue';
+import MemberSidebar from '@/components/layout/MemberSidebar.vue';
 import { authService } from '@/services/auth.service';
 import { themeService } from '@/services/theme.service';
 

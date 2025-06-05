@@ -1499,10 +1499,13 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
       @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, primary);
-          color: white;
-        }
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, primary);
+        color: mixins.theme-color($theme, text-secondary);
+        border: 1px solid mixins.theme-color($theme, border-light);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
       }
     }
 
@@ -1806,6 +1809,7 @@ export default defineComponent({
 .icon-size-xs {
   width: 12px;
   height: 12px;
+  color: mixins.theme-color("light", text-secondary);
 }
 
 .info-icon {
@@ -1900,6 +1904,22 @@ export default defineComponent({
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
       }
+    }
+  }
+}
+
+.tags-span {
+  display: inline-block;
+  padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+  border-radius: 50px;
+  font-size: map.get(map.get(vars.$fonts, sizes), small);
+  margin-right: map.get(vars.$spacing, xs);
+  margin-bottom: map.get(vars.$spacing, xs);
+
+  @each $theme in ("light", "dark") {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, primary);
+      color: white;
     }
   }
 }

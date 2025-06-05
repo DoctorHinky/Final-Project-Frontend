@@ -20,26 +20,25 @@
                 </div>
               </div>
               <div class="info-details">
-                <h3>Muster GmbH</h3>
+                <h3>[Ihr Unternehmensname]</h3>
                 <address>
                   <p>
-                    Musterstraße 123<br />
-                    12345 Musterstadt<br />
+                    [Straße und Hausnummer]<br />
+                    [PLZ] [Ort]<br />
                     Deutschland
                   </p>
-
                   <div class="contact-group">
                     <div class="contact-item">
                       <div class="label">Telefon:</div>
-                      <div class="value">+49 123 456789</div>
+                      <div class="value">[+49 XXX XXXXXXX]</div>
                     </div>
                     <div class="contact-item">
                       <div class="label">E-Mail:</div>
-                      <div class="value">info@beispiel.de</div>
+                      <div class="value">[info@ihre-domain.de]</div>
                     </div>
                     <div class="contact-item">
                       <div class="label">Website:</div>
-                      <div class="value">www.beispiel.de</div>
+                      <div class="value">[www.ihre-domain.de]</div>
                     </div>
                   </div>
                 </address>
@@ -49,14 +48,14 @@
             <div class="registration-info">
               <h3>Handelsregister</h3>
               <p>
-                Amtsgericht Musterstadt<br />
-                HRB 12345
+                Amtsgericht [Stadt des Registergerichts]<br />
+                HRB [Registernummer]
               </p>
 
               <h3>Umsatzsteuer-ID</h3>
               <p>
                 Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-                DE 123456789
+                DE [USt-ID-Nummer]
               </p>
             </div>
           </div>
@@ -66,20 +65,22 @@
             <h2>Verantwortlich für den Inhalt</h2>
             <div class="responsibility-card">
               <div class="person-avatar">
-                <span class="avatar-placeholder">MM</span>
+                <span class="avatar-placeholder">[XX]</span>
               </div>
               <div class="person-info">
-                <h3>Max Mustermann</h3>
+                <h3>[Vor- und Nachname des Geschäftsführers]</h3>
                 <p>Geschäftsführer</p>
-                <p>E-Mail: gf@beispiel.de</p>
+                <p>E-Mail: [geschaeftsfuehrung@ihre-domain.de]</p>
               </div>
             </div>
 
             <div class="responsibility-text">
               <h3>Verantwortlich nach § 55 Abs. 2 RStV</h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt,
-                nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.
+                [Vor- und Nachname]<br />
+                [Straße und Hausnummer]<br />
+                [PLZ] [Ort]<br />
+                Deutschland
               </p>
             </div>
           </div>
@@ -87,34 +88,33 @@
           <!-- Rechtliches -->
           <div class="content-section">
             <h2>Rechtliche Hinweise</h2>
-
+            
             <h3>Urheberrecht</h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.
+              Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.
             </p>
-
             <div class="info-box">
               <p>
-                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.
               </p>
             </div>
 
             <h3>Haftungsausschluss</h3>
+            
             <h4>Haftung für Inhalte</h4>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.
+              Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+            </p>
+            <p>
+              Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
             </p>
 
             <h4>Haftung für Links</h4>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.
+              Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.
+            </p>
+            <p>
+              Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
             </p>
           </div>
 
@@ -128,8 +128,10 @@
               >
             </p>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt,
-              nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl.
+              Unsere E-Mail-Adresse finden Sie oben im Impressum.
+            </p>
+            <p>
+              Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
             </p>
           </div>
 
@@ -139,15 +141,19 @@
             <div class="image-credits">
               <div class="credit-item">
                 <div class="credit-category">Header-Bilder:</div>
-                <div class="credit-source">Lorem ipsum dolor sit amet, consectetur adipiscing</div>
+                <div class="credit-source">[Quelle der Header-Bilder, z.B. Shutterstock, Unsplash, eigene Aufnahmen]</div>
               </div>
               <div class="credit-item">
                 <div class="credit-category">Icons:</div>
-                <div class="credit-source">Nullam auctor, nisl eget ultricies tincidunt</div>
+                <div class="credit-source">[Quelle der Icons, z.B. Font Awesome, Material Icons]</div>
               </div>
               <div class="credit-item">
                 <div class="credit-category">Produktfotos:</div>
-                <div class="credit-source">Nisl nisl aliquam nisl, eget aliquam nisl nisl eget nisl</div>
+                <div class="credit-source">[Quelle der Produktfotos, z.B. eigene Aufnahmen, Hersteller]</div>
+              </div>
+              <div class="credit-item">
+                <div class="credit-category">Grafiken:</div>
+                <div class="credit-source">[Quelle der Grafiken, z.B. eigenes Design, Freepik]</div>
               </div>
             </div>
           </div>
@@ -196,8 +202,8 @@ export default defineComponent({
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, header);
-          -webkit-background-clip: text;
           background-clip: text;
+          -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           display: inline-block;
         }

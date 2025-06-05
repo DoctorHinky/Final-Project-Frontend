@@ -154,7 +154,7 @@
 // Scrolling Animation für Sektionen
 @mixin scroll-fade-in {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(150px);
   transition: opacity map.get(vars.$transitions, very-slow),
     transform map.get(vars.$transitions, very-slow);
 

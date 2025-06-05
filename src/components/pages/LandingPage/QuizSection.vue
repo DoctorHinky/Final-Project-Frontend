@@ -1,5 +1,5 @@
 <template>
-  <section class="section quiz-section" id="quiz">
+  <section class="section quiz-section" id="quiz" :class="{'animate': isVisible}" ref="sectionRef">
     <h2>Quiz</h2>
     
     <div class="quiz-container">
@@ -56,10 +56,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 
 export default defineComponent({
-  name: 'QuizSection'
+  name: 'QuizSection',
+  setup() {
+    const isVisible = ref(false);
+    const sectionRef = ref<HTMLElement | null>(null);
+
+    onMounted(() => {
+      if (sectionRef.value) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            isVisible.value = entry.isIntersecting;
+          },
+          { threshold: 0.1 }
+        );
+        observer.observe(sectionRef.value);
+      }
+    });
+
+    return {
+      isVisible,
+      sectionRef
+    };
+  }
 });
 </script>
 

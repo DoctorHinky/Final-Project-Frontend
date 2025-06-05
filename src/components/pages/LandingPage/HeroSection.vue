@@ -79,14 +79,14 @@ export default defineComponent({
 }
 
 .hero-section {
-  margin: 0 auto;
-  min-height: 85vh;
+  margin: 150px auto 0px auto;
+  min-height: 70vh;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100px 20px !important; /* Platz für das Sticky Header */
+  
   
   &::before {
     content: '';

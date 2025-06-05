@@ -1,5 +1,6 @@
 // src/style/base/main.scss
-// Moderne Variante anstelle von @import
-@forward 'variables';
-@forward 'mixins';
-@forward 'animations';
+@use "variables" as vars;
+@use "mixins";
+@use "animations";
+@use "theming";
+@use "font-mixins";

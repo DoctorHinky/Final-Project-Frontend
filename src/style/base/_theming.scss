@@ -1,0 +1,197 @@
+// src/style/base/_theming.scss
+@use 'sass:map';
+@use 'variables' as vars;
+
+// CSS Custom Properties für dynamische Schriftgrößen
+:root {
+  // Basis-Schriftgröße
+  --font-size-base: 16px;
+  --font-size-multiplier: 1;
+}
+
+// Schriftgrößen-Klassen für body mit Multiplikator
+body {
+  font-size: calc(1rem * var(--font-size-multiplier));
+  line-height: 1.6;
+  transition: font-size 0.3s ease;
+  
+  &.font-size-1 {
+    --font-size-multiplier: 0.85;
+  }
+  
+  &.font-size-2 {
+    --font-size-multiplier: 0.925;
+  }
+  
+  &.font-size-3 {
+    --font-size-multiplier: 1;
+  }
+  
+  &.font-size-4 {
+    --font-size-multiplier: 1.1;
+  }
+  
+  &.font-size-5 {
+    --font-size-multiplier: 1.2;
+  }
+  
+  // Dark Theme
+  &.theme-dark {
+    background-color: map.get(map.get(vars.$colors, dark), primary-bg);
+    color: map.get(map.get(vars.$colors, dark), text-primary);
+  }
+  
+  // Light Theme
+  &.theme-light {
+    background-color: map.get(map.get(vars.$colors, light), primary-bg);
+    color: map.get(map.get(vars.$colors, light), text-primary);
+  }
+}
+
+// GLOBALE SCHRIFTGRÖSSEN-ANPASSUNG
+// Alle Elemente erben die Schriftgröße und skalieren mit
+body * {
+  // Basis-Schriftgröße wird vererbt
+  font-size: inherit;
+}
+
+// Spezifische Größen relativ zur Body-Schriftgröße
+body {
+  // Überschriften
+  h1, .h1 {
+    font-size: calc(2rem * var(--font-size-multiplier)) !important;
+    line-height: 1.2;
+  }
+
+  h2, .h2 {
+    font-size: calc(1.8rem * var(--font-size-multiplier)) !important;
+    line-height: 1.3;
+  }
+
+  h3, .h3 {
+    font-size: calc(1.4rem * var(--font-size-multiplier)) !important;
+    line-height: 1.4;
+  }
+
+  h4, .h4 {
+    font-size: calc(1.2rem * var(--font-size-multiplier)) !important;
+    line-height: 1.5;
+  }
+
+  h5, .h5 {
+    font-size: calc(1.05rem * var(--font-size-multiplier)) !important;
+    line-height: 1.5;
+  }
+
+  h6, .h6 {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+    line-height: 1.6;
+  }
+
+  // Paragraphen
+  p {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+    line-height: 1.6;
+  }
+
+  // Kleine Texte
+  small, .small {
+    font-size: calc(0.875rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Labels
+  label {
+    font-size: calc(0.875rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Buttons
+  button {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Form-Elemente
+  input, select, textarea {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Listen
+  li {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Spans und divs mit Text
+  span:not([class*="icon"]), div {
+    font-size: calc(1rem * var(--font-size-multiplier));
+  }
+
+  // Navigation
+  nav, .nav-link {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Alerts und Nachrichten
+  .alert {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Karten-Titel
+  .card h4, .settings-card h4 {
+    font-size: calc(1.2rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Section-Titel
+  .settings-section h3 {
+    font-size: calc(1.4rem * var(--font-size-multiplier)) !important;
+  }
+
+  // Section-Beschreibungen
+  .section-description {
+    font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  }
+}
+
+// Utility-Klassen für manuelle Größenanpassung
+.text-xs {
+  font-size: calc(0.75rem * var(--font-size-multiplier)) !important;
+}
+
+.text-small {
+  font-size: calc(0.875rem * var(--font-size-multiplier)) !important;
+}
+
+.text-base {
+  font-size: calc(1rem * var(--font-size-multiplier)) !important;
+}
+
+.text-medium {
+  font-size: calc(1.05rem * var(--font-size-multiplier)) !important;
+}
+
+.text-large {
+  font-size: calc(1.2rem * var(--font-size-multiplier)) !important;
+}
+
+.text-xl {
+  font-size: calc(1.4rem * var(--font-size-multiplier)) !important;
+}
+
+.text-xxl {
+  font-size: calc(1.8rem * var(--font-size-multiplier)) !important;
+}
+
+.text-xxxl {
+  font-size: calc(2rem * var(--font-size-multiplier)) !important;
+}
+
+// Responsive Anpassungen
+@media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
+  :root {
+    --font-size-base: 15px;
+  }
+}
+
+@media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
+  :root {
+    --font-size-base: 14px;
+  }
+}

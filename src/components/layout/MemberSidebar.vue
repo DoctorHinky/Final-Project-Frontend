@@ -174,14 +174,15 @@ export default defineComponent({
 .member-sidebar {
   position: fixed;
   top: 0;
-  left: -260px;
-  width: 260px;
+  left: -300px;
+  width: 300px;
   height: 100vh;
   z-index: 950;
   transition: left 0.3s ease;
   display: flex;
   flex-direction: column;
   padding-top: 70px; // Platz für den Header
+  user-select: none;
   
 
   @each $theme in ('light', 'dark') {

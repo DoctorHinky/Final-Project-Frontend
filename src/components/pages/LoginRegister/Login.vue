@@ -118,11 +118,6 @@ export default defineComponent({
           loginPayload.username = identifier;
         }
 
-        console.log("Login attempt with:", { 
-          [isEmail ? 'email' : 'username']: identifier,
-          rememberMe: loginForm.rememberMe 
-        });
-
         // AuthService verwenden
         const result = await authService.login(loginPayload);
 
@@ -144,7 +139,6 @@ export default defineComponent({
       } catch (error: any) {
         loginStatus.success = false;
         loginStatus.message = "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.";
-        console.error("Login error:", error);
       } finally {
         isLoading.value = false;
       }

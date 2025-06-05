@@ -1,0 +1,31 @@
+// src/style/base/_font-mixins.scss
+
+// Mixin für dynamische Schriftgrößen
+@mixin font-size($size: 'base') {
+  @if $size == 'xs' {
+    font-size: var(--font-xs);
+  } @else if $size == 'small' {
+    font-size: var(--font-small);
+  } @else if $size == 'base' {
+    font-size: var(--font-base);
+  } @else if $size == 'medium' {
+    font-size: var(--font-medium);
+  } @else if $size == 'large' {
+    font-size: var(--font-large);
+  } @else if $size == 'xl' {
+    font-size: var(--font-xl);
+  } @else if $size == 'xxl' {
+    font-size: var(--font-xxl);
+  } @else if $size == 'xxxl' {
+    font-size: var(--font-xxxl);
+  } @else {
+    font-size: var(--font-base);
+  }
+}
+
+// Utility-Klassen generieren
+@each $name in (xs, small, base, medium, large, xl, xxl, xxxl) {
+  .text-#{$name} {
+    @include font-size($name);
+  }
+}
