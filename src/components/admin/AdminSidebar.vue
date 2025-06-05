@@ -93,11 +93,6 @@ export default defineComponent({
         text: 'Gelöschte User', 
         icon: UserMinusIcon // Besseres Icon für gelöschte User
       },
-      { 
-        id: 'staff-team', 
-        text: 'Staff Team', 
-        icon: StarIcon
-      }
     ]);
 
     // Prüfen ob ein Item aktiv ist

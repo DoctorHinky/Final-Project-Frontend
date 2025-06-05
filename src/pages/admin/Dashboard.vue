@@ -18,9 +18,6 @@
       <Tickets />
     </div>
 
-    <!-- Staff Team -->
-    <StaffList v-if="activeTab === 'staff-team'" @user-selected="viewUserDetails" />
-
     <!-- Default/Overview -->
     <div v-if="activeTab === 'overview' || !activeTab" class="overview-content">
       <h2>Willkommen im Admin Dashboard</h2>
@@ -109,7 +106,6 @@ import UserList from '@/components/admin/users/UserList.vue';
 import DeletedUsers from '@/components/admin/DeletedUsers/DeletedUsers.vue';
 import PostList from '@/components/admin/posts/PostList.vue';
 import Tickets from '@/components/admin/tickets/Tickets.vue';
-import StaffList from '@/components/admin/staff/StaffList.vue';
 import UserDetail from '@/components/admin/users/UserDetail.vue';
 
 export default defineComponent({
@@ -120,7 +116,6 @@ export default defineComponent({
     DeletedUsers,
     PostList,
     Tickets,
-    StaffList,
     UserDetail
   },
   setup() {
