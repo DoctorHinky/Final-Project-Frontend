@@ -1,34 +1,16 @@
 // src/services/author.service.ts
-import { authService } from "./auth.service";
 import type { QuizCreation as Quiz } from "@/components/pages/DashboardPages/CreateArticle/types";
 import type { Draft as Article } from "@/components/pages/DashboardPages/CreateArticle/types";
 import type { Chapter } from "@/components/pages/DashboardPages/CreateArticle/types/Draft.Chapter.types";
 import api from "./axiosInstance";
-
-/* interface Chapter {
-  title: string;
-  content: string;
-  chapterImage?: string;
-}
-
-interface Article {
-  id?: string;
-  title: string;
-  description: string;
-  coverImage: string;
-  chapters: Chapter[];
-  quiz?: Quiz; // Quiz ist jetzt auf Artikelebene statt pro Kapitel
-  status: "draft" | "published";
-  updated_at?: string;
-  publishedAt?: string;
-} */
+import { authService } from "./auth.service";
+import type { Article as Post } from "@/types/dtos";
 
 interface ServiceResult {
-  status: number;
-  [x: string]: number;
-  success: boolean;
+  status?: number;
+  success?: boolean;
   postId?: string;
-  message?: string;
+  message?: string | undefined;
 }
 
 interface DraftsResult {
@@ -36,65 +18,25 @@ interface DraftsResult {
 }
 
 interface ArticlesResult {
-  articles: Article[];
+  posts: Post[];
 }
 
 class AuthorService {
-  // Prüft, ob der eingeloggte Benutzer ein Autor ist
-  isAuthor(): boolean {
-    // const userData = authService.getUserData();
-    // In einer realen Anwendung würden Sie hier die tatsächliche Autor-Rolle prüfen
-    // Für Testzwecke gibt diese Funktion aktuell true zurück
-    return true; // Für Entwicklungsphase alle als Autoren betrachten
-    // Spätere Implementierung: return userData && userData.isAuthor === true;
+  isAuthor(): boolean | null {
+    const userData = authService.getUserData();
+    return userData && userData.role === "AUTHOR";
   }
 
   // Artikel als Entwurf speichern
-  async saveArticleDraft(articleData: Article): Promise<ServiceResult> {
-    console.log("Speichere Artikelentwurf:", articleData);
-
-    // Simulieren einer erfolgreichen Speicherung
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Bestehende Entwürfe laden
-        const drafts: Article[] = JSON.parse(localStorage.getItem("article_drafts") || "[]");
-        let draftId = articleData.id;
-
-        // Prüfen, ob es ein Update oder ein neuer Entwurf ist
-        const existingDraftIndex = drafts.findIndex((draft) => draft.id === articleData.id);
-
-        if (existingDraftIndex >= 0) {
-          // Bestehenden Entwurf aktualisieren
-          drafts[existingDraftIndex] = {
-            ...articleData,
-            updated_at: new Date().toISOString(),
-          };
-        } else {
-          // Neuen Entwurf erstellen
-          draftId = "draft_" + Date.now();
-          const newDraft: Article = {
-            ...articleData,
-            id: draftId,
-            status: "draft",
-            updated_at: new Date().toISOString(),
-          };
-          drafts.push(newDraft);
-        }
-
-        // Im LocalStorage speichern
-        localStorage.setItem("article_drafts", JSON.stringify(drafts));
-
-        resolve({
-          success: true,
-          message: "Artikel erfolgreich als Entwurf gespeichert",
-        });
-      }, 500);
+  async saveArticleDraft(articleData: FormData): Promise<ServiceResult> {
+    articleData.append("isPublished", "false");
+    return await api.post("/article/create", articleData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
   }
 
   // Artikel veröffentlichen oder aktualisierten Artikel speichern
-  async publishArticle(articleData: any): Promise<ServiceResult> {
-    console.log("Veröffentliche Artikel:", articleData);
+  async publishArticle(articleData: FormData): Promise<ServiceResult> {
     articleData.append("isPublished", "true");
     return await api.post("/article/create", articleData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -145,38 +87,37 @@ class AuthorService {
 
   // Alle Entwürfe des Autors abrufen
   async getAuthorDrafts(): Promise<DraftsResult> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const drafts: Article[] = JSON.parse(localStorage.getItem("article_drafts") || "[]");
+    const userData = authService.getUserData();
 
-        // Nach Datum sortieren (neueste zuerst)
-        drafts.sort((a, b) => {
-          const dateA = new Date(a.updated_at || "").getTime();
-          const dateB = new Date(b.updated_at || "").getTime();
-          return dateB - dateA;
-        });
-
-        resolve({ drafts });
-      }, 300);
-    });
+    if (!userData || !userData.userId) return { drafts: [] };
+    try {
+      const response = await api.get(`/article/getPostByAuthor/${userData.userId}/?published=false`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      const drafts: Article[] = response.data.posts || [];
+      return { drafts };
+    } catch (error) {
+      console.error("Fehler beim Laden der Entwürfe:", error);
+      return { drafts: [] };
+    }
   }
 
   // Alle veröffentlichten Artikel des Autors abrufen
   async getAuthorPublishedArticles(): Promise<ArticlesResult> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const articles: Article[] = JSON.parse(localStorage.getItem("published_articles") || "[]");
+    const userData = authService.getUserData();
 
-        // Nach Datum sortieren (neueste zuerst)
-        articles.sort((a, b) => {
-          const dateA = new Date(a.publishedAt || "").getTime();
-          const dateB = new Date(b.publishedAt || "").getTime();
-          return dateB - dateA;
-        });
-
-        resolve({ articles });
-      }, 400);
-    });
+    if (!userData || !userData.userId) return { posts: [] };
+    try {
+      const response = await api.get(`/article/getPostByAuthor/${userData.userId}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("Veröffentlichte Artikel abgerufen:", response.data.posts);
+      const posts: Post[] = response.data.posts || [];
+      return { posts };
+    } catch (error) {
+      console.error("Fehler beim Laden der Entwürfe:", error);
+      return { posts: [] };
+    }
   }
 
   // Einen einzelnen Artikel abrufen (für die Detailansicht)
@@ -244,45 +185,6 @@ class AuthorService {
       }, 300);
     });
   }
-
-  // Funktion zum Duplizieren eines veröffentlichten Artikels als Entwurf
-  async duplicateArticleAsDraft(articleId: string): Promise<ServiceResult> {
-    return new Promise((resolve) => {
-      setTimeout(async () => {
-        // Artikel abrufen
-        const article = await this.getArticleById(articleId);
-
-        if (!article) {
-          resolve({
-            success: false,
-            message: "Artikel zum Duplizieren nicht gefunden",
-          });
-          return;
-        }
-
-        // Als neuen Entwurf speichern
-        const draftData: Article = {
-          id: `draft_${Date.now()}`, // Neue ID für den Entwurf
-          title: `${article.title} (Kopie)`,
-          description: article.description,
-          coverImage: article.coverImage,
-          chapters: article.chapters,
-          quiz: article.quiz, // Auch das Quiz kopieren
-          status: "draft",
-          updated_at: new Date().toISOString(),
-        };
-
-        const result = await this.saveArticleDraft(draftData);
-
-        resolve({
-          success: result.success,
-          draftId: result.draftId,
-          message: "Artikel erfolgreich als Entwurf dupliziert",
-        });
-      }, 500);
-    });
-  }
-
   // Funktion zum Speichern eines Quiz für einen Artikel (jetzt auf Artikelebene)
   async saveArticleQuiz(articleId: string, quizData: Quiz): Promise<ServiceResult> {
     return new Promise((resolve) => {
@@ -293,7 +195,6 @@ class AuthorService {
 
           if (!article) {
             resolve({
-              success: false,
               message: "Artikel nicht gefunden",
             });
             return;

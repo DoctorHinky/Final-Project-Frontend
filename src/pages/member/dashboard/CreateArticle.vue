@@ -5,57 +5,56 @@
     <p class="page-description">
       Erstellen Sie detaillierte Artikel mit mehrstufigem Inhalt, Bildern und interaktiven Quizfragen
     </p>
-    
+
     <!-- Hier wird der Artikel-Editor eingebunden -->
     <ArticleEditor />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { ArticleEditor } from '@/components/pages/DashboardPages/CreateArticle';
-import { authorService } from '@/services/author.service';
+import { defineComponent } from "vue";
+import { ArticleEditor } from "@/components/pages/DashboardPages/CreateArticle";
 
 export default defineComponent({
-  name: 'CreateArticlePage',
+  name: "CreateArticlePage",
   components: {
-    ArticleEditor
+    ArticleEditor,
   },
   setup() {
     // Diese Seite leitet direkt an die ArticleEditor-Komponente weiter
     // Die Autorisierungsprüfung findet innerhalb von ArticleEditor statt
     return {};
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .create-article-page {
   @include animations.fade-in(0.5s);
   padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
   margin: 0 auto;
-  
+
   .page-title {
     font-size: map.get(map.get(vars.$fonts, sizes), xxl);
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
     }
   }
-  
+
   .page-description {
     font-size: map.get(map.get(vars.$fonts, sizes), medium);
     margin-bottom: map.get(vars.$spacing, xl);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }

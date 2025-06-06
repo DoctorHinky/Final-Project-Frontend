@@ -22,8 +22,8 @@
     <div v-else class="articles-list">
       <div v-for="article in articles" :key="article.id" class="article-item" @click="$emit('edit', article)">
         <!-- Vorschaubild hinzugefügt -->
-        <div class="article-thumbnail" v-if="article.coverImage">
-          <img :src="article.coverImage" alt="Artikelbild" />
+        <div class="article-thumbnail" v-if="article.image">
+          <img :src="article.image" alt="Artikelbild" />
         </div>
         <div class="article-thumbnail placeholder" v-else>
           <DocumentIcon class="placeholder-icon" />
@@ -31,7 +31,7 @@
 
         <div class="article-info">
           <h4 class="article-title">{{ article.title || "Ohne Titel" }}</h4>
-          <p class="article-date">Veröffentlicht: {{ formatDate(article.publishDate) }}</p>
+          <p class="article-date">Veröffentlicht: {{ formatDate(article.publishedAt || "") }}</p>
           <p class="article-chapters">{{ article.chapters.length }} Kapitel</p>
         </div>
         <div class="article-actions">
@@ -50,7 +50,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 import { ArrowPathIcon, DocumentIcon, EyeIcon, TrashIcon } from "@heroicons/vue/24/outline";
-import type { PublishedArticle } from "./types";
+import type { Article } from "@/types/dtos";
 
 export default defineComponent({
   name: "PublishedArticlesList",
@@ -62,7 +62,7 @@ export default defineComponent({
   },
   props: {
     articles: {
-      type: Array as PropType<PublishedArticle[]>,
+      type: Array as PropType<Article[]>,
       default: () => [],
     },
     isLoading: {

@@ -14,25 +14,24 @@ class AuthService {
   private accessTokenKey = "access_token";
   private refreshTokenKey = "refresh_token";
   private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private rememberMe = false;
+  private remeberMe = false;
   private isRefreshing = false;
 
   async login({
     username,
     email,
     password,
-    rememberMe = false,
+    remeberMe = false,
   }: {
     username?: string;
     email?: string;
     password: string;
-    rememberMe?: boolean;
+    remeberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
-      console.log({ username, email, password, rememberMe });
+      console.log({ username, email, password, remeberMe });
 
-      if (!email && !username)
-        throw new Error("Either email or username must be provided");
+      if (!email && !username) throw new Error("Either email or username must be provided");
       const payload: { username?: string; email?: string; password: string } = {
         password,
       };
@@ -46,9 +45,9 @@ class AuthService {
       });
       const { access_token, refresh_token } = response.data;
 
-      this.rememberMe = rememberMe;
+      this.remeberMe = remeberMe;
 
-      if (rememberMe) {
+      if (remeberMe) {
         localStorage.setItem(this.accessTokenKey, access_token);
         localStorage.setItem(this.refreshTokenKey, refresh_token);
       } else {
@@ -94,26 +93,45 @@ class AuthService {
 
   getAccessToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return (
-      localStorage.getItem(this.accessTokenKey) ||
-      sessionStorage.getItem(this.accessTokenKey)
-    );
+    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
+  }
+
+  getUserData(): DecodedToken | null {
+    console.log("getUserData called");
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    const parts = token.split(".");
+    if (parts.length !== 3) return null; // Ungültiges JWT
+
+    try {
+      const payload = parts[1];
+      const decodedJson = atob(this.base64UrlToBase64(payload)); // Base64URL → Base64 → JSON
+      const decoded = JSON.parse(decodedJson);
+      return decoded as DecodedToken;
+    } catch (error) {
+      console.error("Fehler beim Dekodieren des Tokens:", error);
+      return null;
+    }
+  }
+
+  // ✅ Konvertiert Base64URL zu regulärem Base64
+  private base64UrlToBase64(input: string): string {
+    return input
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(input.length / 4) * 4, "=");
   }
 
   getRefreshToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return (
-      localStorage.getItem(this.refreshTokenKey) ||
-      sessionStorage.getItem(this.refreshTokenKey)
-    );
+    return localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
   }
 
   // Separate Token-Verwaltung für Admin
   getAdminAccessToken(): string | null {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
-    const adminToken =
-      localStorage.getItem("admin_access_token") ||
-      sessionStorage.getItem("admin_access_token");
+    const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
 
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
@@ -132,12 +150,8 @@ class AuthService {
     return null;
   }
 
-  setAdminTokens(
-    accessToken: string,
-    refreshToken: string,
-    rememberMe: boolean = false
-  ): void {
-    if (rememberMe) {
+  setAdminTokens(accessToken: string, refreshToken: string, remeberMe: boolean = false): void {
+    if (remeberMe) {
       localStorage.setItem("admin_access_token", accessToken);
       localStorage.setItem("admin_refresh_token", refreshToken);
     } else {
@@ -150,7 +164,7 @@ class AuthService {
   async adminLogin(
     emailOrUsername: string,
     password: string,
-    rememberMe: boolean = false
+    remeberMe: boolean = false
   ): Promise<{ success: boolean; role?: string }> {
     try {
       // Verwende die normale login Methode, aber prüfe danach Admin-Rechte
@@ -182,7 +196,7 @@ class AuthService {
       }
 
       // Speichere Admin-Tokens in separaten Keys
-      if (rememberMe) {
+      if (remeberMe) {
         localStorage.setItem("admin_access_token", access_token);
         localStorage.setItem("admin_refresh_token", refresh_token);
         // Auch normale Keys setzen für Kompatibilität
@@ -211,10 +225,10 @@ class AuthService {
   private getStorage(): Storage {
     // Prüfe, ob Token im localStorage vorhanden ist
     if (localStorage.getItem(this.accessTokenKey)) {
-      this.rememberMe = true;
+      this.remeberMe = true;
       return localStorage;
     }
-    this.rememberMe = false;
+    this.remeberMe = false;
     return sessionStorage;
   }
 
@@ -255,17 +269,6 @@ class AuthService {
       return false;
     } catch {
       return false;
-    }
-  }
-
-  getUserData(): DecodedToken | null {
-    const token = this.getAccessToken();
-    if (!token) return null;
-
-    try {
-      return jwtDecode<DecodedToken>(token);
-    } catch {
-      return null;
     }
   }
 
@@ -355,7 +358,7 @@ class AuthService {
     }
   }
 
-  isRememberMeActive(): boolean {
+  isremeberMeActive(): boolean {
     return !!localStorage.getItem(this.accessTokenKey);
   }
 
