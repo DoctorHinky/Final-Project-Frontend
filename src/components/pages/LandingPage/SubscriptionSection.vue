@@ -196,7 +196,8 @@ export default defineComponent({
       position: relative;
       display: inline-block;
       margin-bottom: 0.5rem;
-      
+      padding-top: 160px;
+      padding-bottom: 130px;
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: linear-gradient(

@@ -92,10 +92,10 @@ export default {
 @use 'sass:map';
 
 .content-blocks-section {
-  padding: 4rem 0;
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 0.8s ease, transform 0.8s ease;
+  padding-top: 160px;
   
   &.animate {
     opacity: 1;

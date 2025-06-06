@@ -107,15 +107,6 @@ export default defineComponent({
     left: 0;
     z-index: -1;
     opacity: 0.4;
-    
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        background: radial-gradient(circle at 70% 30%, 
-          rgba(mixins.theme-color($theme, accent-lime), 0.15) 0%, 
-          rgba(mixins.theme-color($theme, accent-green), 0.05) 50%, 
-          transparent 70%);
-      }
-    }
   }
   
   .hero-container {

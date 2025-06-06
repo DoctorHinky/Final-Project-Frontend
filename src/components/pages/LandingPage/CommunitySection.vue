@@ -123,6 +123,8 @@ export default defineComponent({
   h2 {
     font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
     font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
+    padding-top: 150px; 
+
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

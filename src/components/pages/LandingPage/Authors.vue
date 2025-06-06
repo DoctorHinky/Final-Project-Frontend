@@ -73,6 +73,8 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, xxl);
     position: relative;
     display: inline-block;
+    padding-top: 100px; 
+
     
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

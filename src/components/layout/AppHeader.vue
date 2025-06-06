@@ -572,10 +572,8 @@ export default defineComponent({
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999;
-  overflow-y: auto;
+  z-index: 99999;
   display: block !important; // Sicherstellen, dass es sichtbar ist
-
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, primary-bg);
@@ -588,9 +586,18 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   gap: map.get(vars.$spacing, m);
-  margin-top: 300px;
+  margin-top: 50px;
 
+  height: 100vh;
+      @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+        background-color: mixins.theme-color($theme, nav-item-bg);
+        border: 2px solid transparent;
+      }
+      }
   .mobile-nav-item {
     display: flex;
     align-items: center;
@@ -601,13 +608,15 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), medium);
     font-size: map.get(map.get(vars.$fonts, sizes), base);
     transition: all 0.3s ease;
-
+    cursor: pointer;
+    
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         background-color: mixins.theme-color($theme, nav-item-bg);
         border: 2px solid transparent;
 
+        &:hover,
         &:active,
         &.active {
           background: mixins.theme-gradient($theme, nav-active);
@@ -718,8 +727,8 @@ export default defineComponent({
     border-radius: 0 0 20px 20px;
     width: 100%;
     position: fixed;
-    left: 0;
-    transform: none; // Transform entfernen für Mobile
+    left: 50%;
+    transform: translateX(-50%); // Zentriert das Header-Element auf Mobile
 
     .header-top {
       padding: 5px map.get(vars.$spacing, m);

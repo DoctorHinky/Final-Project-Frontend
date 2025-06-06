@@ -99,7 +99,7 @@ export default defineComponent({
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 9999;
+  z-index: 5000;
   background: mixins.theme-color('dark', 'primary-bg');
   display: flex;
   align-items: center;
@@ -145,7 +145,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Logo Animation
   .logo-wrapper {
     position: relative;
@@ -376,11 +376,11 @@ export default defineComponent({
 .LandingPage {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  gap: map.get(vars.$spacing, xxxl);
+  gap: 300px;
   padding-bottom: map.get(vars.$spacing, xxxl);
   opacity: 0;
   transform: translateY(30px);
+  max-width: 1600px;
   
   &.page-revealed {
     animation: pageReveal 0.8s ease-out forwards;
