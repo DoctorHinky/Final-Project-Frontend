@@ -1,4 +1,4 @@
-<!-- src/components/admin/users/DeletedUsers.vue -->
+<!-- src/components/admin/DeletedUsers/DeletedUsers.vue -->
 <template>
   <div class="deleted-users-view">
     <div class="view-header">
@@ -38,19 +38,6 @@
           </svg>
           Erweiterte Suche
         </button>
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'statistics' }"
-          @click="activeTab = 'statistics'"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 20V10"></path>
-            <path d="M12 20V4"></path>
-            <path d="M6 20v-6"></path>
-          </svg>
-          Statistiken
-        </button>
       </div>
     </div>
 
@@ -65,31 +52,44 @@
       </keep-alive>
     </div>
 
-    <!-- Detail Modal -->
-    <DeletedUserDetail
-      v-if="selectedUser"
-      :user="selectedUser"
-      @close="closeUserDetail"
-      @restore="handleUserRestored"
-      @permanent-delete="handleUserPermanentlyDeleted"
-    />
+    <!-- Detail Modal - außerhalb des view-content -->
+    <Teleport to="body">
+      <DeletedUserDetail
+        v-if="selectedUser"
+        :user="selectedUser"
+        @close="closeUserDetail"
+        @restore="handleUserRestored"
+        @permanent-delete="handleUserPermanentlyDeleted"
+      />
+    </Teleport>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
 import DeletedUsersList from './DeletedUsersList.vue';
 import DeletedUsersSearch from './DeletedUsersSearch.vue';
-import DeletedUsersStatistics from './DeletedUsersStatistics.vue';
 import DeletedUserDetail from './DeletedUserDetail.vue';
+import userService, { type DeletedUser } from '@/services/user.service';
 
 interface DeletedUser {
   id: string;
-  name: string;
+  username?: string;
+  firstname?: string;
+  lastname?: string;
   email: string;
-  deletionReason: string;
-  deletedAt: Date;
+  role: string;
+  isDeleted: boolean;
+  deletedAt: string;
   deletedBy: string;
+  deleteReason?: string;
+  deletedByUser?: {
+    username: string;
+  };
+  profilePicture?: string;
+  createdAt?: string;
+  verified?: boolean;
+  deactivated?: boolean;
 }
 
 export default defineComponent({
@@ -97,7 +97,6 @@ export default defineComponent({
   components: {
     DeletedUsersList,
     DeletedUsersSearch,
-    DeletedUsersStatistics,
     DeletedUserDetail
   },
   setup() {
@@ -108,8 +107,6 @@ export default defineComponent({
       switch (activeTab.value) {
         case 'search':
           return 'DeletedUsersSearch';
-        case 'statistics':
-          return 'DeletedUsersStatistics';
         default:
           return 'DeletedUsersList';
       }
@@ -117,23 +114,46 @@ export default defineComponent({
 
     const handleUserSelected = (user: DeletedUser) => {
       selectedUser.value = user;
+      // Body overflow verhindern wenn Modal offen
+      document.body.style.overflow = 'hidden';
     };
 
     const closeUserDetail = () => {
       selectedUser.value = null;
+      // Body overflow wiederherstellen
+      document.body.style.overflow = '';
     };
 
-    const handleUserRestored = (user: DeletedUser) => {
-      console.log('Benutzer wiederhergestellt:', user);
-      // Hier könnte eine Benachrichtigung angezeigt werden
-      closeUserDetail();
+    const handleUserRestored = async (user: DeletedUser) => {
+      try {
+        // API Call zum Wiederherstellen
+        await userService.restoreUser(user.id);
+        console.log('Benutzer wiederhergestellt:', user);
+        closeUserDetail();
+        // Hier könnte man die Liste aktualisieren
+      } catch (error) {
+        console.error('Fehler beim Wiederherstellen:', error);
+        alert('Fehler beim Wiederherstellen des Benutzers');
+      }
     };
 
-    const handleUserPermanentlyDeleted = (user: DeletedUser) => {
-      console.log('Benutzer endgültig gelöscht:', user);
-      // Hier könnte eine Benachrichtigung angezeigt werden
-      closeUserDetail();
+    const handleUserPermanentlyDeleted = async (user: DeletedUser) => {
+      try {
+        // API Call zum endgültigen Löschen
+        await userService.deleteUserForever(user.id);
+        console.log('Benutzer endgültig gelöscht:', user);
+        closeUserDetail();
+        // Hier könnte man die Liste aktualisieren
+      } catch (error) {
+        console.error('Fehler beim endgültigen Löschen:', error);
+        alert('Fehler beim endgültigen Löschen des Benutzers');
+      }
     };
+
+    // Cleanup bei Component Unmount
+    onUnmounted(() => {
+      document.body.style.overflow = '';
+    });
 
     return {
       activeTab,

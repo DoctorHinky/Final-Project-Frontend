@@ -550,10 +550,13 @@ export default defineComponent({
       try {
         isLoading.value = true;
 
+        // Datum formatieren (falls nötig)
+        const formattedDate = registerForm.dob ? new Date(registerForm.dob).toISOString() : '';
+        
         const registerData = {
           firstname: registerForm.firstName.trim(),
           lastname: registerForm.lastName.trim(),
-          birthdate: registerForm.dob,
+          birthdate: formattedDate,
           username: registerForm.username.trim(),
           role: registerForm.role.trim(),
           email: registerForm.email.trim(),

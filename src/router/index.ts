@@ -162,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "AdminDashboard",
             component: () => import("../pages/admin/Dashboard.vue"),
             props: (route) => ({ 
-              defaultTab: route.query.tab || "all-users" 
+              defaultTab: route.query.tab || "overview"  // GEÄNDERT: von "all-users" zu "overview"
             }),
           },
         ]

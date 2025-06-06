@@ -62,7 +62,7 @@
 import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { authService } from '@/services/auth.service';
-import AdminSidebar from '@/components/admin/AdminSidebar.vue';
+import AdminSidebar from '@/components/layout/AdminSidebar.vue';
 
 export default defineComponent({
   name: 'AdminLayout',
@@ -80,12 +80,14 @@ export default defineComponent({
       if (route.path.includes('/admin/tickets')) {
         return 'tickets';
       }
-      return (route.query.tab as string) || 'user-search';
+      // WICHTIG: Wenn kein Tab-Query vorhanden ist, ist 'overview' aktiv
+      return (route.query.tab as string) || 'overview';
     });
 
     // Seitentitel basierend auf aktivem Menü
     const pageTitle = computed(() => {
       switch (activeMenu.value) {
+        case 'overview': return 'Dashboard Übersicht'; // NEU: Dashboard-Titel
         case 'user-search': return 'User Suche';
         case 'all-users': return 'Alle User';
         case 'deleted-users': return 'Gelöschte Benutzer';
@@ -122,6 +124,9 @@ export default defineComponent({
       // Navigation basierend auf dem ausgewählten Menüpunkt
       if (menuItem === 'tickets') {
         router.push('/admin/tickets');
+      } else if (menuItem === 'overview') {
+        // NEU: Für Dashboard/Overview ohne Query-Parameter navigieren
+        router.push('/admin/dashboard');
       } else {
         router.push({
           path: '/admin/dashboard',

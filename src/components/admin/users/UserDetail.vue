@@ -40,11 +40,22 @@
             </span>
 
             <span class="status-badge" :class="user.verified ? 'active' : 'inactive'" @click="toggleVerified">
-              {{ user.verified ? '✓ Verifiziert' : '✗ Nicht verifiziert' }}
+              <svg v-if="user.verified" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              {{ user.verified ? 'Verifiziert' : 'Nicht verifiziert' }}
             </span>
 
             <span v-if="user.isDeleted" class="status-badge deleted">
-              🗑️ Gelöscht
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Gelöscht
             </span>
           </div>
 
@@ -53,18 +64,27 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-          <button @click="saveAllChanges" :disabled="!hasChanges" class="save-btn">
-            💾 Änderungen speichern
-          </button>
           <button @click="resetChanges" :disabled="!hasChanges" class="reset-btn">
-            ↺ Zurücksetzen
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+              <path d="M21 3v5h-5"></path>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+              <path d="M8 16H3v5"></path>
+            </svg>
+            Zurücksetzen
           </button>
         </div>
       </div>
 
       <!-- Kontakt Section -->
       <div class="section">
-        <h4>📧 Kontaktdaten</h4>
+        <h4>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          Kontaktdaten
+        </h4>
         <div class="field-group">
           <div class="field">
             <label>E-Mail</label>
@@ -97,7 +117,13 @@
 
       <!-- Profil Section -->
       <div class="section">
-        <h4>👤 Profilinformationen</h4>
+        <h4>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="8" r="4"></circle>
+          </svg>
+          Profilinformationen
+        </h4>
         <div class="field-group">
           <div class="field full-width">
             <label>Kurzbeschreibung</label>
@@ -122,7 +148,13 @@
 
       <!-- Berechtigungen Section -->
       <div class="section">
-        <h4>🔐 Berechtigungen & Status</h4>
+        <h4>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Berechtigungen & Status
+        </h4>
         <div class="toggles-grid">
           <div class="toggle-item" @click="toggleField('verified')">
             <span class="toggle" :class="{ active: user.verified }"></span>
@@ -148,7 +180,14 @@
 
       <!-- System Info Section -->
       <div class="section system-info">
-        <h4>⚙️ Systeminformationen</h4>
+        <h4>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m11-11h-6m-6 0H1"></path>
+            <path d="m20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Systeminformationen
+        </h4>
         <div class="info-grid">
           <div class="info-item">
             <label>Erstellt am</label>
@@ -175,21 +214,54 @@
 
       <!-- Danger Zone -->
       <div class="section danger-zone">
-        <h4>⚠️ Gefahrenzone</h4>
+        <h4>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Gefahrenzone
+        </h4>
         <div class="danger-actions">
           <button v-if="!user.isDeleted" @click="deleteUser" class="danger-btn">
-            🗑️ Benutzer löschen
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Benutzer löschen
           </button>
           <button v-else @click="restoreUser" class="restore-btn">
-            ♻️ Benutzer wiederherstellen
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+              <path d="M21 3v5h-5"></path>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+              <path d="M8 16H3v5"></path>
+            </svg>
+            Benutzer wiederherstellen
           </button>
           <button @click="resetPassword" class="warning-btn">
-            🔑 Passwort zurücksetzen
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+            Passwort zurücksetzen
           </button>
           <button v-if="user.role !== 'ADMIN'" @click="makeAdmin" class="warning-btn">
-            👑 Zum Admin machen
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Zum Admin machen
           </button>
         </div>
+      </div>
+
+      <!-- Save Button am Ende -->
+      <div class="save-section">
+        <button @click="saveAllChanges" :disabled="!hasChanges" class="save-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Alle Änderungen speichern
+        </button>
       </div>
     </div>
   </div>
@@ -330,8 +402,6 @@ const saveAllChanges = async () => {
   }
 };
 
-
-
 const resetChanges = () => {
   user.value = { ...originalUser.value };
   Object.keys(editing).forEach(key => editing[key] = false);
@@ -369,6 +439,19 @@ const restoreUser = async () => {
 const resetPassword = async () => {
   if (confirm('Passwort wirklich zurücksetzen? Der Benutzer erhält eine E-Mail.')) {
     alert('🔑 Passwort-Reset E-Mail wurde gesendet!');
+  }
+};
+
+const makeAdmin = async () => {
+  if (confirm('Diesen Benutzer wirklich zum Admin machen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
+    try {
+      user.value.role = 'ADMIN';
+      await saveAllChanges();
+      alert('👑 Benutzer ist jetzt Admin!');
+    } catch (err) {
+      alert('❌ Fehler beim Admin-Upgrade!');
+      console.error(err);
+    }
   }
 };
 
@@ -514,6 +597,9 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .type-badge {
@@ -580,7 +666,6 @@ onMounted(() => {
   gap: 10px;
 }
 
-.save-btn,
 .reset-btn {
   padding: 10px 20px;
   border: none;
@@ -589,26 +674,11 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.95rem;
-}
-
-.save-btn {
-  background: #00b894;
-  color: white;
-}
-
-.save-btn:hover:not(:disabled) {
-  background: #00a884;
-  transform: translateY(-2px);
-}
-
-.save-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.reset-btn {
   background: #2a2a2a;
   color: #888;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .reset-btn:hover:not(:disabled) {
@@ -632,6 +702,8 @@ onMounted(() => {
   margin: 0 0 20px 0;
   font-size: 1.2rem;
   color: #ff9800;
+  display: flex;
+  align-items: center;
 }
 
 .field-group {
@@ -765,8 +837,9 @@ textarea.field-input {
 }
 
 .danger-zone {
-  background: #2a1a1a !important;
-  border: 2px solid #d63031;
+  background: linear-gradient(135deg, #2a1a1a, #1f0f0f) !important;
+  border: 2px solid rgba(214, 48, 49, 0.3);
+  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.1);
 }
 
 .danger-zone h4 {
@@ -775,6 +848,7 @@ textarea.field-input {
 
 .danger-actions {
   display: flex;
+  justify-content: space-around;
   gap: 15px;
   flex-wrap: wrap;
 }
@@ -789,36 +863,84 @@ textarea.field-input {
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .danger-btn {
-  background: #d63031;
+  background: linear-gradient(135deg, #d63031, #b71c1c);
   color: white;
+  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
 }
 
 .danger-btn:hover {
-  background: #c62828;
+  background: linear-gradient(135deg, #c62828, #8b0000);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(214, 48, 49, 0.4);
 }
 
 .restore-btn {
-  background: #00b894;
+  background: linear-gradient(135deg, #00b894, #00a884);
   color: white;
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
 }
 
 .restore-btn:hover {
-  background: #00a884;
+  background: linear-gradient(135deg, #00a884, #009874);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
 }
 
 .warning-btn {
-  background: #ff9800;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
 }
 
 .warning-btn:hover {
-  background: #f57c00;
+  background: linear-gradient(135deg, #f57c00, #e65100);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+}
+
+/* Save Section am Ende */
+.save-section {
+  margin-top: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, #1a1a1a, #222);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.save-btn {
+  padding: 16px 40px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #00b894, #00a884);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.save-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00a884, #009874);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
+}
+
+.save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #444, #333);
+  box-shadow: none;
 }
 
 @keyframes spin {
@@ -854,6 +976,10 @@ textarea.field-input {
 
   .danger-actions button {
     width: 100%;
+  }
+
+  .save-section {
+    padding: 20px;
   }
 }
 </style>

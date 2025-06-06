@@ -264,7 +264,6 @@ export default defineComponent({
 .header-left.custom-header-left {
   display: flex;
   align-items: center;
-  gap: map.get(vars.$spacing, s);
 }
 
 /* Seitentitel mit spezifischerer Klasse */
@@ -401,6 +400,7 @@ export default defineComponent({
   }
 
   .page-title.custom-title {
+    padding: 0.8rem;
     font-size: map.get(map.get(vars.$fonts, sizes), xl);
     max-width: 250px;
   }

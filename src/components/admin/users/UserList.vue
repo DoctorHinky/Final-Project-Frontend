@@ -2,16 +2,49 @@
 <template>
   <div class="user-list-container">
     <div class="list-header">
-      <h2>Alle Benutzer</h2>
+      <div class="header-title-section">
+        <h2>Alle Benutzer</h2>
+        <div class="user-count-badge">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="5" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          <span>{{ totalUsersCount }} registrierte Benutzer</span>
+        </div>
+      </div>
       <div class="header-actions">
         <div class="filter-container">
           <!-- Custom Dropdown -->
           <div class="custom-select" :class="{ open: isDropdownOpen }">
             <div class="select-trigger" @click="toggleDropdown">
               <span>{{ getFilterLabel(userFilter) }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
+              <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="chevron"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
             </div>
             <div class="select-options" v-if="isDropdownOpen">
               <div class="select-option" 
@@ -25,6 +58,21 @@
           </div>
         </div>
         <div class="search-container">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="search-icon h-4 w-4"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
           <input
             type="text"
             v-model="searchQuery"
@@ -69,6 +117,7 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
+                  class="h-8 w-8"
                 >
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -163,15 +212,11 @@
                 </svg>
               </button>
               <button
-                class="action-button toggle-button"
-                :class="{
-                  deactivate: user.status === 'active',
-                  activate: user.status === 'inactive',
-                }"
-                @click.stop="toggleUserStatus(user)"
+                class="action-button view-button"
+                @click.stop="viewUserDetails(user.id)"
+                title="Details anzeigen"
               >
                 <svg
-                  v-if="user.status === 'active'"
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
                   height="18"
@@ -182,23 +227,9 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                  <circle cx="16" cy="12" r="3"></circle>
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                  <circle cx="8" cy="12" r="3"></circle>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
                 </svg>
               </button>
             </td>
@@ -327,6 +358,7 @@ export default defineComponent({
     const showHiddenUsers = ref(false);
     const hiddenUsers = ref(new Set<string>());
     const isDropdownOpen = ref(false);
+    const totalUsersCount = ref(0);
 
     // Filter-Optionen für das Custom Dropdown
     const filterOptions = [
@@ -395,6 +427,7 @@ export default defineComponent({
             ? (u.role as UserRole)
             : "USER",
         }));
+        totalUsersCount.value = allUsers.length;
       } catch (error) {
         console.error("Fehler beim Laden der Benutzer:", error);
       } finally {
@@ -481,19 +514,6 @@ export default defineComponent({
       emit("user-selected", userId);
     };
 
-    // Benutzerstatus umschalten
-    const toggleUserStatus = async (user: User) => {
-      const newStatus = user.status === "inactive" ? false : true;
-
-      try {
-        await UserService.toggleUserDeactivation(user.id, !newStatus);
-        user.status = newStatus ? "inactive" : "active";
-      } catch (error) {
-        console.error("Aktualisierung fehlgeschlagen:", error);
-        alert("Fehler beim Ändern des Benutzerstatus.");
-      }
-    };
-
     // Benutzer-Initialen generieren
     const getUserInitials = (user: User): string => {
       if (!user.name) return "??";
@@ -523,8 +543,8 @@ export default defineComponent({
       paginatedUsers,
       currentPage,
       totalPages,
+      totalUsersCount,
       viewUserDetails,
-      toggleUserStatus,
       toggleHideUser,
       getUserInitials,
       roleLabel,
@@ -560,10 +580,29 @@ export default defineComponent({
   flex-wrap: wrap;
   gap: 16px;
 
-  h2 {
-    font-size: 1.5rem;
-    margin: 0;
-    color: #f0f0f0;
+  .header-title-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: #f0f0f0;
+    }
+
+    .user-count-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background-color: rgba(0, 120, 215, 0.1);
+      border: 1px solid rgba(0, 120, 215, 0.3);
+      border-radius: 20px;
+      color: #0078d7;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
   }
 
   .header-actions {
@@ -660,8 +699,19 @@ export default defineComponent({
     }
 
     .search-container {
+      position: relative;
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #777;
+        pointer-events: none;
+      }
+
       .search-input {
-        padding: 8px 12px;
+        padding: 8px 12px 8px 36px;
         background-color: #2a2a2a;
         border: 1px solid #444;
         border-radius: 4px;
@@ -829,23 +879,12 @@ export default defineComponent({
         }
       }
 
-      &.toggle-button {
-        &.activate {
-          background-color: rgba(46, 204, 113, 0.2);
-          color: #2ecc71;
+      &.view-button {
+        background-color: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
 
-          &:hover {
-            background-color: rgba(46, 204, 113, 0.3);
-          }
-        }
-
-        &.deactivate {
-          background-color: rgba(231, 76, 60, 0.2);
-          color: #e74c3c;
-
-          &:hover {
-            background-color: rgba(231, 76, 60, 0.3);
-          }
+        &:hover {
+          background-color: rgba(255, 152, 0, 0.3);
         }
       }
     }
@@ -906,11 +945,6 @@ export default defineComponent({
       &:hover {
         background-color: #333;
         border-color: #666;
-      }
-
-      svg {
-        width: 16px;
-        height: 16px;
       }
     }
 
@@ -995,6 +1029,12 @@ export default defineComponent({
   .list-header {
     flex-direction: column;
     align-items: flex-start;
+
+    .header-title-section {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
 
     .header-actions {
       width: 100%;

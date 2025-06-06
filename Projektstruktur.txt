@@ -34,9 +34,12 @@
 ./src/components/admin/DeletedUsers/DeletedUsers.vue
 ./src/components/admin/DeletedUsers/DeletedUsersList.vue
 ./src/components/admin/DeletedUsers/DeletedUsersSearch.vue
-./src/components/admin/DeletedUsers/DeletedUsersStatistics.vue
 ./src/components/admin/posts
+./src/components/admin/posts/PostDetailModal.vue
 ./src/components/admin/posts/PostList.vue
+./src/components/admin/posts/PostListHeader.vue
+./src/components/admin/posts/PostListPagination.vue
+./src/components/admin/posts/PostListTable.vue
 ./src/components/admin/tickets
 ./src/components/admin/tickets/TicketDetail.vue
 ./src/components/admin/tickets/TicketFilter.vue
@@ -164,6 +167,7 @@
 ./src/router
 ./src/router/index.ts
 ./src/services
+./src/services/admin.post.service.ts
 ./src/services/auth.service.ts
 ./src/services/author.service.ts
 ./src/services/axiosInstance.ts
