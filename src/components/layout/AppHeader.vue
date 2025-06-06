@@ -8,20 +8,16 @@
           <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
         </router-link>
       </div>
-      
+
       <!-- Desktop Header Actions -->
       <div class="header-actions desktop-only">
         <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
         <router-link to="/login-register" class="login-button">Anmelden</router-link>
       </div>
-      
+
       <!-- Mobile Hamburger Menu -->
-      <button 
-        class="hamburger-menu mobile-only"
-        :class="{ active: isMobileMenuOpen }"
-        @click="toggleMobileMenu"
-        aria-label="Navigation öffnen"
-      >
+      <button class="hamburger-menu mobile-only" :class="{ active: isMobileMenuOpen }" @click="toggleMobileMenu"
+        aria-label="Navigation öffnen">
         <span></span>
         <span></span>
         <span></span>
@@ -30,43 +26,28 @@
 
     <!-- Desktop Navigation -->
     <nav class="nav-tabs desktop-only">
-      <a 
-        v-for="(tab, index) in tabs" 
-        :key="index" 
-        class="nav-tab" 
-        :class="{ active: activeTab === index }"
-        @click="scrollToSection(tab.id, index)" 
-        href="javascript:void(0);"
-      >
+      <a v-for="(tab, index) in tabs" :key="index" class="nav-tab" :class="{ active: activeTab === index }"
+        @click="scrollToSection(tab.id, index)" href="javascript:void(0);">
         {{ tab.name }}
       </a>
     </nav>
-    
+
     <!-- Mobile Navigation Overlay -->
     <transition name="slide-down">
       <div v-if="isMobileMenuOpen" class="mobile-menu-overlay">
         <nav class="mobile-nav">
-          <a 
-            v-for="(tab, index) in tabs" 
-            :key="index" 
-            class="mobile-nav-item" 
-            :class="{ active: activeTab === index }"
-            @click="handleMobileNavClick(tab.id, index)"
-          >
+          <a v-for="(tab, index) in tabs" :key="index" class="mobile-nav-item" :class="{ active: activeTab === index }"
+            @click="handleMobileNavClick(tab.id, index)">
             <component :is="tab.icon" class="nav-icon" />
             {{ tab.name }}
           </a>
-          
+
           <div class="mobile-actions">
             <div class="theme-toggle-wrapper">
               <span class="action-label">Design</span>
               <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
             </div>
-            <router-link 
-              to="/login-register" 
-              class="mobile-login-button"
-              @click="closeMobileMenu"
-            >
+            <router-link to="/login-register" class="mobile-login-button" @click="closeMobileMenu">
               <UserIcon class="login-icon" />
               Anmelden
             </router-link>
@@ -81,7 +62,7 @@
 import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import ThemeToggle from '../ui/ThemeToggle.vue';
 import { useRouter, useRoute } from 'vue-router';
-import { 
+import {
   InformationCircleIcon,
   BriefcaseIcon,
   PuzzlePieceIcon,
@@ -154,7 +135,7 @@ export default defineComponent({
       const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      
+
       // Spezialfall: Ganz unten auf der Seite
       if (scrollPosition + windowHeight >= documentHeight - 50) {
         const lastIndex = tabs.length - 1;
@@ -319,7 +300,7 @@ export default defineComponent({
     onMounted(() => {
       window.addEventListener('scroll', handleScroll, { passive: true });
       window.addEventListener('resize', handleResize);
-      
+
       // Initial positions update
       setTimeout(() => {
         updateSectionPositions();
@@ -381,7 +362,7 @@ export default defineComponent({
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: if($theme == 'light', rgba(255,255,255,0.65), rgba(30,30,30,0.45));
+      background-color: if($theme =='light', rgba(255, 255, 255, 0.65), rgba(30, 30, 30, 0.45));
       box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
       transition: all 0.4s ease-out;
     }
@@ -455,6 +436,7 @@ export default defineComponent({
     transform: translateX(-50%) translateY(-100px);
     opacity: 0;
   }
+
   100% {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
@@ -574,6 +556,7 @@ export default defineComponent({
   bottom: 0;
   z-index: 99999;
   display: block !important; // Sicherstellen, dass es sichtbar ist
+
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, primary-bg);
@@ -591,13 +574,15 @@ export default defineComponent({
   margin-top: 50px;
 
   height: 100vh;
-      @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-primary);
-        background-color: mixins.theme-color($theme, nav-item-bg);
-        border: 2px solid transparent;
-      }
-      }
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      color: mixins.theme-color($theme, text-primary);
+      background-color: mixins.theme-color($theme, nav-item-bg);
+      border: 2px solid transparent;
+    }
+  }
+
   .mobile-nav-item {
     display: flex;
     align-items: center;
@@ -609,7 +594,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), base);
     transition: all 0.3s ease;
     cursor: pointer;
-    
+
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
@@ -655,7 +640,7 @@ export default defineComponent({
 
       .action-label {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
+
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);

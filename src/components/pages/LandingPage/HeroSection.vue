@@ -44,7 +44,7 @@
           <div class="illustration-element leaf4">🌷</div>
           
           <!-- Hauptillustration in der Mitte -->
-          <div class="main-illustration">👨‍👩‍👧</div>
+            <img src="@/assets/images/Logo.png" alt="LearnToGrow Logo" class="main-illustration" />
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@ export default defineComponent({
   
   .hero-text {
     h1 {
-      font-size: 3.5rem;
+      font-size: 3.5rem !important;
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       line-height: 1.2;
       margin-bottom: map.get(vars.$spacing, l);
@@ -400,8 +400,16 @@ export default defineComponent({
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 8rem;
+        width: 150px !important; // Größe der Hauptillustration
         z-index: 2;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Leichter Schatten für bessere Sichtbarkeit
+        user-select: none;
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+          }
+        }
       }
       
       .illustration-element {
@@ -412,6 +420,7 @@ export default defineComponent({
         left: 45%;
         transform-origin: center;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); // Leichter Schatten für bessere Sichtbarkeit
+        user-select: none; // Verhindert das Markieren der Emojis
         
         &.leaf1 {
           animation: rotate-on-circle 30s linear infinite;
