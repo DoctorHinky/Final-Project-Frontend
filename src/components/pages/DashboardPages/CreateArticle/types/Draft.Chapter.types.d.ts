@@ -1,4 +1,6 @@
 export type Chapter = {
+  id?: string;
+  postId?: string;
   title: string;
   content: string;
   chapterImage?: string;

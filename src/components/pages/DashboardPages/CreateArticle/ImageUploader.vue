@@ -24,8 +24,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, type PropType } from "vue";
 import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import api from "@/services/axiosInstance";
 
 export default defineComponent({
   name: "ImageUploader",
@@ -58,25 +59,28 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    imageMeta: {
+      type: Object as PropType<{
+        isEdit: boolean;
+        isChapter: boolean;
+        postId?: string;
+        chapterId?: string;
+      }>,
+      required: true,
+    },
   },
-  emits: ["update:modelValue"],
-  setup(_, { emit }) {
+  emits: ["update:modelValue", "image-removed", "image-removed-error"],
+  setup(props, { emit }) {
     const isDragging = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
 
     const triggerFileInput = () => {
-      if (fileInput.value) {
-        fileInput.value.click();
-      }
+      if (fileInput.value) fileInput.value.click();
     };
 
-    const handleDragOver = () => {
-      isDragging.value = true;
-    };
+    const handleDragOver = () => (isDragging.value = true);
 
-    const handleDragLeave = () => {
-      isDragging.value = false;
-    };
+    const handleDragLeave = () => (isDragging.value = false);
 
     const handleDrop = (event: DragEvent) => {
       isDragging.value = false;
@@ -94,30 +98,61 @@ export default defineComponent({
       }
     };
 
-    const handleFile = (file: File) => {
+    const handleFile = async (file: File) => {
       if (!file.type.match("image.*")) {
         alert("Bitte nur Bilder hochladen.");
         return;
       }
 
+      console.log("edit?", props.imageMeta.isEdit);
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (e.target) {
-          emit("update:modelValue", e.target.result as string);
-        }
+        if (e.target) emit("update:modelValue", e.target.result as string);
       };
-
-      reader.onerror = () => {
-        alert("Fehler beim Lesen der Datei.");
-      };
-
+      reader.onerror = () => alert("Fehler beim Lesen der Datei.");
       reader.readAsDataURL(file);
     };
 
-    const removeImage = () => {
-      emit("update:modelValue", "");
-      if (fileInput.value) {
-        fileInput.value.value = "";
+    const removeImage = async () => {
+      if (!props.imageMeta.isEdit || (props.imageMeta.chapterId && props.imageMeta.chapterId?.length < 10)) {
+        emit("update:modelValue", "");
+        if (fileInput.value) fileInput.value.value = "";
+        emit("image-removed");
+        return;
+      }
+
+      try {
+        let entpoint: string;
+
+        if (!props.imageMeta.isChapter) {
+          if (!props.imageMeta.postId) throw new Error("Post ID is required for removing image.");
+          confirm("Möchten Sie das Bild wirklich entfernen?") ||
+            emit("image-removed-error", "Bildentfernung abgebrochen.");
+          entpoint = `article/removePostImage/${props.imageMeta.postId}`;
+        } else {
+          if (!props.imageMeta.chapterId) throw new Error("Chapter ID is required for removing chapter image.");
+          confirm("Möchten Sie das Kapitelbild wirklich entfernen?") ||
+            emit("image-removed-error", "Kapitelbildentfernung abgebrochen.");
+          entpoint = `article/removeChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
+        }
+
+        const response = await api.delete(entpoint, { headers: { "Content-Type": "application/json" } });
+        console.log("Bild entfernt:", response.data);
+        if (response.status < 210) {
+          // ich weiß den genauen Statuscode nicht, aber alle wären unter 210 (200, 202, 204)
+          emit("update:modelValue", "");
+          if (fileInput.value) fileInput.value.value = "";
+          emit("image-removed");
+        } else {
+          emit("image-removed-error", response.data.message || "Fehler beim Entfernen des Bildes.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Entfernen des Bildes:", error);
+        emit(
+          "image-removed-error",
+          error instanceof Error ? error.message : "Unbekannter Fehler beim Entfernen des Bildes."
+        );
       }
     };
 
@@ -160,7 +195,7 @@ export default defineComponent({
     }
   }
 
-  &.drag-over {
+  over {
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, hover-color);

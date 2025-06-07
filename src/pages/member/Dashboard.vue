@@ -132,7 +132,6 @@ export default defineComponent({
       // Authentifizierung überprüfen
       const access_token = authService.getAccessToken();
       if (access_token) {
-        console.log("Access Token vorhanden:", access_token);
       }
 
       if (!authService.isLoggedIn()) {

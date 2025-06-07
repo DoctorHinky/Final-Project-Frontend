@@ -97,7 +97,6 @@ class AuthService {
   }
 
   getUserData(): DecodedToken | null {
-    console.log("getUserData called");
     const token = this.getAccessToken();
     if (!token) return null;
 

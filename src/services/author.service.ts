@@ -29,7 +29,7 @@ class AuthorService {
 
   // Artikel als Entwurf speichern
   async saveArticleDraft(articleData: FormData): Promise<ServiceResult> {
-    articleData.append("isPublished", "false");
+    articleData.append("published", "false");
     return await api.post("/article/create", articleData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -37,54 +37,30 @@ class AuthorService {
 
   // Artikel veröffentlichen oder aktualisierten Artikel speichern
   async publishArticle(articleData: FormData): Promise<ServiceResult> {
-    articleData.append("isPublished", "true");
+    articleData.append("published", "true");
     return await api.post("/article/create", articleData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   }
 
   // Entwurf löschen
-  async deleteDraft(draftId: string): Promise<ServiceResult> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Bestehende Entwürfe laden
-        const drafts: Article[] = JSON.parse(localStorage.getItem("article_drafts") || "[]");
+  async deleteArticle(draftId: string): Promise<string> {
+    try {
+      const response = await api.patch(
+        `/article/deletePost/${draftId}`,
+        { reason: "normaler Userdelete" },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-        // Entwurf entfernen
-        const updatedDrafts = drafts.filter((draft) => draft.id !== draftId);
+      return response.data.message || "Entwurf erfolgreich gelöscht";
+    } catch (error) {
+      console.error("Fehler beim Löschen des Entwurfs:", error);
 
-        // Aktualisierte Liste speichern
-        localStorage.setItem("article_drafts", JSON.stringify(updatedDrafts));
-
-        resolve({
-          success: true,
-          message: "Entwurf erfolgreich gelöscht",
-        });
-      }, 300);
-    });
+      return "Ein Fehler ist aufgetreten";
+    }
   }
-
-  // Veröffentlichten Artikel löschen
-  async deletePublishedArticle(articleId: string): Promise<ServiceResult> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Bestehende veröffentlichte Artikel laden
-        const articles: Article[] = JSON.parse(localStorage.getItem("published_articles") || "[]");
-
-        // Artikel entfernen
-        const updatedArticles = articles.filter((article) => article.id !== articleId);
-
-        // Aktualisierte Liste speichern
-        localStorage.setItem("published_articles", JSON.stringify(updatedArticles));
-
-        resolve({
-          success: true,
-          message: "Artikel erfolgreich gelöscht",
-        });
-      }, 500);
-    });
-  }
-
   // Alle Entwürfe des Autors abrufen
   async getAuthorDrafts(): Promise<DraftsResult> {
     const userData = authService.getUserData();
@@ -111,7 +87,6 @@ class AuthorService {
       const response = await api.get(`/article/getPostByAuthor/${userData.userId}`, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("Veröffentlichte Artikel abgerufen:", response.data.posts);
       const posts: Post[] = response.data.posts || [];
       return { posts };
     } catch (error) {

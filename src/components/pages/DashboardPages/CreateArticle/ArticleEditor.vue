@@ -135,6 +135,11 @@
           help-text="Max 1 Bild"
           alt="Artikelbild"
           :is-small="false"
+          :image-meta="{
+            isEdit: editMode,
+            isChapter: false,
+            postId: currentDraftId,
+          }"
         />
 
         <textarea
@@ -155,8 +160,8 @@
 
         <div v-else class="chapters-container">
           <ChapterEditor
-            v-for="(_, index) in chapters"
-            :key="`chapter-${index}`"
+            v-for="(chapter, index) in chapters"
+            :key="`${chapter.id || index}`"
             v-model="chapters[index]"
             :chapter-number="index + 1"
             :is-saving="isSavingChapter(index)"
@@ -189,7 +194,8 @@
       <div class="editor-actions">
         <button @click="resetForm" class="action-button reset" :disabled="isSaving">
           <ArrowPathIcon class="icon-size-sm" />
-          <span>Formular zurücksetzen</span>
+          <span v-if="editMode">Änderungen verwerfen</span>
+          <span v-else>Entwürf verwerfen</span>
         </button>
 
         <button @click="saveAsDraft" class="action-button draft" :disabled="isSaving">
@@ -277,6 +283,7 @@ export default defineComponent({
     const router = useRouter();
 
     // === Artikel-Daten ===
+    const articleId = ref("");
     const articleTitle = ref("");
     const articleDescription = ref("");
     const coverImage = ref("");
@@ -348,7 +355,8 @@ export default defineComponent({
     // === Entwürfe und Artikel ===
     const drafts = ref<Draft[]>([]);
     const publishedArticles = ref<Article[]>([]);
-    const currentDraftId = ref<string | undefined>(undefined);
+    const currentDraftId = ref<string>("");
+    const editMode = ref(false);
 
     // === UI-State ===
     const isSaving = ref(false);
@@ -546,15 +554,12 @@ export default defineComponent({
       try {
         // Bestätigung bei ungespeicherten Änderungen
         if (articleTitle.value.trim() !== "" && draft.id !== currentDraftId.value) {
-          const shouldSave = confirm(
-            "Möchten Sie Ihre aktuellen Änderungen speichern, bevor Sie einen anderen Entwurf laden?"
-          );
-          if (shouldSave) {
-            saveAsDraft();
-          }
+          confirm("Wenn sie einen neuen Post laden, gehen alle ungespeicherten Änderungen verloren. Sind sie sicher?");
         }
+        editMode.value = true;
 
         // Entwurf laden
+        currentDraftId.value = draft.id;
         articleTitle.value = draft.title || "";
         articleDescription.value = draft.quickDescription || "";
         coverImage.value = draft.image || "";
@@ -564,9 +569,7 @@ export default defineComponent({
         tags.value = draft.tags || [];
         chapters.value = normalizeChapters(draft.chapters);
         articleQuiz.value = draft.quiz || { questions: [] };
-        currentDraftId.value = draft.id;
 
-        saveToLocalStorage();
         showNotification("Entwurf wurde geladen", "success");
       } catch (error) {
         console.error("Fehler beim Laden des Entwurfs:", error);
@@ -589,9 +592,9 @@ export default defineComponent({
           resetForm();
         }
 
-        await authorService.deleteDraft(draftId);
+        const message = await authorService.deleteArticle(draftId);
         drafts.value = drafts.value.filter((d) => d.id !== draftId);
-        showNotification("Entwurf wurde gelöscht", "success");
+        showNotification(message, "success");
       } catch (error) {
         console.error("Fehler beim Löschen des Entwurfs:", error);
         showNotification("Fehler beim Löschen des Entwurfs", "error");
@@ -600,10 +603,8 @@ export default defineComponent({
 
     const refreshDrafts = async () => {
       try {
-        console.log("Lade Entwürfe...");
         isLoadingDrafts.value = true;
         const result = await authorService.getAuthorDrafts();
-        console.log("Entwürfe geladen:", result.drafts);
         drafts.value = result.drafts || [];
       } catch (error) {
         console.error("Fehler beim Laden der Entwürfe:", error);
@@ -620,21 +621,13 @@ export default defineComponent({
 
     const editPublishedArticle = async (article: PublishedArticle) => {
       try {
-        if (!confirm(`Möchten Sie "${article.title}" bearbeiten?`)) {
+        if (!confirm(`Möchten Sie "${article.title}" bearbeiten? (ungespeicherte Änderungen gehen verloren)`)) {
           return;
         }
-
-        // Bestätigung bei ungespeicherten Änderungen
-        if (articleTitle.value.trim() !== "") {
-          const shouldSave = confirm(
-            "Möchten Sie Ihre aktuellen Änderungen speichern, bevor Sie einen Artikel bearbeiten?"
-          );
-          if (shouldSave) {
-            await saveAsDraft();
-          }
-        }
-
+        editMode.value = true;
+        currentDraftId.value = article.id;
         // Artikel laden
+        articleId.value = article.id;
         articleTitle.value = article.title;
         articleDescription.value = article.description;
         coverImage.value = article.coverImage;
@@ -664,9 +657,9 @@ export default defineComponent({
           return;
         }
 
-        await authorService.deletePublishedArticle(articleId);
+        const message = await authorService.deleteArticle(articleId);
         publishedArticles.value = publishedArticles.value.filter((a) => a.id !== articleId);
-        showNotification("Artikel wurde erfolgreich gelöscht", "success");
+        showNotification(message, "success");
       } catch (error) {
         console.error("Fehler beim Löschen des Artikels:", error);
         showNotification("Fehler beim Löschen des Artikels", "error");
@@ -675,12 +668,9 @@ export default defineComponent({
 
     const refreshPublishedArticles = async () => {
       try {
-        console.log("Lade veröffentlichte Artikel...");
         isLoadingPublished.value = true;
         const result = await authorService.getAuthorPublishedArticles();
-        console.log("Veröffentlichte Artikel geladen");
         publishedArticles.value = result.posts || [];
-        // console.log([...publishedArticles.value]); // spread entfernt Proxy
       } catch (error) {
         console.error("Fehler beim Laden der veröffentlichten Artikel:", error);
         showNotification("Artikel konnten nicht geladen werden", "error");
@@ -691,6 +681,7 @@ export default defineComponent({
 
     // === Reset Funktion, damit dann das feld wieder sauber it ===
     const resetForm = () => {
+      articleId.value = "";
       articleTitle.value = "";
       articleDescription.value = "";
       coverImage.value = "";
@@ -705,6 +696,8 @@ export default defineComponent({
       newTag.value = "";
       showTagInput.value = false;
 
+      editMode.value = false;
+
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       showNotification("Formular wurde zurückgesetzt", "info");
     };
@@ -717,9 +710,7 @@ export default defineComponent({
       formData.append("title", articleTitle.value);
       formData.append("quickDescription", articleDescription.value);
       formData.append("tags", tags.value.join(","));
-      let dataCategory = categoryMap[selectedCategory.value as keyof typeof categoryMap] || "OTHER";
-
-      formData.append("category", dataCategory);
+      formData.append("category", categoryMap[selectedCategory.value as keyof typeof categoryMap] || "OTHER");
       formData.append("ageRestriction", ageRestriction.value.toString());
       formData.append("forKids", forKids.value.toString());
 
@@ -785,6 +776,7 @@ export default defineComponent({
         if (result.status === 200 || result.status === 201) {
           showNotification("Artikel erfolgreich als Entwurf gespeichert", "success");
           refreshDrafts();
+          resetForm();
         } else {
           showNotification("Fehler beim Speichern des Entwurfs", "error");
         }
@@ -890,6 +882,7 @@ export default defineComponent({
       articleDescription,
       coverImage,
       chapters,
+      editMode,
 
       // Einstellungen
       forKids,
