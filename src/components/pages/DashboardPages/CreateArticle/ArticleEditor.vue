@@ -138,7 +138,7 @@
           :image-meta="{
             isEdit: editMode,
             isChapter: false,
-            postId: currentDraftId,
+            postId: currendId,
           }"
         />
 
@@ -372,6 +372,10 @@ export default defineComponent({
     // === Konstanten ===
     const LOCAL_STORAGE_KEY = "article_editor_draft";
 
+    const currendId = computed(() => {
+      return articleId.value || currentDraftId.value;
+    });
+
     // === Computed Properties ===
     const isFormValid = computed(() => {
       return (
@@ -423,7 +427,7 @@ export default defineComponent({
         ageRestriction: ageRestriction.value,
         selectedCategory: selectedCategory.value,
         tags: tags.value,
-        currentDraftId: currentDraftId.value,
+        currentDraftId: articleId.value || currentDraftId.value,
         updated_at: new Date().toISOString(),
       };
 
@@ -517,7 +521,7 @@ export default defineComponent({
       chapters.value.push({
         title: "",
         content: "",
-        chapterImage: "",
+        image: "",
         isDragging: false,
         isSaving: false,
       });
@@ -558,6 +562,8 @@ export default defineComponent({
         }
         editMode.value = true;
 
+        console.log("Lade Entwurf:", draft);
+
         // Entwurf laden
         currentDraftId.value = draft.id;
         articleTitle.value = draft.title || "";
@@ -577,9 +583,7 @@ export default defineComponent({
       }
     };
 
-    const editDraft = (draft: Draft) => {
-      loadDraft(draft);
-    };
+    const editDraft = (draft: Draft) => loadDraft(draft);
 
     const deleteDraft = async (draftId: string) => {
       try {
@@ -625,19 +629,18 @@ export default defineComponent({
           return;
         }
         editMode.value = true;
-        currentDraftId.value = article.id;
         // Artikel laden
         articleId.value = article.id;
         articleTitle.value = article.title;
-        articleDescription.value = article.description;
-        coverImage.value = article.coverImage;
+        articleDescription.value = article.quickDescription || "";
+        coverImage.value = article.image || "";
         forKids.value = article.forKids || false;
         ageRestriction.value = article.ageRestriction || 0;
         selectedCategory.value = article.category || "";
         tags.value = article.tags || [];
         chapters.value = normalizeChapters(article.chapters);
         articleQuiz.value = article.quiz || { questions: [] };
-        currentDraftId.value = `edit_${article.id}`;
+        console.log("Lade veröffentlichten Artikel:", article);
 
         saveToLocalStorage();
         showNotification("Artikel wurde zum Bearbeiten geladen", "success");
@@ -741,9 +744,9 @@ export default defineComponent({
 
       // Kapitel-Bilder verarbeiten
       chapters.value.forEach((chapter, index) => {
-        if (chapter.chapterImage && chapter.chapterImage.startsWith("data:image")) {
-          const byteString = atob(chapter.chapterImage.split(",")[1]);
-          const mimeString = chapter.chapterImage.split(",")[0].split(":")[1].split(";")[0];
+        if (chapter.image && chapter.image.startsWith("data:image")) {
+          const byteString = atob(chapter.image.split(",")[1]);
+          const mimeString = chapter.image.split(",")[0].split(":")[1].split(";")[0];
 
           const ab = new ArrayBuffer(byteString.length);
           const ia = new Uint8Array(ab);
@@ -826,12 +829,12 @@ export default defineComponent({
         }
       }, 30000);
 
-      // API-Backup alle 5 Minuten
-      const apiBackupInterval = setInterval(() => {
+      // API-Backup alle 5 Minuten // fixen der Draft wird mehrfach erstellt
+      /* const apiBackupInterval = setInterval(() => {
         if (articleTitle.value.trim() !== "") {
           saveAsDraft();
         }
-      }, 300000);
+      }, 300000); */
 
       return { autoSaveInterval, apiBackupInterval };
     };
@@ -932,6 +935,8 @@ export default defineComponent({
       editDraft,
       deleteDraft,
       refreshDrafts,
+
+      currendId,
 
       // Veröffentlichte Artikel
       publishedArticles,

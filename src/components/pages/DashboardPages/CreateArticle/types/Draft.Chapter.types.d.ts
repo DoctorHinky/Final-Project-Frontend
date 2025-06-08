@@ -3,7 +3,7 @@ export type Chapter = {
   postId?: string;
   title: string;
   content: string;
-  chapterImage?: string;
+  image?: string;
   quiz?: any;
   isDragging?: boolean;
   isSaving?: boolean;

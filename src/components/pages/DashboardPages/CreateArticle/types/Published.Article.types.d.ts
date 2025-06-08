@@ -8,8 +8,8 @@ export type PublishedArticleChapter = {
 export type PublishedArticle = {
   id: string;
   title: string;
-  description: string;
-  coverImage: string;
+  quickDescription: string;
+  image: string;
   category: string;
   tags: string[];
   chapters: PublishedArticleChapter[];

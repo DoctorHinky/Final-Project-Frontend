@@ -103,8 +103,9 @@ export default defineComponent({
         alert("Bitte nur Bilder hochladen.");
         return;
       }
-
-      console.log("edit?", props.imageMeta.isEdit);
+      console.log("Edit", props.imageMeta.isEdit);
+      console.log("Post ID:", props.imageMeta.postId);
+      console.log("Chapter ID:", props.imageMeta.chapterId);
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -112,33 +113,76 @@ export default defineComponent({
       };
       reader.onerror = () => alert("Fehler beim Lesen der Datei.");
       reader.readAsDataURL(file);
+
+      let endpoint: string = "";
+
+      // Endpoint-Logik für sowohl Edit- als auch Nicht-Edit-Modus
+      if (props.imageMeta.chapterId && props.imageMeta.postId) {
+        endpoint = `article/addChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
+      } else if (props.imageMeta.postId && !props.imageMeta.chapterId) {
+        endpoint = `article/addPostImage/${props.imageMeta.postId}`;
+      } else {
+        console.error("Kein gültiger Endpunkt für das Hochladen des Bildes gefunden.");
+        return;
+      }
+
+      if (!endpoint) {
+        console.error("Kein gültiger Endpunkt für das Hochladen des Bildes gefunden.");
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await api.patch(endpoint, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        console.log("endpoint:", endpoint);
+        console.log("response:", res);
+
+        if (res.status < 210) {
+          // ich weiß den genauen Statuscode nicht, aber alle wären unter 210 (200, 202, 204)
+          if (res.data.image) {
+            console.log("Bild erfolgreich hochgeladen:", res.data.image);
+            emit("update:modelValue", res.data.image);
+          }
+        } else {
+          emit("image-removed-error", res.data.message || "Fehler beim Hochladen des Bildes.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Hochladen des Bildes:", error);
+        emit(
+          "image-removed-error",
+          error instanceof Error ? error.message : "Unbekannter Fehler beim Hochladen des Bildes."
+        );
+      }
     };
 
     const removeImage = async () => {
-      if (!props.imageMeta.isEdit || (props.imageMeta.chapterId && props.imageMeta.chapterId?.length < 10)) {
+      if (!props.imageMeta.postId || (props.imageMeta.chapterId && props.imageMeta.chapterId?.length < 10)) {
+        console.log("Normaler Fall: Bild entfernen");
         emit("update:modelValue", "");
         if (fileInput.value) fileInput.value.value = "";
         emit("image-removed");
         return;
       }
-
       try {
         let entpoint: string;
 
         if (!props.imageMeta.isChapter) {
           if (!props.imageMeta.postId) throw new Error("Post ID is required for removing image.");
-          confirm("Möchten Sie das Bild wirklich entfernen?") ||
+          if (!confirm("Möchten Sie das Bild wirklich entfernen?") || !props.imageMeta.postId) {
             emit("image-removed-error", "Bildentfernung abgebrochen.");
+          }
           entpoint = `article/removePostImage/${props.imageMeta.postId}`;
         } else {
           if (!props.imageMeta.chapterId) throw new Error("Chapter ID is required for removing chapter image.");
           confirm("Möchten Sie das Kapitelbild wirklich entfernen?") ||
             emit("image-removed-error", "Kapitelbildentfernung abgebrochen.");
           entpoint = `article/removeChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
+          console.log("Kapitelbild entfernen:", entpoint);
         }
 
         const response = await api.delete(entpoint, { headers: { "Content-Type": "application/json" } });
-        console.log("Bild entfernt:", response.data);
         if (response.status < 210) {
           // ich weiß den genauen Statuscode nicht, aber alle wären unter 210 (200, 202, 204)
           emit("update:modelValue", "");

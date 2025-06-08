@@ -71,6 +71,7 @@ class AuthorService {
         headers: { "Content-Type": "application/json" },
       });
       const drafts: Article[] = response.data.posts || [];
+      console.log("Entwürfe des Autors:", drafts);
       return { drafts };
     } catch (error) {
       console.error("Fehler beim Laden der Entwürfe:", error);
@@ -88,6 +89,7 @@ class AuthorService {
         headers: { "Content-Type": "application/json" },
       });
       const posts: Post[] = response.data.posts || [];
+      console.log("Veröffentlichte Artikel des Autors:", posts);
       return { posts };
     } catch (error) {
       console.error("Fehler beim Laden der Entwürfe:", error);

@@ -23,7 +23,7 @@
     <!-- Kapitel-Bild -->
     <div class="chapter-image-container">
       <ImageUploader
-        v-model="chapterLocal.chapterImage"
+        v-model="chapterLocal.image"
         label="Kapitelbild"
         :show-help="false"
         :is-small="true"
