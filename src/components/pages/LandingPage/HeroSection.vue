@@ -2,49 +2,130 @@
   <section class="section hero-section" id="hero">
     <div class="hero-container">
       <div class="hero-text">
-        <h1>Begleitung für die wichtigsten Momente</h1>
-        <p class="hero-subtext">Experten-Wissen und praktische Hilfestellungen für den Familienalltag – von Trotzphase bis nach der Pubertät.</p>
+        <div class="title-wrapper">
+          <h1 class="hero-title">
+            <span class="title-line">Deine Familie.</span>
+            <span class="title-line">Dein digitales <span class="flip-text-container">
+              <span class="flip-text">Zuhause</span>
+            </span></span>
+          </h1>
+        </div>
+        
+        <p class="hero-subtext">
+          Die Plattform, die Generationen verbindet. Von ersten Schritten bis zu den großen Lebensfragen – 
+          wir begleiten euch mit Wissen, Geschichten und einer starken Community.
+        </p>
+        
         <div class="hero-features">
-          <div class="feature">
-            <div class="feature-icon">🧠</div>
-            <p>Ausführliche Artikel</p>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <HeroiconsBrainIcon />
+            </div>
+            <div class="feature-content">
+              <h3>Wissen das weiterbringt</h3>
+              <p>Expertenwissen für jeden Lebensabschnitt</p>
+            </div>
           </div>
-          <div class="feature">
-            <div class="feature-icon">👨‍👩‍👧‍👦</div>
-            <p>Von Eltern und Pädagogen entwickelt</p>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <HeroiconsHeartIcon />
+            </div>
+            <div class="feature-content">
+              <h3>Geschichten die verbinden</h3>
+              <p>Autoren teilen ihre Erfahrungen</p>
+            </div>
           </div>
-          <div class="feature">
-            <div class="feature-icon">📱</div>
-            <p>Jederzeit abrufbare Ratschläge</p>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <HeroiconsUsersIcon />
+            </div>
+            <div class="feature-content">
+              <h3>Community die unterstützt</h3>
+              <p>Gemeinsam durch den Familienalltag</p>
+            </div>
           </div>
         </div>
+        
         <div class="hero-cta">
-            <router-link to="/login-register" class="btn-primary">Loslegen</router-link>
-            <button class="btn-secondary" @click="$router.push({ hash: '#content' })">
-              Mehr erfahren
-                <HeroiconsChevronDownIcon class="arrow-down-icon" style="margin-left: 0.5em; vertical-align: middle; width: 1.5em; height: 1.5em;" />
-            </button>
+          <router-link to="/login-register" class="btn-primary">
+            <span>Jetzt starten</span>
+            <HeroiconsArrowRightIcon class="cta-icon" />
+          </router-link>
+          <button class="btn-secondary" @click="$router.push({ hash: '#content' })">
+            <span>Entdecke mehr</span>
+            <div class="btn-bg"></div>
+          </button>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="floating-elements">
+          <div class="floating-el el-1"></div>
+          <div class="floating-el el-2"></div>
+          <div class="floating-el el-3"></div>
         </div>
       </div>
-      <div class="ScrollIndicator">
-        <HeroiconsChevronDownIcon class="scroll-indicator-icon" style="width: 2em; height: 2em;" />
+      
+      <!-- Scroll Indicator -->
+      <div class="scroll-indicator">
+        <div class="mouse">
+          <div class="wheel"></div>
+        </div>
+        <span>Scroll</span>
       </div>
+      
+      <!-- Right Side Animation -->
       <div class="hero-visual">
-        <div class="illustration">
-          <!-- Hintergrundkreis, wird vor den Elementen definiert -->
-          <div class="background-circle"></div>
+        <div class="animation-container">
+          <!-- 3D Rotating Cards -->
+          <div class="cards-orbit">
+            <div class="orbit-ring ring-1">
+              <div class="orbit-card card-1">
+                <HeroiconsBookOpenIcon />
+                <span>Ratgeber</span>
+              </div>
+              <div class="orbit-card card-2">
+                <HeroiconsPuzzlePieceIcon />
+                <span>Spiele</span>
+              </div>
+            </div>
+            
+            <div class="orbit-ring ring-2">
+              <div class="orbit-card card-3">
+                <HeroiconsAcademicCapIcon />
+                <span>Lernen</span>
+              </div>
+              <div class="orbit-card card-4">
+                <HeroiconsChatBubbleBottomCenterTextIcon />
+                <span>Austausch</span>
+              </div>
+            </div>
+            
+            <div class="orbit-ring ring-3">
+              <div class="orbit-card card-5">
+                <HeroiconsHandThumbUpIcon />
+                <span>Tipps</span>
+              </div>
+              <div class="orbit-card card-6">
+                <HeroiconsSparklesIcon />
+                <span>Inspiration</span>
+              </div>
+            </div>
+          </div>
           
-          <!-- Kreispfad (unsichtbar, aber für Entwicklung hilfreich) -->
-          <div class="circle-path"></div>
+          <!-- Central Logo with Glow -->
+          <div class="central-element">
+            <div class="glow-effect"></div>
+            <img src="@/assets/images/Logo.png" alt="LearnToGrow Logo" class="logo-3d" />
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring delay"></div>
+          </div>
           
-          <!-- Animierte Elemente auf dem Kreisrand -->
-          <div class="illustration-element leaf1">🍃</div>
-          <div class="illustration-element leaf2">🌿</div>
-          <div class="illustration-element leaf3">🌱</div>
-          <div class="illustration-element leaf4">🌷</div>
-          
-          <!-- Hauptillustration in der Mitte -->
-            <img src="@/assets/images/Logo.png" alt="LearnToGrow Logo" class="main-illustration" />
+          <!-- Particle Effects -->
+          <div class="particles">
+            <div v-for="i in 20" :key="i" :class="`particle particle-${i}`"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -52,13 +133,56 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { ChevronDownIcon as HeroiconsChevronDownIcon } from '@heroicons/vue/24/solid';
+import { defineComponent, onMounted, ref } from 'vue';
+import { 
+  ChevronDownIcon as HeroiconsChevronDownIcon,
+  ArrowRightIcon as HeroiconsArrowRightIcon,
+  HeartIcon as HeroiconsHeartIcon,
+  UsersIcon as HeroiconsUsersIcon,
+  BookOpenIcon as HeroiconsBookOpenIcon,
+  PuzzlePieceIcon as HeroiconsPuzzlePieceIcon,
+  AcademicCapIcon as HeroiconsAcademicCapIcon,
+  ChatBubbleBottomCenterTextIcon as HeroiconsChatBubbleBottomCenterTextIcon,
+  HandThumbUpIcon as HeroiconsHandThumbUpIcon,
+  SparklesIcon as HeroiconsSparklesIcon
+} from '@heroicons/vue/24/solid';
+import { LightBulbIcon as HeroiconsBrainIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'HeroSection',
   components: {
-    HeroiconsChevronDownIcon
+    HeroiconsChevronDownIcon,
+    HeroiconsArrowRightIcon,
+    HeroiconsBrainIcon,
+    HeroiconsHeartIcon,
+    HeroiconsUsersIcon,
+    HeroiconsBookOpenIcon,
+    HeroiconsPuzzlePieceIcon,
+    HeroiconsAcademicCapIcon,
+    HeroiconsChatBubbleBottomCenterTextIcon,
+    HeroiconsHandThumbUpIcon,
+    HeroiconsSparklesIcon
+  },
+  setup() {
+    const flipTexts = ['Zuhause', 'Begleiter', 'Ratgeber', 'Community'];
+    let currentIndex = 0;
+    
+    onMounted(() => {
+      // Text flip animation
+      setInterval(() => {
+        const flipElement = document.querySelector('.flip-text');
+        if (flipElement) {
+          flipElement.style.transform = 'rotateX(90deg)';
+          setTimeout(() => {
+            currentIndex = (currentIndex + 1) % flipTexts.length;
+            flipElement.textContent = flipTexts[currentIndex];
+            flipElement.style.transform = 'rotateX(0deg)';
+          }, 300);
+        }
+      }, 3000);
+    });
+    
+    return {};
   }
 });
 </script>
@@ -67,53 +191,87 @@ export default defineComponent({
 @use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
 
-// Keyframes für präzise rotierende Animation
-@keyframes rotate-on-circle {
-  0% {
-    transform: rotate(0deg) translateX(125px) rotate(0deg);
+// Modern animations
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+@keyframes orbit-rotate {
+  from { transform: rotateY(0deg) rotateX(15deg); }
+  to { transform: rotateY(360deg) rotateX(15deg); }
+}
+
+@keyframes card-self-rotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-360deg); }
+}
+
+@keyframes pulse-expand {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes particle-float {
+  0% { 
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
   }
-  100% {
-    transform: rotate(360deg) translateX(125px) rotate(-360deg);
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { 
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
   }
 }
 
-@keyframes rotate-on-circle-reverse {
-  0% {
-    transform: rotate(0deg) translateX(125px) rotate(0deg);
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  100% {
-    transform: rotate(-360deg) translateX(125px) rotate(360deg);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .hero-section {
-  margin: 150px auto 0px auto;
-  min-height: 70vh;
+  margin: 0 auto;
+  min-height: 100vh;
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 map.get(vars.$spacing, xxxl);
   
-  
+  // Background gradient
   &::before {
     content: '';
     position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    opacity: 0.4;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    animation: float 20s ease-in-out infinite;
   }
   
   .hero-container {
+    
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1fr 1fr;
     gap: map.get(vars.$spacing, xxl);
     width: 100%;
+    align-items: center;
+    position: relative;
     
     @media (max-width: map.get(map.get(vars.$layout, breakpoints), desktop)) {
       grid-template-columns: 1fr;
@@ -121,40 +279,62 @@ export default defineComponent({
   }
   
   .hero-text {
-    h1 {
-      font-size: 3.5rem !important;
+    position: relative;
+    z-index: 2;
+    
+    .title-wrapper {
+      overflow: hidden;
+      margin-bottom: map.get(vars.$spacing, xl);
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
-      line-height: 1.2;
-      margin-bottom: map.get(vars.$spacing, l);
-      position: relative;
+      line-height: 1.1;
+      margin: 0;
+      
+      .title-line {
+        display: block;
+        animation: fade-in-up 0.8s ease-out backwards;
+        
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+      }
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
-          
-          &::after {
-            content: '';
-            position: absolute;
-            width: 100px;
-            height: 4px;
-            bottom: -16px;
-            left: 0;
-            background: mixins.theme-gradient($theme, primary);
-            border-radius: 4px;
-          }
         }
       }
       
-      @media (max-width: map.get(map.get(vars.$layout, breakpoints), tablet)) {
-        font-size: 2.5rem;
+      .flip-text-container {
+        display: inline-block;
+        position: relative;
+        
+        .flip-text {
+          display: inline-block;
+          transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          transform-style: preserve-3d;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: mixins.theme-gradient($theme, primary);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+            }
+          }
+        }
       }
     }
     
     .hero-subtext {
-      font-size: map.get(map.get(vars.$fonts, sizes), xl);
-      margin-bottom: map.get(vars.$spacing, xl);
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      line-height: 1.7;
+      margin-bottom: map.get(vars.$spacing, xxl);
       max-width: 600px;
-      line-height: 1.6;
+      animation: fade-in-up 0.8s ease-out 0.4s backwards;
       
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -163,61 +343,35 @@ export default defineComponent({
       }
     }
   }
-
-  // ScrollIndicator mit animierter Bounce- und Fade-in-Animation
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateX(-50%) translateY(0);
-    }
-    50% {
-      transform: translateX(-50%) translateY(12px);
-    }
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  }
-
-  .ScrollIndicator {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    opacity: 0;
-    animation:
-      fade-in 1s ease-out 0.5s forwards,
-      bounce 1.5s infinite 1s;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
-      }
-    }
-
-    &:hover {
-      transform: translateX(-50%) scale(1.1);
-      transition: transform map.get(vars.$transitions, default);
-    }
-  }
   
   .hero-features {
-    display: flex;
-    flex-direction: column;
-    gap: map.get(vars.$spacing, l);
+    display: grid;
+    gap: map.get(vars.$spacing, m);
     margin-bottom: map.get(vars.$spacing, xxl);
+    animation: fade-in-up 0.8s ease-out 0.6s backwards;
     
-    .feature {
+    .feature-card {
       display: flex;
       align-items: center;
-      gap: map.get(vars.$spacing, s);
+      gap: map.get(vars.$spacing, m);
+      padding: map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), large);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: rgba(mixins.theme-color($theme, secondary-bg), 0.6);
+          border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.3);
+          
+          &:hover {
+            transform: translateX(10px);
+            background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+            border-color: mixins.theme-color($theme, accent-teal);
+            box-shadow: 0 10px 30px rgba(mixins.theme-color($theme, shadow-color), 0.1);
+          }
+        }
+      }
       
       .feature-icon {
         width: 50px;
@@ -225,49 +379,42 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        font-size: 1.5rem;
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        flex-shrink: 0;
+        
+        svg {
+          width: 24px;
+          height: 24px;
+        }
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, secondary-bg);
-            box-shadow: 0 4px 12px rgba(mixins.theme-color($theme, shadow-color), 0.15);
+            background: mixins.theme-gradient($theme, primary);
+            color: white;
           }
         }
       }
       
-      p {
-        font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        margin: 0;
+      .feature-content {
+        h3 {
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          margin: 0 0 4px 0;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
-          }
-        }
-      }
-      
-      &:nth-child(1) .feature-icon {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.15);
-          }
-        }
-      }
-      
-      &:nth-child(2) .feature-icon {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-lime), 0.15);
-          }
-        }
-      }
-      
-      &:nth-child(3) .feature-icon {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
+        p {
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
+          margin: 0;
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
           }
         }
       }
@@ -278,69 +425,200 @@ export default defineComponent({
     display: flex;
     gap: map.get(vars.$spacing, m);
     margin-top: map.get(vars.$spacing, xl);
-    padding: 1rem;
+    animation: fade-in-up 0.8s ease-out 0.8s backwards;
     
-    @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
-      flex-direction: column;
-    }
-
-    // Spezifisches Styling für router-link mit .btn-primary
-    .btn-primary.router-link-active,
-    .btn-primary.router-link-exact-active,
     .btn-primary {
-      display: inline-block;
-      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
-      cursor: pointer;
-      transition: transform map.get(vars.$transitions, default),
-                  box-shadow map.get(vars.$transitions, default);
-      transform: scale(1.05);
-
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          @include mixins.button-style($theme, 'medium', true);
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+          box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(mixins.theme-color($theme, accent-teal), 0.4);
+          }
         }
+      }
+      
+      .cta-icon {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.3s ease;
+      }
+      
+      &:hover .cta-icon {
+        transform: translateX(5px);
       }
     }
     
-    .btn-primary:hover,
-    .btn-primary:focus {
-      transform: scale(1.08) translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
-      outline: none;
-    }
-    
     .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
       padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       cursor: pointer;
-      transition: transform map.get(vars.$transitions, default),
-                 box-shadow map.get(vars.$transitions, default);
-
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background-color: transparent;
+          background: rgba(mixins.theme-color($theme, secondary-bg), 0.5);
           color: mixins.theme-color($theme, text-primary);
-          border: 2px solid mixins.theme-color($theme, border-medium);
+          border: 2px solid rgba(mixins.theme-color($theme, border-medium), 0.5);
           
           &:hover {
-            transform: translateY(-4px);
-            @include mixins.shadow('small', $theme);
-            border-color: mixins.theme-color($theme, accent-teal);
+            transform: translateY(-2px);
+            background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+            border-color: mixins.theme-color($theme, accent-lime);
+          }
+        }
+      }
+      
+      .btn-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.5s ease;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background: rgba(mixins.theme-color($theme, accent-lime), 0.2);
+          }
+        }
+      }
+      
+      &:hover .btn-bg {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  }
+  
+  // Floating background elements
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    
+    .floating-el {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      animation: float 15s ease-in-out infinite;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          &.el-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: -100px;
+            background: rgba(mixins.theme-color($theme, accent-teal), 0.3);
+            animation-delay: 0s;
+          }
+          
+          &.el-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 10%;
+            background: rgba(mixins.theme-color($theme, accent-lime), 0.2);
+            animation-delay: 5s;
+          }
+          
+          &.el-3 {
+            width: 100px;
+            height: 100px;
+            top: 30%;
+            left: 40%;
+            background: rgba(mixins.theme-color($theme, accent-green), 0.2);
+            animation-delay: 10s;
           }
         }
       }
     }
   }
   
+  // Scroll indicator
+  .scroll-indicator {
+    position: absolute;
+    bottom: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: fade-in-up 1s ease-out 1s backwards;
+    
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+    
+    .mouse {
+      width: 25px;
+      height: 40px;
+      border: 2px solid currentColor;
+      border-radius: 15px;
+      position: relative;
+      
+      .wheel {
+        width: 3px;
+        height: 8px;
+        background: currentColor;
+        border-radius: 2px;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: scroll-wheel 1.5s ease-in-out infinite;
+      }
+    }
+    
+    span {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  }
+  
+  @keyframes scroll-wheel {
+    0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(15px); opacity: 0; }
+  }
+  
+  // Right side 3D animation
   .hero-visual {
     position: relative;
-    height: 100%;
+    height: 600px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -349,96 +627,218 @@ export default defineComponent({
       display: none;
     }
     
-    .illustration {
+    .animation-container {
       position: relative;
-      width: 350px;
-      height: 350px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 500px;
+      height: 500px;
+      transform-style: preserve-3d;
+      perspective: 1000px;
       
-      // Hintergrund-Kreis als separates Element
-      .background-circle {
+      // Orbiting cards
+      .cards-orbit {
         position: absolute;
-        width: 250px;
-        height: 250px;
-        border-radius: 50%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 0;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        animation: orbit-rotate 30s linear infinite;
         
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background: radial-gradient(
-              circle,
-              rgba(mixins.theme-color($theme, accent-green), 0.15) 0%,
-              rgba(mixins.theme-color($theme, accent-lime), 0.08) 60%,
-              transparent 80%
-            );
+        .orbit-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+          
+          &.ring-1 {
+            transform: rotateX(0deg);
+          }
+          
+          &.ring-2 {
+            transform: rotateX(60deg);
+          }
+          
+          &.ring-3 {
+            transform: rotateX(-60deg);
+          }
+          
+          .orbit-card {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+            backdrop-filter: blur(10px);
+            animation: card-self-rotate 30s linear infinite;
+            transform-style: preserve-3d;
+            
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+                border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
+                box-shadow: 0 10px 30px rgba(mixins.theme-color($theme, shadow-color), 0.2);
+              }
+            }
+            
+            svg {
+              width: 24px;
+              height: 24px;
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  color: mixins.theme-color($theme, accent-teal);
+                }
+              }
+            }
+            
+            span {
+              font-size: 11px;
+              font-weight: map.get(map.get(vars.$fonts, weights), medium);
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  color: mixins.theme-color($theme, text-primary);
+                }
+              }
+            }
+            
+            // Card positions
+            &.card-1 {
+              top: 50%;
+              left: 0;
+              transform: translateY(-50%) translateX(-150px);
+            }
+            
+            &.card-2 {
+              top: 50%;
+              right: 0;
+              transform: translateY(-50%) translateX(150px);
+            }
+            
+            &.card-3 {
+              top: 0;
+              left: 50%;
+              transform: translateX(-50%) translateY(-150px);
+            }
+            
+            &.card-4 {
+              bottom: 0;
+              left: 50%;
+              transform: translateX(-50%) translateY(150px);
+            }
+            
+            &.card-5 {
+              top: 20%;
+              left: 20%;
+              transform: translate(-50%, -50%) translateZ(150px);
+            }
+            
+            &.card-6 {
+              bottom: 20%;
+              right: 20%;
+              transform: translate(50%, 50%) translateZ(-150px);
+            }
           }
         }
       }
       
-      // Hilfslinie für den Kreisrand (in der Produktion auskommentieren)
-      .circle-path {
-        position: absolute;
-        width: 250px;
-        height: 250px;
-        border-radius: 50%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 0;
-        border: 1px dotted rgba(0, 0, 0, 0.1); // Sehr subtile Hilfsline
-        pointer-events: none; // Verhindert Klicks auf die Hilfsline
-        display: none; // In der Produktion auskommentieren, für Entwicklung einkommentieren
-      }
-      
-      .main-illustration {
+      // Central element
+      .central-element {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 150px !important; // Größe der Hauptillustration
-        z-index: 2;
-        border-radius: 50%;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Leichter Schatten für bessere Sichtbarkeit
-        user-select: none;
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, secondary-bg);
+        
+        .glow-effect {
+          position: absolute;
+          width: 250px;
+          height: 250px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+          filter: blur(60px);
+          animation: glow-pulse 3s ease-in-out infinite;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: radial-gradient(
+                circle,
+                rgba(mixins.theme-color($theme, accent-teal), 0.4) 0%,
+                rgba(mixins.theme-color($theme, accent-lime), 0.2) 50%,
+                transparent 70%
+              );
+            }
+          }
+        }
+        
+        .logo-3d {
+          position: relative;
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          z-index: 10;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: mixins.theme-color($theme, secondary-bg);
+              box-shadow: 
+                0 20px 40px rgba(mixins.theme-color($theme, shadow-color), 0.3),
+                inset 0 0 20px rgba(mixins.theme-color($theme, accent-teal), 0.1);
+            }
+          }
+        }
+        
+        .pulse-ring {
+          position: absolute;
+          width: 150px;
+          height: 150px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+          animation: pulse-expand 3s ease-out infinite;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              border: 2px solid mixins.theme-color($theme, accent-teal);
+            }
+          }
+          
+          &.delay {
+            animation-delay: 1.5s;
           }
         }
       }
       
-      .illustration-element {
+      // Particles
+      .particles {
         position: absolute;
-        font-size: 2.5rem;
-        z-index: 1;
-        top: 40%;
-        left: 45%;
-        transform-origin: center;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); // Leichter Schatten für bessere Sichtbarkeit
-        user-select: none; // Verhindert das Markieren der Emojis
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
         
-        &.leaf1 {
-          animation: rotate-on-circle 30s linear infinite;
-        }
-        
-        &.leaf2 {
-          animation: rotate-on-circle-reverse 30s linear infinite;
-          animation-delay: -7.5s; // Genau ein Viertel der Gesamtdauer
-        }
-        
-        &.leaf3 {
-          animation: rotate-on-circle 30s linear infinite;
-          animation-delay: -15s; // Genau die Hälfte der Gesamtdauer
-        }
-        
-        &.leaf4 {
-          animation: rotate-on-circle-reverse 30s linear infinite;
-          animation-delay: -22.5s; // Genau drei Viertel der Gesamtdauer
+        .particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: mixins.theme-color($theme, accent-lime);
+              box-shadow: 0 0 10px rgba(mixins.theme-color($theme, accent-lime), 0.5);
+            }
+          }
+          
+          @for $i from 1 through 20 {
+            &.particle-#{$i} {
+              left: #{random(100)}%;
+              animation: particle-float #{10 + random(10)}s linear infinite;
+              animation-delay: #{random(10)}s;
+              opacity: #{random(100) / 100};
+            }
+          }
         }
       }
     }

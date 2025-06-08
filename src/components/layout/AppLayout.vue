@@ -24,11 +24,11 @@ export default defineComponent({
   setup() {
     // Theme-Service verwenden
     const isLightTheme = themeService.isLightTheme;
-    
+
     const toggleTheme = () => {
       themeService.toggleTheme();
     };
-    
+
     return {
       isLightTheme,
       toggleTheme
@@ -45,7 +45,7 @@ export default defineComponent({
 
 .app-layout {
   min-height: 100vh;
-  
+
   @each $theme in ('light', 'dark') {
     &.theme-#{$theme} {
       background-color: mixins.theme-color($theme, primary-bg);
@@ -53,10 +53,10 @@ export default defineComponent({
       transition: all 0.4s ease-out;
     }
   }
-  
+
   .main-content {
     /* Fester Abstand zum Header für alle Seiten */
-    padding-top: 150px;
+    padding-top: 100px;
     /* Anpassbar je nach Höhe des Headers */
   }
 }
@@ -68,8 +68,7 @@ export default defineComponent({
   transition:
     opacity map.get(vars.$transitions, very-slow),
     transform map.get(vars.$transitions, very-slow);
-  margin-top: 100px;
-  
+
   &.visible {
     opacity: 1;
     transform: translateY(0);

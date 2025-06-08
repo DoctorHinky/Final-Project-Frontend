@@ -69,9 +69,10 @@ export default defineComponent({
     // Tabs für verschiedene Artikelgruppen
     const tabs = ref([
       { id: "all", name: "Alle Artikel" },
-      { id: "reading", name: "Leseliste" },
-      { id: "completed", name: "Abgeschlossene" },
-      { id: "bookmarked", name: "Favoriten" },
+/*       { id: "reading", name: "Leseliste" }, */
+/*       { id: "completed", name: "Abgeschlossene" },
+      { id: "bookmarked", name: "Favoriten" }, */
+       /* Kommt später noch hinzu */
     ]);
 
     const activeTab = ref("all");

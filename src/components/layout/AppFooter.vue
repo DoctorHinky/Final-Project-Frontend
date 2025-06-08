@@ -17,7 +17,7 @@
         <div class="footer-section links">
           <h3>Schnellzugriff</h3>
           <ul>
-            <li><router-link to="/">Startseite</router-link></li>
+            <li><a href="/" @click.prevent="scrollToTop">Startseite</a></li>
             <li><a href="#" @click.prevent="scrollToSection('content')">Über uns</a></li>
             <li><a href="#" @click.prevent="scrollToSection('community')">Community</a></li>
             <li><router-link to="/contact">Kontakt</router-link></li>
@@ -118,6 +118,28 @@ export default defineComponent({
       }
     };
 
+    const scrollToTop = () => {
+      if (window.scrollY > 0) {
+      const start = window.scrollY;
+      const duration = 1600; // 1 Sekunde für langsameres Scrollen
+      const startTime = performance.now();
+
+      function animateScroll(currentTime: number) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+
+        window.scrollTo(0, start * (1 - ease));
+
+        if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+        }
+      }
+
+      requestAnimationFrame(animateScroll);
+      }
+    };
+
     // Newsletter-Anmeldung
     const subscribeNewsletter = () => {
       // Hier könntest du später eine Funktion implementieren, um die Newsletter-Anmeldung zu verarbeiten
@@ -127,7 +149,8 @@ export default defineComponent({
     return {
       currentYear,
       scrollToSection,
-      subscribeNewsletter
+      subscribeNewsletter,
+      scrollToTop
     };
   }
 });

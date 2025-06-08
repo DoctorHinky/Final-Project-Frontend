@@ -14,11 +14,28 @@
       <div v-if="viewMode === 'grid'" class="grid-view">
         <div v-for="article in filteredArticles" :key="article.id" class="article-card"
           @click="openArticleReader(article)">
+          
+          <!-- Lösch-Kreuz oben rechts -->
+          <button 
+            class="remove-article" 
+            @click.stop="removeArticle(article.id)"
+            title="Artikel aus Historie entfernen"
+            aria-label="Artikel entfernen"
+          >
+          </button>
+          
           <!-- Artikel-Bild -->
           <div class="article-image">
             <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
             <div v-else class="image-placeholder">
               <span class="placeholder-icon">📚</span>
+            </div>
+
+            <!-- Tags -->
+            <div class="card-tags">
+              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag">
+                {{ tag }}
+              </span>
             </div>
           </div>
           
@@ -52,7 +69,7 @@
 
             <!-- Tags -->
             <div class="card-tags">
-              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
+              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag">
                 {{ tag }}
               </span>
             </div>
@@ -63,10 +80,6 @@
                 <span v-if="article.currentChapter">Weiterlesen</span>
                 <span v-else>Jetzt lesen</span>
               </button>
-              <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
-                @click.stop="toggleBookmark(article)">
-                {{ article.status === 'bookmarked' ? '★' : '☆' }}
-              </button>
             </div>
           </div>
         </div>
@@ -76,6 +89,16 @@
       <div v-else-if="viewMode === 'list'" class="list-view">
         <div v-for="article in filteredArticles" :key="article.id" class="article-list-item"
           @click="openArticleReader(article)">
+          
+          <!-- Lösch-Kreuz oben rechts -->
+          <button 
+            class="remove-article" 
+            @click.stop="removeArticle(article.id)"
+            title="Artikel aus Historie entfernen"
+            aria-label="Artikel entfernen"
+          >
+          </button>
+          
           <!-- Artikel-Bild in Listenansicht -->
           <div class="list-item-image">
             <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
@@ -108,22 +131,12 @@
                 <span class="last-read">{{ article.lastRead }}</span>
               </div>
             </div>
-
-            <div class="card-tags">
-              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
-                {{ tag }}
-              </span>
-            </div>
           </div>
 
           <div class="list-item-actions">
             <button class="action-button read" @click.stop="openArticleReader(article)">
               <span v-if="article.currentChapter">Weiterlesen</span>
               <span v-else>Jetzt lesen</span>
-            </button>
-            <button class="action-button bookmark" :class="{ active: article.status === 'bookmarked' }"
-              @click.stop="toggleBookmark(article)">
-              {{ article.status === 'bookmarked' ? '★' : '☆' }}
             </button>
           </div>
         </div>
@@ -184,26 +197,26 @@ export default defineComponent({
     'update:sortOption', 
     'update:viewMode', 
     'open-article', 
-    'toggle-bookmark', 
-    'add-filter-tag'
+    'remove-article'
+    // 'add-filter-tag' // Später anbinden
   ],
   setup(props, { emit }) {
     const openArticleReader = (article: Article) => {
       emit('open-article', article);
     };
 
-    const toggleBookmark = (article: Article) => {
-      emit('toggle-bookmark', article);
+    const removeArticle = (articleId: number) => {
+      emit('remove-article', articleId);
     };
 
-    const addFilterTag = (tag: string) => {
-      emit('add-filter-tag', tag);
-    };
+    // const addFilterTag = (tag: string) => {
+    //   emit('add-filter-tag', tag);
+    // };
 
     return {
       openArticleReader,
-      toggleBookmark,
-      addFilterTag
+      removeArticle
+      // addFilterTag // Später anbinden
     };
   }
 });
@@ -279,6 +292,121 @@ export default defineComponent({
             .article-image img {
               transform: scale(1.08);
             }
+
+            .remove-article {
+              opacity: 0.7;
+            }
+          }
+        }
+
+        .card-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: map.get(vars.$spacing, xs);
+
+          .card-tag {
+            padding: 4px 10px;
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            font-size: 12px;
+            font-weight: map.get(map.get(vars.$fonts, weights), medium);
+            transition: all 0.2s;
+            cursor: default; // Keine Klick-Funktionalität erstmal
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: mixins.theme-color($theme, secondary-bg);
+                color: mixins.theme-color($theme, text-secondary);
+                border: 1px solid transparent;
+
+                // &:hover {
+                //   background-color: mixins.theme-color($theme, primary);
+                //   color: white;
+                //   transform: translateY(-2px);
+                // }
+              }
+            }
+          }
+        }
+      }
+
+      // Lösch-Kreuz oben rechts
+      .remove-article {
+        position: absolute;
+        top: map.get(vars.$spacing, s);
+        right: map.get(vars.$spacing, s);
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.2s ease-in-out;
+        
+        // Standard-Zustand: unsichtbar
+        opacity: 0;
+        
+        // Hover-Zustand: deutlich sichtbar
+        &:hover {
+          opacity: 1 !important;
+          transform: scale(1.1);
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: #dc3545;
+              color: white;
+            }
+          }
+        }
+        
+        // Focus für Accessibility
+        &:focus {
+          opacity: 1;
+          outline: 2px solid #007bff;
+          outline-offset: 2px;
+        }
+        
+        // Das X-Icon
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 12px;
+          height: 2px;
+          background-color: currentColor;
+          transition: background-color 0.2s ease-in-out;
+        }
+        
+        &::before {
+          transform: rotate(45deg);
+        }
+        
+        &::after {
+          transform: rotate(-45deg);
+        }
+        
+        // Theme-spezifische Farben für Standard-Zustand
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+            
+            &:hover {
+              color: white;
+            }
+          }
+        }
+
+        @media (max-width: 768px) {
+          width: 32px;
+          height: 32px;
+          opacity: 0.4; // Auf Mobile etwas sichtbarer
+          
+          &::before,
+          &::after {
+            width: 14px;
           }
         }
       }
@@ -522,6 +650,7 @@ export default defineComponent({
           font-size: 12px;
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           transition: all 0.2s;
+          cursor: default; // Keine Klick-Funktionalität erstmal
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
@@ -529,11 +658,11 @@ export default defineComponent({
               color: mixins.theme-color($theme, text-secondary);
               border: 1px solid transparent;
 
-              &:hover {
-                background-color: mixins.theme-color($theme, primary);
-                color: white;
-                transform: translateY(-2px);
-              }
+              // &:hover {
+              //   background-color: mixins.theme-color($theme, primary);
+              //   color: white;
+              //   transform: translateY(-2px);
+              // }
             }
           }
         }
@@ -598,42 +727,13 @@ export default defineComponent({
               }
             }
           }
-
-          &.bookmark {
-            width: 50px;
-            font-size: 1.2rem;
-
-            @media (max-width: 768px) {
-              width: 45px;
-            }
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, secondary-bg);
-                color: mixins.theme-color($theme, text-secondary);
-                border: 2px solid mixins.theme-color($theme, border-light);
-
-                &:hover {
-                  background-color: mixins.theme-color($theme, hover-color);
-                  border-color: mixins.theme-color($theme, accent-yellow);
-                  color: mixins.theme-color($theme, accent-yellow);
-                  transform: translateY(-2px);
-                }
-
-                &.active {
-                  background-color: mixins.theme-color($theme, accent-yellow);
-                  color: white;
-                  border-color: mixins.theme-color($theme, accent-yellow);
-                }
-              }
-            }
-          }
         }
       }
     }
 
     // Moderne Listenansicht
     .article-list-item {
+      position: relative;
       display: flex;
       justify-content: space-between;
       padding: map.get(vars.$spacing, l);
@@ -662,6 +762,92 @@ export default defineComponent({
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
                         0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border-color: transparent;
+
+            .remove-article {
+              opacity: 0.7;
+            }
+          }
+        }
+      }
+
+      // Lösch-Kreuz oben rechts (Listenansicht)
+      .remove-article {
+        position: absolute;
+        top: map.get(vars.$spacing, s);
+        right: map.get(vars.$spacing, s);
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.2s ease-in-out;
+        
+        // Standard-Zustand: unsichtbar
+        opacity: 0;
+        
+        // Hover-Zustand: deutlich sichtbar
+        &:hover {
+          opacity: 1 !important;
+          transform: scale(1.1);
+          
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: #dc3545;
+              color: white;
+            }
+          }
+        }
+        
+        // Focus für Accessibility
+        &:focus {
+          opacity: 1;
+          outline: 2px solid #007bff;
+          outline-offset: 2px;
+        }
+        
+        // Das X-Icon
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 12px;
+          height: 2px;
+          background-color: currentColor;
+          transition: background-color 0.2s ease-in-out;
+        }
+        
+        &::before {
+          transform: rotate(45deg);
+        }
+        
+        &::after {
+          transform: rotate(-45deg);
+        }
+        
+        // Theme-spezifische Farben für Standard-Zustand
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+            
+            &:hover {
+              color: white;
+            }
+          }
+        }
+
+        @media (max-width: 768px) {
+          width: 32px;
+          height: 32px;
+          opacity: 0.4; // Auf Mobile etwas sichtbarer
+          
+          &::before,
+          &::after {
+            width: 14px;
           }
         }
       }
@@ -876,34 +1062,6 @@ export default defineComponent({
             }
           }
         }
-
-        .card-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: map.get(vars.$spacing, xs);
-
-          .card-tag {
-            padding: 4px 10px;
-            border-radius: map.get(map.get(vars.$layout, border-radius), small);
-            font-size: 12px;
-            font-weight: map.get(map.get(vars.$fonts, weights), medium);
-            transition: all 0.2s;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, secondary-bg);
-                color: mixins.theme-color($theme, text-secondary);
-                border: 1px solid transparent;
-
-                &:hover {
-                  background-color: mixins.theme-color($theme, primary);
-                  color: white;
-                  transform: translateY(-2px);
-                }
-              }
-            }
-          }
-        }
       }
 
       // Aktionsschaltflächen für Listenansicht
@@ -953,37 +1111,6 @@ export default defineComponent({
 
                 &:hover {
                   transform: translateY(-2px);
-                }
-              }
-            }
-          }
-
-          &.bookmark {
-            width: 50px;
-            font-size: 1.2rem;
-
-            @media (max-width: 576px) {
-              width: 50px;
-              flex: 0 0 50px;
-            }
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, secondary-bg);
-                color: mixins.theme-color($theme, text-secondary);
-                border: 2px solid mixins.theme-color($theme, border-light);
-
-                &:hover {
-                  background-color: mixins.theme-color($theme, hover-color);
-                  border-color: mixins.theme-color($theme, accent-yellow);
-                  color: mixins.theme-color($theme, accent-yellow);
-                  transform: translateY(-2px);
-                }
-
-                &.active {
-                  background-color: mixins.theme-color($theme, accent-yellow);
-                  color: white;
-                  border-color: mixins.theme-color($theme, accent-yellow);
                 }
               }
             }

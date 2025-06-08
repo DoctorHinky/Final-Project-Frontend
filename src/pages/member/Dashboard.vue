@@ -16,7 +16,6 @@ import MemberLayout from "@/components/layout/MemberLayout.vue";
 // Dashboard-Unterkomponenten
 import Overview from "@/pages/member/dashboard/Overview.vue";
 import MyArticles from "@/pages/member/dashboard/MyArticles.vue";
-import Favorites from "@/pages/member/dashboard/Favorites.vue";
 import Friends from "@/pages/member/dashboard/Friends.vue";
 import Notifications from "@/pages/member/dashboard/Notifications.vue";
 import Settings from "@/pages/member/dashboard/Settings.vue";

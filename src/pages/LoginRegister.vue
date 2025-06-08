@@ -63,6 +63,7 @@ export default defineComponent({
 @use "@/style/base/mixins" as mixins;
 
 .login-register-page {
+margin-top: 40px;
   min-height: calc(100vh - 130px);
   display: flex;
   align-items: center;
