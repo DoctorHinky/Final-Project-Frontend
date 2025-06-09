@@ -1,4 +1,3 @@
-<!-- src/components/pages/DashboardPages/CreateArticle/ImageUploader.vue -->
 <template>
   <div
     class="image-upload-area"
@@ -93,19 +92,25 @@ export default defineComponent({
     const handleFileChange = (event: Event) => {
       const target = event.target as HTMLInputElement;
       const files = target.files;
+
       if (files && files.length > 0) {
-        handleFile(files[0]);
+        const selectedFile = files[0];
+        // Direkt verarbeiten - das neue Bild überschreibt das alte automatisch
+        handleFile(selectedFile);
       }
     };
 
+    /* die funktion überprüft ob das objekt schon in der db ist und lädt ggf. das bild schon hoch. */
     const handleFile = async (file: File) => {
+      if (!file) {
+        console.error("Keine Datei erhalten");
+        return;
+      }
+
       if (!file.type.match("image.*")) {
         alert("Bitte nur Bilder hochladen.");
         return;
       }
-      console.log("Edit", props.imageMeta.isEdit);
-      console.log("Post ID:", props.imageMeta.postId);
-      console.log("Chapter ID:", props.imageMeta.chapterId);
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -113,6 +118,10 @@ export default defineComponent({
       };
       reader.onerror = () => alert("Fehler beim Lesen der Datei.");
       reader.readAsDataURL(file);
+
+      const canUploadImmediately = props.imageMeta.postId && (props.imageMeta.chapterId || !props.imageMeta.isChapter);
+
+      if (!canUploadImmediately) return;
 
       let endpoint: string = "";
 
@@ -157,6 +166,7 @@ export default defineComponent({
       }
     };
 
+    /* die funktion überprüft ob das bild schon hoch geladen wurde und löscht es dann ggf. */
     const removeImage = async () => {
       if (!props.imageMeta.postId || (props.imageMeta.chapterId && props.imageMeta.chapterId?.length < 10)) {
         console.log("Normaler Fall: Bild entfernen");
@@ -172,6 +182,7 @@ export default defineComponent({
           if (!props.imageMeta.postId) throw new Error("Post ID is required for removing image.");
           if (!confirm("Möchten Sie das Bild wirklich entfernen?") || !props.imageMeta.postId) {
             emit("image-removed-error", "Bildentfernung abgebrochen.");
+            return;
           }
           entpoint = `article/removePostImage/${props.imageMeta.postId}`;
         } else {

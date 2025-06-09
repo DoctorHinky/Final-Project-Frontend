@@ -166,7 +166,7 @@
             :chapter-number="index + 1"
             :is-saving="isSavingChapter(index)"
             @save="() => saveChapter(index)"
-            @remove="() => removeChapter(index)"
+            @remove="() => removeChapter(index, chapter.id)"
           />
 
           <button @click="addNewChapter" class="add-chapter-btn secondary">
@@ -198,19 +198,22 @@
           <span v-else>Entwürf verwerfen</span>
         </button>
 
-        <button @click="saveAsDraft" class="action-button draft" :disabled="isSaving">
+        <button @click="handleDraftClick" class="action-button draft" :disabled="isSaving">
           <span v-if="isSaving && savingType === 'draft'">
             <ArrowPathIcon class="icon-size-sm spinning" />
             Speichern...
           </span>
+          <span v-else-if="editMode">Entwurf aktualisieren</span>
           <span v-else>Entwurf speichern</span>
         </button>
 
-        <button @click="publishArticle" class="action-button publish" :disabled="isSaving || !isFormValid">
+        <!-- lade animation nicht wenn man updated !?!?!?!?!? -->
+        <button @click="handlePublishClick" class="action-button publish" :disabled="isSaving || !isFormValid">
           <span v-if="isSaving && savingType === 'publish'">
             <ArrowPathIcon class="icon-size-sm spinning" />
             Veröffentlichen...
           </span>
+          <span v-else-if="editMode">Updaten & veroffentlichen</span>
           <span v-else>Veröffentlichen</span>
         </button>
       </div>
@@ -369,6 +372,9 @@ export default defineComponent({
       type: "info",
     });
 
+    // === Tracking ===
+    const deletedChapters = ref<string[]>([]); // hier werden die IDs der gelöschten Kapitel gespeichert (backend call)
+
     // === Konstanten ===
     const LOCAL_STORAGE_KEY = "article_editor_draft";
 
@@ -418,6 +424,7 @@ export default defineComponent({
     // === LocalStorage ===
     const saveToLocalStorage = () => {
       const dataToSave = {
+        articleId: articleId.value,
         articleTitle: articleTitle.value,
         articleDescription: articleDescription.value,
         coverImage: coverImage.value,
@@ -445,6 +452,10 @@ export default defineComponent({
 
         const parsedData = JSON.parse(savedData);
 
+        if (parsedData.articleId) articleId.value = parsedData.articleId;
+
+        if (parsedData.articleId && parsedData.articleId.length > 5) editMode.value = true;
+        else editMode.value = false;
         // Artikel-Daten laden
         if (parsedData.articleTitle) articleTitle.value = parsedData.articleTitle;
         if (parsedData.articleDescription) articleDescription.value = parsedData.articleDescription;
@@ -528,9 +539,14 @@ export default defineComponent({
       saveToLocalStorage();
     };
 
-    const removeChapter = (index: number) => {
+    const removeChapter = (index: number, chapterId: string | undefined) => {
       chapters.value.splice(index, 1);
       saveToLocalStorage();
+
+      if (chapterId) {
+        if (!confirm("Sind Sie sicher, dass Sie dieses Kapitel löschen möchten?")) return;
+        deletedChapters.value.push(chapterId);
+      }
     };
 
     const saveChapter = async (index: number) => {
@@ -553,6 +569,115 @@ export default defineComponent({
       }
     };
 
+    const handlePublishClick = () => {
+      if (editMode.value == true) {
+        console.log("handlePublishClick called, editMode:", editMode.value);
+        saveUpdate(createUpdateForm(), true);
+      } else {
+        console.log("handlePublishClick called, editMode:", editMode.value);
+        publishArticle();
+      }
+    };
+
+    const handleDraftClick = () => {
+      if (editMode.value === true) {
+        saveUpdate(createUpdateForm(), false);
+      } else {
+        saveAsDraft();
+      }
+    };
+
+    /* hier werden die daten für main post data geholt */
+    const createUpdateForm = (): FormData => {
+      const formData = new FormData();
+
+      // Post-Hauptdaten für Update
+      const postData = {
+        title: articleTitle.value,
+        description: articleDescription.value,
+        tags: tags.value.join(","),
+        category: categoryMap[selectedCategory.value as keyof typeof categoryMap] || "OTHER",
+        ageRestriction: ageRestriction.value,
+        forKids: forKids.value,
+        chapters: chapters.value.map((chapter, index) => ({
+          id: chapter.id || undefined, // Existing chapters have ID, new ones don't
+          title: chapter.title,
+          content: chapter.content,
+          index: index,
+          delete: false, // We handle deletions separately
+        })),
+        quiz: {
+          id: articleQuiz.value.id || undefined,
+          questions: (articleQuiz.value.questions || []).map((question) => ({
+            id: question.id || undefined,
+            question: question.question,
+            answers:
+              question.answers?.map((answer) => ({
+                id: answer.id || undefined,
+                answer: answer.answer,
+                isCorrect: answer.isCorrect,
+                delete: false,
+              })) || [],
+          })),
+        },
+      };
+
+      // Deleted chapters hinzufügen
+      if (deletedChapters.value.length > 0) {
+        postData.chapters.push(
+          ...deletedChapters.value.map((chapterId) => ({
+            id: chapterId,
+            delete: true,
+            title: "",
+            content: "",
+            index: -1, // Index irrelevant für gelöschte Kapitel
+          }))
+        );
+      }
+
+      formData.append("postData", JSON.stringify(postData));
+
+      // Cover-Bild verarbeiten (nur wenn neu/geändert)
+      if (coverImage.value && coverImage.value.startsWith("data:image")) {
+        const byteString = atob(coverImage.value.split(",")[1]);
+        const mimeString = coverImage.value.split(",")[0].split(":")[1].split(";")[0];
+
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        const blob = new Blob([ab], { type: mimeString });
+        const filename = "cover-image." + mimeString.split("/")[1];
+        const file = new File([blob], filename, { type: mimeString });
+
+        formData.append("image", file);
+      }
+
+      // Kapitel-Bilder verarbeiten (nur neue/geänderte)
+      chapters.value.forEach((chapter, index) => {
+        if (chapter.image && chapter.image.startsWith("data:image")) {
+          const byteString = atob(chapter.image.split(",")[1]);
+          const mimeString = chapter.image.split(",")[0].split(":")[1].split(";")[0];
+
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+
+          const blob = new Blob([ab], { type: mimeString });
+          const filename = `chapter-image-${index}.${mimeString.split("/")[1]}`;
+          const file = new File([blob], filename, { type: mimeString });
+
+          formData.append(`chapterImage_${index}`, file);
+        }
+      });
+
+      return formData;
+    };
+
     // === Entwurf-Funktionen ===
     const loadDraft = (draft: Draft) => {
       try {
@@ -562,10 +687,19 @@ export default defineComponent({
         }
         editMode.value = true;
 
-        console.log("Lade Entwurf:", draft);
+        console.group("Lade Entwurf");
+        console.log("Entwurf ID:", draft.id);
+        console.log("Entwurf Titel:", draft.title);
+        console.log("Entwurf Beschreibung:", draft.quickDescription);
+        console.log("Entwurf Kategorie:", draft.category);
+        console.log("Entwurf Tags:", draft.tags);
+        console.log("Entwurf Kapitel:", draft.chapters);
+        console.log("Entwurf Quiz:", draft.quiz);
+        console.groupEnd();
 
         // Entwurf laden
         currentDraftId.value = draft.id;
+        articleId.value = draft.id;
         articleTitle.value = draft.title || "";
         articleDescription.value = draft.quickDescription || "";
         coverImage.value = draft.image || "";
@@ -585,16 +719,37 @@ export default defineComponent({
 
     const editDraft = (draft: Draft) => loadDraft(draft);
 
-    const deleteDraft = async (draftId: string) => {
+    const saveUpdate = async (article: FormData | undefined, published: boolean = false) => {
+      if (!article) {
+        showNotification("Fehler beim Erstellen des Artikels", "error");
+        return;
+      }
       try {
-        if (!confirm("Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?")) {
+        const postId = articleId.value;
+        if (!postId || postId.length < 10) {
+          console.error("no postId found");
           return;
         }
 
+        await authorService.saveUpdate(postId, article, published);
+        showNotification("Artikel erfolgreich aktualisiert", "success");
+
+        resetForm();
+        await refreshPublishedArticles();
+        await refreshDrafts();
+
+        return;
+      } catch (error) {
+        console.error("error beim updaten des posts", error);
+      }
+    };
+
+    const deleteDraft = async (draftId: string) => {
+      try {
+        if (!confirm("Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?")) return;
+
         // Bei aktuellem Entwurf: Formular zurücksetzen
-        if (draftId === currentDraftId.value) {
-          resetForm();
-        }
+        if (draftId === currentDraftId.value) resetForm();
 
         const message = await authorService.deleteArticle(draftId);
         drafts.value = drafts.value.filter((d) => d.id !== draftId);
@@ -828,14 +983,6 @@ export default defineComponent({
           saveToLocalStorage();
         }
       }, 30000);
-
-      // API-Backup alle 5 Minuten // fixen der Draft wird mehrfach erstellt
-      /* const apiBackupInterval = setInterval(() => {
-        if (articleTitle.value.trim() !== "") {
-          saveAsDraft();
-        }
-      }, 300000); */
-
       return { autoSaveInterval, apiBackupInterval };
     };
 
@@ -905,6 +1052,8 @@ export default defineComponent({
       showAddTagInput,
       cancelAddTag,
       selectSuggestedTag,
+      handlePublishClick,
+      handleDraftClick,
 
       // Quiz
       articleQuiz,
@@ -923,8 +1072,6 @@ export default defineComponent({
       removeChapter,
       saveChapter,
       isSavingChapter,
-      saveAsDraft,
-      publishArticle,
       resetForm,
 
       // Entwürfe

@@ -162,6 +162,41 @@ class AuthorService {
       }, 300);
     });
   }
+
+  async saveUpdate(articleId: string, data: FormData, published: boolean) {
+    try {
+      let entpoint: string = `article/updateFullPost/${articleId}?published=`;
+
+      if (published) {
+        entpoint += "true";
+      } else {
+        entpoint += "false";
+      }
+
+      const response = await api.patch(entpoint, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.status === 200) {
+        return {
+          success: true,
+          message: "Artikel erfolgreich aktualisiert",
+        };
+      }
+
+      return {
+        success: false,
+        message: "Fehler beim Aktualisieren des Artikels",
+      };
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Artikels:", error);
+      return {
+        success: false,
+        message: "Ein Fehler ist aufgetreten",
+      };
+    }
+  }
+
   // Funktion zum Speichern eines Quiz für einen Artikel (jetzt auf Artikelebene)
   async saveArticleQuiz(articleId: string, quizData: Quiz): Promise<ServiceResult> {
     return new Promise((resolve) => {

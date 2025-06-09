@@ -15,5 +15,5 @@ export type Draft = {
   // Neue Felder für Zielgruppe und Kategorien
   forKids: boolean;
   ageRestriction: number;
-  categories: string[];
+  categorie: string;
 };
