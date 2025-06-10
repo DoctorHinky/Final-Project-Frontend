@@ -101,6 +101,7 @@ export default defineComponent({
 
     // Lokale Kopie des Kapitels erstellen
     const chapterLocal = ref<Chapter>({ ...modelValue.value });
+    console.log("ChapterEditor setup", chapterLocal.value);
 
     // Kapitel aktualisieren, wenn sich modelValue ändert
     watch(modelValue, (newValue) => (chapterLocal.value = { ...newValue }));

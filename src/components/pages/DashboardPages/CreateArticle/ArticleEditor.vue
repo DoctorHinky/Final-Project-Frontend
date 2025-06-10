@@ -398,6 +398,7 @@ export default defineComponent({
 
     // === Hilfsfunktionen ===
     const normalizeChapters = (chapters: Chapter[]): Chapter[] => {
+      console.log("Normalizing chapters:", chapters);
       return chapters.map((chapter) => ({
         ...chapter,
         isDragging: false,
@@ -603,6 +604,7 @@ export default defineComponent({
           id: chapter.id || undefined, // Existing chapters have ID, new ones don't
           title: chapter.title,
           content: chapter.content,
+          image: chapter.image || null,
           index: index,
           delete: false, // We handle deletions separately
         })),
@@ -630,6 +632,7 @@ export default defineComponent({
             delete: true,
             title: "",
             content: "",
+            image: null,
             index: -1, // Index irrelevant für gelöschte Kapitel
           }))
         );
