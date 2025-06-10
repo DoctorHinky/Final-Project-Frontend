@@ -23,12 +23,18 @@
     <!-- Kapitel-Bild -->
     <div class="chapter-image-container">
       <ImageUploader
-        v-model="chapterLocal.chapterImage"
+        v-model="chapterLocal.image"
         label="Kapitelbild"
         :show-help="false"
         :is-small="true"
         alt="Kapitelbild"
         @update:model-value="updateChapter"
+        :image-meta="{
+          isEdit: editMode,
+          isChapter: true,
+          chapterId: chapterLocal.id,
+          postId: chapterLocal.postId,
+        }"
       />
     </div>
 
@@ -84,6 +90,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    editMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["update:modelValue", "save", "remove"],
   setup(props, { emit }) {
@@ -91,16 +101,13 @@ export default defineComponent({
 
     // Lokale Kopie des Kapitels erstellen
     const chapterLocal = ref<Chapter>({ ...modelValue.value });
+    console.log("ChapterEditor setup", chapterLocal.value);
 
     // Kapitel aktualisieren, wenn sich modelValue ändert
-    watch(modelValue, (newValue) => {
-      chapterLocal.value = { ...newValue };
-    });
+    watch(modelValue, (newValue) => (chapterLocal.value = { ...newValue }));
 
     // Aktualisiere die Parent-Komponente über Änderungen
-    const updateChapter = () => {
-      emit("update:modelValue", chapterLocal.value);
-    };
+    const updateChapter = () => emit("update:modelValue", chapterLocal.value);
 
     // Speichern des Kapitels
     const saveChapter = () => {

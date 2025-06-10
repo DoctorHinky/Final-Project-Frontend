@@ -5,14 +5,20 @@ export type PublishedArticleChapter = {
   content: string;
   chapterImage?: string;
 };
-
 export type PublishedArticle = {
   id: string;
   title: string;
-  description: string;
-  coverImage: string;
+  quickDescription: string;
+  image: string;
+  category: string;
+  tags: string[];
   chapters: PublishedArticleChapter[];
   quiz?: Quiz;
   status: "published";
-  publishDate: string;
+  updated_at: string;
+  publishedAt?: string;
+  // Neue Felder für Zielgruppe und Kategorien
+  forKids: boolean;
+  ageRestriction: number;
+  categories: string[];
 };

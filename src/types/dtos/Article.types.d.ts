@@ -1,8 +1,10 @@
+import type { Chapter } from "./Chapter.types";
 import type { PostCategory } from "./Post.Category.types";
+import type { Quiz } from "./Quiz.types";
 
 export interface Article {
-  id?: string;
-  title?: string;
+  id: string;
+  title: string;
   quickDescription: string;
   image: string;
   publicId_image: string;
@@ -22,4 +24,13 @@ export interface Article {
   createdAt: Date | string;
   updatedAt: Date | string;
   popularityScore: number;
+
+  // other
+
+  chapters: Chapter[];
+  readByUser?: string;
+  comments?: [];
+  ratings?: [];
+
+  quiz: Quiz | null;
 }

@@ -1,4 +1,3 @@
-<!-- src/components/pages/DashboardPages/CreateArticle/ImageUploader.vue -->
 <template>
   <div
     class="image-upload-area"
@@ -24,8 +23,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, type PropType } from "vue";
 import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import api from "@/services/axiosInstance";
 
 export default defineComponent({
   name: "ImageUploader",
@@ -58,25 +58,28 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    imageMeta: {
+      type: Object as PropType<{
+        isEdit: boolean;
+        isChapter: boolean;
+        postId?: string;
+        chapterId?: string;
+      }>,
+      required: true,
+    },
   },
-  emits: ["update:modelValue"],
-  setup(_, { emit }) {
+  emits: ["update:modelValue", "image-removed", "image-removed-error"],
+  setup(props, { emit }) {
     const isDragging = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
 
     const triggerFileInput = () => {
-      if (fileInput.value) {
-        fileInput.value.click();
-      }
+      if (fileInput.value) fileInput.value.click();
     };
 
-    const handleDragOver = () => {
-      isDragging.value = true;
-    };
+    const handleDragOver = () => (isDragging.value = true);
 
-    const handleDragLeave = () => {
-      isDragging.value = false;
-    };
+    const handleDragLeave = () => (isDragging.value = false);
 
     const handleDrop = (event: DragEvent) => {
       isDragging.value = false;
@@ -89,12 +92,21 @@ export default defineComponent({
     const handleFileChange = (event: Event) => {
       const target = event.target as HTMLInputElement;
       const files = target.files;
+
       if (files && files.length > 0) {
-        handleFile(files[0]);
+        const selectedFile = files[0];
+        // Direkt verarbeiten - das neue Bild überschreibt das alte automatisch
+        handleFile(selectedFile);
       }
     };
 
-    const handleFile = (file: File) => {
+    /* die funktion überprüft ob das objekt schon in der db ist und lädt ggf. das bild schon hoch. */
+    const handleFile = async (file: File) => {
+      if (!file) {
+        console.error("Keine Datei erhalten");
+        return;
+      }
+
       if (!file.type.match("image.*")) {
         alert("Bitte nur Bilder hochladen.");
         return;
@@ -102,22 +114,100 @@ export default defineComponent({
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (e.target) {
-          emit("update:modelValue", e.target.result as string);
-        }
+        if (e.target) emit("update:modelValue", e.target.result as string);
       };
-
-      reader.onerror = () => {
-        alert("Fehler beim Lesen der Datei.");
-      };
-
+      reader.onerror = () => alert("Fehler beim Lesen der Datei.");
       reader.readAsDataURL(file);
+
+      const canUploadImmediately = props.imageMeta.postId && (props.imageMeta.chapterId || !props.imageMeta.isChapter);
+
+      if (!canUploadImmediately) return;
+
+      let endpoint: string = "";
+
+      // Endpoint-Logik für sowohl Edit- als auch Nicht-Edit-Modus
+      if (props.imageMeta.chapterId && props.imageMeta.postId) {
+        endpoint = `article/addChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
+      } else if (props.imageMeta.postId && !props.imageMeta.chapterId) {
+        endpoint = `article/addPostImage/${props.imageMeta.postId}`;
+      } else {
+        console.error("Kein gültiger Endpunkt für das Hochladen des Bildes gefunden.");
+        return;
+      }
+
+      if (!endpoint) {
+        console.error("Kein gültiger Endpunkt für das Hochladen des Bildes gefunden.");
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await api.patch(endpoint, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        console.log("endpoint:", endpoint);
+        console.log("response:", res);
+
+        if (res.status < 210) {
+          // ich weiß den genauen Statuscode nicht, aber alle wären unter 210 (200, 202, 204)
+          if (res.data.image) {
+            console.log("Bild erfolgreich hochgeladen:", res.data.image);
+            emit("update:modelValue", res.data.image);
+          }
+        } else {
+          emit("image-removed-error", res.data.message || "Fehler beim Hochladen des Bildes.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Hochladen des Bildes:", error);
+        emit(
+          "image-removed-error",
+          error instanceof Error ? error.message : "Unbekannter Fehler beim Hochladen des Bildes."
+        );
+      }
     };
 
-    const removeImage = () => {
-      emit("update:modelValue", "");
-      if (fileInput.value) {
-        fileInput.value.value = "";
+    /* die funktion überprüft ob das bild schon hoch geladen wurde und löscht es dann ggf. */
+    const removeImage = async () => {
+      if (!props.imageMeta.postId || (props.imageMeta.chapterId && props.imageMeta.chapterId?.length < 10)) {
+        console.log("Normaler Fall: Bild entfernen");
+        emit("update:modelValue", "");
+        if (fileInput.value) fileInput.value.value = "";
+        emit("image-removed");
+        return;
+      }
+      try {
+        let entpoint: string;
+
+        if (!props.imageMeta.isChapter) {
+          if (!props.imageMeta.postId) throw new Error("Post ID is required for removing image.");
+          if (!confirm("Möchten Sie das Bild wirklich entfernen?") || !props.imageMeta.postId) {
+            emit("image-removed-error", "Bildentfernung abgebrochen.");
+            return;
+          }
+          entpoint = `article/removePostImage/${props.imageMeta.postId}`;
+        } else {
+          if (!props.imageMeta.chapterId) throw new Error("Chapter ID is required for removing chapter image.");
+          confirm("Möchten Sie das Kapitelbild wirklich entfernen?") ||
+            emit("image-removed-error", "Kapitelbildentfernung abgebrochen.");
+          entpoint = `article/removeChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
+          console.log("Kapitelbild entfernen:", entpoint);
+        }
+
+        const response = await api.delete(entpoint, { headers: { "Content-Type": "application/json" } });
+        if (response.status < 210) {
+          // ich weiß den genauen Statuscode nicht, aber alle wären unter 210 (200, 202, 204)
+          emit("update:modelValue", "");
+          if (fileInput.value) fileInput.value.value = "";
+          emit("image-removed");
+        } else {
+          emit("image-removed-error", response.data.message || "Fehler beim Entfernen des Bildes.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Entfernen des Bildes:", error);
+        emit(
+          "image-removed-error",
+          error instanceof Error ? error.message : "Unbekannter Fehler beim Entfernen des Bildes."
+        );
       }
     };
 
@@ -160,7 +250,7 @@ export default defineComponent({
     }
   }
 
-  &.drag-over {
+  over {
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, hover-color);

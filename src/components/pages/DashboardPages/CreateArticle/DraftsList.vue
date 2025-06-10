@@ -28,8 +28,8 @@
         @click="$emit('select', draft)"
       >
         <!-- Vorschaubild hinzugefügt -->
-        <div class="draft-thumbnail" v-if="draft.coverImage">
-          <img :src="draft.coverImage" alt="Artikelbild" />
+        <div class="draft-thumbnail" v-if="draft.image">
+          <img :src="draft.image" alt="Artikelbild" />
         </div>
         <div class="draft-thumbnail placeholder" v-else>
           <DocumentIcon class="placeholder-icon" />
