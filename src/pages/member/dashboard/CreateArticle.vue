@@ -16,7 +16,7 @@ import { defineComponent } from 'vue';
 import { ArticleEditor } from '@/components/pages/DashboardPages/CreateArticle';
 import { authorService } from '@/services/author.service';
 
-export default defineComponent({
+export default defineComponent<{}>({
   name: 'CreateArticlePage',
   components: {
     ArticleEditor

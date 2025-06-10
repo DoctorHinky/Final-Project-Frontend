@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, markRaw, type PropType } from "vue";
+import { defineComponent, ref, computed, onMounted, markRaw, watch, type PropType } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import MemberLayout from "@/components/layout/MemberLayout.vue";
 
@@ -152,6 +152,19 @@ export default defineComponent({
       } else if (props.defaultTab && Object.keys(componentMap.value).includes(props.defaultTab)) {
         // Ansonsten den defaultTab verwenden, falls gültig
         activeMenu.value = props.defaultTab;
+      }
+    });
+
+    // Watcher für Route-Änderungen nach dem Mounting
+    watch(() => route.query.tab, (newTab) => {
+      if (newTab && typeof newTab === 'string') {
+        // Validieren, ob der Tab existiert und für den Benutzer zugänglich ist
+        if (newTab === "create-article" && !isAuthor.value) {
+          activeMenu.value = "overview";
+          router.replace({ query: { ...route.query, tab: "overview" } });
+        } else if (Object.keys(componentMap.value).includes(newTab)) {
+          activeMenu.value = newTab;
+        }
       }
     });
 

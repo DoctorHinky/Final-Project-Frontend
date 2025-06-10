@@ -12,6 +12,10 @@
         <div class="difficulty-badge" :class="article.difficulty || 'medium'">
           {{ getDifficultyText(article.difficulty) }}
         </div>
+        <!-- Zertifizierter Autor Badge -->
+        <div v-if="article.isCertifiedAuthor" class="certified-badge">
+          ✓ Zertifiziert
+        </div>
       </div>
 
       <div class="card-content">
@@ -61,11 +65,10 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 
-interface Article {
-  id: number;
+interface LibraryArticle {
+  id: string;
   title: string;
   preview: string;
-  content?: string;
   category: string;
   author: string;
   date: string;
@@ -76,23 +79,25 @@ interface Article {
   featured?: boolean;
   popularity?: number;
   coverImage?: string;
+  isCertifiedAuthor: boolean;
+  createdAt: string;
 }
 
 export default defineComponent({
   name: 'ArticlesGrid',
   props: {
     articles: {
-      type: Array as PropType<Article[]>,
+      type: Array as PropType<LibraryArticle[]>,
       required: true
     }
   },
   emits: ['open-article', 'toggle-bookmark', 'add-tag'],
   setup(_, { emit }) {
-    const openArticle = (article: Article) => {
+    const openArticle = (article: LibraryArticle) => {
       emit('open-article', article);
     };
 
-    const toggleBookmark = (article: Article) => {
+    const toggleBookmark = (article: LibraryArticle) => {
       emit('toggle-bookmark', article);
     };
 
@@ -257,6 +262,22 @@ export default defineComponent({
           color: white;
         }
       }
+
+      // Zertifizierter Autor Badge
+      .certified-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        padding: 4px 10px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+        font-size: 10px;
+        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        backdrop-filter: blur(10px);
+        background-color: rgba(74, 210, 149, 0.9);
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
     }
 
     // Karten-Inhalt
@@ -400,6 +421,7 @@ export default defineComponent({
         font-size: 12px;
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         transition: all 0.2s;
+        cursor: pointer;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {

@@ -5,7 +5,7 @@
     <div v-if="!articleReaderMode">
       <div class="page-header">
         <h2>Meine Artikel</h2>
-        <p>Hier findest du deine gespeicherten und kürzlich gelesenen Artikel</p>
+        <p>Hier findest du deine kürzlich gelesenen Artikel</p>
       </div>
 
       <!-- Suchleiste -->
@@ -22,39 +22,91 @@
       <articles-tabs
         :tabs="tabs"
         :active-tab="activeTab"
-        :articles="articles"
+        :article-counts="articleCounts"
         @update:active-tab="activeTab = $event"
       />
 
+      <!-- Loading State -->
+      <div v-if="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Artikel werden geladen...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h3>Fehler beim Laden</h3>
+        <p>{{ error }}</p>
+        <button @click="loadArticles" class="retry-button">Erneut versuchen</button>
+      </div>
+
       <!-- Artikelliste -->
       <articles-list
-        v-if="filteredArticles.length > 0"
+        v-else-if="filteredArticles.length > 0"
         :filtered-articles="filteredArticles"
         :sort-option="sortOption"
         :view-mode="viewMode"
         @update:sort-option="sortOption = $event"
         @update:view-mode="viewMode = $event"
         @open-article="openArticleReader"
-        @toggle-bookmark="toggleBookmark"
+        @remove-article="removeArticleFromHistory"
         @add-filter-tag="addFilterTag"
       />
 
       <!-- Anzeige eines leeren Zustands -->
-      <empty-state v-if="filteredArticles.length === 0" @reset-filters="clearFilters" />
+      <empty-state 
+        v-else-if="!loading && articles.length === 0" 
+        @reset-filters="clearFilters"
+        :is-empty-history="true"
+      />
+
+      <!-- Keine gefilterten Ergebnisse -->
+      <empty-state 
+        v-else-if="!loading && filteredArticles.length === 0" 
+        @reset-filters="clearFilters"
+        :is-empty-history="false"
+      />
+
+      <!-- Pagination -->
+      <div v-if="meta && meta.totalPages > 1" class="pagination">
+        <button 
+          class="pagination-button"
+          :disabled="meta.page <= 1"
+          @click="loadPage(meta.page - 1)"
+        >
+          Zurück
+        </button>
+        
+        <span class="pagination-info">
+          Seite {{ meta.page }} von {{ meta.totalPages }}
+        </span>
+        
+        <button 
+          class="pagination-button"
+          :disabled="meta.page >= meta.totalPages"
+          @click="loadPage(meta.page + 1)"
+        >
+          Weiter
+        </button>
+      </div>
     </div>
 
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader :article="selectedArticle" @close="closeArticleReader" @toggle-bookmark="toggleBookmark" />
+      <article-reader 
+        :article="selectedArticle" 
+        @close="closeArticleReader"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import ArticleReader from "@/components/member/article/ArticleReader.vue";
 import { SearchSection, ArticlesTabs, ArticlesList, EmptyState } from "@/components/pages/DashboardPages/MyArticles";
-import type { Article } from "@/types/Article";
+import { historyService, type HistoryItem } from "@/services/history.service";
+import type { MyArticleItem, MyArticleTab, MyArticleFilters } from "@/types/MyArticles.types";
 
 export default defineComponent({
   name: "MyArticlesDashboard",
@@ -66,177 +118,119 @@ export default defineComponent({
     EmptyState,
   },
   setup() {
+    // Reactive State
+    const loading = ref(false);
+    const error = ref<string | null>(null);
+    const articles = ref<MyArticleItem[]>([]);
+    const selectedArticle = ref<MyArticleItem | null>(null);
+    const articleReaderMode = ref(false);
+    const currentPage = ref(1);
+    const itemsPerPage = ref(10);
+    const meta = ref<{
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    } | null>(null);
+
     // Tabs für verschiedene Artikelgruppen
-    const tabs = ref([
+    const tabs = ref<MyArticleTab[]>([
       { id: "all", name: "Alle Artikel" },
-/*       { id: "reading", name: "Leseliste" }, */
-/*       { id: "completed", name: "Abgeschlossene" },
-      { id: "bookmarked", name: "Favoriten" }, */
-       /* Kommt später noch hinzu */
+      // Später hinzufügen wenn Backend bereit:
+      // { id: "reading", name: "Aktuelle" },
+      // { id: "completed", name: "Abgeschlossen" },
     ]);
 
+    // Artikel-Counts für Tabs
+    const articleCounts = computed(() => {
+      return {
+        all: articles.value.length,
+        reading: articles.value.filter(a => a.status === 'reading').length,
+        completed: articles.value.filter(a => a.status === 'completed').length,
+      };
+    });
+
+    // Filter State
     const activeTab = ref("all");
     const searchQuery = ref("");
     const filterTags = ref<string[]>([]);
     const viewMode = ref("grid");
     const sortOption = ref("date-desc");
-    const selectedArticle = ref<Article | null>(null);
 
-    // Flag für Artikel-Leseansicht
-    const articleReaderMode = ref(false);
+    // Helper: Formatiere Datum für Anzeige
+    const formatLastRead = (readAt: string): string => {
+      const date = new Date(readAt);
+      const now = new Date();
+      const diffTime = now.getTime() - date.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
 
-    // Artikeldaten (später durch API ersetzen)
-    const articles = ref<Article[]>([
-      {
-        id: 1,
-        title: "Erziehungsstile im Vergleich: Welcher passt zu Ihrer Familie?",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis lorem ut libero malesuada feugiat. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Cras ultricies ligula sed magna dictum porta. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Sed porttitor lectus nibh. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Nulla quis lorem ut libero malesuada feugiat.",
-        preview:
-          "Eine umfassende Analyse verschiedener Erziehungsansätze und wie sie sich auf die Entwicklung Ihres Kindes auswirken können.",
-        featured: true,
-        date: "05.05.2025",
-        category: "Erziehung",
-        author: "Dr. Anna Schmidt",
-        tags: ["Erziehung", "Familienleben", "Entwicklung"],
-        currentChapter: 4,
-        totalChapters: 6,
-        lastRead: "Gestern",
-        status: "reading",
-        quiz: {
-          enabled: true,
-          questions: [
-            {
-              question:
-                "Welcher Erziehungsstil wird im Artikel als am effektivsten für die Entwicklung von Selbstständigkeit beschrieben?",
-              options: ["Autoritärer Stil", "Permissiver Stil", "Autoritativer Stil", "Vernachlässigender Stil"],
-              correctAnswer: 2,
-            },
-            {
-              question: "Was ist laut Artikel ein Hauptmerkmal des autoritativen Erziehungsstils?",
-              options: [
-                "Strenge Kontrolle ohne Erklärungen",
-                "Hohe Wärme bei gleichzeitigen klaren Grenzen",
-                "Wenige Regeln und Konsequenzen",
-                "Distanz zur emotionalen Entwicklung des Kindes",
-              ],
-              correctAnswer: 1,
-            },
-          ],
-        },
-      },
-      {
-        id: 2,
-        title: "Gesunde Ernährung für Kleinkinder: Ein praktischer Leitfaden",
-        content:
-          "Die frühen Jahre sind entscheidend für die Entwicklung gesunder Essgewohnheiten. Dieser Artikel bietet praktische Tipps für eine ausgewogene Ernährung von Kleinkindern, geeignete Portionsgrößen und kreative Ideen, um auch wählerische Esser zu überzeugen.",
-        preview:
-          "Praktische Tipps für eine ausgewogene Ernährung von Kleinkindern und wie man auch wählerische Esser überzeugen kann.",
-        featured: true,
-        date: "01.05.2025",
-        category: "Ernährung",
-        author: "Maria Weber",
-        tags: ["Ernährung", "Kleinkind", "Gesundheit"],
-        currentChapter: 1,
-        totalChapters: 8,
-        lastRead: "Vor 3 Tagen",
-        status: "reading",
-        quiz: {
-          enabled: true,
-          questions: [
-            {
-              question:
-                "Wie viele Portionen Obst und Gemüse sollten Kleinkinder laut dem Artikel täglich zu sich nehmen?",
-              options: [
-                "1-2 Portionen",
-                "3-5 Portionen",
-                "6-8 Portionen",
-                "Es kommt ausschließlich auf die Qualität an",
-              ],
-              correctAnswer: 1,
-            },
-          ],
-        },
-      },
-      {
-        id: 3,
-        title: "Digitale Medien im Kindesalter: Fluch oder Segen?",
-        content:
-          "Die Digitalisierung ist aus unserem Alltag nicht mehr wegzudenken. Dieser Artikel beleuchtet die Vor- und Nachteile digitaler Medien für Kinder verschiedener Altersgruppen und gibt Empfehlungen für einen gesunden Umgang mit Bildschirmzeit.",
-        preview:
-          "Eine ausgewogene Betrachtung der Vor- und Nachteile digitaler Medien für Kinder und Empfehlungen für einen gesunden Umgang.",
-        featured: true,
-        date: "28.04.2025",
-        category: "Medien",
-        author: "Prof. Thomas Becker",
-        tags: ["Medien", "Bildschirmzeit", "Entwicklung"],
-        status: "bookmarked",
-        quiz: {
-          enabled: true,
-          questions: [
-            {
-              question: "Welche Bildschirmzeit empfiehlt der Artikel maximal für Kinder zwischen 2 und 5 Jahren?",
-              options: ["Keine Bildschirmzeit", "30 Minuten pro Tag", "1 Stunde pro Tag", "2 Stunden pro Tag"],
-              correctAnswer: 2,
-            },
-          ],
-        },
-      },
-      {
-        id: 4,
-        title: "Grenzen setzen ohne Konflikte: Effektive Kommunikation mit Kindern",
-        content:
-          "Klare Grenzen zu setzen ist wichtig für die Entwicklung von Kindern. In diesem Artikel erfahren Sie, wie Sie mit effektiven Kommunikationstechniken Regeln etablieren können, ohne dass es zu unnötigen Konflikten kommt.",
-        preview:
-          "Wie Sie mit effektiven Kommunikationstechniken klare Regeln etablieren können, ohne dass es zu unnötigen Konflikten kommt.",
-        featured: false,
-        date: "25.04.2025",
-        category: "Kommunikation",
-        author: "Dr. Lisa Müller",
-        tags: ["Kommunikation", "Grenzen", "Erziehung"],
-        currentChapter: 6,
-        totalChapters: 6,
-        lastRead: "Vor einer Woche",
-        status: "completed",
-        quiz: {
-          enabled: true,
-          questions: [
-            {
-              question:
-                "Welche Kommunikationstechnik wird im Artikel als besonders effektiv für das Setzen von Grenzen bei Kleinkindern beschrieben?",
-              options: ["Ich-Botschaften", "Konsequentes Ignorieren", "Zeitstrafen", "Belohnungssysteme"],
-              correctAnswer: 0,
-            },
-          ],
-        },
-      },
-      {
-        id: 5,
-        title: "Die Phasen der kindlichen Entwicklung verstehen",
-        content:
-          "Von der Geburt bis zur Adoleszenz durchlaufen Kinder verschiedene Entwicklungsphasen. Dieser Artikel erklärt die wichtigsten Meilensteine und wie Eltern ihr Kind in jeder Phase optimal unterstützen können.",
-        preview: "Erfahren Sie, wie Sie Ihr Kind in jeder Entwicklungsphase optimal unterstützen können.",
-        featured: false,
-        date: "20.04.2025",
-        category: "Entwicklung",
-        author: "Dr. Maria Schmidt",
-        tags: ["Entwicklung", "Psychologie", "Meilensteine"],
-        currentChapter: 8,
-        totalChapters: 8,
-        lastRead: "Vor zwei Wochen",
-        status: "completed",
-        quiz: {
-          enabled: true,
-          questions: [
-            {
-              question: 'In welchem Alter beginnt laut dem Artikel typischerweise die Phase des "magischen Denkens"?',
-              options: ["6-12 Monate", "1-2 Jahre", "3-6 Jahre", "7-11 Jahre"],
-              correctAnswer: 2,
-            },
-          ],
-        },
-      },
-    ]);
+      if (diffHours < 1) return "Gerade eben";
+      if (diffHours < 24) return `Vor ${diffHours} Stunde${diffHours > 1 ? 'n' : ''}`;
+      if (diffDays === 1) return "Gestern";
+      if (diffDays < 7) return `Vor ${diffDays} Tagen`;
+      
+      return date.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+
+    // Helper: Konvertiere History zu MyArticleItem
+    const convertHistoryToArticle = (historyItem: HistoryItem): MyArticleItem => {
+      return {
+        // History-Daten
+        historyId: historyItem.id,
+        readAt: historyItem.readAt,
+        solvedAt: historyItem.solvedAt,
+        
+        // Post-Daten (aus History-Response)
+        id: historyItem.postId,
+        title: historyItem.postTitle,
+        quickDescription: historyItem.postQuickDescription,
+        author: historyItem.postAuthor,
+        
+        // Dummy-Werte (werden später durch echte Post-Daten ersetzt)
+        image: null,
+        category: 'OTHER' as any,
+        tags: [],
+        createdAt: historyItem.readAt,
+        isCertifiedAuthor: false,
+        
+        // Computed Felder
+        lastRead: formatLastRead(historyItem.readAt),
+        status: historyItem.solvedAt ? 'completed' : 'reading'
+      };
+    };
+
+    // Artikel laden
+    const loadArticles = async (page: number = 1) => {
+      loading.value = true;
+      error.value = null;
+      
+      try {
+        const response = await historyService.getHistory(page, itemsPerPage.value);
+        
+        // Konvertiere History-Items zu MyArticleItems
+        articles.value = response.data.map(convertHistoryToArticle);
+        meta.value = response.meta;
+        currentPage.value = page;
+        
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Unbekannter Fehler beim Laden der Artikel';
+        console.error('Error loading articles:', err);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    // Seite laden
+    const loadPage = (page: number) => {
+      if (page >= 1 && meta.value && page <= meta.value.totalPages) {
+        loadArticles(page);
+      }
+    };
 
     // Gefilterte Artikel basierend auf Tab, Suche und Tags
     const filteredArticles = computed(() => {
@@ -253,9 +247,9 @@ export default defineComponent({
         result = result.filter(
           (article) =>
             article.title.toLowerCase().includes(query) ||
-            article.content.toLowerCase().includes(query) ||
-            article.preview.toLowerCase().includes(query) ||
-            (article.tags && article.tags.some((tag) => tag.toLowerCase().includes(query)))
+            article.quickDescription.toLowerCase().includes(query) ||
+            (article.author && article.author.toLowerCase().includes(query)) ||
+            article.tags.some((tag) => tag.toLowerCase().includes(query))
         );
       }
 
@@ -265,7 +259,7 @@ export default defineComponent({
           (article) =>
             article.tags &&
             filterTags.value.some((tag) =>
-              article.tags!.some((articleTag) => articleTag.toLowerCase() === tag.toLowerCase())
+              article.tags.some((articleTag) => articleTag.toLowerCase() === tag.toLowerCase())
             )
         );
       }
@@ -277,28 +271,14 @@ export default defineComponent({
     });
 
     // Artikel sortieren
-    const sortArticles = (articlesToSort: Article[]) => {
+    const sortArticles = (articlesToSort: MyArticleItem[]) => {
       const sorted = [...articlesToSort];
 
       switch (sortOption.value) {
         case "date-desc":
-          return sorted.sort((a, b) => {
-            if (!a.date) return 1;
-            if (!b.date) return -1;
-            return (
-              new Date(b.date.split(".").reverse().join("-")).getTime() -
-              new Date(a.date.split(".").reverse().join("-")).getTime()
-            );
-          });
+          return sorted.sort((a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime());
         case "date-asc":
-          return sorted.sort((a, b) => {
-            if (!a.date) return -1;
-            if (!b.date) return 1;
-            return (
-              new Date(a.date.split(".").reverse().join("-")).getTime() -
-              new Date(b.date.split(".").reverse().join("-")).getTime()
-            );
-          });
+          return sorted.sort((a, b) => new Date(a.readAt).getTime() - new Date(b.readAt).getTime());
         case "title-asc":
           return sorted.sort((a, b) => a.title.localeCompare(b.title));
         case "title-desc":
@@ -309,9 +289,16 @@ export default defineComponent({
     };
 
     // Artikel in Reader-Modus öffnen
-    const openArticleReader = (article: Article) => {
-      selectedArticle.value = article;
-      articleReaderMode.value = true;
+    const openArticleReader = async (article: MyArticleItem) => {
+      try {
+        // Hier würde später der vollständige Artikel geladen werden
+        // Vorerst verwenden wir die vorhandenen Daten
+        selectedArticle.value = article;
+        articleReaderMode.value = true;
+      } catch (err) {
+        console.error('Error opening article:', err);
+        alert('Fehler beim Öffnen des Artikels');
+      }
     };
 
     // Reader-Modus schließen
@@ -320,19 +307,35 @@ export default defineComponent({
       selectedArticle.value = null;
     };
 
-    // Lesezeichen-Status umschalten
-    const toggleBookmark = (article: Article) => {
-      article.status =
-        article.status === "bookmarked"
-          ? article.currentChapter === article.totalChapters
-            ? "completed"
-            : "reading"
-          : "bookmarked";
+    // Artikel aus Historie entfernen
+    const removeArticleFromHistory = async (articleId: string) => {
+      try {
+        // Finde das History-Item
+        const article = articles.value.find(a => a.id === articleId);
+        if (!article) return;
+
+        // Bestätigung anfordern
+        const confirmed = confirm(`Möchtest du "${article.title}" wirklich aus deiner Lesehistorie entfernen?`);
+        if (!confirmed) return;
+
+        // Aus Backend entfernen
+        await historyService.removeFromHistory(article.historyId);
+        
+        // Aus lokaler Liste entfernen
+        articles.value = articles.value.filter(a => a.id !== articleId);
+        
+        // Toast/Notification (falls verfügbar)
+        console.log('Artikel erfolgreich aus Historie entfernt');
+        
+      } catch (err) {
+        console.error('Error removing article:', err);
+        alert('Fehler beim Entfernen des Artikels aus der Historie');
+      }
     };
 
     // Suche und Filter
     const filterArticles = () => {
-      // Filtert Artikel nach aktuellem Suchbegriff
+      // Filtert Artikel nach aktuellem Suchbegriff - wird durch computed automatisch gemacht
     };
 
     // Filter-Tag hinzufügen
@@ -353,20 +356,41 @@ export default defineComponent({
       searchQuery.value = "";
     };
 
+    // Bei Tab-Wechsel Filter zurücksetzen
+    watch(activeTab, () => {
+      clearFilters();
+    });
+
+    // Beim Mounten Artikel laden
+    onMounted(() => {
+      loadArticles();
+    });
+
     return {
+      // Reactive State
+      loading,
+      error,
+      articles,
+      meta,
+      selectedArticle,
+      articleReaderMode,
+      
+      // UI State
       tabs,
       activeTab,
       searchQuery,
       filterTags,
-      articles,
       filteredArticles,
       viewMode,
       sortOption,
-      selectedArticle,
-      articleReaderMode,
+      articleCounts,
+      
+      // Functions
+      loadArticles,
+      loadPage,
       openArticleReader,
       closeArticleReader,
-      toggleBookmark,
+      removeArticleFromHistory,
       filterArticles,
       addFilterTag,
       removeFilterTag,
@@ -429,9 +453,150 @@ export default defineComponent({
     }
   }
 
+  // Loading State
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid;
+      border-radius: 50%;
+      margin-bottom: map.get(vars.$spacing, m);
+      animation: spin 1s linear infinite;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+          border-top-color: mixins.theme-color($theme, primary);
+        }
+      }
+    }
+
+    p {
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
+  // Error State
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .error-icon {
+      font-size: 3rem;
+      margin-bottom: map.get(vars.$spacing, m);
+    }
+
+    h3 {
+      margin-bottom: map.get(vars.$spacing, s);
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+
+    p {
+      margin-bottom: map.get(vars.$spacing, l);
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .retry-button {
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      border: none;
+      cursor: pointer;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+
+          &:hover {
+            transform: translateY(-2px);
+            @include mixins.shadow("small", $theme);
+          }
+        }
+      }
+    }
+  }
+
+  // Pagination
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: map.get(vars.$spacing, l);
+    margin-top: map.get(vars.$spacing, xl);
+    padding: map.get(vars.$spacing, l);
+
+    .pagination-button {
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, secondary-bg);
+          color: mixins.theme-color($theme, text-primary);
+          border: 1px solid mixins.theme-color($theme, border-light);
+
+          &:hover:not(:disabled) {
+            background-color: mixins.theme-color($theme, hover-color);
+            transform: translateY(-2px);
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+
+    .pagination-info {
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
   // Artikel-Leseansicht nimmt den gesamten Bereich ein
   .article-reader-mode {
     width: 100%;
   }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

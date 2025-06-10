@@ -17,10 +17,11 @@ interface Tab {
   name: string;
 }
 
-interface Article {
-  id: number;
-  status?: string;
-  [key: string]: any;
+interface ArticleCounts {
+  all: number;
+  reading: number;
+  completed: number;
+  [key: string]: number;
 }
 
 export default defineComponent({
@@ -34,8 +35,8 @@ export default defineComponent({
       type: String,
       required: true
     },
-    articles: {
-      type: Array as PropType<Article[]>,
+    articleCounts: {
+      type: Object as PropType<ArticleCounts>,
       required: true
     }
   },
@@ -45,11 +46,8 @@ export default defineComponent({
       emit('update:activeTab', tabId);
     };
 
-    const getArticleCount = (tabId: string) => {
-      if (tabId === 'all') {
-        return props.articles.length;
-      }
-      return props.articles.filter(article => article.status === tabId).length;
+    const getArticleCount = (tabId: string): number => {
+      return props.articleCounts[tabId] || 0;
     };
 
     return {

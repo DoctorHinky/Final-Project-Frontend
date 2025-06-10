@@ -254,7 +254,7 @@ export default defineComponent({
 
   emits: ["register-success"],
 
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const router = useRouter();
     const isLoading = ref(false);
     const showRegisterPassword = ref(false);

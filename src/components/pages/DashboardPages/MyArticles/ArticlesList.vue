@@ -22,23 +22,39 @@
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
+            <XMarkIcon class="remove-icon" />
           </button>
+          
+          <!-- Status-Badge -->
+          <div class="status-badge" :class="article.status">
+            {{ article.status === 'completed' ? 'Abgeschlossen' : 'Gelesen' }}
+          </div>
           
           <!-- Artikel-Bild -->
           <div class="article-image">
-            <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
-            <div v-else class="image-placeholder">
-              <span class="placeholder-icon">📚</span>
-            </div>
-
-            <!-- Tags -->
-            <div class="card-tags">
-              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag">
-                {{ tag }}
+            <!-- Loading-State oder kein Bild -->
+            <div 
+              v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
+              class="image-loading"
+            >
+              <div class="loading-spinner"></div>
+              <span class="loading-text">
+                {{ loadingImages.has(article.id) ? 'Lade Bild...' : 'Kein Bild verfügbar' }}
               </span>
             </div>
+            
+            <!-- Hauptbild -->
+            <img 
+              v-else
+              :src="getImageUrl(article)" 
+              :alt="article.title"
+              @error="handleImageError($event, article.id)"
+              @load="handleImageLoad($event, article.id)"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-          
+
           <div class="card-content">
             <!-- Meta-Informationen direkt nach dem Bild -->
             <div class="article-meta">
@@ -46,30 +62,35 @@
               <span class="meta-separator">•</span>
               <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
               <span class="meta-separator">•</span>
-              <span class="meta-date">{{ article.date }}</span>
+              <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
             </div>
 
             <!-- Titel -->
             <h3 class="card-title">{{ article.title }}</h3>
             
             <!-- Beschreibung -->
-            <p class="card-preview">{{ article.preview }}</p>
+            <p class="card-preview">{{ article.quickDescription }}</p>
 
-            <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
-            <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
-              <div class="progress-bar">
-                <div class="progress-fill"
-                  :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+            <!-- Lesehistorie-Info -->
+            <div class="read-info">
+              <div class="last-read">
+                <EyeIcon class="read-icon" />
+                <span>{{ article.lastRead }}</span>
               </div>
-              <div class="progress-text">
-                <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
-                <span class="last-read">{{ article.lastRead }}</span>
+              <div v-if="article.status === 'completed'" class="completion-info">
+                <CheckCircleIcon class="completion-icon" />
+                <span>Abgeschlossen</span>
               </div>
             </div>
 
             <!-- Tags -->
-            <div class="card-tags">
-              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag">
+            <div class="card-tags" v-if="article.tags && article.tags.length > 0">
+              <span 
+                v-for="(tag, idx) in article.tags" 
+                :key="idx" 
+                class="card-tag"
+                @click.stop="addFilterTag(tag)"
+              >
                 {{ tag }}
               </span>
             </div>
@@ -77,8 +98,8 @@
             <!-- Aktionsbuttons -->
             <div class="card-actions">
               <button class="action-button read" @click.stop="openArticleReader(article)">
-                <span v-if="article.currentChapter">Weiterlesen</span>
-                <span v-else>Jetzt lesen</span>
+                <BookOpenIcon class="action-icon" />
+                <span>Weiterlesen</span>
               </button>
             </div>
           </div>
@@ -97,14 +118,34 @@
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
+            <XMarkIcon class="remove-icon" />
           </button>
+          
+          <!-- Status-Badge -->
+          <div class="status-badge" :class="article.status">
+            {{ article.status === 'completed' ? 'Abgeschlossen' : 'Gelesen' }}
+          </div>
           
           <!-- Artikel-Bild in Listenansicht -->
           <div class="list-item-image">
-            <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
-            <div v-else class="image-placeholder">
-              <span class="placeholder-icon">📚</span>
+            <!-- Loading-State oder kein Bild -->
+            <div 
+              v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
+              class="image-loading"
+            >
+              <div class="loading-spinner"></div>
             </div>
+            
+            <!-- Hauptbild -->
+            <img 
+              v-else
+              :src="getImageUrl(article)" 
+              :alt="article.title"
+              @error="handleImageError($event, article.id)"
+              @load="handleImageLoad($event, article.id)"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           
           <div class="list-item-main">
@@ -114,29 +155,29 @@
               <span class="meta-separator">•</span>
               <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
               <span class="meta-separator">•</span>
-              <span class="meta-date">{{ article.date }}</span>
+              <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
             </div>
             
             <h3 class="card-title">{{ article.title }}</h3>
-            <p class="card-preview">{{ article.preview }}</p>
+            <p class="card-preview">{{ article.quickDescription }}</p>
 
-            <!-- Fortschrittsbalken anzeigen, falls vorhanden -->
-            <div v-if="article.currentChapter && article.totalChapters" class="chapter-progress">
-              <div class="progress-bar">
-                <div class="progress-fill"
-                  :style="{ width: (article.currentChapter / article.totalChapters * 100) + '%' }"></div>
+            <!-- Lesehistorie-Info -->
+            <div class="read-info">
+              <div class="last-read">
+                <EyeIcon class="read-icon" />
+                <span>{{ article.lastRead }}</span>
               </div>
-              <div class="progress-text">
-                <span class="chapter-info">{{ article.currentChapter }}/{{ article.totalChapters }} Kapitel</span>
-                <span class="last-read">{{ article.lastRead }}</span>
+              <div v-if="article.status === 'completed'" class="completion-info">
+                <CheckCircleIcon class="completion-icon" />
+                <span>Abgeschlossen</span>
               </div>
             </div>
           </div>
 
           <div class="list-item-actions">
             <button class="action-button read" @click.stop="openArticleReader(article)">
-              <span v-if="article.currentChapter">Weiterlesen</span>
-              <span v-else>Jetzt lesen</span>
+              <BookOpenIcon class="action-icon" />
+              <span>Weiterlesen</span>
             </button>
           </div>
         </div>
@@ -146,42 +187,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType, ref, onMounted, watch } from 'vue';
+import { 
+  EyeIcon, 
+  CheckCircleIcon, 
+  BookOpenIcon, 
+  XMarkIcon 
+} from '@heroicons/vue/24/outline';
 import ViewOptions from './ViewOptions.vue';
-
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  preview: string;
-  featured: boolean;
-  date?: string;
-  category?: string;
-  author?: string;
-  tags?: string[];
-  currentChapter?: number;
-  totalChapters?: number;
-  lastRead?: string;
-  status?: string;
-  coverImage?: string;
-  quiz?: {
-    enabled: boolean;
-    questions: Array<{
-      question: string;
-      options: string[];
-      correctAnswer: number;
-    }>;
-  };
-}
+import type { MyArticleItem } from '@/types/MyArticles.types';
+import { postService } from '@/services/post.service';
 
 export default defineComponent({
   name: 'ArticlesList',
   components: {
-    ViewOptions
+    ViewOptions,
+    EyeIcon,
+    CheckCircleIcon,
+    BookOpenIcon,
+    XMarkIcon
   },
   props: {
     filteredArticles: {
-      type: Array as PropType<Article[]>,
+      type: Array as PropType<MyArticleItem[]>,
       required: true
     },
     sortOption: {
@@ -197,26 +225,199 @@ export default defineComponent({
     'update:sortOption', 
     'update:viewMode', 
     'open-article', 
-    'remove-article'
-    // 'add-filter-tag' // Später anbinden
+    'remove-article',
+    'add-filter-tag'
   ],
   setup(props, { emit }) {
-    const openArticleReader = (article: Article) => {
+    // State für Error-Tracking
+    const imageErrors = ref(new Set<string>());
+    
+    // Cache für geladene Artikel-Bilder
+    const articleImages = ref(new Map<string, string | null>());
+    const loadingImages = ref(new Set<string>());
+    
+    const openArticleReader = (article: MyArticleItem) => {
       emit('open-article', article);
     };
 
-    const removeArticle = (articleId: number) => {
+    const removeArticle = (articleId: string) => {
       emit('remove-article', articleId);
     };
 
-    // const addFilterTag = (tag: string) => {
-    //   emit('add-filter-tag', tag);
-    // };
+    const addFilterTag = (tag: string) => {
+      emit('add-filter-tag', tag);
+    };
+
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+
+    // Artikel-Bilder von Post-API nachladen
+    const loadArticleImage = async (postId: string): Promise<string | null> => {
+      // Bereits geladen?
+      if (articleImages.value.has(postId)) {
+        return articleImages.value.get(postId) || null;
+      }
+
+      // Bereits am Laden?
+      if (loadingImages.value.has(postId)) {
+        return null;
+      }
+
+      try {
+        loadingImages.value.add(postId);
+        console.log(`🔄 Lade Bild für Post ${postId}...`);
+
+        // Vollständigen Post laden (hat das Bild)
+        const postResponse = await postService.getPostById(postId);
+        const imageUrl = postResponse.data.image;
+
+        // In Cache speichern
+        articleImages.value.set(postId, imageUrl);
+        
+        console.log(`✅ Bild geladen für Post ${postId}:`, imageUrl);
+        return imageUrl;
+        
+      } catch (error) {
+        console.warn(`❌ Fehler beim Laden des Bildes für Post ${postId}:`, error);
+        articleImages.value.set(postId, null); // Fehler cachen
+        return null;
+      } finally {
+        loadingImages.value.delete(postId);
+      }
+    };
+
+    // ÜBERARBEITET: Nur echte Bilder zurückgeben, keine Fallbacks
+    const getImageUrl = (article: MyArticleItem) => {
+      const postId = article.id;
+
+      // 1. Prüfe ob echtes Bild vom Backend verfügbar
+      if (article.image && article.image.trim() !== '') {
+        console.log(`✅ Original-Bild gefunden für "${article.title}":`, article.image);
+        return article.image;
+      }
+
+      // 2. Prüfe Cache für nachgeladene Bilder
+      if (articleImages.value.has(postId)) {
+        const cachedImage = articleImages.value.get(postId);
+        if (cachedImage) {
+          console.log(`📦 Cache-Bild für "${article.title}":`, cachedImage);
+          return cachedImage;
+        }
+        // Wenn im Cache aber null → kein Bild verfügbar
+        return null;
+      }
+
+      // 3. Starte asynchrones Nachladen (ohne await!)
+      if (!loadingImages.value.has(postId)) {
+        loadArticleImage(postId).then(() => {
+          // Force re-render nach dem Laden
+          // Vue's Reaktivität sorgt dafür, dass sich das Bild automatisch aktualisiert
+        });
+      }
+
+      // 4. Während des Ladens: null zurückgeben (Loading-State wird angezeigt)
+      return null;
+    };
+
+    // Beim Laden der Komponente alle Bilder vorladen
+    const preloadArticleImages = async () => {
+      if (!props.filteredArticles || props.filteredArticles.length === 0) return;
+
+      console.log(`🚀 Starte Vorladung von ${props.filteredArticles.length} Artikel-Bildern...`);
+      
+      // Parallel alle Bilder laden (max 5 gleichzeitig)
+      const batchSize = 5;
+      for (let i = 0; i < props.filteredArticles.length; i += batchSize) {
+        const batch = props.filteredArticles.slice(i, i + batchSize);
+        await Promise.allSettled(
+          batch.map(article => loadArticleImage(article.id))
+        );
+      }
+      
+      console.log(`✅ Vorladung abgeschlossen. ${articleImages.value.size} Bilder geladen.`);
+    };
+
+    // VERBESSERT: Einfacheres Error-Handling
+    const handleImageError = (event: Event, articleId: string) => {
+      const img = event.target as HTMLImageElement;
+      
+      console.warn(`Fehler beim Laden des Bildes für Artikel ${articleId}:`, {
+        src: img.src,
+        articleId: articleId
+      });
+      
+      // Markiere diesen Artikel als fehlerhaft
+      imageErrors.value.add(articleId);
+      
+      // Setze im Cache auf null um Loading-State zu zeigen
+      articleImages.value.set(articleId, null);
+    };
+
+    // Bild erfolgreich geladen
+    const handleImageLoad = (event: Event, articleId: string) => {
+      const img = event.target as HTMLImageElement;
+      
+      console.log(`✅ Bild erfolgreich geladen für Artikel ${articleId}:`, {
+        src: img.src,
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight
+      });
+      
+      // Entferne Error-Status falls vorhanden
+      imageErrors.value.delete(articleId);
+    };
+
+    // DEBUG: Artikel-Daten ausgeben
+    const debugArticleImages = () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== ARTIKEL BILD-DEBUG ===');
+        props.filteredArticles.forEach((article, index) => {
+          console.log(`Artikel ${index + 1}: "${article.title}"`, {
+            id: article.id,
+            image: article.image,
+            hasValidImage: !!getImageUrl(article),
+            finalImageUrl: getImageUrl(article),
+            inCache: articleImages.value.has(article.id),
+            cachedImage: articleImages.value.get(article.id),
+            isLoading: loadingImages.value.has(article.id)
+          });
+        });
+        console.log('=== END DEBUG ===');
+      }
+      return '';
+    };
+
+    // Beim Mount und bei Artikel-Änderungen vorladen
+    onMounted(() => {
+      debugArticleImages();
+      preloadArticleImages();
+    });
+
+    watch(() => props.filteredArticles, () => {
+      debugArticleImages();
+      preloadArticleImages();
+    }, { deep: true });
 
     return {
       openArticleReader,
-      removeArticle
-      // addFilterTag // Später anbinden
+      removeArticle,
+      addFilterTag,
+      formatDate,
+      getImageUrl,
+      handleImageError,
+      handleImageLoad,
+      debugArticleImages,
+      imageErrors,
+      articleImages, // Für Debugging
+      loadingImages, // Für Loading-States
+      loadArticleImage,
+      preloadArticleImages
     };
   }
 });
@@ -294,36 +495,38 @@ export default defineComponent({
             }
 
             .remove-article {
-              opacity: 0.7;
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      // Status-Badge
+      .status-badge {
+        position: absolute;
+        top: map.get(vars.$spacing, s);
+        left: map.get(vars.$spacing, s);
+        padding: 4px 12px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+        font-size: 12px;
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        z-index: 5;
+        backdrop-filter: blur(10px);
+
+        &.reading {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: rgba(59, 130, 246, 0.9);
+              color: white;
             }
           }
         }
 
-        .card-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: map.get(vars.$spacing, xs);
-
-          .card-tag {
-            padding: 4px 10px;
-            border-radius: map.get(map.get(vars.$layout, border-radius), small);
-            font-size: 12px;
-            font-weight: map.get(map.get(vars.$fonts, weights), medium);
-            transition: all 0.2s;
-            cursor: default; // Keine Klick-Funktionalität erstmal
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, secondary-bg);
-                color: mixins.theme-color($theme, text-secondary);
-                border: 1px solid transparent;
-
-                // &:hover {
-                //   background-color: mixins.theme-color($theme, primary);
-                //   color: white;
-                //   transform: translateY(-2px);
-                // }
-              }
+        &.completed {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: rgba(74, 210, 149, 0.9);
+              color: white;
             }
           }
         }
@@ -334,10 +537,9 @@ export default defineComponent({
         position: absolute;
         top: map.get(vars.$spacing, s);
         right: map.get(vars.$spacing, s);
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         border: none;
-        background: transparent;
         cursor: pointer;
         border-radius: 50%;
         display: flex;
@@ -345,19 +547,19 @@ export default defineComponent({
         justify-content: center;
         z-index: 10;
         transition: all 0.2s ease-in-out;
+        backdrop-filter: blur(10px);
         
         // Standard-Zustand: unsichtbar
         opacity: 0;
         
-        // Hover-Zustand: deutlich sichtbar
-        &:hover {
-          opacity: 1 !important;
-          transform: scale(1.1);
-          
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+
+            &:hover {
               background-color: #dc3545;
-              color: white;
+              transform: scale(1.1);
             }
           }
         }
@@ -368,50 +570,18 @@ export default defineComponent({
           outline: 2px solid #007bff;
           outline-offset: 2px;
         }
-        
-        // Das X-Icon
-        &::before,
-        &::after {
-          content: '';
-          position: absolute;
-          width: 12px;
-          height: 2px;
-          background-color: currentColor;
-          transition: background-color 0.2s ease-in-out;
-        }
-        
-        &::before {
-          transform: rotate(45deg);
-        }
-        
-        &::after {
-          transform: rotate(-45deg);
-        }
-        
-        // Theme-spezifische Farben für Standard-Zustand
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-            
-            &:hover {
-              color: white;
-            }
-          }
+
+        .remove-icon {
+          width: 16px;
+          height: 16px;
         }
 
         @media (max-width: 768px) {
-          width: 32px;
-          height: 32px;
-          opacity: 0.4; // Auf Mobile etwas sichtbarer
-          
-          &::before,
-          &::after {
-            width: 14px;
-          }
+          opacity: 0.7; // Auf Mobile sichtbarer
         }
       }
 
-      // Artikel-Bild
+      // Artikel-Bild (CLEAN - ohne Placeholder)
       .article-image {
         position: relative;
         width: 100%;
@@ -427,41 +597,49 @@ export default defineComponent({
           height: 100%;
           object-fit: cover;
           transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          display: block;
+          opacity: 1;
         }
 
-        .image-placeholder {
+        .image-loading {
+          position: absolute;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
-          position: relative;
+          z-index: 1;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              background: linear-gradient(135deg, 
-                mixins.theme-color($theme, primary) 0%, 
-                mixins.theme-color($theme, accent-teal) 100%);
+              background-color: mixins.theme-color($theme, secondary-bg);
+              color: mixins.theme-color($theme, text-secondary);
             }
           }
 
-          &::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s infinite;
+          .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                border-top-color: mixins.theme-color($theme, primary);
+                border-right-color: mixins.theme-color($theme, primary);
+              }
+            }
           }
 
-          .placeholder-icon {
-            font-size: 4rem;
-            opacity: 0.8;
-            z-index: 1;
-
-            @media (max-width: 768px) {
-              font-size: 3rem;
-            }
+          .loading-text {
+            font-size: 14px;
+            opacity: 0.7;
+            text-align: center;
           }
         }
       }
@@ -572,67 +750,51 @@ export default defineComponent({
         }
       }
 
-      // Kapitel-Fortschritt
-      .chapter-progress {
+      // Lesehistorie-Info
+      .read-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: map.get(vars.$spacing, m);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
 
         @media (max-width: 768px) {
+          font-size: 12px;
           margin-bottom: map.get(vars.$spacing, s);
         }
 
-        .progress-bar {
-          height: 6px;
-          border-radius: 3px;
-          overflow: hidden;
-          margin-bottom: map.get(vars.$spacing, xs);
-
-          @media (max-width: 768px) {
-            height: 4px;
-          }
+        .last-read {
+          display: flex;
+          align-items: center;
+          gap: map.get(vars.$spacing, xs);
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, border-light);
+              color: mixins.theme-color($theme, text-secondary);
             }
           }
 
-          .progress-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background: mixins.theme-gradient($theme, primary);
-              }
-            }
+          .read-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
           }
         }
 
-        .progress-text {
+        .completion-info {
           display: flex;
-          justify-content: space-between;
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
+          align-items: center;
+          gap: map.get(vars.$spacing, xs);
 
-          @media (max-width: 768px) {
-            font-size: 11px;
-          }
-
-          .chapter-info {
-            font-weight: map.get(map.get(vars.$fonts, weights), medium);
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, accent-green);
-              }
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, accent-green);
             }
           }
 
-          .last-read {
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-tertiary);
-              }
-            }
+          .completion-icon {
+            width: 16px;
+            height: 16px;
           }
         }
       }
@@ -650,7 +812,7 @@ export default defineComponent({
           font-size: 12px;
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
           transition: all 0.2s;
-          cursor: default; // Keine Klick-Funktionalität erstmal
+          cursor: pointer;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
@@ -658,11 +820,11 @@ export default defineComponent({
               color: mixins.theme-color($theme, text-secondary);
               border: 1px solid transparent;
 
-              // &:hover {
-              //   background-color: mixins.theme-color($theme, primary);
-              //   color: white;
-              //   transform: translateY(-2px);
-              // }
+              &:hover {
+                background-color: mixins.theme-color($theme, primary);
+                color: white;
+                transform: translateY(-2px);
+              }
             }
           }
         }
@@ -686,6 +848,7 @@ export default defineComponent({
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: map.get(vars.$spacing, xs);
 
           @media (max-width: 768px) {
             height: 40px;
@@ -726,6 +889,12 @@ export default defineComponent({
                 }
               }
             }
+
+            .action-icon {
+              width: 18px;
+              height: 18px;
+              z-index: 1;
+            }
           }
         }
       }
@@ -764,21 +933,52 @@ export default defineComponent({
             border-color: transparent;
 
             .remove-article {
-              opacity: 0.7;
+              opacity: 1;
             }
           }
         }
       }
 
-      // Lösch-Kreuz oben rechts (Listenansicht)
+      // Status-Badge (Listenansicht)
+      .status-badge {
+        position: absolute;
+        top: map.get(vars.$spacing, s);
+        left: map.get(vars.$spacing, s);
+        padding: 4px 12px;
+        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+        font-size: 12px;
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        z-index: 5;
+
+        &.reading {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: rgba(59, 130, 246, 0.1);
+              color: #3b82f6;
+              border: 1px solid #3b82f6;
+            }
+          }
+        }
+
+        &.completed {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: rgba(74, 210, 149, 0.1);
+              color: #4ad295;
+              border: 1px solid #4ad295;
+            }
+          }
+        }
+      }
+
+      // Lösch-Kreuz (Listenansicht)
       .remove-article {
         position: absolute;
         top: map.get(vars.$spacing, s);
         right: map.get(vars.$spacing, s);
-        width: 28px;
-        height: 28px;
+        width: 32px !important;
+        height: 32px;
         border: none;
-        background: transparent;
         cursor: pointer;
         border-radius: 50%;
         display: flex;
@@ -787,78 +987,44 @@ export default defineComponent({
         z-index: 10;
         transition: all 0.2s ease-in-out;
         
-        // Standard-Zustand: unsichtbar
         opacity: 0;
         
-        // Hover-Zustand: deutlich sichtbar
-        &:hover {
-          opacity: 1 !important;
-          transform: scale(1.1);
-          
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+
+            &:hover {
               background-color: #dc3545;
-              color: white;
+              transform: scale(1.1);
             }
           }
         }
         
-        // Focus für Accessibility
         &:focus {
           opacity: 1;
           outline: 2px solid #007bff;
           outline-offset: 2px;
         }
-        
-        // Das X-Icon
-        &::before,
-        &::after {
-          content: '';
-          position: absolute;
-          width: 12px;
-          height: 2px;
-          background-color: currentColor;
-          transition: background-color 0.2s ease-in-out;
-        }
-        
-        &::before {
-          transform: rotate(45deg);
-        }
-        
-        &::after {
-          transform: rotate(-45deg);
-        }
-        
-        // Theme-spezifische Farben für Standard-Zustand
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-            
-            &:hover {
-              color: white;
-            }
-          }
+
+        .remove-icon {
+          width: 16px;
+          height: 16px;
         }
 
         @media (max-width: 768px) {
-          width: 32px;
-          height: 32px;
-          opacity: 0.4; // Auf Mobile etwas sichtbarer
-          
-          &::before,
-          &::after {
-            width: 14px;
-          }
+          opacity: 0.7;
         }
       }
 
-      // Artikel-Bild in Listenansicht
+      // Artikel-Bild in Listenansicht (CLEAN)
       .list-item-image {
         flex-shrink: 0;
         width: 160px;
         height: 120px;
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         overflow: hidden;
+        position: relative;
 
         @media (max-width: 768px) {
           width: 140px;
@@ -875,30 +1041,44 @@ export default defineComponent({
           height: 100%;
           object-fit: cover;
           transition: transform 0.4s ease;
+          display: block;
+          opacity: 1;
         }
 
         &:hover img {
           transform: scale(1.05);
         }
 
-        .image-placeholder {
+        .image-loading {
+          position: absolute;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
+          z-index: 1;
 
           @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              background: linear-gradient(135deg, 
-                mixins.theme-color($theme, primary) 0%, 
-                mixins.theme-color($theme, accent-teal) 100%);
+              background-color: mixins.theme-color($theme, secondary-bg);
             }
           }
 
-          .placeholder-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
+          .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                border-top-color: mixins.theme-color($theme, primary);
+                border-right-color: mixins.theme-color($theme, primary);
+              }
+            }
           }
         }
       }
@@ -998,67 +1178,49 @@ export default defineComponent({
           }
         }
 
-        // Kapitel-Fortschritt
-        .chapter-progress {
-          margin-bottom: map.get(vars.$spacing, m);
+        // Lesehistorie-Info (Listenansicht)
+        .read-info {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: map.get(map.get(vars.$fonts, sizes), small);
 
           @media (max-width: 768px) {
-            margin-bottom: map.get(vars.$spacing, s);
+            font-size: 12px;
           }
 
-          .progress-bar {
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: map.get(vars.$spacing, xs);
-
-            @media (max-width: 768px) {
-              height: 4px;
-            }
+          .last-read {
+            display: flex;
+            align-items: center;
+            gap: map.get(vars.$spacing, xs);
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, border-light);
+                color: mixins.theme-color($theme, text-secondary);
               }
             }
 
-            .progress-fill {
-              height: 100%;
-              transition: width 0.3s ease;
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  background: mixins.theme-gradient($theme, primary);
-                }
-              }
+            .read-icon {
+              width: 16px;
+              height: 16px;
+              opacity: 0.7;
             }
           }
 
-          .progress-text {
+          .completion-info {
             display: flex;
-            justify-content: space-between;
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            align-items: center;
+            gap: map.get(vars.$spacing, xs);
 
-            @media (max-width: 768px) {
-              font-size: 11px;
-            }
-
-            .chapter-info {
-              font-weight: map.get(map.get(vars.$fonts, weights), medium);
-
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, accent-green);
-                }
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, accent-green);
               }
             }
 
-            .last-read {
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  color: mixins.theme-color($theme, text-tertiary);
-                }
-              }
+            .completion-icon {
+              width: 16px;
+              height: 16px;
             }
           }
         }
@@ -1090,6 +1252,7 @@ export default defineComponent({
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: map.get(vars.$spacing, xs);
 
           @media (max-width: 768px) {
             padding: 0 map.get(vars.$spacing, m);
@@ -1114,6 +1277,11 @@ export default defineComponent({
                 }
               }
             }
+
+            .action-icon {
+              width: 16px;
+              height: 16px;
+            }
           }
         }
       }
@@ -1121,13 +1289,9 @@ export default defineComponent({
   }
 }
 
-// Animation für Shimmer-Effekt
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
+// Animationen
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

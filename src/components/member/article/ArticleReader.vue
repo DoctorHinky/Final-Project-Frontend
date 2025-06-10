@@ -7,47 +7,53 @@
         <button class="back-button" @click="$emit('close')">← Zurück</button>
       </div>
       <div class="navbar-right">
-        <button
-          class="action-button bookmark"
-          :class="{ active: article.status === 'bookmarked' }"
-          @click="toggleBookmark"
-          title="Als Favorit speichern"
-        >
-          {{ article.status === "bookmarked" ? "★" : "☆" }}
-        </button>
         <button class="action-button share" @click="shareArticle" title="Artikel teilen">↗</button>
       </div>
     </div>
 
+    <!-- Loading State für Artikel -->
+    <div v-if="loadingArticle" class="loading-article">
+      <div class="loading-spinner"></div>
+      <p>Artikel wird geladen...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="articleError" class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h3>Fehler beim Laden</h3>
+      <p>{{ articleError }}</p>
+      <button @click="loadFullArticle" class="retry-button">Erneut versuchen</button>
+    </div>
+
     <!-- Artikel-Inhalt -->
-    <div class="article-content">
+    <div v-else-if="fullArticle" class="article-content">
       <!-- Hero-Bild -->
-      <div v-if="article.coverImage" class="article-hero-image">
-        <img :src="article.coverImage" :alt="article.title" />
+      <div v-if="fullArticle.image" class="article-hero-image">
+        <img :src="fullArticle.image" :alt="fullArticle.title" />
         <div class="image-overlay"></div>
       </div>
 
       <div class="article-header">
-        <div class="article-category">{{ article.category }}</div>
-        <h1>{{ article.title }}</h1>
+        <div class="article-category">{{ fullArticle.category }}</div>
+        <h1>{{ fullArticle.title }}</h1>
         <div class="article-meta">
-          <span class="article-author">Von {{ article.author }}</span>
-          <span class="article-date">{{ article.date }}</span>
+          <span class="article-author">Von {{ fullArticle.author?.username || 'Unbekannt' }}</span>
+          <span class="article-date">{{ formatDate(fullArticle.createdAt) }}</span>
         </div>
 
         <!-- Kapitelnavigation -->
-        <div class="chapter-navigation" v-if="article.totalChapters && article.totalChapters > 1">
+        <div class="chapter-navigation" v-if="fullArticle.chapters && fullArticle.chapters.length > 1">
           <div class="chapter-progress">
             <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: (currentChapter / article.totalChapters) * 100 + '%' }"></div>
+              <div class="progress-fill" :style="{ width: (currentChapter / fullArticle.chapters.length) * 100 + '%' }"></div>
             </div>
           </div>
           <div class="chapter-controls">
             <button class="chapter-button prev" :disabled="currentChapter === 1" @click="prevChapter">Zurück</button>
-            <div class="chapter-info">Kapitel {{ currentChapter }} von {{ article.totalChapters }}</div>
+            <div class="chapter-info">Kapitel {{ currentChapter }} von {{ fullArticle.chapters.length }}</div>
             <button
               class="chapter-button next"
-              :disabled="currentChapter === article.totalChapters"
+              :disabled="currentChapter === fullArticle.chapters.length"
               @click="nextChapter"
             >
               Weiter
@@ -57,14 +63,28 @@
       </div>
 
       <div v-if="!showQuiz" class="article-body">
-        <p v-for="(paragraph, index) in currentContent" :key="index">
-          {{ paragraph }}
-        </p>
+        <!-- Aktueller Kapitelinhalt -->
+        <div v-if="currentChapterContent" class="chapter-content">
+          <h2 v-if="currentChapterContent.title" class="chapter-title">
+            {{ currentChapterContent.title }}
+          </h2>
+          <div class="chapter-text" v-html="formatContent(currentChapterContent.content)"></div>
+          
+          <!-- Kapitelbild -->
+          <div v-if="currentChapterContent.image" class="chapter-image">
+            <img :src="currentChapterContent.image" :alt="currentChapterContent.title" />
+          </div>
+        </div>
+
+        <!-- Fallback wenn kein Kapitelinhalt -->
+        <div v-else-if="fullArticle.quickDescription" class="article-description">
+          <p>{{ fullArticle.quickDescription }}</p>
+        </div>
 
         <!-- Kapitelende-Anzeige -->
         <div class="chapter-end" v-if="isLastChapter">
           <div class="chapter-end-message">Du hast das Ende des Artikels erreicht!</div>
-          <button v-if="article.quiz && article.quiz.enabled" class="start-quiz-button" @click="showQuiz = true">
+          <button v-if="fullArticle.quiz && fullArticle.quiz.questions && fullArticle.quiz.questions.length > 0" class="start-quiz-button" @click="showQuiz = true">
             Quiz starten
           </button>
         </div>
@@ -81,33 +101,33 @@
           <div class="quiz-progress-bar">
             <div
               class="progress-fill"
-              :style="{ width: (currentQuestionIndex / article.quiz.questions.length) * 100 + '%' }"
+              :style="{ width: ((currentQuestionIndex + 1) / fullArticle.quiz.questions.length) * 100 + '%' }"
             ></div>
           </div>
           <div class="quiz-progress-text">
-            Frage {{ currentQuestionIndex + 1 }} von {{ article.quiz.questions.length }}
+            Frage {{ currentQuestionIndex + 1 }} von {{ fullArticle.quiz.questions.length }}
           </div>
         </div>
 
         <div class="quiz-content">
           <!-- Aktuelle Frage -->
-          <div class="quiz-question">
+          <div class="quiz-question" v-if="currentQuestion">
             <h3>{{ currentQuestion.question }}</h3>
 
             <div class="quiz-options">
               <div
-                v-for="(option, index) in currentQuestion.options"
-                :key="index"
+                v-for="(answer, index) in currentQuestion.answers"
+                :key="answer.id"
                 class="quiz-option"
                 :class="{
                   selected: selectedOption === index,
-                  correct: quizCompleted && index === currentQuestion.correctAnswer,
-                  incorrect: quizCompleted && selectedOption === index && index !== currentQuestion.correctAnswer,
+                  correct: quizCompleted && answer.isCorrect,
+                  incorrect: quizCompleted && selectedOption === index && !answer.isCorrect,
                 }"
                 @click="selectOption(index)"
               >
                 <div class="option-marker">{{ ["A", "B", "C", "D"][index] }}</div>
-                <div class="option-text">{{ option }}</div>
+                <div class="option-text">{{ answer.answer }}</div>
               </div>
             </div>
           </div>
@@ -117,8 +137,8 @@
             <div class="feedback-icon">{{ isCorrect ? "✓" : "✗" }}</div>
             <div class="feedback-text">
               <h4>{{ isCorrect ? "Richtig!" : "Leider falsch!" }}</h4>
-              <p v-if="!isCorrect">
-                Die richtige Antwort ist: {{ currentQuestion.options[currentQuestion.correctAnswer] }}
+              <p v-if="!isCorrect && correctAnswerText">
+                Die richtige Antwort ist: {{ correctAnswerText }}
               </p>
             </div>
           </div>
@@ -160,72 +180,19 @@
           <!-- Quiz-Ergebnis -->
           <div v-if="quizCompleted" class="quiz-result">
             <h3>Dein Ergebnis</h3>
-            <div class="result-score">{{ correctAnswers }} von {{ article.quiz.questions.length }} Fragen richtig</div>
+            <div class="result-score">{{ correctAnswers }} von {{ fullArticle.quiz.questions.length }} Fragen richtig</div>
             <div class="result-percentage">
-              {{ Math.round((correctAnswers / article.quiz.questions.length) * 100) }}%
+              {{ Math.round((correctAnswers / fullArticle.quiz.questions.length) * 100) }}%
             </div>
 
             <div class="result-message">
-              <div v-if="correctAnswers === article.quiz.questions.length">
+              <div v-if="correctAnswers === fullArticle.quiz.questions.length">
                 Perfekt! Du hast alle Fragen richtig beantwortet.
               </div>
-              <div v-else-if="correctAnswers / article.quiz.questions.length >= 0.7">
+              <div v-else-if="correctAnswers / fullArticle.quiz.questions.length >= 0.7">
                 Gut gemacht! Du hast die meisten Fragen richtig beantwortet.
               </div>
               <div v-else>Du kannst den Artikel noch einmal lesen, um dein Verständnis zu verbessern.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kommentarbereich - nur anzeigen wenn nicht im Quiz-Modus -->
-      <div v-if="!showQuiz && isLastChapter" class="comments-section">
-        <h2 class="comments-title">Kommentare & Feedback</h2>
-
-        <!-- Kommentar-Formular -->
-        <div class="comment-form">
-          <h3>Hinterlasse einen Kommentar</h3>
-          <textarea
-            v-model="newComment"
-            placeholder="Was denkst du über diesen Artikel? Teile deine Gedanken mit anderen Lesern..."
-            class="comment-textarea"
-            rows="4"
-          ></textarea>
-          <div class="comment-form-actions">
-            <button class="submit-comment-btn" @click="submitComment" :disabled="!newComment.trim()">
-              Kommentar veröffentlichen
-            </button>
-          </div>
-        </div>
-
-        <!-- Bestehende Kommentare -->
-        <div class="comments-list">
-          <div v-if="comments.length === 0" class="no-comments">
-            <p>Noch keine Kommentare vorhanden. Sei der Erste!</p>
-          </div>
-
-          <div v-else>
-            <div v-for="comment in comments" :key="comment.id" class="comment-item">
-              <div class="comment-header">
-                <div class="comment-author-info">
-                  <div class="comment-avatar">
-                    {{ comment.author.charAt(0).toUpperCase() }}
-                  </div>
-                  <div>
-                    <div class="comment-author">{{ comment.author }}</div>
-                    <div class="comment-date">{{ formatDate(comment.date) }}</div>
-                  </div>
-                </div>
-                <div class="comment-actions">
-                  <button class="like-button" :class="{ liked: comment.liked }" @click="toggleLike(comment)">
-                    <span class="like-icon">{{ comment.liked ? "❤️" : "🤍" }}</span>
-                    <span class="like-count">{{ comment.likes }}</span>
-                  </button>
-                </div>
-              </div>
-              <div class="comment-content">
-                {{ comment.content }}
-              </div>
             </div>
           </div>
         </div>
@@ -235,187 +202,67 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, PropType, watch } from "vue";
+import { defineComponent, ref, computed, onMounted, watch, type PropType } from "vue";
+import { historyService } from "@/services/history.service";
+import axiosInstance from "@/services/axiosInstance";
+import type { MyArticleItem } from "@/types/MyArticles.types";
 
-interface ArticleQuizQuestion {
-  question: string;
-  options: string[];
-  correctAnswer: number;
-}
-
-interface ArticleQuiz {
-  enabled: boolean;
-  questions: ArticleQuizQuestion[];
-}
-
-interface Article {
-  id: number;
+// Backend-Typen für vollständigen Artikel
+interface Chapter {
+  id: string;
   title: string;
   content: string;
-  category?: string;
-  author?: string;
-  date?: string;
-  currentChapter?: number;
-  totalChapters?: number;
-  status?: string;
-  coverImage?: string; // Neu hinzugefügt
-  quiz?: ArticleQuiz;
+  image?: string;
 }
 
-interface Comment {
-  id: number;
-  author: string;
-  content: string;
-  date: Date;
-  likes: number;
-  liked: boolean;
+interface QuizAnswer {
+  id: string;
+  answer: string;
+  isCorrect: boolean;
+}
+
+interface QuizQuestion {
+  id: string;
+  question: string;
+  answers: QuizAnswer[];
+}
+
+interface Quiz {
+  id: string;
+  questions: QuizQuestion[];
+}
+
+interface FullArticle {
+  id: string;
+  title: string;
+  quickDescription: string;
+  image?: string;
+  category: string;
+  createdAt: string;
+  author?: {
+    username: string;
+  };
+  chapters: Chapter[];
+  quiz?: Quiz;
 }
 
 export default defineComponent({
   name: "ArticleReader",
   props: {
     article: {
-      type: Object as PropType<Article>,
+      type: Object as PropType<MyArticleItem>,
       required: true,
     },
   },
-  emits: ["close", "toggle-bookmark"],
+  emits: ["close"],
   setup(props, { emit }) {
+    // Reactive State
+    const loadingArticle = ref(false);
+    const articleError = ref<string | null>(null);
+    const fullArticle = ref<FullArticle | null>(null);
+    
     // Kapitel-Verwaltung
-    const currentChapter = ref(props.article.currentChapter || 1);
-
-    // Kommentar-Verwaltung
-    const newComment = ref("");
-    const comments = ref<Comment[]>([
-      // Beispiel-Kommentare (später durch echte Daten aus Backend ersetzen)
-      {
-        id: 1,
-        author: "Maria Schmidt",
-        content: "Sehr informativer Artikel! Die Kapitelaufteilung macht das Lesen sehr angenehm.",
-        date: new Date("2024-03-15T10:30:00"),
-        likes: 5,
-        liked: false,
-      },
-      {
-        id: 2,
-        author: "Thomas Weber",
-        content: "Das Quiz am Ende war eine tolle Idee. Hat mir geholfen, das Gelesene zu festigen.",
-        date: new Date("2024-03-14T15:45:00"),
-        likes: 3,
-        liked: true,
-      },
-    ]);
-
-    // Artikel-Inhalt in Absätze und dann in Kapitel aufteilen
-    const chapterContent = computed(() => {
-      if (!props.article.content) return [[]];
-
-      // Inhalt in Absätze aufteilen
-      const paragraphs = props.article.content.split("\n\n").filter((p) => p.trim() !== "");
-
-      // Wenn keine Kapitel definiert sind, gesamten Inhalt als ein Kapitel behandeln
-      if (!props.article.totalChapters || props.article.totalChapters <= 1) {
-        return [paragraphs];
-      }
-
-      // Inhalt gleichmäßig auf die Kapitel verteilen
-      const chaptersArray = [];
-      const paragraphsPerChapter = Math.ceil(paragraphs.length / props.article.totalChapters);
-
-      for (let i = 0; i < props.article.totalChapters; i++) {
-        const start = i * paragraphsPerChapter;
-        const end = Math.min(start + paragraphsPerChapter, paragraphs.length);
-        chaptersArray.push(paragraphs.slice(start, end));
-      }
-
-      return chaptersArray;
-    });
-
-    // Aktueller Kapitelinhalt
-    const currentContent = computed(() => {
-      const chapter = currentChapter.value - 1; // 0-basierter Index
-      return chapterContent.value[chapter] || [];
-    });
-
-    // Ist das aktuelle Kapitel das letzte?
-    const isLastChapter = computed(() => {
-      return currentChapter.value === (props.article.totalChapters || 1);
-    });
-
-    // Zum nächsten Kapitel wechseln
-    const nextChapter = () => {
-      if (props.article.totalChapters && currentChapter.value < props.article.totalChapters) {
-        currentChapter.value++;
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    };
-
-    // Zum vorherigen Kapitel wechseln
-    const prevChapter = () => {
-      if (currentChapter.value > 1) {
-        currentChapter.value--;
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    };
-
-    // Favorit umschalten
-    const toggleBookmark = () => {
-      emit("toggle-bookmark", props.article);
-    };
-
-    // Artikel teilen
-    const shareArticle = () => {
-      alert(`Artikel "${props.article.title}" wird geteilt...`);
-    };
-
-    // Kommentar einreichen
-    const submitComment = () => {
-      if (!newComment.value.trim()) return;
-
-      const newCommentObj: Comment = {
-        id: comments.value.length + 1,
-        author: "Aktueller Nutzer", // Später durch echten Nutzernamen ersetzen
-        content: newComment.value,
-        date: new Date(),
-        likes: 0,
-        liked: false,
-      };
-
-      comments.value.unshift(newCommentObj); // Neue Kommentare oben einfügen
-      newComment.value = ""; // Textfeld leeren
-
-      // Hier später API-Aufruf zum Speichern des Kommentars
-    };
-
-    // Like umschalten
-    const toggleLike = (comment: Comment) => {
-      comment.liked = !comment.liked;
-      comment.likes += comment.liked ? 1 : -1;
-
-      // Hier später API-Aufruf zum Speichern des Like-Status
-    };
-
-    // Datum formatieren
-    const formatDate = (date: Date) => {
-      const now = new Date();
-      const diff = now.getTime() - date.getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const days = Math.floor(hours / 24);
-
-      if (hours < 1) {
-        return "Gerade eben";
-      } else if (hours < 24) {
-        return `vor ${hours} Stunde${hours > 1 ? "n" : ""}`;
-      } else if (days < 7) {
-        return `vor ${days} Tag${days > 1 ? "en" : ""}`;
-      } else {
-        return date.toLocaleDateString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      }
-    };
+    const currentChapter = ref(1);
 
     // Quiz-Verwaltung
     const showQuiz = ref(false);
@@ -426,32 +273,122 @@ export default defineComponent({
     const quizCompleted = ref(false);
     const correctAnswers = ref(0);
 
-    // Aktuelle Quiz-Frage
-    const currentQuestion = computed(() => {
-      if (!props.article.quiz || !props.article.quiz.questions.length) {
-        return { question: "", options: [], correctAnswer: 0 };
+    // Computed Properties
+    const currentChapterContent = computed(() => {
+      if (!fullArticle.value?.chapters || fullArticle.value.chapters.length === 0) {
+        return null;
       }
-      return props.article.quiz.questions[currentQuestionIndex.value];
+      return fullArticle.value.chapters[currentChapter.value - 1] || null;
     });
 
-    // Gibt es eine nächste Frage?
+    const isLastChapter = computed(() => {
+      if (!fullArticle.value?.chapters) return true;
+      return currentChapter.value === fullArticle.value.chapters.length;
+    });
+
+    const currentQuestion = computed(() => {
+      if (!fullArticle.value?.quiz?.questions || fullArticle.value.quiz.questions.length === 0) {
+        return null;
+      }
+      return fullArticle.value.quiz.questions[currentQuestionIndex.value] || null;
+    });
+
     const hasNextQuestion = computed(() => {
-      if (!props.article.quiz) return false;
-      return currentQuestionIndex.value < props.article.quiz.questions.length - 1;
+      if (!fullArticle.value?.quiz?.questions) return false;
+      return currentQuestionIndex.value < fullArticle.value.quiz.questions.length - 1;
     });
 
-    // Option auswählen
+    const correctAnswerText = computed(() => {
+      if (!currentQuestion.value) return '';
+      const correctAnswer = currentQuestion.value.answers.find(answer => answer.isCorrect);
+      return correctAnswer?.answer || '';
+    });
+
+    // Helper: Vollständigen Artikel laden
+    const loadFullArticle = async () => {
+      if (!props.article?.id) return;
+
+      loadingArticle.value = true;
+      articleError.value = null;
+
+      try {
+        const response = await axiosInstance.get(`/article/getPostById/${props.article.id}`);
+        fullArticle.value = response.data.data;
+        
+        // Artikel als gelesen markieren (falls noch nicht geschehen)
+        await markAsRead();
+        
+      } catch (error) {
+        console.error('Error loading full article:', error);
+        articleError.value = 'Fehler beim Laden des vollständigen Artikels';
+      } finally {
+        loadingArticle.value = false;
+      }
+    };
+
+    // Helper: Artikel als gelesen markieren
+    const markAsRead = async () => {
+      if (!props.article?.id) return;
+
+      try {
+        await historyService.markAsRead(props.article.id);
+      } catch (error) {
+        // Fehler beim Markieren als gelesen ignorieren (nicht kritisch)
+        console.warn('Could not mark article as read:', error);
+      }
+    };
+
+    // Helper: Inhalt formatieren
+    const formatContent = (content: string): string => {
+      if (!content) return '';
+      
+      // Einfache Formatierung für Absätze
+      return content
+        .split('\n\n')
+        .map(paragraph => paragraph.trim())
+        .filter(paragraph => paragraph.length > 0)
+        .map(paragraph => `<p>${paragraph}</p>`)
+        .join('');
+    };
+
+    // Helper: Datum formatieren
+    const formatDate = (dateString: string): string => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+
+    // Kapitel-Navigation
+    const nextChapter = () => {
+      if (fullArticle.value?.chapters && currentChapter.value < fullArticle.value.chapters.length) {
+        currentChapter.value++;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    const prevChapter = () => {
+      if (currentChapter.value > 1) {
+        currentChapter.value--;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    // Quiz-Funktionen
     const selectOption = (index: number) => {
       if (!showFeedback.value && !quizCompleted.value) {
         selectedOption.value = index;
       }
     };
 
-    // Antwort prüfen
     const checkAnswer = () => {
-      if (selectedOption.value === null) return;
+      if (selectedOption.value === null || !currentQuestion.value) return;
 
-      isCorrect.value = selectedOption.value === currentQuestion.value.correctAnswer;
+      const selectedAnswer = currentQuestion.value.answers[selectedOption.value];
+      isCorrect.value = selectedAnswer?.isCorrect || false;
+      
       if (isCorrect.value) {
         correctAnswers.value++;
       }
@@ -459,7 +396,6 @@ export default defineComponent({
       showFeedback.value = true;
     };
 
-    // Zur nächsten Frage
     const nextQuestion = () => {
       if (!hasNextQuestion.value) return;
 
@@ -468,12 +404,19 @@ export default defineComponent({
       showFeedback.value = false;
     };
 
-    // Quiz abschließen
-    const finishQuiz = () => {
+    const finishQuiz = async () => {
       quizCompleted.value = true;
+      
+      // Quiz-Ergebnis an Backend senden (falls implementiert)
+      try {
+        const score = Math.round((correctAnswers.value / (fullArticle.value?.quiz?.questions.length || 1)) * 100);
+        // Hier könnte später ein API-Call zum Speichern des Quiz-Ergebnisses erfolgen
+        console.log('Quiz completed with score:', score);
+      } catch (error) {
+        console.warn('Could not save quiz result:', error);
+      }
     };
 
-    // Quiz neu starten
     const restartQuiz = () => {
       currentQuestionIndex.value = 0;
       selectedOption.value = null;
@@ -482,29 +425,57 @@ export default defineComponent({
       correctAnswers.value = 0;
     };
 
-    // Zurück zum Artikel
     const backToArticle = () => {
       showQuiz.value = false;
     };
 
-    // Bei Komponenten-Entfernung aktuelle Kapitelposition speichern
-    watch(
-      () => props.article,
-      (newArticle) => {
-        if (newArticle && typeof newArticle.currentChapter !== "undefined") {
-          currentChapter.value = newArticle.currentChapter;
-        }
+    // Artikel teilen
+    const shareArticle = () => {
+      if (!fullArticle.value) return;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: fullArticle.value.title,
+          text: fullArticle.value.quickDescription,
+          url: window.location.href,
+        }).catch(console.error);
+      } else {
+        // Fallback: URL in Zwischenablage kopieren
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          alert('Link wurde in die Zwischenablage kopiert!');
+        }).catch(() => {
+          alert('Teilen wird von diesem Browser nicht unterstützt.');
+        });
       }
-    );
+    };
+
+    // Beim Mounten Artikel laden
+    onMounted(() => {
+      loadFullArticle();
+    });
+
+    // Bei Artikel-Wechsel neu laden
+    watch(() => props.article?.id, (newId) => {
+      if (newId) {
+        // Quiz-State zurücksetzen
+        showQuiz.value = false;
+        currentChapter.value = 1;
+        restartQuiz();
+        // Artikel neu laden
+        loadFullArticle();
+      }
+    });
 
     return {
+      // State
+      loadingArticle,
+      articleError,
+      fullArticle,
       currentChapter,
-      currentContent,
+      currentChapterContent,
       isLastChapter,
-      nextChapter,
-      prevChapter,
-      toggleBookmark,
-      shareArticle,
+      
+      // Quiz
       showQuiz,
       currentQuestionIndex,
       currentQuestion,
@@ -514,18 +485,21 @@ export default defineComponent({
       quizCompleted,
       correctAnswers,
       hasNextQuestion,
+      correctAnswerText,
+      
+      // Functions
+      loadFullArticle,
+      formatContent,
+      formatDate,
+      nextChapter,
+      prevChapter,
       selectOption,
       checkAnswer,
       nextQuestion,
       finishQuiz,
       restartQuiz,
       backToArticle,
-      // Kommentar-Funktionen
-      newComment,
-      comments,
-      submitComment,
-      toggleLike,
-      formatDate,
+      shareArticle,
     };
   },
 });
@@ -548,7 +522,9 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: map.get(vars.$spacing, m) 0;
+    border-radius: 50px;
+    padding: 1rem;
+    margin-bottom: 5rem;
     z-index: 10;
 
     @each $theme in ("light", "dark") {
@@ -606,17 +582,6 @@ export default defineComponent({
             @include mixins.shadow("small", $theme);
           }
 
-          &.bookmark {
-            &.active {
-              background-color: mixins.theme-color($theme, accent-yellow);
-              color: white;
-            }
-
-            &:not(.active):hover {
-              color: mixins.theme-color($theme, accent-yellow);
-            }
-          }
-
           &.share:hover {
             color: mixins.theme-color($theme, accent-teal);
           }
@@ -625,9 +590,98 @@ export default defineComponent({
     }
   }
 
+  // Loading State
+  .loading-article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid;
+      border-radius: 50%;
+      margin-bottom: map.get(vars.$spacing, m);
+      animation: spin 1s linear infinite;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+          border-top-color: mixins.theme-color($theme, primary);
+        }
+      }
+    }
+
+    p {
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
+  // Error State
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .error-icon {
+      font-size: 3rem;
+      margin-bottom: map.get(vars.$spacing, m);
+    }
+
+    h3 {
+      margin-bottom: map.get(vars.$spacing, s);
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+
+    p {
+      margin-bottom: map.get(vars.$spacing, l);
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .retry-button {
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      border: none;
+      cursor: pointer;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+          color: white;
+
+          &:hover {
+            transform: translateY(-2px);
+            @include mixins.shadow("small", $theme);
+          }
+        }
+      }
+    }
+  }
+
   // Artikel-Inhalt
   .article-content {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 map.get(vars.$spacing, l);
 
@@ -738,6 +792,7 @@ export default defineComponent({
 
             .progress-fill {
               height: 100%;
+              transition: width 0.3s ease;
 
               @each $theme in ("light", "dark") {
                 .theme-#{$theme} & {
@@ -797,12 +852,51 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       line-height: 1.8;
 
-      p {
-        margin-bottom: map.get(vars.$spacing, l);
+      .chapter-content {
+        .chapter-title {
+          font-size: map.get(map.get(vars.$fonts, sizes), xl);
+          font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          margin-bottom: map.get(vars.$spacing, l);
 
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-primary);
+            }
+          }
+        }
+
+        .chapter-text {
+          :deep(p) {
+            margin-bottom: map.get(vars.$spacing, l);
+
+            @each $theme in ("light", "dark") {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+
+        .chapter-image {
+          margin: map.get(vars.$spacing, xl) 0;
+          text-align: center;
+
+          img {
+            max-width: 100%;
+            height: auto;
+            border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+          }
+        }
+      }
+
+      .article-description {
+        p {
+          margin-bottom: map.get(vars.$spacing, l);
+
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
           }
         }
       }
@@ -856,7 +950,7 @@ export default defineComponent({
       }
     }
 
-    // Quiz-Bereich
+    // Quiz-Bereich (gleiche Styles wie ursprünglich)
     .quiz-section {
       @include animations.fade-in(0.5s);
 
@@ -904,6 +998,7 @@ export default defineComponent({
 
           .progress-fill {
             height: 100%;
+            transition: width 0.3s ease;
 
             @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
@@ -1015,7 +1110,7 @@ export default defineComponent({
           }
         }
 
-        // Feedback nach Antwort
+        // Quiz-Feedback und Steuerung (gleiche Styles wie ursprünglich)
         .quiz-feedback {
           display: flex;
           gap: map.get(vars.$spacing, m);
@@ -1084,7 +1179,6 @@ export default defineComponent({
           }
         }
 
-        // Quiz-Steuerung
         .quiz-controls {
           display: flex;
           justify-content: center;
@@ -1137,7 +1231,6 @@ export default defineComponent({
           }
         }
 
-        // Quiz-Ergebnis
         .quiz-result {
           text-align: center;
           margin-bottom: map.get(vars.$spacing, xxl);
@@ -1198,259 +1291,11 @@ export default defineComponent({
         }
       }
     }
-
-    // Kommentarbereich
-    .comments-section {
-      margin-top: map.get(vars.$spacing, xxl);
-      padding-top: map.get(vars.$spacing, xxl);
-      border-top: 1px solid;
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          border-color: mixins.theme-color($theme, border-light);
-        }
-      }
-
-      .comments-title {
-        font-size: map.get(map.get(vars.$fonts, sizes), xl);
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        margin-bottom: map.get(vars.$spacing, xl);
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
-          }
-        }
-      }
-
-      // Kommentar-Formular
-      .comment-form {
-        margin-bottom: map.get(vars.$spacing, xxl);
-        padding: map.get(vars.$spacing, l);
-        border-radius: map.get(map.get(vars.$layout, border-radius), large);
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, secondary-bg);
-            border: 1px solid mixins.theme-color($theme, border-light);
-          }
-        }
-
-        h3 {
-          font-size: map.get(map.get(vars.$fonts, sizes), large);
-          font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          margin-bottom: map.get(vars.$spacing, m);
-
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-primary);
-            }
-          }
-        }
-
-        .comment-textarea {
-          width: 100%;
-          padding: map.get(vars.$spacing, m);
-          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-          resize: vertical;
-          min-height: 100px;
-          font-family: inherit;
-          font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          line-height: 1.5;
-          border: 1px solid;
-
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, card-bg);
-              color: mixins.theme-color($theme, text-primary);
-              border-color: mixins.theme-color($theme, border-light);
-
-              &:focus {
-                outline: none;
-                border-color: mixins.theme-color($theme, primary);
-              }
-
-              &::placeholder {
-                color: mixins.theme-color($theme, text-tertiary);
-              }
-            }
-          }
-        }
-
-        .comment-form-actions {
-          display: flex;
-          justify-content: flex-end;
-          margin-top: map.get(vars.$spacing, m);
-
-          .submit-comment-btn {
-            padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
-            border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-            font-weight: map.get(map.get(vars.$fonts, weights), medium);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                background: mixins.theme-gradient($theme, primary);
-                color: white;
-
-                &:hover:not(:disabled) {
-                  transform: translateY(-2px);
-                  @include mixins.shadow("small", $theme);
-                }
-
-                &:disabled {
-                  opacity: 0.5;
-                  cursor: not-allowed;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Kommentarliste
-      .comments-list {
-        .no-comments {
-          text-align: center;
-          padding: map.get(vars.$spacing, xxl);
-
-          p {
-            font-size: map.get(map.get(vars.$fonts, sizes), medium);
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-tertiary);
-              }
-            }
-          }
-        }
-
-        .comment-item {
-          padding: map.get(vars.$spacing, l);
-          margin-bottom: map.get(vars.$spacing, m);
-          border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-          transition: all 0.3s;
-
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, card-bg);
-              border: 1px solid mixins.theme-color($theme, border-light);
-
-              &:hover {
-                @include mixins.shadow("small", $theme);
-              }
-            }
-          }
-
-          .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: map.get(vars.$spacing, m);
-
-            .comment-author-info {
-              display: flex;
-              gap: map.get(vars.$spacing, m);
-
-              .comment-avatar {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: map.get(map.get(vars.$fonts, weights), bold);
-                font-size: map.get(map.get(vars.$fonts, sizes), large);
-
-                @each $theme in ("light", "dark") {
-                  .theme-#{$theme} & {
-                    background: mixins.theme-gradient($theme, primary);
-                    color: white;
-                  }
-                }
-              }
-
-              .comment-author {
-                font-weight: map.get(map.get(vars.$fonts, weights), medium);
-                margin-bottom: 2px;
-
-                @each $theme in ("light", "dark") {
-                  .theme-#{$theme} & {
-                    color: mixins.theme-color($theme, text-primary);
-                  }
-                }
-              }
-
-              .comment-date {
-                font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-                @each $theme in ("light", "dark") {
-                  .theme-#{$theme} & {
-                    color: mixins.theme-color($theme, text-tertiary);
-                  }
-                }
-              }
-            }
-
-            .comment-actions {
-              .like-button {
-                display: flex;
-                align-items: center;
-                gap: map.get(vars.$spacing, xs);
-                padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-                border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-                border: 1px solid;
-                background: transparent;
-                cursor: pointer;
-                transition: all 0.2s;
-
-                @each $theme in ("light", "dark") {
-                  .theme-#{$theme} & {
-                    border-color: mixins.theme-color($theme, border-light);
-                    color: mixins.theme-color($theme, text-secondary);
-
-                    &:hover {
-                      background-color: mixins.theme-color($theme, hover-color);
-                    }
-
-                    &.liked {
-                      border-color: #ff6b6b;
-                      background-color: rgba(255, 107, 107, 0.1);
-
-                      .like-count {
-                        color: #ff6b6b;
-                      }
-                    }
-                  }
-                }
-
-                .like-icon {
-                  font-size: 1rem;
-                }
-
-                .like-count {
-                  font-size: map.get(map.get(vars.$fonts, sizes), small);
-                  font-weight: map.get(map.get(vars.$fonts, weights), medium);
-                }
-              }
-            }
-          }
-
-          .comment-content {
-            font-size: map.get(map.get(vars.$fonts, sizes), medium);
-            line-height: 1.6;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-secondary);
-              }
-            }
-          }
-        }
-      }
-    }
   }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

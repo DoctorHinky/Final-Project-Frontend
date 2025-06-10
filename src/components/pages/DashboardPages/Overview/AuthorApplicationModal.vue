@@ -169,7 +169,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, type PropType } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import {
   XMarkIcon as IconXMark,
   DocumentIcon as IconDocument,
@@ -208,7 +208,7 @@ export default defineComponent({
     }
   },
   emits: ['close', 'submit'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const isSubmitting = ref(false);
 
     // Datei-Upload-Referenzen
@@ -404,20 +404,18 @@ export default defineComponent({
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: rgba(if($theme =='dark', #000000, #ffffff), 0.75);
       backdrop-filter: blur(6px);
     }
   }
 
   .author-modal {
-    max-width: 800px;
     width: 100%;
     min-height: 100vh;
     overflow-y: auto;
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
-    padding: 0;
+    padding: 1rem;
     position: relative;
-    top: -100px;
+    top: -250px;
     display: flex;
     flex-direction: column;
 
@@ -469,11 +467,6 @@ export default defineComponent({
         border-radius: 50%;
         transition: all 0.2s;
 
-        .close-icon {
-          width: 24px;
-          height: 24px;
-        }
-
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -486,10 +479,13 @@ export default defineComponent({
         }
       }
     }
-
+        .close-icon {
+          position: absolute;
+          width: 24px;
+          height: 24px;
+        }
     .modal-content {
-      padding: map.get(vars.$spacing, xl);
-
+      max-width: 100% !important;
       .modal-description {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         margin-bottom: map.get(vars.$spacing, xl);

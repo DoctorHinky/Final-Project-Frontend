@@ -73,7 +73,7 @@ export default defineComponent({
   
   emits: ['login-success'],
 
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const route = useRoute();
     const isLoading = ref(false);
     const showLoginPassword = ref(false);
