@@ -392,7 +392,7 @@ export default defineComponent({
 // Modal für Autor-Bewerbung
 .author-modal-backdrop {
   position: fixed;
-  top: 0;
+  top: 0px;
   left: 0;
   right: 0;
   bottom: 0;

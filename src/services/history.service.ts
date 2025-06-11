@@ -262,14 +262,13 @@ class HistoryService {
   }
 
   /**
-   * Kürzlich gelesene Artikel abrufen (für Dashboard)
+   * ✅ FIX: Kürzlich gelesene Artikel über normales History-Endpoint abrufen
    */
   async getRecentlyRead(limit: number = 5): Promise<HistoryItem[]> {
     try {
-      const response = await axiosInstance.get(`${this.baseUrl}/recent`, {
-        params: { limit }
-      });
-      return response.data.articles || [];
+      // ✅ Nutze bestehendes getHistory statt nicht-existierenden /recent Endpunkt
+      const response = await this.getHistory(1, limit);
+      return response.data || [];
     } catch (error: any) {
       console.error('Error fetching recently read:', error);
       return [];
@@ -417,25 +416,6 @@ class HistoryService {
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
       return `${hours} Stunde${hours !== 1 ? 'n' : ''} ${minutes > 0 ? `${minutes} Min` : ''}`;
-    }
-  }
-
-  /**
-   * ✅ NEU: Debugging-Hilfe für Bildprobleme
-   */
-  debugImageData(historyItems: HistoryItem[]): void {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 === HISTORY SERVICE BILD-DEBUG ===');
-      historyItems.forEach((item, index) => {
-        console.log(`📄 History Item ${index + 1}:`, {
-          title: item.postTitle,
-          postImage: item.postImage,
-          postPublicIdImage: item.postPublicIdImage,
-          postCategory: item.postCategory,
-          hasImage: !!item.postImage
-        });
-      });
-      console.log('🔍 === END DEBUG ===');
     }
   }
 }

@@ -1,4 +1,4 @@
-<!-- src/components/member/MemberSidebar.vue -->
+<!-- src/components/layout/MemberSidebar.vue -->
 <template>
   <aside class="member-sidebar" :class="{ 'open': isOpen }">
     <!-- Sidebar-Header mit Logo und Schließen-Button -->
@@ -6,11 +6,35 @@
       <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
     </a>
     <div class="sidebar-header">
-     <img src="../../assets/images/AvatarIcon1.webp" alt="Account Logo" class="account-logo" />
+      <!-- Dynamisches Profilbild -->
+      <div class="profile-image-container" @click="goToProfileSettings">
+        <img 
+          :src="userProfileImage" 
+          :alt="userName + ' Profilbild'" 
+          class="account-logo" 
+          @error="handleImageError"
+        />
+        <div v-if="!isImageLoaded" class="image-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="placeholder-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+        </div>
+        <!-- Hover-Indikator für Klickbarkeit -->
+        <div class="profile-edit-overlay">
+          <span class="edit-icon">✏️</span>
+        </div>
+        <!-- Status-Indikator für Custom Bild -->
+        <div v-if="isCustomProfileImage" class="profile-status-indicator" title="Benutzerdefiniertes Profilbild">
+          ✨
+        </div>
+      </div>
+      
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
+        <span v-if="isCustomProfileImage" class="profile-status">Eigenes Bild</span>
       </div>
+      
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
 
@@ -28,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -39,6 +63,8 @@ import {
   PencilIcon
 } from '@heroicons/vue/24/outline';
 import { authorService } from '@/services/author.service';
+import { userService } from '@/services/userMD.services';
+import type { User } from '@/types/dtos/User.types';
 
 // TypeScript Interface für Token-Payload
 interface TokenPayload {
@@ -75,10 +101,25 @@ export default defineComponent({
   },
   emits: ['select-menu', 'close', 'logout'],
   setup(_, { emit }) {
-    // Prüfe ob User Author oder Admin ist
+    // State
     const canCreateArticles = ref(false);
     const userName = ref('');
     const userRole = ref('');
+    const userData = ref<User | null>(null);
+    const isImageLoaded = ref(true);
+    const fallbackImageUrl = '/src/assets/images/AvatarIcon1.webp';
+    
+    // Computed Properties
+    const userProfileImage = computed(() => {
+      if (userData.value?.profilePicture) {
+        return userData.value.profilePicture;
+      }
+      return fallbackImageUrl;
+    });
+
+    const isCustomProfileImage = computed(() => {
+      return userData.value?.profilePicture && userData.value.profilePicture !== fallbackImageUrl;
+    });
     
     // Menüelemente als Computed-Property, die sich bei Änderung des Status aktualisiert
     const menuItems = computed(() => {
@@ -101,65 +142,135 @@ export default defineComponent({
       ];
     });
 
-    // Bei Montage der Komponente die Berechtigung prüfen
-    onMounted(() => {
+    // Methods
+    const loadUserData = async () => {
+      try {
+        const user = await userService.getCurrentUser();
+        userData.value = user;
+        
+        // Username setzen
+        userName.value = user?.username || 'Benutzer';
+        
+        // Rolle für Anzeige setzen (auf Deutsch)
+        const roleMap: Record<string, string> = {
+          'ADMIN': 'Administrator',
+          'AUTHOR': 'Autor', 
+          'ADULT': 'Erwachsener',
+          'CHILD': 'Kind',
+          'MODERATOR': 'Moderator'
+        };
+        
+        const role = user?.role?.toString() || '';
+        userRole.value = roleMap[role] || role;
+        
+        // Berechtigung für Artikel-Erstellung setzen
+        canCreateArticles.value = role === 'AUTHOR' || role === 'ADMIN';
+        
+      } catch (error) {
+        console.error('Fehler beim Laden der Benutzerdaten:', error);
+        // Fallback zu Token-Dekodierung
+        loadUserFromToken();
+      }
+    };
+
+    const loadUserFromToken = () => {
       try {
         // Token dekodieren für Benutzerinformationen
         const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
         if (token) {
-          try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const decoded = JSON.parse(window.atob(base64)) as TokenPayload;
-            
-            // Username direkt aus dem Token
-            userName.value = decoded.username || 'Benutzer';
-            
-            // Rolle anzeigen (auf Deutsch)
-            const roleMap: Record<string, string> = {
-              'admin': 'Administrator',
-              'author': 'Autor',
-              'user': 'Benutzer',
-              'moderator': 'Moderator'
-            };
-            
-            // Rolle für Anzeige setzen
-            const displayRole = decoded.role || '';
-            userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
-            
-            // NUR Authors und Admins können Artikel erstellen
-            const roleCheck = (decoded.role || '').toLowerCase();
-            canCreateArticles.value = roleCheck === 'author' || roleCheck === 'admin';
-            
-          } catch (e) {
-            console.error('Token konnte nicht dekodiert werden:', e);
-            canCreateArticles.value = false;
-            userName.value = 'Benutzer';
-          }
-        } else {
-          // Kein Token
-          canCreateArticles.value = false;
-          userName.value = 'Benutzer';
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const decoded = JSON.parse(window.atob(base64)) as TokenPayload;
+          
+          // Username direkt aus dem Token
+          userName.value = decoded.username || 'Benutzer';
+          
+          // Rolle anzeigen (auf Deutsch)
+          const roleMap: Record<string, string> = {
+            'admin': 'Administrator',
+            'author': 'Autor',
+            'user': 'Benutzer',
+            'adult': 'Erwachsener',
+            'child': 'Kind',
+            'moderator': 'Moderator'
+          };
+          
+          // Rolle für Anzeige setzen
+          const displayRole = decoded.role || '';
+          userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
+          
+          // NUR Authors und Admins können Artikel erstellen
+          const roleCheck = (decoded.role || '').toLowerCase();
+          canCreateArticles.value = roleCheck === 'author' || roleCheck === 'admin';
         }
-        
-      } catch (error) {
-        console.error('Fehler beim Prüfen der Berechtigungen:', error);
+      } catch (e) {
+        console.error('Token konnte nicht dekodiert werden:', e);
+        // Fallback-Werte setzen
         canCreateArticles.value = false;
         userName.value = 'Benutzer';
+        userRole.value = 'Benutzer';
       }
-    });
+    };
+
+    const handleImageError = () => {
+      isImageLoaded.value = false;
+      console.warn('Profilbild konnte nicht geladen werden, verwende Fallback');
+    };
 
     // Menüpunkt auswählen
     const selectMenuItem = (itemId: string) => {
       emit('select-menu', itemId);
     };
 
+    // Zu Profileinstellungen weiterleiten
+    const goToProfileSettings = () => {
+      emit('select-menu', 'settings');
+      // Optional: Event für direkten Tab-Wechsel zu Profil-Tab
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('switch-to-profile-tab'));
+        }
+      }, 100);
+    };
+
+    // Lifecycle hooks
+    onMounted(() => {
+      loadUserData();
+    });
+
+    // Watch für Updates der Benutzerdaten (z.B. nach Profilbild-Upload)
+    watch(() => userData.value?.profilePicture, (newImage, oldImage) => {
+      if (newImage !== oldImage) {
+        isImageLoaded.value = true;
+      }
+    });
+
+    // Event-Listener für Profilbild-Updates
+    const handleProfileUpdate = () => {
+      loadUserData();
+    };
+
+    // Event-Listener registrieren (kann von außen getriggert werden)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('profile-updated', handleProfileUpdate);
+    }
+
     return {
+      // State
       menuItems,
-      selectMenuItem,
       canCreateArticles,
       userName,
-      userRole
+      userRole,
+      userData,
+      userProfileImage,
+      isCustomProfileImage,
+      isImageLoaded,
+      
+      // Methods
+      selectMenuItem,
+      handleImageError,
+      loadUserData,
+      goToProfileSettings
     };
   }
 });
@@ -173,7 +284,7 @@ export default defineComponent({
 
 .member-sidebar {
   position: fixed;
-  top: 0;
+  top: 70px;
   left: -300px;
   width: 300px;
   height: 100vh;
@@ -183,7 +294,6 @@ export default defineComponent({
   flex-direction: column;
   padding-top: 70px; // Platz für den Header
   user-select: none;
-  
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -224,21 +334,126 @@ export default defineComponent({
       }
     }
 
-    .account-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
+    .profile-image-container {
+      position: relative;
       margin-right: map.get(vars.$spacing, s);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        
+        .account-logo {
+          filter: brightness(0.8);
+        }
+        
+        .profile-edit-overlay {
+          opacity: 1;
+        }
+      }
+
+      .account-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            border-color: mixins.theme-color($theme, border-light);
+          }
+        }
+      }
+
+      .profile-edit-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+
+        .edit-icon {
+          font-size: 16px;
+          color: white;
+        }
+      }
+
+      .image-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            border: 2px solid mixins.theme-color($theme, border-light);
+          }
+        }
+
+        .placeholder-icon {
+          width: 24px;
+          height: 24px;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
+            }
+          }
+        }
+      }
+
+      .profile-status-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 18px;
+        height: 18px;
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        border: 2px solid;
+        animation: twinkle 2s ease-in-out infinite;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            border-color: mixins.theme-color($theme, card-bg);
+          }
+        }
+      }
     }
 
     .header-content {
       flex: 1;
+      min-width: 0; // Wichtig für text-overflow
 
       h3 {
         margin: 0;
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -252,10 +467,27 @@ export default defineComponent({
         margin: 0;
         margin-top: 2px;
         font-size: map.get(map.get(vars.$fonts, sizes), small);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+      }
+
+      .profile-status {
+        display: block;
+        font-size: map.get(map.get(vars.$fonts, sizes), xs);
+        margin-top: 1px;
+        opacity: 0.8;
+        font-style: italic;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
           }
         }
       }
@@ -271,16 +503,19 @@ export default defineComponent({
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      transition: color 0.3s;
+      transition: all 0.3s ease;
+      border-radius: 6px;
+      flex-shrink: 0;
 
       @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
 
-        &:hover {
-        color: mixins.theme-color($theme, text-primary);
+          &:hover {
+            color: mixins.theme-color($theme, text-primary);
+            background-color: mixins.theme-color($theme, hover-color);
+          }
         }
-      }
       }
     }
   }
@@ -293,7 +528,7 @@ export default defineComponent({
     flex-direction: column;
     gap: map.get(vars.$spacing, s);
     overflow-y: auto;
-      user-select: none;
+    user-select: none;
 
     .nav-item {
       display: flex;
@@ -311,11 +546,13 @@ export default defineComponent({
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
             color: mixins.theme-color($theme, text-primary);
+            transform: translateX(3px);
           }
 
           &.active {
             background: mixins.theme-gradient($theme, primary);
             color: white;
+            transform: translateX(5px);
           }
         }
       }
@@ -327,10 +564,16 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         width: 24px;
+        transition: all 0.3s ease;
       }
 
       .nav-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        transition: all 0.3s ease;
+      }
+
+      &:hover .nav-icon {
+        transform: scale(1.1);
       }
     }
   }
@@ -339,7 +582,6 @@ export default defineComponent({
 .logo-Sidebar {
   display: block;
   margin: 0 auto;
-  /* Zentriert das Bild horizontal */
   height: 100px;
   width: 100px;
   border-radius: 50px;
@@ -354,44 +596,42 @@ export default defineComponent({
   }
 }
 
+// Animations
 @keyframes WackelpuddingHop {
   0% {
     transform: translateY(0) scale(1, 1);
   }
-
   25% {
     transform: translateY(-20px) scale(1, 1.05);
-    /* Leicht vertikal gedehnt während des Aufstiegs */
   }
-
   40% {
     transform: translateY(-25px) scale(1.05, 0.95);
-    /* Bereitet sich auf den Fall vor */
   }
-
   50% {
     transform: translateY(5px) scale(1.1, 0.8);
-    /* Abgeflacht beim Aufprall */
   }
-
   65% {
     transform: translateY(-5px) scale(0.95, 1.1);
-    /* Vertikale Gegenbewegung - quetscht nach oben */
   }
-
   75% {
     transform: translateY(0) scale(1.05, 0.95);
-    /* Zweite kleine Abflachung */
   }
-
   85% {
     transform: translateY(0) scale(0.98, 1.02);
-    /* Kleine Nachwackelbewegung */
   }
-
   100% {
     transform: translateY(0) scale(1, 1);
-    /* Zurück zur Ausgangsgröße */
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
   }
 }
 

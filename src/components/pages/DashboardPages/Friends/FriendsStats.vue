@@ -2,7 +2,9 @@
 <template>
   <div class="friends-stats">
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: rgba(74, 210, 149, 0.2)">👥</div>
+      <div class="stat-icon" style="background-color: rgba(74, 210, 149, 0.2)">
+        <UserGroupIcon class="icon" />
+      </div>
       <div class="stat-info">
         <h3>{{ friendsCount }}</h3>
         <p>Freunde</p>
@@ -10,18 +12,12 @@
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: rgba(53, 204, 208, 0.2)">📨</div>
+      <div class="stat-icon" style="background-color: rgba(53, 204, 208, 0.2)">
+        <InboxIcon class="icon" />
+      </div>
       <div class="stat-info">
         <h3>{{ pendingRequestsCount }}</h3>
         <p>Offene Anfragen</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon" style="background-color: rgba(155, 225, 93, 0.2)">💬</div>
-      <div class="stat-info">
-        <h3>{{ suggestionsCount }}</h3>
-        <p>Empfehlungen</p>
       </div>
     </div>
   </div>
@@ -29,9 +25,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { UserGroupIcon, InboxIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'FriendsStats',
+  components: {
+    UserGroupIcon,
+    InboxIcon
+  },
   props: {
     friendsCount: {
       type: Number,
@@ -40,11 +41,8 @@ export default defineComponent({
     pendingRequestsCount: {
       type: Number,
       required: true
-    },
-    suggestionsCount: {
-      type: Number,
-      required: true
     }
+    // suggestionsCount prop entfernt
   }
 });
 </script>
@@ -89,7 +87,18 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       margin-right: map.get(vars.$spacing, m);
-      font-size: 1.5rem;
+
+      .icon {
+        width: 24px;
+        height: 24px;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease-out;
+          }
+        }
+      }
     }
 
     .stat-info {
@@ -119,5 +128,4 @@ export default defineComponent({
       }
     }
   }
-}
-</style>
+}</style>

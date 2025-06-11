@@ -91,19 +91,18 @@ export default defineComponent({
     }
   },
   emits: ['tab-change', 'toggle-theme'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const activeTab = ref(0);
     const router = useRouter();
     const route = useRoute();
     const isMobileMenuOpen = ref(false);
     const isScrolling = ref(false);
     const scrollTimeout = ref<number | null>(null);
-    const lastScrollPosition = ref(0);
     const sectionPositions = ref<Array<{ id: string; top: number; bottom: number }>>([]);
 
     const tabs = [
       { name: 'Über', id: 'hero', icon: InformationCircleIcon },
-      { name: 'Was wir tun', id: 'content', icon: BriefcaseIcon },
+      { name: 'Mission', id: 'content', icon: BriefcaseIcon },
       { name: 'Quiz', id: 'quiz', icon: PuzzlePieceIcon },
       { name: 'Community', id: 'community', icon: UserGroupIcon },
       { name: 'Autoren', id: 'Authors', icon: PencilIcon },
@@ -445,6 +444,7 @@ export default defineComponent({
 
 // Desktop Navigation
 .nav-tabs {
+  font-family: "Comic Sans MS", sans-serif;
   @include mixins.flex(row, center, center, wrap);
   gap: map.get(vars.$spacing, m);
   margin-bottom: map.get(vars.$spacing, s);

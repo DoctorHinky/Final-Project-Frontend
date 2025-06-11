@@ -2,11 +2,6 @@
 <template>
   <div class="overview-dashboard">
     <!-- Animierte Blätter im Hintergrund -->
-    <div class="background-decoration">
-      <div class="leaf leaf--1"></div>
-      <div class="leaf leaf--2"></div>
-      <div class="leaf leaf--3"></div>
-    </div>
 
     <!-- Willkommenssektion mit CTA-Button -->
     <welcome-section @open-author-modal="toggleAuthorModal" class="dashboard-section dashboard-section--hero" />
@@ -37,6 +32,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { authService } from '@/services/auth.service';
+import { overviewService, type DashboardStats, type RecentActivityArticle, type RecommendedArticle } from '@/services/overview.service';
 
 // Import der modularen Komponenten
 import {
@@ -74,135 +70,182 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const userName = ref('Mitglied');
+    
+    // Loading states
+    const isLoading = ref(true);
+    const isLoadingStats = ref(true);
+    const isLoadingRecentArticles = ref(true);
+    const isLoadingRecommendedArticles = ref(true);
 
     // Autor-Bewerbung Modal
     const showAuthorModal = ref(false);
     const isSubmitting = ref(false);
 
-    // Erweiterte Statistiken mit Animationen
+    // Dashboard-Daten
     const stats = ref([
       {
         icon: '📚',
         label: 'Gelesene Artikel',
-        value: '12',
+        value: '0',
         color: 'gradient-green',
         animation: 'pulse'
       },
       {
         icon: '⭐',
         label: 'Favoriten',
-        value: '5',
+        value: '0',
         color: 'gradient-yellow',
         animation: 'float'
       },
       {
         icon: '👥',
         label: 'Freunde',
-        value: '3',
+        value: '0',
         color: 'gradient-teal',
         animation: 'bounce'
       },
     ]);
 
-    // Zuletzt gelesene Artikel mit erweiterten Metadaten
-    const recentArticles = ref<Article[]>([
-      {
-        id: 1,
-        title: 'Erziehungsstile im Vergleich: Welcher passt zu Ihrer Familie?',
-        status: 'in-progress',
-        currentChapter: 4,
-        totalChapters: 6,
-        lastRead: 'Gestern',
-        category: 'Erziehung',
-        author: 'Dr. Sarah Miller',
-        readingTime: '15 Min.',
-        difficulty: 'Mittel'
-      },
-      {
-        id: 2,
-        title: 'Gesunde Ernährung für Kleinkinder: Ein praktischer Leitfaden',
-        status: 'just-started',
-        currentChapter: 1,
-        totalChapters: 8,
-        lastRead: 'Vor 3 Tagen',
-        category: 'Gesundheit',
-        author: 'Ernährungsberater Tim Koch',
-        readingTime: '20 Min.',
-        difficulty: 'Einfach'
-      },
-      {
-        id: 4,
-        title: 'Grenzen setzen ohne Konflikte: Effektive Kommunikation mit Kindern',
-        status: 'almost-done',
-        currentChapter: 5,
-        totalChapters: 6,
-        lastRead: 'Vor einer Woche',
-        category: 'Kommunikation',
-        author: 'Psychologin Anna Weber',
-        readingTime: '12 Min.',
-        difficulty: 'Fortgeschritten'
-      }
-    ]);
+    // Artikel-Daten
+    const recentArticles = ref<RecentActivityArticle[]>([]);
+    const recommendedArticles = ref<RecommendedArticle[]>([]);
 
-    // Empfohlene Artikel mit erweiterten Daten
-    const recommendedArticles = ref<Article[]>([
-      {
-        id: 3,
-        title: 'Digitale Medien im Kindesalter: Fluch oder Segen?',
-        preview: 'Eine ausgewogene Betrachtung der Vor- und Nachteile digitaler Medien für Kinder.',
-        category: 'Medien',
-        author: 'Prof. Thomas Becker',
-        date: '28.04.2025',
-        readingTime: '18 Min.',
-        difficulty: 'Mittel'
-      },
-      {
-        id: 5,
-        title: 'Die Phasen der kindlichen Entwicklung verstehen',
-        preview: 'Erfahren Sie, wie Sie Ihr Kind in jeder Entwicklungsphase optimal unterstützen können.',
-        category: 'Entwicklung',
-        author: 'Dr. Maria Schmidt',
-        date: '15.04.2025',
-        readingTime: '25 Min.',
-        difficulty: 'Fortgeschritten'
-      },
-      {
-        id: 6,
-        title: 'Wie Musik die kognitive Entwicklung fördert',
-        preview: 'Neue Studien zeigen den positiven Einfluss von Musikunterricht auf die Gehirnentwicklung.',
-        category: 'Bildung',
-        author: 'Julia Wagner',
-        date: '10.04.2025',
-        readingTime: '10 Min.',
-        difficulty: 'Einfach'
+    // Dashboard-Statistiken laden
+    const loadDashboardStats = async () => {
+      try {
+        isLoadingStats.value = true;
+        const dashboardStats = await overviewService.getDashboardStats();
+        
+        // Statistiken aktualisieren
+        stats.value = [
+          {
+            icon: '📚',
+            label: 'Gelesene Artikel',
+            value: dashboardStats.readArticles.toString(),
+            color: 'gradient-green',
+            animation: 'pulse'
+          },
+          {
+            icon: '⭐',
+            label: 'Favoriten',
+            value: dashboardStats.favorites.toString(),
+            color: 'gradient-yellow',
+            animation: 'float'
+          },
+          {
+            icon: '👥',
+            label: 'Freunde',
+            value: dashboardStats.friends.toString(),
+            color: 'gradient-teal',
+            animation: 'bounce'
+          },
+        ];
+      } catch (error) {
+        console.error('Fehler beim Laden der Dashboard-Statistiken:', error);
+      } finally {
+        isLoadingStats.value = false;
       }
-    ]);
+    };
+
+    // Kürzlich gelesene Artikel laden
+    const loadRecentArticles = async () => {
+      try {
+        isLoadingRecentArticles.value = true;
+        const activities = await overviewService.getRecentActivities();
+        recentArticles.value = activities;
+      } catch (error) {
+        console.error('Fehler beim Laden der kürzlich gelesenen Artikel:', error);
+        recentArticles.value = [];
+      } finally {
+        isLoadingRecentArticles.value = false;
+      }
+    };
+
+    // Empfohlene Artikel laden
+    const loadRecommendedArticles = async () => {
+      try {
+        isLoadingRecommendedArticles.value = true;
+        const recommended = await overviewService.getRecommendedArticles();
+        recommendedArticles.value = recommended;
+      } catch (error) {
+        console.error('Fehler beim Laden der empfohlenen Artikel:', error);
+        recommendedArticles.value = [];
+      } finally {
+        isLoadingRecommendedArticles.value = false;
+      }
+    };
+
+    // Alle Dashboard-Daten laden
+    const loadAllDashboardData = async () => {
+      try {
+        isLoading.value = true;
+        
+        // Alle Daten parallel laden für bessere Performance
+        const { stats: dashboardStats, recentActivities, recommendedArticles: recommended } = 
+          await overviewService.getAllDashboardData();
+
+        // Statistiken aktualisieren
+        stats.value = [
+          {
+            icon: '📚',
+            label: 'Gelesene Artikel',
+            value: dashboardStats.readArticles.toString(),
+            color: 'gradient-green',
+            animation: 'pulse'
+          },
+          {
+            icon: '⭐',
+            label: 'Favoriten',
+            value: dashboardStats.favorites.toString(),
+            color: 'gradient-yellow',
+            animation: 'float'
+          },
+          {
+            icon: '👥',
+            label: 'Freunde',
+            value: dashboardStats.friends.toString(),
+            color: 'gradient-teal',
+            animation: 'bounce'
+          },
+        ];
+
+        // Artikel-Daten setzen
+        recentArticles.value = recentActivities;
+        recommendedArticles.value = recommended;
+
+      } catch (error) {
+        console.error('Fehler beim Laden der Dashboard-Daten:', error);
+      } finally {
+        isLoading.value = false;
+        isLoadingStats.value = false;
+        isLoadingRecentArticles.value = false;
+        isLoadingRecommendedArticles.value = false;
+      }
+    };
 
     // Modal öffnen/schließen mit Animation
     const toggleAuthorModal = () => {
       showAuthorModal.value = !showAuthorModal.value;
     };
 
-    // Formular absenden mit verbessertem Feedback
+    // Formular absenden - MIT BACKEND-ANBINDUNG
     const submitAuthorApplication = async (data: any) => {
-      isSubmitting.value = true;
-
-      try {
-        // Simuliere API-Aufruf mit Verzögerung
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        console.log('Autor-Bewerbung wurde erfolgreich gesendet:', data);
-
-        // Erfolgsmeldung anzeigen (später durch Toast/Notification ersetzen)
-        alert('Vielen Dank für deine Bewerbung! Wir werden deine Unterlagen prüfen und uns in Kürze bei dir melden.');
-
-        toggleAuthorModal();
-
-      } catch (error) {
-        console.error('Fehler beim Senden der Autor-Bewerbung:', error);
-        alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
-      } finally {
-        isSubmitting.value = false;
+      // Das Modal handhabt jetzt die Backend-Anbindung selbst
+      // Hier können wir auf Success/Error reagieren
+      if (data.success) {
+        console.log('✅ Bewerbung erfolgreich gesendet:', data);
+        
+        // Optional: Dashboard-Daten neu laden oder andere Aktionen
+        // await loadAllDashboardData();
+        
+        // Success-Feedback (später durch Toast ersetzen)
+        setTimeout(() => {
+          alert(`✅ ${data.message || 'Bewerbung erfolgreich eingereicht!'}`);
+        }, 500);
+      } else {
+        console.error('❌ Fehler bei Bewerbung:', data.error);
+        
+        // Error wird bereits im Modal angezeigt, hier nur für Debug
       }
     };
 
@@ -222,12 +265,20 @@ export default defineComponent({
       window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
     };
 
-    // Benutzerdaten beim Mounten laden
-    onMounted(() => {
+    // Daten neu laden (für Refresh-Button oder Pull-to-Refresh)
+    const refreshDashboard = async () => {
+      await loadAllDashboardData();
+    };
+
+    // Benutzerdaten und Dashboard-Daten beim Mounten laden
+    onMounted(async () => {
       const userData = authService.getUserData();
       if (userData && userData.name) {
         userName.value = userData.name.split(' ')[0];
       }
+
+      // Dashboard-Daten laden
+      await loadAllDashboardData();
 
       // Scroll-Animationen aktivieren
       const observerOptions = {
@@ -249,15 +300,32 @@ export default defineComponent({
     });
 
     return {
+      // Daten
       stats,
       recentArticles,
       recommendedArticles,
+      
+      // Loading states
+      isLoading,
+      isLoadingStats,
+      isLoadingRecentArticles,
+      isLoadingRecommendedArticles,
+      
+      // Modal
       showAuthorModal,
       toggleAuthorModal,
       submitAuthorApplication,
+      
+      // Navigation
       openArticle,
       goToMyArticles,
-      goToDiscovery
+      goToDiscovery,
+      
+      // Refresh
+      refreshDashboard,
+      loadDashboardStats,
+      loadRecentArticles,
+      loadRecommendedArticles
     };
   }
 });
@@ -601,15 +669,6 @@ export default defineComponent({
     .dashboard-section {
       padding: map.get(vars.$spacing, m);
     }
-  }
-}
-
-// Print Styles
-@media print {
-
-  .background-decoration,
-  .modal-enhanced {
-    display: none;
   }
 }
 </style>
