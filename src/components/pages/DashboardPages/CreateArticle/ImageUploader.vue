@@ -180,14 +180,13 @@ export default defineComponent({
 
         if (!props.imageMeta.isChapter) {
           if (!props.imageMeta.postId) throw new Error("Post ID is required for removing image.");
-          if (!confirm("Möchten Sie das Bild wirklich entfernen?") || !props.imageMeta.postId) {
+          if (!props.imageMeta.postId) {
             emit("image-removed-error", "Bildentfernung abgebrochen.");
             return;
           }
           entpoint = `article/removePostImage/${props.imageMeta.postId}`;
         } else {
           if (!props.imageMeta.chapterId) throw new Error("Chapter ID is required for removing chapter image.");
-          confirm("Möchten Sie das Kapitelbild wirklich entfernen?") ||
             emit("image-removed-error", "Kapitelbildentfernung abgebrochen.");
           entpoint = `article/removeChapterImage/${props.imageMeta.postId}/${props.imageMeta.chapterId}`;
           console.log("Kapitelbild entfernen:", entpoint);

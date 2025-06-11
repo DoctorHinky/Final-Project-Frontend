@@ -106,7 +106,7 @@ export default defineComponent({
       { name: 'Quiz', id: 'quiz', icon: PuzzlePieceIcon },
       { name: 'Community', id: 'community', icon: UserGroupIcon },
       { name: 'Autoren', id: 'Authors', icon: PencilIcon },
-      { name: 'Newsletter', id: 'sub', icon: EnvelopeIcon }
+      { name: 'Vorschau', id: 'sub', icon: EnvelopeIcon }
     ];
 
     // Berechnet die Header-Höhe basierend auf der Bildschirmgröße

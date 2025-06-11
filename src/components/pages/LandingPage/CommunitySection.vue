@@ -1,5 +1,5 @@
 <template>
-  <section class="section kommentar-karussell-section" id="kommentare" ref="sectionRef">
+  <section class="section kommentar-karussell-section" id="community" ref="sectionRef">
     <div class="container">
       <div class="karussell">
         <!-- Informationsbereich -->
@@ -111,11 +111,11 @@ export default defineComponent({
     const kommentare = ref<Kommentar[]>([
       {
         id: 1,
-        titel: "Fantastische Unterstützung für Eltern",
-        text: "Die Artikel über Trotzphasen haben mir geholfen, die Entwicklung meines zweijährigen Sohnes besser zu verstehen. Ich reagiere jetzt viel gelassener auf schwierige Situationen und fühle mich als Mutter viel sicherer.",
-        autor: "Familie Müller - Eltern eines 2-jährigen Kindes",
-        sterne: 5,
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=150&h=150&fit=crop&crop=face"
+        titel: "Inspirierende Community",
+        text: "Ich finde es großartig, wie offen hier über Erziehung gesprochen wird. Die Erfahrungen anderer Eltern helfen mir, neue Perspektiven zu gewinnen und eigene Lösungen zu finden.",
+        autor: "Julia S. - Mutter eines Grundschülers",
+        sterne: 4,
+        avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150&h=150&fit=crop&crop=face"
       },
       {
         id: 2,
@@ -174,11 +174,20 @@ export default defineComponent({
       return {};
     };
 
+    // Reset Autoplay Timer
+    const resetAutoplay = () => {
+      stopAutoplay();
+      startAutoplay();
+    };
+
     const naechste = async () => {
       if (isAnimating.value) return;
       
       isAnimating.value = true;
       aktuellerIndex.value = (aktuellerIndex.value + 1) % gesamtAnzahl.value;
+      
+      // Reset Timer bei manueller Navigation
+      resetAutoplay();
       
       await nextTick();
       setTimeout(() => {
@@ -192,6 +201,9 @@ export default defineComponent({
       isAnimating.value = true;
       aktuellerIndex.value = (aktuellerIndex.value - 1 + gesamtAnzahl.value) % gesamtAnzahl.value;
       
+      // Reset Timer bei manueller Navigation
+      resetAutoplay();
+      
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -203,6 +215,9 @@ export default defineComponent({
       
       isAnimating.value = true;
       aktuellerIndex.value = index;
+      
+      // Reset Timer bei manueller Navigation
+      resetAutoplay();
       
       await nextTick();
       setTimeout(() => {
@@ -263,10 +278,10 @@ export default defineComponent({
 @use '@/style/base/animations' as animations;
 
 .kommentar-karussell-section {
-  min-height: 100vh;
+  min-height: 50vh;
   padding: map.get(vars.$spacing, xxxl) 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible; // Wichtig: Karten sollen nicht abgeschnitten werden
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -283,8 +298,9 @@ export default defineComponent({
     max-width: 1400px;
     height: 100vh;
     border-radius: 20px;
-    overflow: hidden;
+    overflow: visible; // Änderung: Karten sollen nicht abgeschnitten werden
     position: relative;
+    padding: 0 20px; // Extra Padding für Desktop
   }
 
   .karussell {
@@ -432,6 +448,7 @@ export default defineComponent({
     .kommentar-inhalt {
       flex: 1;
       min-width: 0;
+      overflow: hidden; // Verhindert Text-Overflow
     }
 
     .bewertung {
@@ -465,11 +482,19 @@ export default defineComponent({
     }
 
     .kommentar {
+      overflow: hidden;
+
       .titel {
         font-size: 1.35em;
         margin-bottom: 8px;
         font-weight: 600;
         letter-spacing: 0.02em;
+        // Text-Overflow verhindern
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-wrap: break-word;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -483,6 +508,12 @@ export default defineComponent({
         font-size: 1.08em;
         margin-bottom: 10px;
         line-height: 1.5;
+        // Text-Overflow verhindern
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-wrap: break-word;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -496,6 +527,10 @@ export default defineComponent({
         font-size: 0.98em;
         font-style: italic;
         margin-top: 6px;
+        // Text-Overflow verhindern
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -508,7 +543,7 @@ export default defineComponent({
 
   .karussell-steuerung {
     position: absolute;
-    bottom: 5%;
+    bottom: 25%;
     left: 0;
     right: 0;
     display: flex;
@@ -567,7 +602,7 @@ export default defineComponent({
 
   .karussell-indikatoren {
     position: absolute;
-    bottom: 15%;
+    bottom: 32%;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -609,8 +644,12 @@ export default defineComponent({
     }
   }
 
-  // Responsive Design
+  // Responsive Design - Erweiterte Breakpoints
   @media (max-width: map.get(map.get(vars.$layout, breakpoints), desktop)) {
+    .container {
+      padding: 0 20px;
+    }
+
     .kommentar-karte {
       width: 90vw !important;
       min-width: 0;
@@ -637,56 +676,347 @@ export default defineComponent({
     }
   }
 
-  @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
+  // Große Smartphones (größer als 600px)
+  @media (max-width: 600px) and (min-width: 481px) {
     .container {
       height: 80vh;
-    }
-
-    .kommentar-karte {
-      &.kommentar-karte-1 {
-        top: 25% !important;
-      }
-
-      &.kommentar-karte-2 {
-        top: 20% !important;
-      }
-
-      &.kommentar-karte-3 {
-        top: 15% !important;
-      }
-
-      .avatar-logo {
-        width: 60px;
-        height: 60px;
-      }
-
-      .kommentar {
-        .titel {
-          font-size: 1.1em;
-        }
-
-        .kommentar-text {
-          font-size: 0.95em;
-        }
-      }
+      padding: 0 15px;
     }
 
     .informationen {
-      top: 10% !important;
+      top: 5% !important;
       left: 50% !important;
 
       .beschreibung {
-        font-size: 1.5em !important;
+        font-size: 1.3em !important;
         width: 100% !important;
         text-align: center;
       }
 
       .info-text {
-        font-size: 1em !important;
+        font-size: 0.9em !important;
+        width: 100% !important;
+        text-align: center;
+      }
+    }
+
+    .kommentar-karte {
+      &.kommentar-karte-1 {
+        top: 30% !important;
+      }
+
+      &.kommentar-karte-2 {
+        top: 25% !important;
+      }
+
+      &.kommentar-karte-3 {
+        top: 20% !important;
+      }
+    }
+  }
+
+  // Tablet und große Smartphones
+  @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
+    .container {
+      height: 80vh;
+      padding: 0 15px; // Extra Padding für Tablets
+    }
+
+    .kommentar-karte {
+      width: 85vw !important;
+      padding: 14px 8px 14px 8px;
+      gap: 12px;
+
+      &.kommentar-karte-1 {
+        top: 35% !important; // Mehr Platz nach unten
+      }
+
+      &.kommentar-karte-2 {
+        top: 30% !important;
+      }
+
+      &.kommentar-karte-3 {
+        top: 25% !important;
+      }
+
+      .avatar-logo {
+        width: 60px;
+        height: 60px;
+        margin-right: 12px;
+      }
+
+      .kommentar {
+        .titel {
+          font-size: 1.1em;
+          -webkit-line-clamp: 2;
+        }
+
+        .kommentar-text {
+          font-size: 0.95em;
+          -webkit-line-clamp: 3;
+        }
+
+        .kommentar-autor {
+          font-size: 0.9em;
+        }
+      }
+    }
+
+    .informationen {
+      top: 5% !important; // Weiter nach oben
+      left: 50% !important;
+
+      .beschreibung {
+        font-size: 1.4em !important;
+        width: 100% !important;
+        text-align: center;
+      }
+
+      .info-text {
+        font-size: 0.95em !important;
         width: 100% !important;
         text-align: center;
       }
     }
   }
+
+  // Kleine Smartphones (480px und kleiner)
+  @media (max-width: 480px) {
+    padding: map.get(vars.$spacing, xl) 0;
+
+    .container {
+      height: 80vh; // Mehr Höhe für bessere Sichtbarkeit
+      padding: 0 10px; // Seitliches Padding
+    }
+
+    .kommentar-karte {
+      width: 88vw !important;
+      padding: 12px 8px 12px 8px;
+      gap: 10px;
+      border-radius: 12px;
+
+      &.kommentar-karte-1 {
+        top: 40% !important; // Viel mehr Platz nach unten
+        right: 6% !important;
+        transform: scale(1.0) !important;
+      }
+
+      &.kommentar-karte-2 {
+        top: 35% !important;
+        right: 10% !important;
+        transform: scale(0.9) !important;
+      }
+
+      &.kommentar-karte-3 {
+        top: 30% !important;
+        right: 14% !important;
+        transform: scale(0.8) !important;
+      }
+
+      .avatar-logo {
+        width: 50px;
+        height: 50px;
+        margin-right: 8px;
+      }
+
+      .bewertung {
+        margin-bottom: 6px;
+
+        .stern-icon {
+          width: 16px;
+          height: 16px;
+          margin-right: 3px;
+        }
+      }
+
+      .kommentar {
+        .titel {
+          font-size: 1.0em;
+          margin-bottom: 6px;
+          -webkit-line-clamp: 2;
+        }
+
+        .kommentar-text {
+          font-size: 0.9em;
+          margin-bottom: 8px;
+          line-height: 1.4;
+          -webkit-line-clamp: 3;
+        }
+
+        .kommentar-autor {
+          font-size: 0.85em;
+        }
+      }
+    }
+
+    .informationen {
+      display: none; // Infotext auf kleinen Smartphones verstecken um Platz für Karten zu schaffen
+      /*
+       * Alternative: Falls Infotext doch gezeigt werden soll, verwende:
+       * position: absolute;
+       * top: 2% !important;
+       * left: 50% !important;
+       * transform: translateX(-50%);
+       * z-index: 20;
+       * font-size: 0.8em !important;
+       */
+    }
+
+    .karussell-steuerung {
+      bottom: 15%;
+
+      button {
+        width: 44px;
+        height: 44px;
+
+        .chevron-icon {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .karussell-indikatoren {
+      bottom: 23%;
+      gap: map.get(vars.$spacing, s);
+
+      button {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
+
+  // Sehr kleine Smartphones (370px und kleiner)
+  @media (max-width: 370px) {
+    padding: map.get(vars.$spacing, l) 0;
+
+    .container {
+      height: 85vh; // Noch mehr Höhe für sehr kleine Screens
+      padding: 0 5px; // Minimales Seitliches Padding
+    }
+
+    .kommentar-karte {
+      width: 92vw !important;
+      padding: 10px 6px 10px 6px;
+      gap: 8px;
+      border-radius: 10px;
+
+      &.kommentar-karte-1 {
+        top: 45% !important; // Noch mehr Platz nach unten
+        right: 4% !important;
+        transform: scale(0.95) !important;
+
+        &:hover {
+          transform: scale(1.0) !important;
+        }
+      }
+
+      &.kommentar-karte-2 {
+        top: 40% !important;
+        right: 7% !important;
+        transform: scale(0.85) !important;
+      }
+
+      &.kommentar-karte-3 {
+        top: 35% !important;
+        right: 10% !important;
+        transform: scale(0.75) !important;
+      }
+
+      .avatar-logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 6px;
+      }
+
+      .bewertung {
+        margin-bottom: 4px;
+        margin-top: 4px;
+
+        .stern-icon {
+          width: 14px;
+          height: 14px;
+          margin-right: 2px;
+        }
+      }
+
+      .kommentar {
+        .titel {
+          font-size: 0.9em;
+          margin-bottom: 4px;
+          -webkit-line-clamp: 1;
+          line-height: 1.2;
+        }
+
+        .kommentar-text {
+          font-size: 0.8em;
+          margin-bottom: 6px;
+          line-height: 1.3;
+          -webkit-line-clamp: 2;
+        }
+
+        .kommentar-autor {
+          font-size: 0.75em;
+          margin-top: 4px;
+        }
+      }
+    }
+
+    .informationen {
+      display: none; // Infotext auch auf sehr kleinen Smartphones verstecken um maximalen Platz zu schaffen
+      /*
+       * Alternative: Falls Infotext doch gezeigt werden soll, verwende:
+       * position: absolute;
+       * top: 1% !important;
+       * left: 50% !important;
+       * transform: translateX(-50%);
+       * z-index: 20;
+       * 
+       * .beschreibung {
+       *   font-size: 0.9em !important;
+       *   margin-bottom: 2px;
+       *   width: 95% !important;
+       * }
+       * 
+       * .info-text {
+       *   font-size: 0.7em !important;
+       *   width: 95% !important;
+       *   line-height: 1.2;
+       * }
+       */
+    }
+
+    .karussell-steuerung {
+      bottom: 10%; // Weiter nach unten
+
+      button {
+        width: 38px;
+        height: 38px;
+
+        .chevron-icon {
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .karussell-indikatoren {
+      bottom: 18%; // Angepasst an neue Button-Position
+      gap: 8px;
+
+      button {
+        width: 8px;
+        height: 8px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1300px) {
+  .info-text, .beschreibung {
+    display: none;
+  }
+
 }
 </style>

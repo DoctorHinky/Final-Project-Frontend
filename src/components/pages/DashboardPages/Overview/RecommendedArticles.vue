@@ -12,12 +12,30 @@
         @click="$emit('open-article', article)">
         <!-- Artikel-Bild -->
         <div class="article-image">
-          <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
-          <div v-else class="image-placeholder">
-            <span class="placeholder-icon">📖</span>
+          <!-- Loading-State oder kein Bild -->
+          <div 
+            v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
+            class="image-loading"
+          >
+            <div class="loading-spinner"></div>
+            <span class="loading-text">
+              {{ loadingImages.has(article.id) ? 'Lade Bild...' : 'Kein Bild verfügbar' }}
+            </span>
           </div>
+          
+          <!-- Hauptbild -->
+          <img 
+            v-else
+            :src="getImageUrl(article)" 
+            :alt="article.title"
+            @error="handleImageError($event, article.id)"
+            @load="handleImageLoad($event, article.id)"
+            loading="lazy"
+            decoding="async"
+          />
+          
           <!-- Kategorie-Badge -->
-          <div class="category-badge">{{ article.category }}</div>
+          <div class="category-badge" v-if="article.category">{{ article.category }}</div>
         </div>
 
         <div class="article-content">
@@ -25,9 +43,9 @@
           <p class="article-preview">{{ article.preview }}</p>
           
           <div class="article-meta">
-            <span class="meta-author">{{ article.author }}</span>
+            <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
             <span class="meta-separator">•</span>
-            <span class="meta-date">{{ article.date }}</span>
+            <span class="meta-date">{{ formatDate(article.date) }}</span>
             <span class="meta-separator">•</span>
             <span class="meta-readtime">{{ article.readTime || '10 min' }}</span>
           </div>
@@ -51,7 +69,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType, ref, watch, onMounted } from 'vue';
+import { postService } from '@/services/post.service';
 
 interface Article {
   id: number;
@@ -61,6 +80,7 @@ interface Article {
   author?: string;
   date?: string;
   coverImage?: string;
+  image?: string; // Backend-Bild
   readTime?: string;
   tags?: string[];
 }
@@ -73,7 +93,171 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['open-article']
+  emits: ['open-article'],
+  setup(props) {
+    // State für Bild-Management (identisch zu ArticlesList)
+    const imageErrors = ref(new Set<string>());
+    const articleImages = ref(new Map<string, string | null>());
+    const loadingImages = ref(new Set<string>());
+
+    // Datum formatieren (deutsche Lokalisierung)
+    const formatDate = (dateString?: string) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+
+    // Artikel-Bilder von Post-API nachladen (VERBESSERT mit robustem Error-Handling)
+    const loadArticleImage = async (postId: string): Promise<string | null> => {
+      // Bereits geladen?
+      if (articleImages.value.has(postId)) {
+        return articleImages.value.get(postId) || null;
+      }
+
+      // Bereits am Laden?
+      if (loadingImages.value.has(postId)) {
+        return null;
+      }
+
+      // VALIDIERUNG: Ungültige IDs abfangen
+      if (!postId || postId.trim() === '' || postId === 'undefined' || postId === 'null') {
+        console.warn(`⚠️ Ungültige Post-ID für empfohlenen Artikel: "${postId}"`);
+        articleImages.value.set(postId, null);
+        return null;
+      }
+
+      try {
+        loadingImages.value.add(postId);
+
+        // Vollständigen Post laden (hat das Bild)
+        const postResponse = await postService.getPostById(postId);
+        const imageUrl = postResponse.data.image;
+
+        // In Cache speichern
+        articleImages.value.set(postId, imageUrl);
+        
+        return imageUrl;
+        
+      } catch (error: any) {
+        // SPEZIFISCHES ERROR-HANDLING für verschiedene Fehlertypen
+        if (error.response?.status === 400 || error.response?.data?.message?.includes('not found')) {
+          console.info(`ℹ️ Empfohlener Post ${postId} nicht in Datenbank gefunden (möglicherweise Mock-Daten)`);
+        } else if (error.response?.status === 404) {
+          console.info(`ℹ️ Post ${postId} existiert nicht mehr`);
+        } else {
+          console.warn(`❌ Unerwarteter Fehler beim Laden des Bildes für Post ${postId}:`, error.message);
+        }
+        
+        // Fehler cachen um weitere Anfragen zu vermeiden
+        articleImages.value.set(postId, null);
+        return null;
+      } finally {
+        loadingImages.value.delete(postId);
+      }
+    };
+
+    // Bild-URL ermitteln (VERBESSERT mit Mock-Daten Support)
+    const getImageUrl = (article: Article) => {
+      const postId = String(article.id);
+
+      // 1. Prüfe ob echtes Bild vom Backend verfügbar
+      if (article.image && article.image.trim() !== '') {
+        return article.image;
+      }
+
+      // 2. Fallback: coverImage aus Props (für Mock-Daten)
+      if (article.coverImage && article.coverImage.trim() !== '') {
+        return article.coverImage;
+      }
+
+      // 3. Prüfe Cache für nachgeladene Bilder
+      if (articleImages.value.has(postId)) {
+        const cachedImage = articleImages.value.get(postId);
+        if (cachedImage) {
+          return cachedImage;
+        }
+        // Wenn im Cache aber null → Backend-Fehler aufgetreten, kein weiterer Versuch
+        return null;
+      }
+
+      // 4. CONDITIONAL: Nur echte Backend-Anfrage für plausible IDs
+      // Vermeidung von 400-Fehlern für offensichtliche Mock-IDs
+      const isValidPostId = /^\d+$/.test(postId) && parseInt(postId) > 0 && parseInt(postId) < 1000000;
+      
+      if (isValidPostId && !loadingImages.value.has(postId)) {
+        loadArticleImage(postId).then(() => {
+          // Vue's Reaktivität sorgt für automatisches Re-Rendering
+        });
+      } else if (!isValidPostId) {
+        // Für ungültige IDs direkt als "nicht verfügbar" markieren
+        articleImages.value.set(postId, null);
+        return null;
+      }
+
+      // 5. Während des Ladens: null zurückgeben (Loading-State wird angezeigt)
+      return null;
+    };
+
+    // Error-Handling für Bilder (identisch zu ArticlesList)
+    const handleImageError = (event: Event, articleId: string | number) => {
+      const img = event.target as HTMLImageElement;
+      const postId = String(articleId);
+      
+      console.warn(`Fehler beim Laden des empfohlenen Artikel-Bildes ${postId}:`, {
+        src: img.src,
+        articleId: postId
+      });
+      
+      // Markiere diesen Artikel als fehlerhaft
+      imageErrors.value.add(postId);
+      
+      // Setze im Cache auf null um Loading-State zu zeigen
+      articleImages.value.set(postId, null);
+    };
+
+    // Bild erfolgreich geladen
+    const handleImageLoad = (_: Event, articleId: string | number) => {
+      const postId = String(articleId);
+      // Entferne Error-Status falls vorhanden
+      imageErrors.value.delete(postId);
+    };
+
+    // Optional: Bilder vorladen wenn Artikel-Liste sich ändert
+    const preloadRecommendedImages = async () => {
+      if (!props.articles || props.articles.length === 0) return;
+
+      // Parallel alle Bilder laden (max 3 gleichzeitig für empfohlene Artikel)
+      const batchSize = 3;
+      for (let i = 0; i < props.articles.length; i += batchSize) {
+        const batch = props.articles.slice(i, i + batchSize);
+        await Promise.allSettled(
+          batch.map(article => loadArticleImage(String(article.id)))
+        );
+      }
+    };
+
+    // Beim Ändern der Artikel-Liste Bilder nachladen
+    watch(() => props.articles, () => {
+      if (props.articles && props.articles.length > 0) {
+        // Kurz warten, dann Bilder laden
+        setTimeout(preloadRecommendedImages, 100);
+      }
+    }, { immediate: true });
+
+    return {
+      getImageUrl,
+      handleImageError,
+      handleImageLoad,
+      formatDate,
+      loadingImages,
+      imageErrors,
+      articleImages // Für Debugging
+    };
+  }
 });
 </script>
 
@@ -185,7 +369,7 @@ export default defineComponent({
         }
       }
 
-      // Artikel-Bild
+      // Artikel-Bild (VERBESSERT - identisch zu ArticlesList)
       .article-image {
         position: relative;
         width: 100%;
@@ -201,8 +385,54 @@ export default defineComponent({
           height: 100%;
           object-fit: cover;
           transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          display: block;
+          opacity: 1;
         }
 
+        // Loading-State (NEU - identisch zu ArticlesList)
+        .image-loading {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          z-index: 1;
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, secondary-bg);
+              color: mixins.theme-color($theme, text-secondary);
+            }
+          }
+
+          .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                border-top-color: mixins.theme-color($theme, primary);
+                border-right-color: mixins.theme-color($theme, primary);
+              }
+            }
+          }
+
+          .loading-text {
+            font-size: 14px;
+            opacity: 0.7;
+            text-align: center;
+          }
+        }
+
+        // Fallback für alten Placeholder (falls kein Bild verfügbar)
         .image-placeholder {
           width: 100%;
           height: 100%;
@@ -372,11 +602,11 @@ export default defineComponent({
               letter-spacing: 0.03em;
 
               @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, accent-teal);
-            color: white;
-            border: none;
-          }
+                .theme-#{$theme} & {
+                  background-color: mixins.theme-color($theme, accent-teal);
+                  color: white;
+                  border: none;
+                }
               }
             }
           }
@@ -408,17 +638,17 @@ export default defineComponent({
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-            background: mixins.theme-gradient($theme, sidebar-active);
-          color: white;
+                background: mixins.theme-gradient($theme, sidebar-active);
+                color: white;
 
-          &:hover {
-            filter: brightness(1.08);
-            transform: translateY(-2px) scale(1.03);
+                &:hover {
+                  filter: brightness(1.08);
+                  transform: translateY(-2px) scale(1.03);
 
-            .arrow-icon {
-              transform: translateX(4px);
-            }
-          }
+                  .arrow-icon {
+                    transform: translateX(4px);
+                  }
+                }
               }
             }
           }
@@ -428,7 +658,12 @@ export default defineComponent({
   }
 }
 
-// Animation für Shimmer-Effekt
+// Animationen
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%) translateY(-100%) rotate(45deg);
