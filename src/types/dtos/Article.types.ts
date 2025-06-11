@@ -2,7 +2,7 @@ import type { Chapter } from "./Chapter.types";
 import type { PostCategory } from "./Post.Category.types";
 import type { Quiz } from "./Quiz.types";
 
-export interface Article {
+export type Article = {
   id: string;
   title: string;
   quickDescription: string;
@@ -33,4 +33,4 @@ export interface Article {
   ratings?: [];
 
   quiz: Quiz | null;
-}
+};

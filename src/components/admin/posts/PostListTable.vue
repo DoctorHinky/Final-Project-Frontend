@@ -31,7 +31,7 @@
               <div class="author-avatar">
                 <span>{{ getAuthorInitials(post.author) }}</span>
               </div>
-              <span>{{ post.author?.username || 'Unbekannt' }}</span>
+              <span>{{ post.author || "Unbekannt" }}</span>
             </div>
           </td>
           <td class="col-category">
@@ -39,39 +39,61 @@
           </td>
           <td class="col-date">{{ formatDate(post.publishedAt) }}</td>
           <td class="col-status">
-            <span 
-              class="status-badge" 
-              :class="getStatusClass(post)"
-            >
+            <span class="status-badge" :class="getStatusClass(post)">
               {{ getStatusText(post) }}
             </span>
           </td>
           <td class="col-views">{{ formatNumber(post.views) }}</td>
           <td class="col-actions">
             <div class="actions-container">
-              <button 
-                class="action-button view-button" 
-                @click.stop="$emit('view', post.id)" 
-                title="Artikel ansehen"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button class="action-button view-button" @click.stop="$emit('view', post.id)" title="Artikel ansehen">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
-              <button 
-                class="action-button status-button" 
-                @click.stop="$emit('toggle-status', post)" 
+              <button
+                class="action-button status-button"
+                @click.stop="$emit('toggle-status', post)"
                 :title="post.published ? 'Artikel deaktivieren' : 'Artikel veröffentlichen'"
               >
-                <svg v-if="post.published" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  v-if="post.published"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
                   <circle cx="16" cy="12" r="3"></circle>
                 </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
                   <circle cx="8" cy="12" r="3"></circle>
                 </svg>
@@ -85,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, type PropType } from "vue";
 
 interface Post {
   id: string;
@@ -101,60 +123,60 @@ interface Post {
 }
 
 export default defineComponent({
-  name: 'PostListTable',
+  name: "PostListTable",
   props: {
     posts: {
       type: Array as PropType<Post[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['view', 'toggle-status'],
+  emits: ["view", "toggle-status"],
   methods: {
     getAuthorInitials(author?: { username: string }): string {
-      if (!author?.username) return '??';
-      const parts = author.username.split(' ');
+      if (!author?.username) return "??";
+      const parts = author.username.split(" ");
       if (parts.length >= 2) {
         return (parts[0][0] + parts[1][0]).toUpperCase();
       }
       return author.username.substring(0, 2).toUpperCase();
     },
-    
+
     truncateText(text: string, maxLength: number): string {
-      if (!text || text.length <= maxLength) return text || '';
-      return text.substring(0, maxLength) + '...';
+      if (!text || text.length <= maxLength) return text || "";
+      return text.substring(0, maxLength) + "...";
     },
-    
+
     formatDate(date: Date | null): string {
-      if (!date) return '-';
-      return new Date(date).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      if (!date || date === null) return "-";
+      return new Date(date).toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     },
-    
+
     formatCategory(category: string): string {
-      if (!category) return 'Keine Kategorie';
-      return category.replace(/_/g, ' ');
+      if (!category) return "Keine Kategorie";
+      return category.replace(/_/g, " ");
     },
-    
+
     getStatusClass(post: Post): string {
-      if (post.isDeleted) return 'deleted';
-      if (!post.published) return 'draft';
-      return 'published';
+      if (post.isDeleted) return "deleted";
+      if (!post.published) return "draft";
+      return "published";
     },
-    
+
     getStatusText(post: Post): string {
-      if (post.isDeleted) return 'Gelöscht';
-      if (!post.published) return 'Entwurf';
-      return 'Veröffentlicht';
+      if (post.isDeleted) return "Gelöscht";
+      if (!post.published) return "Entwurf";
+      return "Veröffentlicht";
     },
-    
+
     formatNumber(num: number | undefined): string {
-      if (!num) return '0';
-      return num.toLocaleString('de-DE');
-    }
-  }
+      if (!num) return "0";
+      return num.toLocaleString("de-DE");
+    },
+  },
 });
 </script>
 
@@ -163,17 +185,18 @@ export default defineComponent({
   overflow-x: auto;
   border-radius: 6px;
   border: 1px solid #333;
-  
+
   .posts-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    
-    th, td {
+
+    th,
+    td {
       padding: 12px 16px;
       border-bottom: 1px solid #333;
     }
-    
+
     th {
       background-color: #262626;
       color: #a0a0a0;
@@ -185,27 +208,27 @@ export default defineComponent({
       top: 0;
       z-index: 10;
     }
-    
+
     .post-row {
       transition: all 0.3s ease;
       cursor: pointer;
-      
+
       &:hover {
         background-color: #2a2a2a;
       }
-      
+
       td {
         color: #f0f0f0;
       }
     }
-    
+
     .col-title {
       min-width: 300px;
-      
+
       .post-title-cell {
         display: flex;
         gap: 12px;
-        
+
         .post-thumbnail {
           width: 60px;
           height: 40px;
@@ -213,23 +236,23 @@ export default defineComponent({
           border-radius: 4px;
           overflow: hidden;
           flex-shrink: 0;
-          
+
           img {
             width: 100%;
             height: 100%;
             object-fit: cover;
           }
         }
-        
+
         .post-title-text {
           display: flex;
           flex-direction: column;
-          
+
           .post-title {
             font-weight: 500;
             margin-bottom: 4px;
           }
-          
+
           .post-excerpt {
             color: #a0a0a0;
             font-size: 0.85rem;
@@ -237,15 +260,15 @@ export default defineComponent({
         }
       }
     }
-    
+
     .col-author {
       min-width: 150px;
-      
+
       .author-cell {
         display: flex;
         align-items: center;
         gap: 8px;
-        
+
         .author-avatar {
           width: 30px;
           height: 30px;
@@ -260,7 +283,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     .col-category {
       .post-category {
         display: inline-block;
@@ -271,12 +294,13 @@ export default defineComponent({
         font-size: 0.85rem;
       }
     }
-    
-    .col-date, .col-views {
+
+    .col-date,
+    .col-views {
       color: #a0a0a0;
       font-size: 0.9rem;
     }
-    
+
     .col-status {
       .status-badge {
         display: inline-block;
@@ -284,30 +308,30 @@ export default defineComponent({
         border-radius: 12px;
         font-size: 0.8rem;
         text-align: center;
-        
+
         &.published {
           background-color: rgba(46, 204, 113, 0.2);
           color: #2ecc71;
         }
-        
+
         &.draft {
           background-color: rgba(149, 165, 166, 0.2);
           color: #95a5a6;
         }
-        
+
         &.deleted {
           background-color: rgba(231, 76, 60, 0.2);
           color: #e74c3c;
         }
       }
     }
-    
+
     .col-actions {
       .actions-container {
         display: flex;
         gap: 8px;
         justify-content: flex-end;
-        
+
         .action-button {
           width: 32px;
           height: 32px;
@@ -320,34 +344,34 @@ export default defineComponent({
           color: #a0a0a0;
           cursor: pointer;
           transition: all 0.3s ease;
-          
+
           &:hover {
             background-color: #444;
             color: #f0f0f0;
           }
-          
+
           &.view-button {
             background-color: rgba(0, 120, 215, 0.2);
             color: #0078d7;
-            
+
             &:hover {
               background-color: rgba(0, 120, 215, 0.3);
             }
           }
-          
+
           &.status-button {
             background-color: rgba(46, 204, 113, 0.2);
             color: #2ecc71;
-            
+
             &:hover {
               background-color: rgba(46, 204, 113, 0.3);
             }
           }
-          
+
           &.restore-button {
             background-color: rgba(255, 152, 0, 0.2);
             color: #ff9800;
-            
+
             &:hover {
               background-color: rgba(255, 152, 0, 0.3);
             }
@@ -360,7 +384,9 @@ export default defineComponent({
 
 @media (max-width: 768px) {
   .posts-table {
-    .col-category, .col-date, .col-views {
+    .col-category,
+    .col-date,
+    .col-views {
       display: none;
     }
   }
