@@ -11,6 +11,7 @@
       <div class="footer-logo">
         <span class="logo-text">Learn to Grow</span>
         <div class="logo-decoration"></div>
+        <p class="logo-subtitle">Gemeinsam wachsen, gemeinsam stark werden</p>
       </div>
 
       <div class="footer-content">
@@ -21,39 +22,69 @@
             <li><a href="#" @click.prevent="scrollToSection('content')">Über uns</a></li>
             <li><a href="#" @click.prevent="scrollToSection('community')">Community</a></li>
             <li><router-link to="/contact">Kontakt</router-link></li>
+            <li><router-link to="/blog">Blog</router-link></li>
           </ul>
         </div>
 
-        <div class="footer-section newsletter">
-          <h3>Newsletter</h3>
-          <p>Melde dich für unseren Newsletter an und verpasse keine neuen Artikel.</p>
-          <div class="newsletter-form">
-            <div class="input-with-button">
-              <input type="email" placeholder="Deine E-Mail Adresse" />
-              <button type="submit" @click="subscribeNewsletter" aria-label="Newsletter anmelden">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
+        <div class="footer-section team">
+          <h3>Unser Team</h3>
+          <div class="team-members">
+            <div class="team-member">
+              <div class="member-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="m22 21-3-3m0 0a5 5 0 1 0-7-7 5 5 0 0 0 7 7z"/>
                 </svg>
-              </button>
+              </div>
+              <div class="member-info">
+                <span class="name">Normand Tetzlaff</span>
+                <span class="role">Projektmanager & Backend</span>
+              </div>
             </div>
-            <p class="newsletter-privacy">Mit der Anmeldung akzeptierst du unsere Datenschutzbestimmungen.</p>
+            <div class="team-member">
+              <div class="member-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <rect width="18" height="18" x="3" y="3" rx="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>
+              </div>
+              <div class="member-info">
+                <span class="name">Chris Schubert</span>
+                <span class="role">Frontend & Design</span>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <polyline points="16 18 22 12 16 6"/>
+                  <polyline points="8 6 2 12 8 18"/>
+                </svg>
+              </div>
+              <div class="member-info">
+                <span class="name">Mark Döring</span>
+                <span class="role">Frontend & Backend</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="footer-section about">
-          <h3>Über uns</h3>
-          <p>Eine Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten, in guten wie in
-            schwierigen Zeiten.</p>
-          <div class="social-icons">
-            <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
-              <!-- Heroicon: camera -->
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
-              </svg>
-            </a>
+          <h3>Über Learn to Grow</h3>
+          <p>Eine liebevoll gestaltete Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten. Wir unterstützen euch in guten wie in schwierigen Zeiten auf eurem gemeinsamen Weg.</p>
+          <div class="contact-info">
+
+            <div class="social-icons">
+              <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
+                <!-- Echtes Instagram Logo -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                  <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -61,7 +92,10 @@
       <div class="footer-divider"></div>
 
       <div class="footer-bottom">
-        <p class="copyright">© {{ currentYear }} Leant To Grow. Alle Rechte vorbehalten.</p>
+        <div class="footer-bottom-left">
+          <p class="copyright">© {{ currentYear }} Learn to Grow. Mit ❤️ entwickelt für Familien.</p>
+          <p class="made-with">Gebaut mit Vue.js & TypeScript</p>
+        </div>
         <div class="legal-links">
           <router-link to="/privacy-policy">Datenschutz</router-link>
           <span class="separator">•</span>
@@ -120,36 +154,29 @@ export default defineComponent({
 
     const scrollToTop = () => {
       if (window.scrollY > 0) {
-      const start = window.scrollY;
-      const duration = 1600; // 1 Sekunde für langsameres Scrollen
-      const startTime = performance.now();
+        const start = window.scrollY;
+        const duration = 1600; // 1 Sekunde für langsameres Scrollen
+        const startTime = performance.now();
 
-      function animateScroll(currentTime: number) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        function animateScroll(currentTime: number) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
 
-        window.scrollTo(0, start * (1 - ease));
+          window.scrollTo(0, start * (1 - ease));
 
-        if (progress < 1) {
-        requestAnimationFrame(animateScroll);
+          if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+          }
         }
-      }
 
-      requestAnimationFrame(animateScroll);
+        requestAnimationFrame(animateScroll);
       }
-    };
-
-    // Newsletter-Anmeldung
-    const subscribeNewsletter = () => {
-      // Hier könntest du später eine Funktion implementieren, um die Newsletter-Anmeldung zu verarbeiten
-      alert('Die Newsletter-Anmeldung ist aktuell nur ein Platzhalter.');
     };
 
     return {
       currentYear,
       scrollToSection,
-      subscribeNewsletter,
       scrollToTop
     };
   }
@@ -185,6 +212,7 @@ export default defineComponent({
     overflow: hidden;
     line-height: 0;
     transform: rotate(180deg);
+    
     svg {
       position: relative;
       display: block;
@@ -208,37 +236,56 @@ export default defineComponent({
 
   .footer-logo {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 
     .logo-text {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: 800;
+      display: block;
+      margin-bottom: 0.8rem;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background: linear-gradient(90deg,
+          background: linear-gradient(135deg,
               mixins.theme-color($theme, accent-green) 0%,
-              mixins.theme-color($theme, accent-teal) 100%);
+              mixins.theme-color($theme, accent-teal) 50%,
+              mixins.theme-color($theme, accent-green) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          background-size: 200% 200%;
+          animation: gradientShift 8s ease-in-out infinite;
         }
       }
     }
 
     .logo-decoration {
-      width: 60px;
-      height: 3px;
-      margin: 0.8rem auto 0;
-      border-radius: 3px;
+      width: 80px;
+      height: 4px;
+      margin: 0 auto 1rem;
+      border-radius: 4px;
 
       @each $theme in ('light', 'dark') {
-        transition: all 0.4s ease;
-
         .theme-#{$theme} & {
           background: linear-gradient(90deg,
               mixins.theme-color($theme, accent-green) 0%,
               mixins.theme-color($theme, accent-teal) 100%);
+          transition: all 0.4s ease;
+        }
+      }
+    }
+
+    .logo-subtitle {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0;
+      font-style: italic;
+      opacity: 0.8;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease;
         }
       }
     }
@@ -246,15 +293,20 @@ export default defineComponent({
 
   .footer-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 4rem;
     margin-bottom: 4rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
 
     .footer-section {
       h3 {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         position: relative;
         display: inline-block;
         padding-bottom: 0.5rem;
@@ -267,7 +319,7 @@ export default defineComponent({
             &::after {
               content: '';
               position: absolute;
-              width: 30px;
+              width: 40px;
               height: 3px;
               bottom: 0;
               left: 0;
@@ -280,61 +332,6 @@ export default defineComponent({
         }
       }
 
-      p {
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-            transition: all 0.4s ease;
-          }
-        }
-      }
-
-      &.about {
-        .social-icons {
-          display: flex;
-          gap: 1rem;
-
-          .social-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-style: preserve-3d;
-            transform: translateZ(0);
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
-                color: mixins.theme-color($theme, accent-teal);
-                transition: all 0.4s ease;
-                box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, accent-teal), 0.15);
-
-                &:hover {
-                  transform: translateY(-8px) translateZ(20px) scale(1.1);
-                  background-color: mixins.theme-color($theme, accent-teal);
-                  color: white;
-                  box-shadow: 
-                    0 15px 35px rgba(mixins.theme-color($theme, accent-teal), 0.4),
-                    0 5px 15px rgba(0, 0, 0, 0.08);
-                }
-
-                &:active {
-                  transform: translateY(-4px) scale(1.05);
-                  transition: all 0.1s ease;
-                }
-              }
-            }
-          }
-        }
-      }
-
       &.links {
         ul {
           list-style: none;
@@ -342,21 +339,24 @@ export default defineComponent({
           margin: 0;
 
           li {
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
 
             a {
               text-decoration: none;
               position: relative;
               display: inline-flex;
               align-items: center;
-              transition: all 0.2s ease;
+              font-size: 1.05rem;
+              font-weight: 500;
+              transition: all 0.3s ease;
+              padding: 0.5rem 0;
 
               &::before {
                 content: '';
                 width: 0;
-                height: 1px;
+                height: 2px;
                 position: absolute;
-                bottom: -2px;
+                bottom: 0;
                 left: 0;
                 transition: width 0.3s ease;
               }
@@ -373,7 +373,7 @@ export default defineComponent({
 
                   &:hover {
                     color: mixins.theme-color($theme, accent-teal);
-                    transform: translateX(5px);
+                    transform: translateX(8px);
 
                     &::before {
                       width: 100%;
@@ -386,82 +386,151 @@ export default defineComponent({
         }
       }
 
-      &.newsletter {
-        .newsletter-form {
-          .input-with-button {
-            position: relative;
+      &.team {
+        .team-members {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+
+          .team-member {
             display: flex;
-            margin-bottom: 1rem;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 16px;
+            transition: all 0.3s ease;
 
-            input {
-              flex: 1;
-              padding: 0.9rem 1.2rem;
-              padding-right: 3.5rem;
-              font-size: 0.95rem;
-              border-radius: 50px;
-              border: none;
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background: rgba(mixins.theme-color($theme, card-bg), 0.3);
+                border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.3);
 
-              @each $theme in ('light', 'dark') {
-                .theme-#{$theme} & {
-                  background: rgba(mixins.theme-color($theme, card-bg), 0.5);
-                  color: mixins.theme-color($theme, text-primary);
-                  border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-                  transition: all 0.4s ease;
-
-                  &:focus {
-                    outline: none;
-                    border-color: mixins.theme-color($theme, accent-teal);
-                    box-shadow: 0 0 0 3px rgba(mixins.theme-color($theme, accent-teal), 0.1);
-                  }
-
-                  &::placeholder {
-                    color: mixins.theme-color($theme, text-tertiary);
-                  }
+                &:hover {
+                  background: rgba(mixins.theme-color($theme, card-bg), 0.6);
+                  transform: translateY(-2px);
+                  box-shadow: 0 8px 25px rgba(mixins.theme-color($theme, accent-teal), 0.15);
                 }
               }
             }
 
-            button {
-              position: absolute;
-              right: 4px;
-              top: 4px;
-              bottom: 4px;
+            .member-icon {
+              width: 40px;
+              height: 40px;
+              border-radius: 12px;
               display: flex;
               align-items: center;
               justify-content: center;
-              width: 40px;
-              height: calc(100% - 8px);
-              border: none;
-              border-radius: 50%;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              transition: all 0.4s ease;
+              flex-shrink: 0;
 
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
-                  transition: all 0.4s ease;
-                  background: linear-gradient(90deg,
-                      mixins.theme-color($theme, accent-teal) 0%,
-                      mixins.theme-color($theme, accent-green) 100%);
+                  background: linear-gradient(135deg,
+                      mixins.theme-color($theme, accent-green) 0%,
+                      mixins.theme-color($theme, accent-teal) 100%);
                   color: white;
+                }
+              }
+            }
 
-                  &:hover {
-                    transform: scale(1.05);
-                    box-shadow: 0 3px 10px rgba(mixins.theme-color($theme, accent-teal), 0.3);
+            .member-info {
+              display: flex;
+              flex-direction: column;
+              gap: 0.3rem;
+
+              .name {
+                font-weight: 600;
+                font-size: 1.05rem;
+
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-primary);
+                  }
+                }
+              }
+
+              .role {
+                font-size: 0.9rem;
+                opacity: 0.8;
+
+                @each $theme in ('light', 'dark') {
+                  .theme-#{$theme} & {
+                    color: mixins.theme-color($theme, text-secondary);
                   }
                 }
               }
             }
           }
+        }
+      }
 
-          .newsletter-privacy {
-            font-size: 0.8rem;
-            margin-bottom: 0;
+      &.about {
+        p {
+          font-size: 1.05rem;
+          line-height: 1.7;
+          margin-bottom: 2rem;
 
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-tertiary);
-                transition: all 0.4s ease;
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+              transition: all 0.4s ease;
+            }
+          }
+        }
+
+        .contact-info {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+
+          .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+            font-weight: 500;
+          }
+
+          .social-icons {
+            display: flex;
+            gap: 1rem;
+              transition: all 0.3s ease;
+
+            .social-icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 45px;
+              height: 45px;
+              border-radius: 14px;
+              transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              transform-style: preserve-3d;
+              transform: translateZ(0);
+
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background: linear-gradient(135deg, 
+                    rgba(mixins.theme-color($theme, accent-teal), 0.1) 0%,
+                    rgba(mixins.theme-color($theme, accent-green), 0.1) 100%);
+                  color: mixins.theme-color($theme, accent-teal);
+                  border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+                  box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-teal), 0.15);
+
+                  &:hover {
+                    transform: translateY(-8px) translateZ(20px) scale(1.1) rotateX(5deg);
+                    background: linear-gradient(135deg,
+                        mixins.theme-color($theme, accent-teal) 0%,
+                        mixins.theme-color($theme, accent-green) 100%);
+                    color: white;
+                    box-shadow: 
+                      0 20px 40px rgba(mixins.theme-color($theme, accent-teal), 0.4),
+                      0 8px 20px rgba(0, 0, 0, 0.1);
+                  }
+
+                  &:active {
+                    transform: translateY(-4px) scale(1.05);
+                    transition: all 0.1s ease;
+                  }
+                }
               }
             }
           }
@@ -473,11 +542,14 @@ export default defineComponent({
   .footer-divider {
     height: 1px;
     margin-bottom: 2rem;
-    opacity: 0.2;
+    opacity: 0.3;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        background: mixins.theme-color($theme, border-medium);
+        background: linear-gradient(90deg,
+          transparent 0%,
+          mixins.theme-color($theme, border-medium) 50%,
+          transparent 100%);
         transition: all 0.4s ease;
       }
     }
@@ -487,23 +559,43 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5rem 0;
+    padding: 2rem 0;
     flex-wrap: wrap;
-    gap: 1rem;
-    transition: all 0.4s ease;
+    gap: 1.5rem;
 
     @media (max-width: 768px) {
       flex-direction: column;
       text-align: center;
     }
 
-    .copyright {
-      font-size: 0.9rem;
+    .footer-bottom-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
 
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-tertiary);
-          transition: all 0.4s ease;
+      .copyright {
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 0;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+            transition: all 0.4s ease;
+          }
+        }
+      }
+
+      .made-with {
+        font-size: 0.85rem;
+        margin: 0;
+        opacity: 0.7;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+            transition: all 0.4s ease;
+          }
         }
       }
     }
@@ -511,20 +603,22 @@ export default defineComponent({
     .legal-links {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.8rem;
 
       a {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 500;
         text-decoration: none;
-        transition: color 0.2s ease;
+        transition: all 0.3s ease;
+        padding: 0.3rem 0;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-tertiary);
-            transition: all 0.4s ease;
+            color: mixins.theme-color($theme, text-secondary);
 
             &:hover {
               color: mixins.theme-color($theme, accent-teal);
+              transform: translateY(-1px);
             }
           }
         }
@@ -532,16 +626,25 @@ export default defineComponent({
 
       .separator {
         font-size: 0.9rem;
+        opacity: 0.5;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
-            opacity: 0.5;
             transition: all 0.4s ease;
           }
         }
       }
     }
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 </style>

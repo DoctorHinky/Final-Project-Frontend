@@ -323,12 +323,12 @@ export default defineComponent({
     z-index: 10;
     pointer-events: none;
     user-select: none;
+    font-family: comic sans ms, sans-serif;
 
     .beschreibung {
       width: 20%;
-      font-size: 2.1em;
       margin-bottom: 10px;
-      font-weight: 700;
+      font-weight: bold;
       letter-spacing: 0.03em;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 
@@ -965,26 +965,6 @@ export default defineComponent({
 
     .informationen {
       display: none; // Infotext auch auf sehr kleinen Smartphones verstecken um maximalen Platz zu schaffen
-      /*
-       * Alternative: Falls Infotext doch gezeigt werden soll, verwende:
-       * position: absolute;
-       * top: 1% !important;
-       * left: 50% !important;
-       * transform: translateX(-50%);
-       * z-index: 20;
-       * 
-       * .beschreibung {
-       *   font-size: 0.9em !important;
-       *   margin-bottom: 2px;
-       *   width: 95% !important;
-       * }
-       * 
-       * .info-text {
-       *   font-size: 0.7em !important;
-       *   width: 95% !important;
-       *   line-height: 1.2;
-       * }
-       */
     }
 
     .karussell-steuerung {

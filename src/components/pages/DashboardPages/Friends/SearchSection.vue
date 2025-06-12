@@ -59,55 +59,65 @@
       <span>Bitte gib einen gültigen Username ein (mindestens 3 Zeichen, kann mit @ beginnen)</span>
     </div>
 
-    <!-- User Search Results -->
-    <div v-if="searchMode === 'users' && searchResults.length > 0" class="search-results">
+    <!-- User Search Result (Einzelnes Objekt) -->
+    <div v-if="searchMode === 'users' && searchResult" class="search-results">
       <h4>
         <UsersIcon class="results-icon" />
-        Suchergebnisse ({{ searchResults.length }})
+        Benutzer gefunden
       </h4>
-      <div class="users-grid">
-        <div 
-          v-for="user in searchResults" 
-          :key="user.id" 
-          class="user-card"
-        >
+      <div class="user-result">
+        <div class="user-card">
           <div class="user-avatar">
             <img 
-              v-if="user.profileImage" 
-              :src="user.profileImage" 
-              :alt="user.displayName || user.username"
+              v-if="searchResult.profileImage" 
+              :src="searchResult.profileImage" 
+              :alt="searchResult.displayName || searchResult.username"
               class="avatar-image"
             />
             <span v-else class="avatar-placeholder">
-              {{ getInitials(user.displayName || user.username) }}
+              {{ getInitials(searchResult.displayName || searchResult.username) }}
             </span>
             <CheckBadgeIcon 
-              v-if="user.verified" 
+              v-if="searchResult.verified" 
               class="verified-badge" 
               title="Verifizierter Benutzer"
             />
           </div>
           
           <div class="user-info">
-            <h5>{{ user.displayName || user.username }}</h5>
-            <p class="username">@{{ user.username }}</p>
+            <h5>{{ searchResult.displayName || searchResult.username }}</h5>
+            <p class="username">@{{ searchResult.username }}</p>
             <div class="user-meta">
               <span class="user-type">
                 <UserIcon class="meta-icon" />
-                {{ user.verified ? 'Verifiziert' : 'Benutzer' }}
+                {{ searchResult.verified ? 'Verifiziert' : 'Benutzer' }}
               </span>
             </div>
           </div>
 
           <div class="user-actions">
+            <!-- Anfragen Button oder Zurückziehen Button -->
             <button 
-              @click="sendFriendRequest(user.id, user.displayName || user.username)"
-              :disabled="requestingUsers.has(user.id)"
+              v-if="!hasPendingRequest(searchResult.id)"
+              @click="sendFriendRequest(searchResult.id, searchResult.displayName || searchResult.username)"
+              :disabled="requestingUsers.has(searchResult.id)"
               class="action-button send-request"
             >
               <UserPlusIcon class="button-icon" />
-              <span v-if="requestingUsers.has(user.id)">Sende...</span>
+              <span v-if="requestingUsers.has(searchResult.id)">Sende...</span>
               <span v-else>Anfragen</span>
+            </button>
+
+            <!-- Zurückziehen Button -->
+            <button 
+              v-else
+              @click="cancelFriendRequest(searchResult.id, searchResult.displayName || searchResult.username)"
+              :disabled="cancellingUsers.has(searchResult.id)"
+              class="action-button cancel-request"
+            >
+              <XMarkIcon class="button-icon" />
+              <span v-if="cancellingUsers.has(searchResult.id)">Ziehe zurück...</span>
+              <span v-else>Anfrage zurückziehen</span>
             </button>
           </div>
         </div>
@@ -115,7 +125,7 @@
     </div>
 
     <!-- Empty Search Results -->
-    <div v-else-if="searchMode === 'users' && hasSearched && !isSearching && searchResults.length === 0" class="empty-search-results">
+    <div v-else-if="searchMode === 'users' && hasSearched && !isSearching && !searchResult" class="empty-search-results">
       <div class="empty-icon">
         <MagnifyingGlassIcon class="empty-icon-svg" />
       </div>
@@ -140,7 +150,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, watch, computed, type PropType } from 'vue';
 import { 
   MagnifyingGlassIcon, 
   XMarkIcon,
@@ -162,6 +172,17 @@ interface SearchUser {
   verified?: boolean;
 }
 
+interface SentRequest {
+  id: string;
+  receiverId: string;
+  status: string;
+  receiver: {
+    id: string;
+    username: string;
+    profilePicture: string | null;
+  };
+}
+
 export default defineComponent({
   name: 'SearchSection',
   components: {
@@ -179,22 +200,28 @@ export default defineComponent({
     searchQuery: {
       type: String,
       required: true
+    },
+    sentRequests: {
+      type: Array as PropType<SentRequest[]>,
+      required: true
     }
   },
   emits: [
     'update:searchQuery', 
     'filter-friends', 
     'friend-request-sent', 
+    'friend-request-cancelled',
     'show-toast'
   ],
   setup(props, { emit }) {
     // State
     const searchQueryValue = ref(props.searchQuery);
     const searchMode = ref<'filter' | 'users'>('filter');
-    const searchResults = ref<SearchUser[]>([]);
+    const searchResult = ref<SearchUser | null>(null);
     const isSearching = ref(false);
     const hasSearched = ref(false);
     const requestingUsers = ref(new Set<string>());
+    const cancellingUsers = ref(new Set<string>());
 
     // Debounced search
     let searchTimeout: NodeJS.Timeout | null = null;
@@ -205,6 +232,36 @@ export default defineComponent({
       const cleanUsername = searchQueryValue.value.replace(/^@/, '').trim();
       return cleanUsername.length >= 3;
     });
+
+    // Prüft ob für einen User bereits eine pending Anfrage existiert
+    const hasPendingRequest = (userId: string): boolean => {
+      return props.sentRequests.some(req => 
+        req.receiverId === userId && req.status === 'PENDING'
+      );
+    };
+
+    // Findet die Request ID für einen User
+    const findRequestId = (userId: string): string | null => {
+      const request = props.sentRequests.find(req => 
+        req.receiverId === userId && req.status === 'PENDING'
+      );
+      return request?.id || null;
+    };
+
+    // Methods für Filter-Modus
+    const onSearchInput = () => {
+      if (searchMode.value === 'filter') {
+        emit('update:searchQuery', searchQueryValue.value);
+        
+        if (searchTimeout) {
+          clearTimeout(searchTimeout);
+        }
+        
+        searchTimeout = setTimeout(() => {
+          emit('filter-friends');
+        }, 300);
+      }
+    };
 
     // Watchers
     watch(() => props.searchQuery, (newValue) => {
@@ -243,17 +300,19 @@ export default defineComponent({
       hasSearched.value = true;
 
       try {
-        // Exact username search
         const user = await friendService.searchUsers(query);
+        
         if (!user) {
+          searchResult.value = null;
           emit('show-toast', `Username "${query}" nicht gefunden.`, 'info');
-        return;
+          return;
         }
-        return user;
+        
+        searchResult.value = user;
       } catch (error: any) {
         console.error('Search error:', error);
         emit('show-toast', 'Fehler bei der Suche. Versuche es später erneut.', 'error');
-        searchResults.value = [];
+        searchResult.value = null;
       } finally {
         isSearching.value = false;
       }
@@ -261,7 +320,7 @@ export default defineComponent({
 
     const clearSearch = () => {
       searchQueryValue.value = '';
-      searchResults.value = [];
+      searchResult.value = null;
       hasSearched.value = false;
       
       if (searchTimeout) {
@@ -282,16 +341,41 @@ export default defineComponent({
       try {
         await friendService.sendFriendRequest(userId);
         
-        // Remove user from search results
-        searchResults.value = searchResults.value.filter(user => user.id !== userId);
-        
         emit('show-toast', `Freundschaftsanfrage an ${displayName} gesendet!`, 'success');
         emit('friend-request-sent', { userId, displayName });
+        
+        // Card bleibt sichtbar - State wird durch sentRequests Update geändert
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Fehler beim Senden der Anfrage';
         emit('show-toast', errorMessage, 'error');
       } finally {
         requestingUsers.value.delete(userId);
+      }
+    };
+
+    const cancelFriendRequest = async (userId: string, displayName: string) => {
+      if (cancellingUsers.value.has(userId)) return;
+
+      const requestId = findRequestId(userId);
+      if (!requestId) {
+        emit('show-toast', 'Anfrage nicht gefunden.', 'error');
+        return;
+      }
+
+      cancellingUsers.value.add(userId);
+
+      try {
+        await friendService.cancelFriendRequest(requestId);
+        
+        emit('show-toast', `Freundschaftsanfrage an ${displayName} zurückgezogen.`, 'info');
+        emit('friend-request-cancelled', { userId, displayName });
+        
+        // Card bleibt sichtbar - State wird durch sentRequests Update geändert
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.message || 'Fehler beim Zurückziehen der Anfrage';
+        emit('show-toast', errorMessage, 'error');
+      } finally {
+        cancellingUsers.value.delete(userId);
       }
     };
 
@@ -307,16 +391,20 @@ export default defineComponent({
     return {
       searchQueryValue,
       searchMode,
-      searchResults,
+      searchResult,
       isSearching,
       hasSearched,
       requestingUsers,
+      cancellingUsers,
       isValidUsername,
+      hasPendingRequest,
       getInitials,
+      onSearchInput,
       handleSearch,
       searchUsers,
       clearSearch,
       sendFriendRequest,
+      cancelFriendRequest,
     };
   }
 });
@@ -534,10 +622,9 @@ export default defineComponent({
       }
     }
 
-    .users-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: map.get(vars.$spacing, m);
+    .user-result {
+      display: flex;
+      justify-content: center;
 
       .user-card {
         display: flex;
@@ -545,6 +632,8 @@ export default defineComponent({
         padding: map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         gap: map.get(vars.$spacing, m);
+        max-width: 500px;
+        width: 100%;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -686,6 +775,28 @@ export default defineComponent({
                   &:hover:not(:disabled) {
                     transform: translateY(-1px);
                     @include mixins.shadow('xs', $theme);
+                  }
+
+                  &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    transform: none;
+                  }
+                }
+              }
+            }
+
+            &.cancel-request {
+              @each $theme in ('light', 'dark') {
+                .theme-#{$theme} & {
+                  background-color: #ff6b6b;
+                  color: white;
+                  transition: all 0.4s ease-out;
+
+                  &:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                    @include mixins.shadow('xs', $theme);
+                    background-color: #ff5252;
                   }
 
                   &:disabled {

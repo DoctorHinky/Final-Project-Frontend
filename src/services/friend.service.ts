@@ -22,6 +22,20 @@ export interface PendingRequestResponse {
   }[];
 }
 
+export interface SentRequestResponse {
+  message: string;
+  data: {
+    id: string;
+    receiverId: string;
+    status: string;
+    receiver: {
+      id: string;
+      username: string;
+      profilePicture: string | null;
+    };
+  }[];
+}
+
 export interface ApiResponse<T = any> {
   message: string;
   data?: T;
@@ -44,6 +58,31 @@ class FriendService {
   async getAllPendingRequests(): Promise<PendingRequestResponse> {
     const response = await api.get("/friends/pendingRequestsOfMe");
     return response.data;
+  }
+
+  /**
+   * Holt alle gesendeten Freundschaftsanfragen des aktuellen Users
+   * Hinweis: Dieser Endpunkt müsste im Backend implementiert werden
+   * Für jetzt verwenden wir einen Mock
+   */
+  async getMySentRequests(): Promise<SentRequestResponse> {
+    try {
+      // TODO: Backend Endpunkt implementieren - z.B. GET /friends/mySentRequests
+      // const response = await api.get("/friends/mySentRequests");
+      // return response.data;
+      
+      // Mock für jetzt - gibt leeres Array zurück
+      return {
+        message: "Sent requests retrieved successfully",
+        data: []
+      };
+    } catch (error) {
+      console.error("Fehler beim Laden gesendeter Anfragen:", error);
+      return {
+        message: "Error loading sent requests",
+        data: []
+      };
+    }
   }
 
   /**
@@ -162,6 +201,59 @@ class FriendService {
           message: `Einladung an ${email} wurde erfolgreich gesendet!`
         });
       }, 1000);
+    });
+  }
+
+  /**
+   * Sendet eine Nachricht an einen Freund (Mock)
+   * TODO: Echten Chat-Service implementieren
+   */
+  async sendMessage(friendId: string, message: string): Promise<ApiResponse> {
+    // Mock für jetzt:
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          message: "Nachricht erfolgreich gesendet",
+          data: {
+            id: Date.now().toString(),
+            senderId: "current_user",
+            recipientId: friendId,
+            content: message,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }, 500);
+    });
+  }
+
+  /**
+   * Holt Chat-Verlauf mit einem Freund (Mock)
+   * TODO: Echten Chat-Service implementieren
+   */
+  async getChatHistory(friendId: string): Promise<ApiResponse> {
+    // Mock für jetzt:
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          message: "Chat-Verlauf geladen",
+          data: [] // Leerer Chat-Verlauf
+        });
+      }, 300);
+    });
+  }
+
+  /**
+   * Markiert Nachrichten als gelesen (Mock)
+   * TODO: Echten Chat-Service implementieren
+   */
+  async markMessagesAsRead(friendId: string): Promise<ApiResponse> {
+    // Mock für jetzt:
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          message: "Nachrichten als gelesen markiert"
+        });
+      }, 100);
     });
   }
 }

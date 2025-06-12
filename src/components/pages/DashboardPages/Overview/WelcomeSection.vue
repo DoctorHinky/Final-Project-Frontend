@@ -7,7 +7,7 @@
     </div>
 
     <!-- CTA-Button für Autor-Bewerbung -->
-    <button class="become-author-cta" @click="$emit('open-author-modal')">
+    <button class="become-author-cta" @click="handleAuthorClick">
       <IconPencilSquare class="cta-icon" />
       Werde Autor
     </button>
@@ -24,7 +24,7 @@ export default defineComponent({
     IconPencilSquare
   },
   emits: ['open-author-modal'],
-  setup() {
+  setup(_, { emit }) {
     const currentDate = computed(() => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = {
@@ -36,8 +36,17 @@ export default defineComponent({
       return now.toLocaleDateString('de-DE', options);
     });
 
+    // Debug-Funktion für Button-Click
+    const handleAuthorClick = () => {
+      console.log('🔘 WelcomeSection: Button clicked!');
+      console.log('📤 WelcomeSection: Emitting open-author-modal event');
+      emit('open-author-modal');
+      console.log('✅ WelcomeSection: Event emitted');
+    };
+
     return {
-      currentDate
+      currentDate,
+      handleAuthorClick
     };
   }
 });
@@ -58,7 +67,6 @@ export default defineComponent({
   padding: map.get(vars.$spacing, l);
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   transition: all 0.3s;
-
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -155,6 +163,10 @@ export default defineComponent({
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       }
     }
+
+    /* Debug: Sicherstellen dass Button klickbar ist */
+    z-index: 10;
+    pointer-events: auto;
   }
 
   /* Pseudo-Element für Glanzeffekt */
@@ -211,6 +223,7 @@ export default defineComponent({
     fill: white;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     transition: transform 0.4s ease;
+    pointer-events: none; /* Icon soll keine Klicks abfangen */
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

@@ -5,7 +5,7 @@ import friendService, { type FriendResponse } from './friend.service';
 
 export interface DashboardStats {
   readArticles: number;
-  favorites: number; // History count
+  favorites: number;
   friends: number;
 }
 
@@ -31,8 +31,11 @@ export interface RecommendedArticle {
   category?: string;
   author?: string;
   date?: string;
+  image?: string;
+  coverImage?: string;
   readingTime?: string;
   difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
+  tags?: string[];
 }
 
 class OverviewService {
@@ -42,23 +45,21 @@ class OverviewService {
   async getDashboardStats(): Promise<DashboardStats> {
     try {
       const [historyResponse, friendsResponse] = await Promise.allSettled([
-        historyService.getHistory(1, 1), // Nur Meta-Daten für Count
+        historyService.getHistory(1, 1),
         friendService.getAllFriendsOfUser()
       ]);
 
-      // History Count für "Favoriten" und "Gelesene Artikel"
       const historyCount = historyResponse.status === 'fulfilled' 
         ? historyResponse.value.meta.total 
         : 0;
 
-      // Friends Count
       const friendsCount = friendsResponse.status === 'fulfilled'
         ? friendsResponse.value.data.length
         : 0;
 
       return {
-        readArticles: historyCount, // Gelesene Artikel = History-Einträge
-        favorites: historyCount,    // Favoriten = History-Einträge (wie gewünscht)
+        readArticles: historyCount,
+        favorites: historyCount,
         friends: friendsCount
       };
     } catch (error) {
@@ -72,14 +73,11 @@ class OverviewService {
   }
 
   /**
-   * ✅ FIX: Lädt kürzlich gelesene Artikel über bestehendes History-Endpoint
+   * Lädt kürzlich gelesene Artikel
    */
   async getRecentActivities(): Promise<RecentActivityArticle[]> {
     try {
-      // ✅ Nutze bestehendes getHistory statt getRecentlyRead (existiert nicht im Backend)
-      const historyResponse = await historyService.getHistory(1, 3); // Seite 1, 3 Artikel
-      
-      // ✅ FIX: Arrow-Funktion verwenden um this-Kontext zu behalten
+      const historyResponse = await historyService.getHistory(1, 3);
       return historyResponse.data.map((item: any) => this.convertHistoryToRecentActivity(item));
     } catch (error) {
       console.error('Error loading recent activities:', error);
@@ -88,14 +86,11 @@ class OverviewService {
   }
 
   /**
-   * Lädt empfohlene Artikel (neueste Posts über getPreviews)
+   * Lädt empfohlene Artikel
    */
   async getRecommendedArticles(): Promise<RecommendedArticle[]> {
     try {
-      // Nutze getPreviews mit kleinem Limit für "neueste" Posts
-      const response = await postService.getPostPreviews(1, 3); // Seite 1, 3 Artikel
-      
-      // ✅ FIX: Arrow-Funktion verwenden um this-Kontext zu behalten
+      const response = await postService.getPostPreviews(1, 4);
       return response.data.map((post: PostPreviewItem) => this.convertPostToRecommended(post));
     } catch (error) {
       console.error('Error loading recommended articles:', error);
@@ -134,18 +129,15 @@ class OverviewService {
   }
 
   /**
-   * ✅ ANGEPASST: Konvertiert History-Item zu Recent Activity Format (für normales History-Response)
+   * Konvertiert History-Item zu Recent Activity Format
    */
   private convertHistoryToRecentActivity(historyItem: any): RecentActivityArticle {
-    // Bestimme Status basierend auf solvedAt
     const status = historyItem.solvedAt ? 'almost-done' : 'in-progress';
-    
-    // Dummy-Werte für nicht verfügbare Felder
-    const totalChapters = 6; // Default-Wert
+    const totalChapters = 6;
     const currentChapter = status === 'almost-done' ? totalChapters - 1 : Math.floor(Math.random() * totalChapters) + 1;
     
     return {
-      id: parseInt(historyItem.postId), // Convert string to number
+      id: parseInt(historyItem.postId),
       title: historyItem.postTitle,
       preview: historyItem.postQuickDescription,
       category: historyItem.postCategory || 'Allgemein',
@@ -165,19 +157,21 @@ class OverviewService {
    */
   private convertPostToRecommended(post: PostPreviewItem): RecommendedArticle {
     return {
-      id: parseInt(post.id), // Convert string to number
+      id: parseInt(post.id),
       title: post.title,
       preview: post.quickDescription,
       category: post.category,
       author: post.author,
       date: this.formatGermanDate(post.createdAt),
+      image: post.image || null,
       readingTime: this.estimateReadingTime(post.quickDescription),
-      difficulty: this.mapCategoryToDifficulty(post.category)
+      difficulty: this.mapCategoryToDifficulty(post.category),
+      tags: Array.isArray(post.tags) ? post.tags : []
     };
   }
 
   /**
-   * Formatiert Datum relativ (z.B. "vor 2 Stunden")
+   * Formatiert Datum relativ
    */
   private formatRelativeTime(dateString: string): string {
     const date = new Date(dateString);
@@ -188,7 +182,7 @@ class OverviewService {
       return 'Gerade eben';
     } else if (diffInHours < 24) {
       return `vor ${diffInHours} Stunde${diffInHours > 1 ? 'n' : ''}`;
-    } else if (diffInHours < 168) { // 7 Tage
+    } else if (diffInHours < 168) {
       const days = Math.floor(diffInHours / 24);
       return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
     } else {
@@ -230,17 +224,24 @@ class OverviewService {
    */
   private mapCategoryToDifficulty(category: string): 'Einfach' | 'Mittel' | 'Fortgeschritten' {
     const difficultyMap: Record<string, 'Einfach' | 'Mittel' | 'Fortgeschritten'> = {
-      'BASICS': 'Einfach',
       'EDUCATION': 'Mittel',
+      'ENTERTAINMENT': 'Einfach',
+      'FAMILY': 'Mittel',
+      'CULTURE': 'Mittel',
+      'NATURE': 'Einfach',
+      'RAISING_CHILDREN': 'Fortgeschritten',
+      'TECHNOLOGY': 'Fortgeschritten',
       'HEALTH': 'Mittel',
-      'PSYCHOLOGY': 'Fortgeschritten',
-      'ACTIVITIES': 'Einfach',
-      'RELATIONSHIP': 'Mittel',
+      'LIFESTYLE': 'Einfach',
+      'TRAVEL': 'Einfach',
+      'FOOD': 'Einfach',
+      'FITNESS': 'Mittel',
       'OTHER': 'Mittel'
     };
     
-    return difficultyMap[category.toUpperCase()] || 'Mittel';
+    return difficultyMap[category?.toUpperCase()] || 'Mittel';
   }
+
 }
 
 export const overviewService = new OverviewService();

@@ -7,20 +7,14 @@
     </div>
 
     <!-- Liste der empfohlenen Artikel -->
-    <div class="recommended-list">
+    <div class="recommended-list" v-if="articles.length > 0">
       <div v-for="(article, index) in articles" :key="index" class="recommended-item"
         @click="$emit('open-article', article)">
         <!-- Artikel-Bild -->
         <div class="article-image">
           <!-- Loading-State oder kein Bild -->
-          <div 
-            v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
-            class="image-loading"
-          >
-            <div class="loading-spinner"></div>
-            <span class="loading-text">
-              {{ loadingImages.has(article.id) ? 'Lade Bild...' : 'Kein Bild verfügbar' }}
-            </span>
+          <div v-if="!getImageUrl(article)" class="image-placeholder">
+            <div class="placeholder-icon">📄</div>
           </div>
           
           <!-- Hauptbild -->
@@ -28,8 +22,7 @@
             v-else
             :src="getImageUrl(article)" 
             :alt="article.title"
-            @error="handleImageError($event, article.id)"
-            @load="handleImageLoad($event, article.id)"
+            @error="handleImageError"
             loading="lazy"
             decoding="async"
           />
@@ -65,12 +58,18 @@
         </div>
       </div>
     </div>
+
+    <!-- Nichts gefunden Anzeige -->
+    <div v-else class="no-articles-found">
+      <div class="no-articles-icon">📚</div>
+      <h4>Keine Empfehlungen verfügbar</h4>
+      <p>Zurzeit können wir dir keine Artikel empfehlen. Schau später wieder vorbei!</p>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType, ref, watch, onMounted } from 'vue';
-import { postService } from '@/services/post.service';
+import { defineComponent, type PropType } from 'vue';
 
 interface Article {
   id: number;
@@ -80,7 +79,7 @@ interface Article {
   author?: string;
   date?: string;
   coverImage?: string;
-  image?: string; // Backend-Bild
+  image?: string;
   readTime?: string;
   tags?: string[];
 }
@@ -94,12 +93,7 @@ export default defineComponent({
     }
   },
   emits: ['open-article'],
-  setup(props) {
-    // State für Bild-Management (identisch zu ArticlesList)
-    const imageErrors = ref(new Set<string>());
-    const articleImages = ref(new Map<string, string | null>());
-    const loadingImages = ref(new Set<string>());
-
+  setup() {
     // Datum formatieren (deutsche Lokalisierung)
     const formatDate = (dateString?: string) => {
       if (!dateString) return '';
@@ -111,151 +105,32 @@ export default defineComponent({
       });
     };
 
-    // Artikel-Bilder von Post-API nachladen (VERBESSERT mit robustem Error-Handling)
-    const loadArticleImage = async (postId: string): Promise<string | null> => {
-      // Bereits geladen?
-      if (articleImages.value.has(postId)) {
-        return articleImages.value.get(postId) || null;
-      }
-
-      // Bereits am Laden?
-      if (loadingImages.value.has(postId)) {
-        return null;
-      }
-
-      // VALIDIERUNG: Ungültige IDs abfangen
-      if (!postId || postId.trim() === '' || postId === 'undefined' || postId === 'null') {
-        console.warn(`⚠️ Ungültige Post-ID für empfohlenen Artikel: "${postId}"`);
-        articleImages.value.set(postId, null);
-        return null;
-      }
-
-      try {
-        loadingImages.value.add(postId);
-
-        // Vollständigen Post laden (hat das Bild)
-        const postResponse = await postService.getPostById(postId);
-        const imageUrl = postResponse.data.image;
-
-        // In Cache speichern
-        articleImages.value.set(postId, imageUrl);
-        
-        return imageUrl;
-        
-      } catch (error: any) {
-        // SPEZIFISCHES ERROR-HANDLING für verschiedene Fehlertypen
-        if (error.response?.status === 400 || error.response?.data?.message?.includes('not found')) {
-          console.info(`ℹ️ Empfohlener Post ${postId} nicht in Datenbank gefunden (möglicherweise Mock-Daten)`);
-        } else if (error.response?.status === 404) {
-          console.info(`ℹ️ Post ${postId} existiert nicht mehr`);
-        } else {
-          console.warn(`❌ Unerwarteter Fehler beim Laden des Bildes für Post ${postId}:`, error.message);
-        }
-        
-        // Fehler cachen um weitere Anfragen zu vermeiden
-        articleImages.value.set(postId, null);
-        return null;
-      } finally {
-        loadingImages.value.delete(postId);
-      }
-    };
-
-    // Bild-URL ermitteln (VERBESSERT mit Mock-Daten Support)
-    const getImageUrl = (article: Article) => {
-      const postId = String(article.id);
-
-      // 1. Prüfe ob echtes Bild vom Backend verfügbar
+    // Bildquelle ermitteln
+    const getImageUrl = (article: Article): string | null => {
+      // Backend-Bild hat Priorität
       if (article.image && article.image.trim() !== '') {
         return article.image;
       }
-
-      // 2. Fallback: coverImage aus Props (für Mock-Daten)
+      
+      // Fallback: coverImage
       if (article.coverImage && article.coverImage.trim() !== '') {
         return article.coverImage;
       }
-
-      // 3. Prüfe Cache für nachgeladene Bilder
-      if (articleImages.value.has(postId)) {
-        const cachedImage = articleImages.value.get(postId);
-        if (cachedImage) {
-          return cachedImage;
-        }
-        // Wenn im Cache aber null → Backend-Fehler aufgetreten, kein weiterer Versuch
-        return null;
-      }
-
-      // 4. CONDITIONAL: Nur echte Backend-Anfrage für plausible IDs
-      // Vermeidung von 400-Fehlern für offensichtliche Mock-IDs
-      const isValidPostId = /^\d+$/.test(postId) && parseInt(postId) > 0 && parseInt(postId) < 1000000;
       
-      if (isValidPostId && !loadingImages.value.has(postId)) {
-        loadArticleImage(postId).then(() => {
-          // Vue's Reaktivität sorgt für automatisches Re-Rendering
-        });
-      } else if (!isValidPostId) {
-        // Für ungültige IDs direkt als "nicht verfügbar" markieren
-        articleImages.value.set(postId, null);
-        return null;
-      }
-
-      // 5. Während des Ladens: null zurückgeben (Loading-State wird angezeigt)
       return null;
     };
 
-    // Error-Handling für Bilder (identisch zu ArticlesList)
-    const handleImageError = (event: Event, articleId: string | number) => {
+    // Error-Handling für Bilder
+    const handleImageError = (event: Event) => {
       const img = event.target as HTMLImageElement;
-      const postId = String(articleId);
-      
-      console.warn(`Fehler beim Laden des empfohlenen Artikel-Bildes ${postId}:`, {
-        src: img.src,
-        articleId: postId
-      });
-      
-      // Markiere diesen Artikel als fehlerhaft
-      imageErrors.value.add(postId);
-      
-      // Setze im Cache auf null um Loading-State zu zeigen
-      articleImages.value.set(postId, null);
+      // Verstecke das Bild bei Fehlern
+      img.style.display = 'none';
     };
-
-    // Bild erfolgreich geladen
-    const handleImageLoad = (_: Event, articleId: string | number) => {
-      const postId = String(articleId);
-      // Entferne Error-Status falls vorhanden
-      imageErrors.value.delete(postId);
-    };
-
-    // Optional: Bilder vorladen wenn Artikel-Liste sich ändert
-    const preloadRecommendedImages = async () => {
-      if (!props.articles || props.articles.length === 0) return;
-
-      // Parallel alle Bilder laden (max 3 gleichzeitig für empfohlene Artikel)
-      const batchSize = 3;
-      for (let i = 0; i < props.articles.length; i += batchSize) {
-        const batch = props.articles.slice(i, i + batchSize);
-        await Promise.allSettled(
-          batch.map(article => loadArticleImage(String(article.id)))
-        );
-      }
-    };
-
-    // Beim Ändern der Artikel-Liste Bilder nachladen
-    watch(() => props.articles, () => {
-      if (props.articles && props.articles.length > 0) {
-        // Kurz warten, dann Bilder laden
-        setTimeout(preloadRecommendedImages, 100);
-      }
-    }, { immediate: true });
 
     return {
       getImageUrl,
       handleImageError,
-      handleImageLoad,
-      formatDate,
-      loadingImages,
-      imageErrors,
-      articleImages // Für Debugging
+      formatDate
     };
   }
 });
@@ -266,7 +141,6 @@ export default defineComponent({
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 
-// Container-Styles
 .section-container {
   padding: map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
@@ -281,7 +155,6 @@ export default defineComponent({
     }
   }
 
-  // Sektionsüberschrift
   .section-header {
     margin-bottom: map.get(vars.$spacing, xl);
 
@@ -322,7 +195,6 @@ export default defineComponent({
   }
 }
 
-// Empfehlungen-Grid
 .recommendations {
   .recommended-list {
     display: grid;
@@ -369,7 +241,6 @@ export default defineComponent({
         }
       }
 
-      // Artikel-Bild (VERBESSERT - identisch zu ArticlesList)
       .article-image {
         position: relative;
         width: 100%;
@@ -389,50 +260,6 @@ export default defineComponent({
           opacity: 1;
         }
 
-        // Loading-State (NEU - identisch zu ArticlesList)
-        .image-loading {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          z-index: 1;
-
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, secondary-bg);
-              color: mixins.theme-color($theme, text-secondary);
-            }
-          }
-
-          .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 12px;
-
-            @each $theme in ('light', 'dark') {
-              .theme-#{$theme} & {
-                border-top-color: mixins.theme-color($theme, primary);
-                border-right-color: mixins.theme-color($theme, primary);
-              }
-            }
-          }
-
-          .loading-text {
-            font-size: 14px;
-            opacity: 0.7;
-            text-align: center;
-          }
-        }
-
-        // Fallback für alten Placeholder (falls kein Bild verfügbar)
         .image-placeholder {
           width: 100%;
           height: 100%;
@@ -466,7 +293,6 @@ export default defineComponent({
           }
         }
 
-        // Kategorie-Badge
         .category-badge {
           position: absolute;
           top: 15px;
@@ -488,7 +314,6 @@ export default defineComponent({
         }
       }
 
-      // Artikel-Inhalt
       .article-content {
         padding: map.get(vars.$spacing, l);
         display: flex;
@@ -658,10 +483,62 @@ export default defineComponent({
   }
 }
 
-// Animationen
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+// Nichts gefunden Anzeige
+.no-articles-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: map.get(vars.$spacing, xxl) map.get(vars.$spacing, xl);
+  text-align: center;
+  min-height: 300px;
+
+  .no-articles-icon {
+    font-size: 4rem;
+    margin-bottom: map.get(vars.$spacing, l);
+    opacity: 0.6;
+  }
+
+  h4 {
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    margin: 0 0 map.get(vars.$spacing, m) 0;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+      }
+    }
+  }
+
+  p {
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    margin: 0;
+    max-width: 400px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
+    min-height: 250px;
+
+    .no-articles-icon {
+      font-size: 3rem;
+    }
+
+    h4 {
+      font-size: map.get(map.get(vars.$fonts, sizes), large);
+    }
+
+    p {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+    }
+  }
 }
 
 @keyframes shimmer {

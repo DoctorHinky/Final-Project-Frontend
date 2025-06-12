@@ -21,6 +21,18 @@
             <h3>Persönliche Informationen</h3>
 
             <div class="form-group">
+              <label for="phone">Telefonnummer *</label>
+              <input type="tel" id="phone" v-model="form.phone"
+                placeholder="z.B. +49 123 456789" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-Mail-Adresse *</label>
+              <input type="email" id="email" v-model="form.email"
+                placeholder="ihre.email@beispiel.de" required />
+            </div>
+
+            <div class="form-group">
               <label for="expertise">Fachbereich</label>
               <select id="expertise" v-model="form.expertise" required>
                 <option value="" disabled selected>Bitte wählen...</option>
@@ -170,6 +182,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
+import { applicationService, type ApplicationFormData, type ApplicationFiles } from '@/services/application.service';
 import {
   XMarkIcon as IconXMark,
   DocumentIcon as IconDocument,
@@ -177,10 +190,14 @@ import {
   AcademicCapIcon as IconAcademicCap,
   PlusIcon as IconPlus,
   CheckIcon as IconCheck,
+  CheckCircleIcon as IconCheckCircle,
+  XCircleIcon as IconXCircle,
   TrashIcon as IconTrash
 } from '@heroicons/vue/24/outline';
 
 interface AuthorApplicationForm {
+  phone: string;
+  email: string;
   expertise: string;
   expertiseOther: string;
   qualifications: string;
@@ -199,6 +216,8 @@ export default defineComponent({
     IconAcademicCap,
     IconPlus,
     IconCheck,
+    IconCheckCircle,
+    IconXCircle,
     IconTrash
   },
   props: {
@@ -210,6 +229,15 @@ export default defineComponent({
   emits: ['close', 'submit'],
   setup(_, { emit }) {
     const isSubmitting = ref(false);
+    
+    // Einfacher Info Modal State
+    const infoModal = reactive({
+      show: false,
+      type: 'success' as 'success' | 'error',
+      title: '',
+      message: '',
+      details: ''
+    });
 
     // Datei-Upload-Referenzen
     const coverLetterInput = ref<HTMLInputElement | null>(null);
@@ -223,6 +251,8 @@ export default defineComponent({
 
     // Formular-Daten
     const form = reactive<AuthorApplicationForm>({
+      phone: '',
+      email: '',
       expertise: '',
       expertiseOther: '',
       qualifications: '',
@@ -236,6 +266,24 @@ export default defineComponent({
     const closeModalOnBackdrop = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (target.classList.contains('author-modal-backdrop')) {
+        emit('close');
+      }
+    };
+
+    // Info Modal Helper
+    const showInfoModal = (type: 'success' | 'error', title: string, message: string, details = '') => {
+      infoModal.show = true;
+      infoModal.type = type;
+      infoModal.title = title;
+      infoModal.message = message;
+      infoModal.details = details;
+    };
+
+    const closeInfoModal = () => {
+      infoModal.show = false;
+      // Bei Erfolg das Hauptmodal schließen
+      if (infoModal.type === 'success') {
+        resetForm();
         emit('close');
       }
     };
@@ -278,59 +326,66 @@ export default defineComponent({
       if (writingSampleInput.value) writingSampleInput.value.value = '';
     };
 
-    // Formular absenden
+    // Formular absenden - MIT ECHTER BACKEND-ANBINDUNG
     const submitForm = async () => {
       isSubmitting.value = true;
 
       try {
-        // FormData für den Upload erstellen
-        const formData = new FormData();
+        // Dateien sammeln
+        const files: ApplicationFiles = {
+          coverLetter: coverLetterFile.value,
+          certification: certificationFile.value,
+          writingSample: writingSampleFile.value
+        };
 
-        // Textdaten hinzufügen
-        formData.append('expertise', form.expertise);
-        if (form.expertise === 'other') {
-          formData.append('expertiseOther', form.expertiseOther);
-        }
-        formData.append('qualifications', form.qualifications);
-        formData.append('motivation', form.motivation);
-        formData.append('sampleTitle', form.sampleTitle);
-        formData.append('sampleDescription', form.sampleDescription);
-
-        // Dateien hinzufügen
-        if (coverLetterFile.value) {
-          formData.append('coverLetter', coverLetterFile.value);
-        }
-
-        if (certificationFile.value) {
-          formData.append('certification', certificationFile.value);
+        // Client-Side Validierung
+        const fileErrors = applicationService.validateFiles(files);
+        if (fileErrors.length > 0) {
+          showInfoModal(
+            'error',
+            'Datei-Fehler',
+            'Es gibt Probleme mit den hochgeladenen Dateien:',
+            fileErrors.join('\n')
+          );
+          return;
         }
 
-        if (writingSampleFile.value) {
-          formData.append('writingSample', writingSampleFile.value);
-        }
+        // Backend-Anfrage senden
+        const result = await applicationService.sendApplication(form, files);
 
-        // Simuliere API-Aufruf mit Verzögerung
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Erfolg anzeigen
+        showInfoModal(
+          'success',
+          'Bewerbung erfolgreich eingereicht!',
+          result.message,
+          `Bewerbungs-ID: ${result.applicationId}\nHochgeladene Dokumente: ${result.documentsUploaded}`
+        );
 
-        // Event für das Absenden des Formulars auslösen
+        // Erfolg-Event für Parent-Component
         emit('submit', {
-          formData,
-          textData: {
-            ...form
-          },
-          files: {
-            coverLetter: coverLetterFile.value?.name,
-            certification: certificationFile.value?.name,
-            writingSample: writingSampleFile.value?.name
-          }
+          success: true,
+          message: result.message,
+          applicationId: result.applicationId,
+          documentsUploaded: result.documentsUploaded
         });
 
-        resetForm();
-        emit('close');
-
-      } catch (error) {
+      } catch (error: any) {
         console.error('Fehler beim Senden der Autor-Bewerbung:', error);
-        alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+        
+        // Fehler anzeigen
+        showInfoModal(
+          'error',
+          'Fehler bei der Bewerbung',
+          'Die Bewerbung konnte nicht gesendet werden.',
+          error.message || 'Unbekannter Fehler beim Senden der Bewerbung'
+        );
+
+        // Error-Event für Parent-Component
+        emit('submit', {
+          success: false,
+          error: error.message || 'Unbekannter Fehler beim Senden der Bewerbung'
+        });
+
       } finally {
         isSubmitting.value = false;
       }
@@ -339,6 +394,8 @@ export default defineComponent({
     // Formular zurücksetzen
     const resetForm = () => {
       Object.assign(form, {
+        phone: '',
+        email: '',
         expertise: '',
         expertiseOther: '',
         qualifications: '',
@@ -361,6 +418,7 @@ export default defineComponent({
     return {
       form,
       isSubmitting,
+      infoModal, // Info Modal State
       // Datei-Upload-Refs
       coverLetterInput,
       certificationInput,
@@ -371,6 +429,7 @@ export default defineComponent({
       writingSampleFile,
       // Methoden
       closeModalOnBackdrop,
+      closeInfoModal,
       handleCoverLetterUpload,
       handleCertificationUpload,
       handleWritingSampleUpload,
@@ -415,7 +474,7 @@ export default defineComponent({
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     padding: 1rem;
     position: relative;
-    top: -250px;
+    top: 0px;
     display: flex;
     flex-direction: column;
 
@@ -533,6 +592,7 @@ export default defineComponent({
 
             input[type="text"],
             input[type="email"],
+            input[type="tel"],
             select,
             textarea {
               width: 100%;
@@ -837,6 +897,242 @@ export default defineComponent({
           }
         }
       }
+    }
+  }
+}
+
+// Info Modal Styles - integriert mit bestehender Stylebase
+.info-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; // Höher als das Author Modal
+  padding: map.get(vars.$spacing, xl);
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: rgba(mixins.theme-color($theme, shadow-color), 0.7);
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  @include animations.fade-in(0.3s);
+}
+
+.info-modal {
+  @include animations.fade-in(0.4s);
+  max-width: 500px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      @include mixins.card-style($theme, 'large', false);
+    }
+  }
+
+  // Type-specific styling using your color system
+  &--success {
+    .info-header {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: linear-gradient(135deg, 
+            rgba(mixins.theme-color($theme, accent-green), 0.1),
+            rgba(mixins.theme-color($theme, accent-green), 0.05)
+          );
+          border-bottom: 1px solid rgba(mixins.theme-color($theme, accent-green), 0.2);
+        }
+      }
+    }
+  }
+
+  &--error {
+    .info-header {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: linear-gradient(135deg, 
+            rgba(mixins.theme-color($theme, error), 0.1),
+            rgba(mixins.theme-color($theme, error), 0.05)
+          );
+          border-bottom: 1px solid rgba(mixins.theme-color($theme, error), 0.2);
+        }
+      }
+    }
+  }
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  padding: map.get(vars.$spacing, xl);
+  gap: map.get(vars.$spacing, m);
+
+  .info-icon-container {
+    .info-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+
+      &.success-icon {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-green);
+          }
+        }
+      }
+
+      &.error-icon {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, error);
+          }
+        }
+      }
+    }
+  }
+
+  .info-title {
+    flex-grow: 1;
+    margin: 0;
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+      }
+    }
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all map.get(vars.$transitions, default);
+    flex-shrink: 0;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-tertiary);
+
+        &:hover {
+          background-color: mixins.theme-color($theme, hover-color);
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+
+    .close-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.info-content {
+  padding: 0 map.get(vars.$spacing, xl) map.get(vars.$spacing, xl) map.get(vars.$spacing, xl);
+
+  .info-message {
+    margin: 0 0 map.get(vars.$spacing, m) 0;
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    line-height: 1.6;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
+
+  .info-details {
+    details {
+      margin-top: map.get(vars.$spacing, m);
+      
+      summary {
+        cursor: pointer;
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        margin-bottom: map.get(vars.$spacing, s);
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+          }
+        }
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .details-content {
+        padding: map.get(vars.$spacing, m);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+      }
+    }
+  }
+}
+
+.info-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: map.get(vars.$spacing, xl);
+  padding-top: 0;
+
+  .info-button {
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        @include mixins.button-style($theme, 'medium', true);
+      }
+    }
+  }
+}
+
+@include mixins.responsive(mobile) {
+  .info-modal-backdrop {
+    padding: map.get(vars.$spacing, m);
+  }
+
+  .info-modal {
+    .info-header {
+      padding: map.get(vars.$spacing, l);
+      
+      .info-title {
+        font-size: map.get(map.get(vars.$fonts, sizes), large);
+      }
+    }
+
+    .info-content {
+      padding: 0 map.get(vars.$spacing, l) map.get(vars.$spacing, l) map.get(vars.$spacing, l);
+    }
+
+    .info-actions {
+      padding: map.get(vars.$spacing, l);
+      padding-top: 0;
     }
   }
 }
