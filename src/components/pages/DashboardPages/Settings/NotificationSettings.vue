@@ -25,7 +25,7 @@
               <p>{{ setting.description }}</p>
             </div>
             <label class="toggle-switch">
-              <input type="checkbox" v-model="setting.enabled">
+              <input type="checkbox" v-model="setting.enabled" />
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, watch } from 'vue';
+import { defineComponent, ref, watch } from "vue";
 
 interface NotificationSetting {
   id: string;
@@ -53,85 +53,94 @@ interface NotificationSetting {
 }
 
 export default defineComponent({
-  name: 'NotificationSettings',
+  name: "NotificationSettings",
   props: {
     showSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showError: {
       type: Boolean,
-      default: false
+      default: false,
     },
     errorMsg: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  emits: ['save-notifications', 'update:showSuccess', 'update:showError'],
+  emits: ["save-notifications", "update:showSuccess", "update:showError"],
   setup(props, { emit }) {
     // Status für Formularprozesse
     const isSaving = ref(false);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
-    
-    watch(() => props.showSuccess, (newVal) => {
-      saveSuccess.value = newVal;
-    });
-    
-    watch(() => props.showError, (newVal) => {
-      saveError.value = newVal;
-    });
-    
-    watch(() => props.errorMsg, (newVal) => {
-      errorMessage.value = newVal;
-    });
+
+    watch(
+      () => props.showSuccess,
+      (newVal) => {
+        saveSuccess.value = newVal;
+      }
+    );
+
+    watch(
+      () => props.showError,
+      (newVal) => {
+        saveError.value = newVal;
+      }
+    );
+
+    watch(
+      () => props.errorMsg,
+      (newVal) => {
+        errorMessage.value = newVal;
+      }
+    );
 
     // Benachrichtigungseinstellungen
     const notificationSettings = ref<NotificationSetting[]>([
       {
-        id: 'email_notifications',
-        name: 'E-Mail-Benachrichtigungen',
-        description: 'Erhalte wichtige Benachrichtigungen per E-Mail.',
-        enabled: true
+        id: "email_notifications",
+        name: "E-Mail-Benachrichtigungen",
+        description: "Erhalte wichtige Benachrichtigungen per E-Mail.",
+        enabled: true,
       },
       {
-        id: 'browser_notifications',
-        name: 'Browser-Benachrichtigungen',
-        description: 'Erlaube Benachrichtigungen im Browser.',
-        enabled: false
+        id: "browser_notifications",
+        name: "Browser-Benachrichtigungen",
+        description: "Erlaube Benachrichtigungen im Browser.",
+        enabled: false,
       },
       {
-        id: 'article_recommendations',
-        name: 'Artikelempfehlungen',
-        description: 'Benachrichtigungen für personalisierte Artikelempfehlungen.',
-        enabled: true
+        id: "article_recommendations",
+        name: "Artikelempfehlungen",
+        description: "Benachrichtigungen für personalisierte Artikelempfehlungen.",
+        enabled: true,
       },
       {
-        id: 'comment_notifications',
-        name: 'Kommentar-Benachrichtigungen',
-        description: 'Benachrichtigungen für Kommentare auf deine Artikel oder Beiträge.',
-        enabled: true
+        id: "comment_notifications",
+        name: "Kommentar-Benachrichtigungen",
+        description: "Benachrichtigungen für Kommentare auf deine Artikel oder Beiträge.",
+        enabled: true,
       },
       {
-        id: 'friend_requests',
-        name: 'Freundschaftsanfragen',
-        description: 'Benachrichtigungen für neue Freundschaftsanfragen.',
-        enabled: true
+        id: "friend_requests",
+        name: "Freundschaftsanfragen",
+        description: "Benachrichtigungen für neue Freundschaftsanfragen.",
+        enabled: true,
       },
       {
-        id: 'system_announcements',
-        name: 'Systemankündigungen',
-        description: 'Wichtige Ankündigungen zu Neuerungen und Updates.',
-        enabled: true
-      }
+        id: "system_announcements",
+        name: "Systemankündigungen",
+        description: "Wichtige Ankündigungen zu Neuerungen und Updates.",
+        enabled: true,
+      },
     ]);
 
     // Benachrichtigungseinstellungen speichern
     const saveNotificationSettings = async (): Promise<void> => {
       isSaving.value = true;
-      emit('save-notifications', notificationSettings.value);
+      emit("save-notifications", notificationSettings.value);
       setTimeout(() => {
         isSaving.value = false;
       }, 1000);
@@ -143,16 +152,16 @@ export default defineComponent({
       saveSuccess,
       saveError,
       errorMessage,
-      saveNotificationSettings
+      saveNotificationSettings,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .settings-section {
   margin-bottom: map.get(vars.$spacing, xxl);
@@ -162,7 +171,7 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -172,7 +181,7 @@ export default defineComponent({
   .section-description {
     margin-bottom: map.get(vars.$spacing, l);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -198,7 +207,7 @@ export default defineComponent({
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -210,7 +219,7 @@ export default defineComponent({
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -225,7 +234,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -237,7 +246,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), large);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -259,7 +268,7 @@ export default defineComponent({
     align-items: center;
     padding-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-bottom: 1px solid mixins.theme-color($theme, border-light);
         transition: all 0.4s ease-out;
@@ -282,8 +291,8 @@ export default defineComponent({
       p {
         margin: 0;
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -303,8 +312,8 @@ export default defineComponent({
         width: 0;
         height: 0;
 
-        &:checked+.toggle-slider {
-          @each $theme in ('light', 'dark') {
+        &:checked + .toggle-slider {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-green);
               transition: all 0.4s ease-out;
@@ -312,7 +321,7 @@ export default defineComponent({
           }
         }
 
-        &:checked+.toggle-slider:before {
+        &:checked + .toggle-slider:before {
           transform: translateX(24px);
         }
       }
@@ -325,9 +334,9 @@ export default defineComponent({
         right: 0;
         bottom: 0;
         border-radius: 34px;
-        transition: .4s;
+        transition: 0.4s;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, border-medium);
             transition: all 0.4s ease-out;
@@ -342,9 +351,9 @@ export default defineComponent({
           left: 4px;
           bottom: 4px;
           border-radius: 50%;
-          transition: .4s;
+          transition: 0.4s;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: white;
               transition: all 0.4s ease-out;
@@ -371,7 +380,7 @@ export default defineComponent({
     border: none;
     transition: all 0.3s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
@@ -379,7 +388,7 @@ export default defineComponent({
 
         &:hover:not(:disabled) {
           transform: translateY(-3px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
 
         &:disabled {
