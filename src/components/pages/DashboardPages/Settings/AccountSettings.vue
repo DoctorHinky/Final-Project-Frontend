@@ -22,25 +22,49 @@
         <div class="form-group">
           <label for="current-password">Aktuelles Passwort</label>
           <div class="input-container" :class="{ error: passwordErrors.currentPassword }">
-            <input 
-              :type="showPasswords.current ? 'text' : 'password'" 
-              id="current-password" 
-              v-model="passwordForm.currentPassword" 
-              required 
+            <input
+              :type="showPasswords.current ? 'text' : 'password'"
+              id="current-password"
+              v-model="passwordForm.currentPassword"
+              required
               :disabled="isChangingPassword"
             />
-            <button 
-              type="button" 
-              class="password-toggle" 
+            <button
+              type="button"
+              class="password-toggle"
               @click="showPasswords.current = !showPasswords.current"
               :disabled="isChangingPassword"
             >
-              <svg v-if="!showPasswords.current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <svg
+                v-if="!showPasswords.current"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                />
               </svg>
             </button>
           </div>
@@ -52,26 +76,50 @@
         <div class="form-group">
           <label for="new-password">Neues Passwort</label>
           <div class="input-container" :class="{ error: passwordErrors.newPassword }">
-            <input 
-              :type="showPasswords.new ? 'text' : 'password'" 
-              id="new-password" 
-              v-model="passwordForm.newPassword" 
-              required 
+            <input
+              :type="showPasswords.new ? 'text' : 'password'"
+              id="new-password"
+              v-model="passwordForm.newPassword"
+              required
               :disabled="isChangingPassword"
               @input="validatePasswordStrength"
             />
-            <button 
-              type="button" 
-              class="password-toggle" 
+            <button
+              type="button"
+              class="password-toggle"
               @click="showPasswords.new = !showPasswords.new"
               :disabled="isChangingPassword"
             >
-              <svg v-if="!showPasswords.new" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <svg
+                v-if="!showPasswords.new"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                />
               </svg>
             </button>
           </div>
@@ -88,25 +136,49 @@
         <div class="form-group">
           <label for="confirm-password">Passwort bestätigen</label>
           <div class="input-container" :class="{ error: !passwordsMatch && passwordForm.confirmPassword }">
-            <input 
-              :type="showPasswords.confirm ? 'text' : 'password'" 
-              id="confirm-password" 
-              v-model="passwordForm.confirmPassword" 
-              required 
+            <input
+              :type="showPasswords.confirm ? 'text' : 'password'"
+              id="confirm-password"
+              v-model="passwordForm.confirmPassword"
+              required
               :disabled="isChangingPassword"
             />
-            <button 
-              type="button" 
-              class="password-toggle" 
+            <button
+              type="button"
+              class="password-toggle"
               @click="showPasswords.confirm = !showPasswords.confirm"
               :disabled="isChangingPassword"
             >
-              <svg v-if="!showPasswords.confirm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <svg
+                v-if="!showPasswords.confirm"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                />
               </svg>
             </button>
           </div>
@@ -126,16 +198,18 @@
 
     <!-- Account Deactivation/Reactivation Card -->
     <div class="settings-card warning-zone">
-      <h4>{{ isAccountDeactivated ? 'Konto reaktivieren' : 'Konto deaktivieren' }}</h4>
+      <h4>{{ isAccountDeactivated ? "Konto reaktivieren" : "Konto deaktivieren" }}</h4>
       <p v-if="!isAccountDeactivated">
-        Wenn du dein Konto deaktivierst, werden deine Inhalte für andere Nutzer unsichtbar. Du kannst dein Konto jederzeit wieder aktivieren.
+        Wenn du dein Konto deaktivierst, werden deine Inhalte für andere Nutzer unsichtbar. Du kannst dein Konto
+        jederzeit wieder aktivieren.
       </p>
       <p v-else class="reactivation-info">
         <span class="status-badge deactivated">Dein Konto ist derzeit deaktiviert</span>
-        <br><br>
-        Deine Inhalte sind für andere Nutzer nicht sichtbar. Du kannst dein Konto jederzeit wieder aktivieren, um alle Funktionen wieder nutzen zu können.
+        <br /><br />
+        Deine Inhalte sind für andere Nutzer nicht sichtbar. Du kannst dein Konto jederzeit wieder aktivieren, um alle
+        Funktionen wieder nutzen zu können.
       </p>
-      
+
       <!-- Deactivation Form -->
       <div v-if="showDeactivateConfirm && !isAccountDeactivated" class="deactivate-confirm-form">
         <div class="warning-box">
@@ -147,26 +221,50 @@
           <div class="form-group">
             <label for="deactivate-password">Passwort zur Bestätigung</label>
             <div class="input-container" :class="{ error: deactivateErrors.password }">
-              <input 
-                :type="showPasswords.deactivate ? 'text' : 'password'" 
-                id="deactivate-password" 
-                v-model="deactivateForm.password" 
-                required 
+              <input
+                :type="showPasswords.deactivate ? 'text' : 'password'"
+                id="deactivate-password"
+                v-model="deactivateForm.password"
+                required
                 :disabled="isDeactivating"
                 placeholder="Gib dein Passwort ein"
               />
-              <button 
-                type="button" 
-                class="password-toggle" 
+              <button
+                type="button"
+                class="password-toggle"
                 @click="showPasswords.deactivate = !showPasswords.deactivate"
                 :disabled="isDeactivating"
               >
-                <svg v-if="!showPasswords.deactivate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <svg
+                  v-if="!showPasswords.deactivate"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                  />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                  />
                 </svg>
               </button>
             </div>
@@ -174,7 +272,7 @@
               {{ deactivateErrors.password }}
             </span>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel-buttonPW" @click="cancelDeactivate" :disabled="isDeactivating">
               Abbrechen
@@ -198,26 +296,50 @@
           <div class="form-group">
             <label for="reactivate-password">Passwort zur Bestätigung</label>
             <div class="input-container" :class="{ error: reactivateErrors.password }">
-              <input 
-                :type="showPasswords.reactivate ? 'text' : 'password'" 
-                id="reactivate-password" 
-                v-model="reactivateForm.password" 
-                required 
+              <input
+                :type="showPasswords.reactivate ? 'text' : 'password'"
+                id="reactivate-password"
+                v-model="reactivateForm.password"
+                required
                 :disabled="isReactivating"
                 placeholder="Gib dein Passwort ein"
               />
-              <button 
-                type="button" 
-                class="password-toggle" 
+              <button
+                type="button"
+                class="password-toggle"
                 @click="showPasswords.reactivate = !showPasswords.reactivate"
                 :disabled="isReactivating"
               >
-                <svg v-if="!showPasswords.reactivate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <svg
+                  v-if="!showPasswords.reactivate"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                  />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                  />
                 </svg>
               </button>
             </div>
@@ -225,7 +347,7 @@
               {{ reactivateErrors.password }}
             </span>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel-buttonPW" @click="cancelReactivate" :disabled="isReactivating">
               Abbrechen
@@ -237,19 +359,23 @@
           </div>
         </form>
       </div>
-      
+
       <!-- Initial Buttons -->
-      <button v-if="!showDeactivateConfirm && !showReactivateConfirm && !isAccountDeactivated" 
-              type="button" 
-              class="warning-button" 
-              @click="confirmDeactivateAccount">
+      <button
+        v-if="!showDeactivateConfirm && !showReactivateConfirm && !isAccountDeactivated"
+        type="button"
+        class="warning-button"
+        @click="confirmDeactivateAccount"
+      >
         Konto deaktivieren
       </button>
-      
-      <button v-if="!showDeactivateConfirm && !showReactivateConfirm && isAccountDeactivated" 
-              type="button" 
-              class="success-button" 
-              @click="confirmReactivateAccount">
+
+      <button
+        v-if="!showDeactivateConfirm && !showReactivateConfirm && isAccountDeactivated"
+        type="button"
+        class="success-button"
+        @click="confirmReactivateAccount"
+      >
         Konto reaktivieren
       </button>
     </div>
@@ -257,8 +383,11 @@
     <!-- Delete Account Card -->
     <div class="settings-card danger-zone">
       <h4>Konto löschen</h4>
-      <p>Wenn du dein Konto löschst, werden alle deine Daten permanent entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
-      
+      <p>
+        Wenn du dein Konto löschst, werden alle deine Daten permanent entfernt. Diese Aktion kann nicht rückgängig
+        gemacht werden.
+      </p>
+
       <div v-if="showDeleteConfirm" class="delete-confirm-form">
         <div class="warning-box">
           <span class="warning-icon">⚠️</span>
@@ -269,7 +398,10 @@
           <span class="info-icon">ℹ️</span>
           <div class="info-content">
             <strong>Rechtlicher Hinweis:</strong>
-            <p>Aus rechtlichen Gründen werden deine Daten nach der Löschung noch 30 Tage in einem gesicherten Archiv aufbewahrt. Nach Ablauf dieser Frist werden sie unwiderruflich und vollständig gelöscht.</p>
+            <p>
+              Aus rechtlichen Gründen werden deine Daten nach der Löschung noch 30 Tage in einem gesicherten Archiv
+              aufbewahrt. Nach Ablauf dieser Frist werden sie unwiderruflich und vollständig gelöscht.
+            </p>
           </div>
         </div>
 
@@ -277,9 +409,9 @@
           <div class="form-group delete-reason-group">
             <label for="delete-reason">Möchtest du uns mitteilen, warum du gehst?</label>
             <div class="modern-textarea-wrapper">
-              <textarea 
-                id="delete-reason" 
-                v-model="deleteForm.deleteReason" 
+              <textarea
+                id="delete-reason"
+                v-model="deleteForm.deleteReason"
                 :disabled="isDeletingAccount"
                 placeholder="Teile uns deine Erfahrungen mit – dein Feedback hilft uns, besser zu werden..."
                 class="modern-textarea"
@@ -295,26 +427,50 @@
           <div class="form-group">
             <label for="delete-password">Passwort zur Bestätigung</label>
             <div class="input-container" :class="{ error: deleteErrors.password }">
-              <input 
-                :type="showPasswords.delete ? 'text' : 'password'" 
-                id="delete-password" 
-                v-model="deleteForm.password" 
-                required 
+              <input
+                :type="showPasswords.delete ? 'text' : 'password'"
+                id="delete-password"
+                v-model="deleteForm.password"
+                required
                 :disabled="isDeletingAccount"
                 placeholder="Gib dein Passwort zur Bestätigung ein"
               />
-              <button 
-                type="button" 
-                class="password-toggle" 
+              <button
+                type="button"
+                class="password-toggle"
                 @click="showPasswords.delete = !showPasswords.delete"
                 :disabled="isDeletingAccount"
               >
-                <svg v-if="!showPasswords.delete" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <svg
+                  v-if="!showPasswords.delete"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                  />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                  />
                 </svg>
               </button>
             </div>
@@ -322,42 +478,40 @@
               {{ deleteErrors.password }}
             </span>
           </div>
-          
+
           <div class="form-group confirm-group">
             <label class="checkbox-label">
-              <input 
-                type="checkbox" 
-                v-model="deleteForm.confirmDeletion"
-                :disabled="isDeletingAccount"
-              />
+              <input type="checkbox" v-model="deleteForm.confirmDeletion" :disabled="isDeletingAccount" />
               <span> Ich verstehe, dass alle meine Daten permanent gelöscht werden</span>
             </label>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel-buttonPW" @click="cancelDelete" :disabled="isDeletingAccount">
               Abbrechen
             </button>
-            <button type="submit" class="danger-button" :disabled="isDeletingAccount || !deleteForm.confirmDeletion || !deleteForm.password">
+            <button
+              type="submit"
+              class="danger-button"
+              :disabled="isDeletingAccount || !deleteForm.confirmDeletion || !deleteForm.password"
+            >
               <span v-if="isDeletingAccount" class="loading-spinner"></span>
               <span v-else>Konto endgültig löschen</span>
             </button>
           </div>
         </form>
       </div>
-      
-      <button v-else type="button" class="danger-button" @click="confirmDeleteAccount">
-        Konto löschen
-      </button>
+
+      <button v-else type="button" class="danger-button" @click="confirmDeleteAccount">Konto löschen</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch, onMounted } from 'vue';
-import api from '@/services/axiosInstance';
-import { authService } from '@/services/auth.service';
-import { useRouter } from 'vue-router';
+import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import api from "@/services/axiosInstance";
+import { authService } from "@/services/auth.service";
+import { useRouter } from "vue-router";
 
 interface PasswordForm {
   currentPassword: string;
@@ -380,16 +534,23 @@ interface ReactivateForm {
 }
 
 export default defineComponent({
-  name: 'AccountSettings',
+  name: "AccountSettings",
   props: {
     showSuccess: Boolean,
     showError: Boolean,
-    errorMsg: String
+    errorMsg: String,
   },
-  emits: ['update:showSuccess', 'update:showError', 'password-changed', 'account-deleted', 'account-deactivated', 'account-reactivated'],
+  emits: [
+    "update:showSuccess",
+    "update:showError",
+    "password-changed",
+    "account-deleted",
+    "account-deactivated",
+    "account-reactivated",
+  ],
   setup(props, { emit }) {
     const router = useRouter();
-    
+
     // State
     const isChangingPassword = ref(false);
     const isDeletingAccount = ref(false);
@@ -398,12 +559,12 @@ export default defineComponent({
     const isAccountDeactivated = ref(false);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
-    const errorMessage = ref(props.errorMsg || '');
-    const successMessage = ref('');
+    const errorMessage = ref(props.errorMsg || "");
+    const successMessage = ref("");
     const showDeleteConfirm = ref(false);
     const showDeactivateConfirm = ref(false);
     const showReactivateConfirm = ref(false);
-    
+
     // Password visibility states
     const showPasswords = ref({
       current: false,
@@ -411,149 +572,157 @@ export default defineComponent({
       confirm: false,
       deactivate: false,
       reactivate: false,
-      delete: false
+      delete: false,
     });
-    
+
     const passwordErrors = ref<Record<string, string>>({});
     const deleteErrors = ref<Record<string, string>>({});
     const deactivateErrors = ref<Record<string, string>>({});
     const reactivateErrors = ref<Record<string, string>>({});
-    
+
     const passwordForm = ref<PasswordForm>({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
-    
+
     const deleteForm = ref<DeleteForm>({
-      deleteReason: '',
-      password: '',
-      confirmDeletion: false
+      deleteReason: "",
+      password: "",
+      confirmDeletion: false,
     });
 
     const deactivateForm = ref<DeactivateForm>({
-      password: ''
+      password: "",
     });
 
     const reactivateForm = ref<ReactivateForm>({
-      password: ''
+      password: "",
     });
 
     // Check account status on mount
     onMounted(async () => {
       try {
-        const userResponse = await api.get('/user/getMe');
+        const userResponse = await api.get("/user/getMe");
         isAccountDeactivated.value = userResponse.data.deactivated || false;
       } catch (error) {
-        console.error('Fehler beim Abrufen des Kontostatus:', error);
+        console.error("Fehler beim Abrufen des Kontostatus:", error);
       }
     });
 
     // Watchers
-    watch(() => props.showSuccess, (val) => saveSuccess.value = val);
-    watch(() => props.showError, (val) => saveError.value = val);
-    watch(() => props.errorMsg, (val) => errorMessage.value = val || '');
+    watch(
+      () => props.showSuccess,
+      (val) => (saveSuccess.value = val)
+    );
+    watch(
+      () => props.showError,
+      (val) => (saveError.value = val)
+    );
+    watch(
+      () => props.errorMsg,
+      (val) => (errorMessage.value = val || "")
+    );
 
     // Computed
     const passwordStrength = computed((): string => {
       const password = passwordForm.value.newPassword;
-      if (!password) return '';
-      if (password.length < 8) return 'weak';
+      if (!password) return "";
+      if (password.length < 8) return "weak";
 
       const checks = [
         /[A-Z]/.test(password),
         /[a-z]/.test(password),
         /\d/.test(password),
-        /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        /[!@#$%^&*(),.?":{}|<>]/.test(password),
       ];
 
       const strength = checks.filter(Boolean).length;
-      return strength <= 2 ? 'weak' : strength === 3 ? 'medium' : 'strong';
+      return strength <= 2 ? "weak" : strength === 3 ? "medium" : "strong";
     });
 
     const passwordStrengthText = computed(() => {
-      const texts = { weak: 'Schwach', medium: 'Mittel', strong: 'Stark' };
-      return texts[passwordStrength.value] || '';
+      const texts: Record<string, string> = { weak: "Schwach", medium: "Mittel", strong: "Stark" };
+      return texts[passwordStrength.value] || "";
     });
 
-    const passwordsMatch = computed(() => 
-      !passwordForm.value.newPassword || 
-      !passwordForm.value.confirmPassword || 
-      passwordForm.value.newPassword === passwordForm.value.confirmPassword
+    const passwordsMatch = computed(
+      () =>
+        !passwordForm.value.newPassword ||
+        !passwordForm.value.confirmPassword ||
+        passwordForm.value.newPassword === passwordForm.value.confirmPassword
     );
-    
-    const canSubmitPassword = computed(() => 
-      passwordForm.value.currentPassword &&
-      passwordForm.value.newPassword &&
-      passwordForm.value.confirmPassword &&
-      passwordsMatch.value &&
-      passwordStrength.value !== 'weak'
+
+    const canSubmitPassword = computed(
+      () =>
+        passwordForm.value.currentPassword &&
+        passwordForm.value.newPassword &&
+        passwordForm.value.confirmPassword &&
+        passwordsMatch.value &&
+        passwordStrength.value !== "weak"
     );
-    
+
     // Methods
-    const togglePasswordVisibility = (field: keyof typeof showPasswords.value) => {
-      showPasswords.value[field] = !showPasswords.value[field];
-    };
     const validatePasswordStrength = () => {
       const password = passwordForm.value.newPassword;
-      passwordErrors.value.newPassword = '';
-      
+      passwordErrors.value.newPassword = "";
+
       if (password && password.length < 8) {
-        passwordErrors.value.newPassword = 'Passwort muss mindestens 8 Zeichen lang sein';
-      } else if (password && passwordStrength.value === 'weak') {
-        passwordErrors.value.newPassword = 'Passwort ist zu schwach. Verwende Groß-/Kleinbuchstaben, Zahlen und Sonderzeichen';
+        passwordErrors.value.newPassword = "Passwort muss mindestens 8 Zeichen lang sein";
+      } else if (password && passwordStrength.value === "weak") {
+        passwordErrors.value.newPassword =
+          "Passwort ist zu schwach. Verwende Groß-/Kleinbuchstaben, Zahlen und Sonderzeichen";
       }
     };
     // Reactivation methods
     const confirmReactivateAccount = () => {
       showReactivateConfirm.value = true;
-      reactivateForm.value = { password: '' };
+      reactivateForm.value = { password: "" };
       reactivateErrors.value = {};
     };
-    
+
     const cancelReactivate = () => {
       showReactivateConfirm.value = false;
-      reactivateForm.value = { password: '' };
+      reactivateForm.value = { password: "" };
       reactivateErrors.value = {};
     };
 
     const reactivateAccount = async () => {
       if (!reactivateForm.value.password) return;
-      
+
       try {
         isReactivating.value = true;
         reactivateErrors.value = {};
-        
+
         // Direkt reaktivieren - Backend validiert das Passwort
-        await api.patch('/user/reactivateMyAccount', {
-          password: reactivateForm.value.password
+        await api.patch("/user/reactivateMyAccount", {
+          password: reactivateForm.value.password,
         });
-        
-        showMessage('Dein Konto wurde erfolgreich reaktiviert!');
-        emit('account-reactivated');
-        
+
+        showMessage("Dein Konto wurde erfolgreich reaktiviert!");
+        emit("account-reactivated");
+
         // Update status
         isAccountDeactivated.value = false;
-        
+
         // Reset form
         showReactivateConfirm.value = false;
-        reactivateForm.value = { password: '' };
-        
+        reactivateForm.value = { password: "" };
       } catch (error: any) {
-        console.error('Fehler beim Reaktivieren:', error);
-        
+        console.error("Fehler beim Reaktivieren:", error);
+
         if (error.response?.status === 400) {
-          if (error.response?.data?.message?.includes('password')) {
-            reactivateErrors.value.password = 'Falsches Passwort';
-            showMessage('Das eingegebene Passwort ist falsch', true);
-          } else if (error.response?.data?.message?.includes('isnt deactivated')) {
-            showMessage('Dein Konto ist bereits aktiv', true);
+          if (error.response?.data?.message?.includes("password")) {
+            reactivateErrors.value.password = "Falsches Passwort";
+            showMessage("Das eingegebene Passwort ist falsch", true);
+          } else if (error.response?.data?.message?.includes("isnt deactivated")) {
+            showMessage("Dein Konto ist bereits aktiv", true);
             isAccountDeactivated.value = false;
           } else {
-            showMessage(error.response?.data?.message || 'Fehler beim Reaktivieren', true);
+            showMessage(error.response?.data?.message || "Fehler beim Reaktivieren", true);
           }
         } else {
-          showMessage('Fehler beim Reaktivieren. Bitte versuche es später erneut.', true);
+          showMessage("Fehler beim Reaktivieren. Bitte versuche es später erneut.", true);
         }
       } finally {
         isReactivating.value = false;
@@ -564,75 +733,57 @@ export default defineComponent({
       if (isError) {
         errorMessage.value = message;
         saveError.value = true;
-        emit('update:showError', true);
+        emit("update:showError", true);
       } else {
         successMessage.value = message;
         saveSuccess.value = true;
-        emit('update:showSuccess', true);
+        emit("update:showSuccess", true);
       }
-      
-      setTimeout(() => {
-        if (isError) {
-          saveError.value = false;
-          emit('update:showError', false);
-        } else {
-          saveSuccess.value = false;
-          emit('update:showSuccess', false);
-        }
-      }, isError ? 5000 : 3000);
-    };
 
-    // Helfer-Methode für gemeinsame Validierung
-    const resetFormErrors = () => {
-      passwordErrors.value = {};
-      deleteErrors.value = {};
-      deactivateErrors.value = {};
-      reactivateErrors.value = {};
-    };
-
-    // Passwort-Validierung helper
-    const validateUserPassword = async (password: string): Promise<boolean> => {
-      try {
-        const userResponse = await api.get('/user/getMe');
-        const user = userResponse.data;
-        return true; // Placeholder - Backend validiert
-      } catch (error) {
-        return false;
-      }
+      setTimeout(
+        () => {
+          if (isError) {
+            saveError.value = false;
+            emit("update:showError", false);
+          } else {
+            saveSuccess.value = false;
+            emit("update:showSuccess", false);
+          }
+        },
+        isError ? 5000 : 3000
+      );
     };
 
     const changePassword = async () => {
       if (!canSubmitPassword.value) return;
-      
+
       try {
         isChangingPassword.value = true;
         passwordErrors.value = {};
-        
-        await api.patch('/user/updatePassword', {
+
+        await api.patch("/user/updatePassword", {
           password: passwordForm.value.currentPassword,
-          newPassword: passwordForm.value.newPassword
+          newPassword: passwordForm.value.newPassword,
         });
-        
-        showMessage('Dein Passwort wurde erfolgreich geändert!');
-        emit('password-changed');
-        
+
+        showMessage("Dein Passwort wurde erfolgreich geändert!");
+        emit("password-changed");
+
         // Reset form
         Object.assign(passwordForm.value, {
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
         });
-        
       } catch (error: any) {
-        console.error('Fehler beim Ändern des Passworts:', error);
-        
-        if (error.response?.status === 400 && error.response?.data?.message?.includes('incorrect')) {
-          passwordErrors.value.currentPassword = 'Das aktuelle Passwort ist falsch';
-          showMessage('Das aktuelle Passwort ist falsch', true);
+        console.error("Fehler beim Ändern des Passworts:", error);
+
+        if (error.response?.status === 400 && error.response?.data?.message?.includes("incorrect")) {
+          passwordErrors.value.currentPassword = "Das aktuelle Passwort ist falsch";
+          showMessage("Das aktuelle Passwort ist falsch", true);
         } else {
           showMessage(
-            error.response?.data?.message || 
-            'Fehler beim Ändern des Passworts. Bitte versuche es später erneut.',
+            error.response?.data?.message || "Fehler beim Ändern des Passworts. Bitte versuche es später erneut.",
             true
           );
         }
@@ -644,52 +795,51 @@ export default defineComponent({
     // Deactivation methods
     const confirmDeactivateAccount = () => {
       showDeactivateConfirm.value = true;
-      deactivateForm.value = { password: '' };
+      deactivateForm.value = { password: "" };
       deactivateErrors.value = {};
     };
-    
+
     const cancelDeactivate = () => {
       showDeactivateConfirm.value = false;
-      deactivateForm.value = { password: '' };
+      deactivateForm.value = { password: "" };
       deactivateErrors.value = {};
     };
 
     const deactivateAccount = async () => {
       if (!deactivateForm.value.password) return;
-      
+
       try {
         isDeactivating.value = true;
         deactivateErrors.value = {};
-        
+
         // Direkt deaktivieren - Backend validiert das Passwort
-        await api.patch('/user/deactivateMyAccount', {
-          password: deactivateForm.value.password
+        await api.patch("/user/deactivateMyAccount", {
+          password: deactivateForm.value.password,
         });
-        
-        showMessage('Dein Konto wurde erfolgreich deaktiviert');
-        emit('account-deactivated');
-        
+
+        showMessage("Dein Konto wurde erfolgreich deaktiviert");
+        emit("account-deactivated");
+
         // Update status
         isAccountDeactivated.value = true;
-        
+
         // Reset form
         showDeactivateConfirm.value = false;
-        deactivateForm.value = { password: '' };
-        
+        deactivateForm.value = { password: "" };
       } catch (error: any) {
-        console.error('Fehler beim Deaktivieren:', error);
-        
+        console.error("Fehler beim Deaktivieren:", error);
+
         if (error.response?.status === 400) {
-          if (error.response?.data?.message?.includes('password')) {
-            deactivateErrors.value.password = 'Falsches Passwort';
-            showMessage('Das eingegebene Passwort ist falsch', true);
-          } else if (error.response?.data?.message?.includes('already deactivated')) {
-            showMessage('Dein Konto ist bereits deaktiviert', true);
+          if (error.response?.data?.message?.includes("password")) {
+            deactivateErrors.value.password = "Falsches Passwort";
+            showMessage("Das eingegebene Passwort ist falsch", true);
+          } else if (error.response?.data?.message?.includes("already deactivated")) {
+            showMessage("Dein Konto ist bereits deaktiviert", true);
           } else {
-            showMessage(error.response?.data?.message || 'Fehler beim Deaktivieren', true);
+            showMessage(error.response?.data?.message || "Fehler beim Deaktivieren", true);
           }
         } else {
-          showMessage('Fehler beim Deaktivieren. Bitte versuche es später erneut.', true);
+          showMessage("Fehler beim Deaktivieren. Bitte versuche es später erneut.", true);
         }
       } finally {
         isDeactivating.value = false;
@@ -699,29 +849,29 @@ export default defineComponent({
     // Delete methods
     const confirmDeleteAccount = () => {
       showDeleteConfirm.value = true;
-      deleteForm.value = { deleteReason: '', password: '', confirmDeletion: false };
+      deleteForm.value = { deleteReason: "", password: "", confirmDeletion: false };
       deleteErrors.value = {};
     };
-    
+
     const cancelDelete = () => {
       showDeleteConfirm.value = false;
-      deleteForm.value = { deleteReason: '', password: '', confirmDeletion: false };
+      deleteForm.value = { deleteReason: "", password: "", confirmDeletion: false };
       deleteErrors.value = {};
     };
-    
+
     const deleteAccount = async () => {
       if (!deleteForm.value.confirmDeletion || !deleteForm.value.password) return;
-      
+
       try {
         isDeletingAccount.value = true;
         deleteErrors.value = {};
-        
+
         // Backend erwartet mindestens 8 Zeichen oder nichts
         const requestBody: any = {
-          password: deleteForm.value.password
+          password: deleteForm.value.password,
         };
         const reason = deleteForm.value.deleteReason?.trim();
-        
+
         if (reason && reason.length >= 8) {
           requestBody.deleteReason = reason;
         } else if (reason && reason.length > 0) {
@@ -729,43 +879,42 @@ export default defineComponent({
           requestBody.deleteReason = `Benutzergrund: ${reason}`;
         }
         // Wenn kein Grund angegeben, senden wir nichts (Backend setzt dann "No reason given")
-        
-        await api.patch('/user/deleteMyAccount', requestBody);
-        
-        showMessage('Dein Konto wurde erfolgreich gelöscht. Du wirst gleich weitergeleitet...');
-        emit('account-deleted');
-        
+
+        await api.patch("/user/deleteMyAccount", requestBody);
+
+        showMessage("Dein Konto wurde erfolgreich gelöscht. Du wirst gleich weitergeleitet...");
+        emit("account-deleted");
+
         // Erst nach erfolgreichem API-Call ausloggen
         setTimeout(() => {
           // Logout durchführen - entfernt alle Tokens und stoppt Refresh-Timer
           authService.logout();
-          
+
           // Zusätzlich User-Daten entfernen (falls separat gespeichert)
-          localStorage.removeItem('user');
-          
+          localStorage.removeItem("user");
+
           // Redirect zur Landing Page
-          router.push('/');
+          router.push("/");
         }, 1500);
-        
       } catch (error: any) {
-        console.error('Fehler beim Löschen des Kontos:', error);
-        
-        if (error.response?.status === 400 && error.response?.data?.message?.includes('password')) {
-          deleteErrors.value.password = 'Falsches Passwort';
-          showMessage('Das eingegebene Passwort ist falsch', true);
+        console.error("Fehler beim Löschen des Kontos:", error);
+
+        if (error.response?.status === 400 && error.response?.data?.message?.includes("password")) {
+          deleteErrors.value.password = "Falsches Passwort";
+          showMessage("Das eingegebene Passwort ist falsch", true);
         } else {
           // Detailliertere Fehlerbehandlung
-          let errorMsg = 'Fehler beim Löschen des Kontos. Bitte versuche es später erneut.';
-          
+          let errorMsg = "Fehler beim Löschen des Kontos. Bitte versuche es später erneut.";
+
           if (error.response?.data?.message) {
             if (Array.isArray(error.response.data.message)) {
               // Validation errors von NestJS
-              errorMsg = error.response.data.message.join(', ');
+              errorMsg = error.response.data.message.join(", ");
             } else {
               errorMsg = error.response.data.message;
             }
           }
-          
+
           showMessage(errorMsg, true);
         }
       } finally {
@@ -796,13 +945,13 @@ export default defineComponent({
       deleteErrors,
       deactivateErrors,
       reactivateErrors,
-      
+
       // Computed
       passwordStrength,
       passwordStrengthText,
       passwordsMatch,
       canSubmitPassword,
-      
+
       // Methods
       validatePasswordStrength,
       changePassword,
@@ -814,17 +963,17 @@ export default defineComponent({
       deactivateAccount,
       confirmReactivateAccount,
       cancelReactivate,
-      reactivateAccount
+      reactivateAccount,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:color';
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:color";
 
 // Base styles
 .settings-section {
@@ -835,7 +984,7 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -846,7 +995,7 @@ export default defineComponent({
   .section-description {
     margin-bottom: map.get(vars.$spacing, l);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -879,7 +1028,7 @@ export default defineComponent({
     border-left: 4px solid #e74c3c;
   }
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
       transition: all 0.4s ease-out;
@@ -893,7 +1042,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -905,7 +1054,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), large);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -917,7 +1066,7 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, l);
     line-height: 1.6;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -926,7 +1075,7 @@ export default defineComponent({
   }
 
   &.warning-zone {
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-left: 4px solid #ffbe3d;
         transition: all 0.4s ease-out;
@@ -967,7 +1116,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         transition: all 0.3s ease;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
@@ -997,7 +1146,7 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
           font-family: inherit;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
 
@@ -1033,7 +1182,7 @@ export default defineComponent({
           justify-content: center;
           transition: all 0.2s ease;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
 
@@ -1057,7 +1206,7 @@ export default defineComponent({
         }
       }
     }
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-left: 4px solid #ffbe3d;
         transition: all 0.4s ease-out;
@@ -1098,7 +1247,7 @@ export default defineComponent({
         font-size: 0.85rem;
         font-weight: 500;
         margin-bottom: 16px;
-        
+
         &.deactivated {
           background-color: rgba(255, 190, 61, 0.2);
           color: #ffbe3d;
@@ -1131,7 +1280,7 @@ export default defineComponent({
   }
 
   &.danger-zone {
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-left: 4px solid #ff6b6b;
         transition: all 0.4s ease-out;
@@ -1170,7 +1319,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         transition: all 0.3s ease;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
@@ -1200,7 +1349,7 @@ export default defineComponent({
           border-radius: map.get(map.get(vars.$layout, border-radius), medium);
           font-family: inherit;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
 
@@ -1236,7 +1385,7 @@ export default defineComponent({
           justify-content: center;
           transition: all 0.2s ease;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
 
@@ -1282,8 +1431,8 @@ export default defineComponent({
           strong {
             display: block;
             margin-bottom: map.get(vars.$spacing, xxs);
-            
-            @each $theme in ('light', 'dark') {
+
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
               }
@@ -1294,8 +1443,8 @@ export default defineComponent({
             margin: 0;
             font-size: map.get(map.get(vars.$fonts, sizes), small);
             line-height: 1.6;
-            
-            @each $theme in ('light', 'dark') {
+
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -1312,7 +1461,7 @@ export default defineComponent({
           margin-bottom: map.get(vars.$spacing, m);
           display: block;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -1334,7 +1483,7 @@ export default defineComponent({
             line-height: 1.7;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: linear-gradient(
                   135deg,
@@ -1343,7 +1492,7 @@ export default defineComponent({
                 );
                 border: 2px solid mixins.theme-color($theme, border-light);
                 color: mixins.theme-color($theme, text-primary);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, if($theme == 'dark', 0.2, 0.05));
+                box-shadow: 0 4px 20px rgba(0, 0, 0, if($theme == "dark", 0.2, 0.05));
 
                 &::placeholder {
                   color: mixins.theme-color($theme, text-tertiary);
@@ -1353,14 +1502,12 @@ export default defineComponent({
                 &:focus {
                   border-color: #ff6b6b;
                   transform: translateY(-2px);
-                  box-shadow: 
-                    0 8px 30px rgba(255, 107, 107, 0.15),
-                    0 0 0 3px rgba(255, 107, 107, 0.1);
+                  box-shadow: 0 8px 30px rgba(255, 107, 107, 0.15), 0 0 0 3px rgba(255, 107, 107, 0.1);
                 }
 
                 &:hover:not(:focus):not(:disabled) {
                   border-color: color.adjust(mixins.theme-color($theme, border-light), $lightness: -10%);
-                  box-shadow: 0 6px 25px rgba(0, 0, 0, if($theme == 'dark', 0.25, 0.08));
+                  box-shadow: 0 6px 25px rgba(0, 0, 0, if($theme == "dark", 0.25, 0.08));
                 }
 
                 &:disabled {
@@ -1411,7 +1558,7 @@ export default defineComponent({
         padding: map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
           }
@@ -1433,7 +1580,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, xs);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -1446,7 +1593,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -1483,7 +1630,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         font-family: inherit;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: all 0.4s ease-out;
@@ -1521,7 +1668,7 @@ export default defineComponent({
         transition: all 0.2s ease;
         color: #888;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
             background-color: transparent;
@@ -1560,7 +1707,7 @@ export default defineComponent({
       margin-top: map.get(vars.$spacing, xxs);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -1581,7 +1728,7 @@ export default defineComponent({
         margin-bottom: map.get(vars.$spacing, xxs);
         transition: all 0.3s;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, border-light);
             transition: all 0.4s ease-out;
@@ -1601,7 +1748,7 @@ export default defineComponent({
 
       &.strong .strength-bar {
         width: 100%;
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-green);
             transition: all 0.4s ease-out;
@@ -1611,7 +1758,7 @@ export default defineComponent({
 
       .strength-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
             transition: all 0.4s ease-out;
@@ -1626,7 +1773,7 @@ export default defineComponent({
       cursor: pointer;
       user-select: none;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -1688,10 +1835,8 @@ export default defineComponent({
       }
     }
 
-
-
     .save-button {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -1700,7 +1845,7 @@ export default defineComponent({
           &:hover:not(:disabled) {
             transform: translateY(-3px);
           }
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }
@@ -1823,7 +1968,7 @@ export default defineComponent({
   }
 }
 
-    .cancel-buttonPW {
+.cancel-buttonPW {
   padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   font-weight: map.get(map.get(vars.$fonts, weights), medium);
@@ -1833,7 +1978,7 @@ export default defineComponent({
   align-items: center;
   transition: all 0.3s ease;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       color: mixins.theme-color($theme, text-primary);
@@ -1857,7 +2002,9 @@ export default defineComponent({
 
 // Animations
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes slideInDown {
@@ -1872,12 +2019,17 @@ export default defineComponent({
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }

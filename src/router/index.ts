@@ -2,6 +2,8 @@
 import {
   createRouter,
   createWebHistory,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
   type RouteRecordRaw,
 } from "vue-router";
 import LandingPage from "../pages/LandingPage.vue";
@@ -17,31 +19,31 @@ import Imprint from "../pages/Imprint.vue";
 import NotFound from "../pages/NotFound.vue";
 
 // Navigation Guard für geschützte Routen - OHNE async/await
-const requireAuth = (to, from, next) => {
+const requireAuth = (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (authService.isLoggedIn()) {
     next();
   } else {
-    next({ 
+    next({
       path: "/login-register",
-      query: { redirect: to.fullPath }
+      query: { redirect: to.fullPath },
     });
   }
 };
 
 // Navigation Guard für Admin-Berechtigung
-const requireAdmin = (to, from, next) => {
+const requireAdmin = (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (authService.isAdminLoggedIn()) {
     next();
   } else {
-    next({ 
+    next({
       path: "/admin/login",
-      query: { redirect: to.fullPath }
+      query: { redirect: to.fullPath },
     });
   }
 };
 
 // Navigation Guard für Autor-Routen
-const requireAuthorAuth = (to, from, next) => {
+const requireAuthorAuth = (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (authService.isLoggedIn() && authorService.isAuthor()) {
     next();
   } else {
@@ -143,14 +145,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "login",
         name: "AdminLogin",
         component: () => import("../pages/admin/Login.vue"),
-        beforeEnter: (to, from, next) => {
+        beforeEnter: (_to, _from, next) => {
           // Wenn Admin bereits eingeloggt, zum Dashboard
           if (authService.isAdminLoggedIn()) {
             next("/admin/dashboard");
           } else {
             next();
           }
-        }
+        },
       },
       {
         path: "dashboard",
@@ -161,19 +163,19 @@ const routes: Array<RouteRecordRaw> = [
             path: "",
             name: "AdminDashboard",
             component: () => import("../pages/admin/Dashboard.vue"),
-            props: (route) => ({ 
-              defaultTab: route.query.tab || "overview"  // GEÄNDERT: von "all-users" zu "overview"
+            props: (route) => ({
+              defaultTab: route.query.tab || "overview", // GEÄNDERT: von "all-users" zu "overview"
             }),
           },
-        ]
+        ],
       },
       {
         path: "tickets",
         beforeEnter: requireAdmin,
-        redirect: { 
-          path: "/admin/dashboard", 
-          query: { tab: "tickets" } 
-        }
+        redirect: {
+          path: "/admin/dashboard",
+          query: { tab: "tickets" },
+        },
       },
     ],
   },
@@ -217,11 +219,10 @@ router.beforeEach((to, from, next) => {
       "/admin",
       "/admin/login",
     ];
-    
+
     const authRequired = !publicPages.includes(to.path) && !to.path.startsWith("/public/");
     const authorRequired =
-      to.path === "/member/create-article" || 
-      (to.path === "/member/dashboard" && to.query.tab === "create-article");
+      to.path === "/member/create-article" || (to.path === "/member/dashboard" && to.query.tab === "create-article");
 
     const loggedIn = authService.isLoggedIn();
     const adminLoggedIn = authService.isAdminLoggedIn();
@@ -250,7 +251,7 @@ router.beforeEach((to, from, next) => {
     // Bei geschützten Routen prüfen
     if (authRequired && !loggedIn && !adminLoggedIn) {
       navigationInProgress = false;
-      
+
       // Admin-Route?
       if (to.path.startsWith("/admin/") && to.path !== "/admin/login") {
         return next({
@@ -258,7 +259,7 @@ router.beforeEach((to, from, next) => {
           query: { redirect: to.fullPath },
         });
       }
-      
+
       // Member-Route
       return next({
         path: "/login-register",
