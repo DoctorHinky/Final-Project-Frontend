@@ -29,3 +29,7 @@
 
 - [ ] feedback reiter (reader, answer, filtern)
 - [ ] userdaten sidebar admin
+
+### Minifixes
+
+- erfolgmeldung beim updaten von eigenen Userdaten

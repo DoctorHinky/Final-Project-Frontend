@@ -28,6 +28,7 @@
               v-model="passwordForm.currentPassword"
               required
               :disabled="isChangingPassword"
+              @input="validateCurrentPassword"
             />
             <button
               type="button"
@@ -70,6 +71,18 @@
           </div>
           <span v-if="passwordErrors.currentPassword" class="help-text error-text">
             {{ passwordErrors.currentPassword }}
+          </span>
+
+          <span
+            v-if="
+              !passwordsAreDiffrent &&
+              passwordForm.currentPassword &&
+              passwordForm.newPassword &&
+              !passwordErrors.newPassword
+            "
+            class="help-text error-text"
+          >
+            Aktuelles Passwort und neues Passwort dürfen nicht identisch sein.
           </span>
         </div>
 
@@ -147,7 +160,7 @@
               type="button"
               class="password-toggle"
               @click="showPasswords.confirm = !showPasswords.confirm"
-              :disabled="isChangingPassword"
+              :disabled="isChangingPassword || !canSubmitPassword"
             >
               <svg
                 v-if="!showPasswords.confirm"
@@ -512,26 +525,7 @@ import { defineComponent, ref, computed, watch, onMounted } from "vue";
 import api from "@/services/axiosInstance";
 import { authService } from "@/services/auth.service";
 import { useRouter } from "vue-router";
-
-interface PasswordForm {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-interface DeleteForm {
-  deleteReason?: string;
-  password: string;
-  confirmDeletion: boolean;
-}
-
-interface DeactivateForm {
-  password: string;
-}
-
-interface ReactivateForm {
-  password: string;
-}
+import type { ReactivateForm, DeactivateForm, PasswordForm, DeleteForm } from "./types/accoutSettings.types";
 
 export default defineComponent({
   name: "AccountSettings",
@@ -658,9 +652,12 @@ export default defineComponent({
         passwordForm.value.currentPassword &&
         passwordForm.value.newPassword &&
         passwordForm.value.confirmPassword &&
+        !passwordsAreDiffrent.value &&
         passwordsMatch.value &&
         passwordStrength.value !== "weak"
     );
+
+    const passwordsAreDiffrent = computed(() => passwordForm.value.currentPassword !== passwordForm.value.newPassword);
 
     // Methods
     const validatePasswordStrength = () => {
@@ -674,6 +671,16 @@ export default defineComponent({
           "Passwort ist zu schwach. Verwende Groß-/Kleinbuchstaben, Zahlen und Sonderzeichen";
       }
     };
+
+    const validateCurrentPassword = () => {
+      const currentPassword = passwordForm.value.currentPassword;
+      passwordErrors.value.currentPassword = "";
+
+      if (currentPassword && currentPassword.length < 1) {
+        passwordErrors.value.currentPassword = "Aktuelles Passwort ist erforderlich";
+      }
+    };
+
     // Reactivation methods
     const confirmReactivateAccount = () => {
       showReactivateConfirm.value = true;
@@ -951,9 +958,11 @@ export default defineComponent({
       passwordStrengthText,
       passwordsMatch,
       canSubmitPassword,
+      passwordsAreDiffrent,
 
       // Methods
       validatePasswordStrength,
+      validateCurrentPassword,
       changePassword,
       confirmDeleteAccount,
       cancelDelete,

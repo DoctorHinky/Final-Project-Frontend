@@ -185,7 +185,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type PropType, watch, onMounted } from "vue";
+import { defineComponent, ref, watch, onMounted } from "vue";
 import { cloudinaryUpload, cloudinaryDelete } from "@/services/cloudinaryService";
 import api from "@/services/axiosInstance";
 
@@ -324,11 +324,11 @@ export default defineComponent({
       }
     };
 
-    const onDragOver = (event: DragEvent): void => {
+    const onDragOver = (_event: DragEvent): void => {
       isDragging.value = true;
     };
 
-    const onDragLeave = (event: DragEvent): void => {
+    const onDragLeave = (_event: DragEvent): void => {
       isDragging.value = false;
     };
 
