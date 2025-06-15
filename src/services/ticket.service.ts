@@ -54,7 +54,7 @@ export const ticketService = {
   async cancelTicket(id: string) {
     const token = authService.getAdminAccessToken();
     const response = await api.post(
-      `${API_URL}tickets/${id}/cancel`,
+      `tickets/${id}/cancel`,
       {},
       {
         headers: {
@@ -177,41 +177,31 @@ export const ticketService = {
   },
 
   // Nachricht zu einem Ticket hinzufügen
-  async addMessage(
-    ticketId: string,
-    message: string,
-    userId: string,
-    userName: string,
-    userRole: string,
-    isStaff: boolean
-  ) {
-    try {
-        // Im Produktionsmodus: API-Aufruf
-        const response = await api.post(
-          `${API_URL}/tickets/${ticketId}/messages`,
-          {
-            message,
-            userId,
-            userName,
-            userRole,
-            isStaff,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log(response)
-        return response.data;
-    } catch (error) {
-      console.error(
-        `Fehler beim Hinzufügen einer Nachricht zum Ticket mit ID ${ticketId}:`,
-        error
-      );
-      throw error;
-    }
-  },
+  async addMessage(ticketId: string, message: string) {
+  try {
+    const token = authService.getAdminAccessToken();
+
+    const response = await api.post(
+      `${API_URL}tickets/${ticketId}/message`,
+      { message }, // nur das message-Feld senden
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Fehler beim Hinzufügen einer Nachricht zum Ticket mit ID ${ticketId}:`,
+      error
+    );
+    throw error;
+  }
+},
 
   // Ticket-Statistiken abrufen
   async getTicketStats() {

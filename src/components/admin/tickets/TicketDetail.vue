@@ -178,22 +178,6 @@
       </div>
     </div>
 
-    <!-- Reply Form -->
-    <div class="reply-form">
-      <h3 class="box-title">Antworten</h3>
-      <textarea
-        v-model="replyMessage"
-        class="reply-input"
-        placeholder="Geben Sie hier Ihre Antwort ein..."
-        rows="4"
-      ></textarea>
-      <div class="form-actions">
-        <button class="btn-cancel" @click="resetReplyForm">Abbrechen</button>
-        <button class="btn-submit" @click="sendReply" :disabled="!canSendReply">
-          Antwort senden
-        </button>
-      </div>
-    </div>
 
     <!-- Action Bar -->
     <div class="action-bar">
@@ -336,10 +320,6 @@ export default defineComponent({
         await ticketService.addMessage(
           props.ticket.id,
           newMessage.value,
-          isString(userdata.id),
-          isString(userdata.username),
-          isString(userdata.role),
-          isStaff // true für Admins
         );
         newMessage.value = "";
         emit("updated");
@@ -436,7 +416,14 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       }
     };
 
-    // Ticket schließen
+  const closeTicket = async () => {
+      try {
+        await ticketService.cancelTicket(props.ticket.id);
+        emit("updated");
+      } catch (error) {
+        console.error("Fehler beim Schließen des Tickets:", error);
+      }
+    };
    
 
     // Ticket wieder öffnen
