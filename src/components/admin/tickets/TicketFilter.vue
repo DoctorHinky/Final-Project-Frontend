@@ -57,17 +57,6 @@
         </select>
       </div>
 
-      <!-- Priorität Filter -->
-      <div class="filter-group">
-        <label class="filter-label">Priorität</label>
-        <select v-model="localFilters.priority" @change="applyFilters" class="filter-select">
-          <option value="">Alle Prioritäten</option>
-          <option v-for="priority in priorityOptions" :key="priority.value" :value="priority.value">
-            {{ priority.label }}
-          </option>
-        </select>
-      </div>
-
       <!-- Kategorie Filter -->
       <div class="filter-group">
         <label class="filter-label">Kategorie</label>
@@ -85,7 +74,6 @@
         <select v-model="localFilters.sortBy" @change="applyFilters" class="filter-select">
           <option value="updatedAt">Zuletzt aktualisiert</option>
           <option value="createdAt">Erstellungsdatum</option>
-          <option value="priority">Priorität</option>
         </select>
       </div>
     </div>
@@ -97,10 +85,6 @@
         <div v-if="localFilters.status" class="filter-tag">
           Status: {{ getStatusLabel(localFilters.status) }}
           <button class="remove-filter" @click="removeFilter('status')" title="Filter entfernen">×</button>
-        </div>
-        <div v-if="localFilters.priority" class="filter-tag">
-          Priorität: {{ getPriorityLabel(localFilters.priority) }}
-          <button class="remove-filter" @click="removeFilter('priority')" title="Filter entfernen">×</button>
         </div>
         <div v-if="localFilters.category" class="filter-tag">
           Kategorie: {{ getCategoryLabel(localFilters.category) }}
@@ -117,7 +101,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import { TicketStatus, TicketPriority, TicketCategory } from '@/services/ticket.service';
+import { TicketStatus, TicketCategory } from '@/services/ticket.service';
 
 export default defineComponent({
   name: 'TicketFilter',
@@ -126,7 +110,6 @@ export default defineComponent({
       type: Object,
       default: () => ({
         status: '',
-        priority: '',
         category: '',
         search: '',
         sortBy: 'updatedAt'
@@ -146,17 +129,7 @@ export default defineComponent({
     const statusOptions = [
       { value: TicketStatus.OPEN, label: 'Offen' },
       { value: TicketStatus.IN_PROGRESS, label: 'In Bearbeitung' },
-      { value: TicketStatus.WAITING, label: 'Wartend' },
-      { value: TicketStatus.RESOLVED, label: 'Gelöst' },
       { value: TicketStatus.CLOSED, label: 'Geschlossen' }
-    ];
-    
-    // Prioritäts-Optionen
-    const priorityOptions = [
-      { value: TicketPriority.LOW, label: 'Niedrig' },
-      { value: TicketPriority.MEDIUM, label: 'Mittel' },
-      { value: TicketPriority.HIGH, label: 'Hoch' },
-      { value: TicketPriority.CRITICAL, label: 'Kritisch' }
     ];
     
     // Kategorie-Optionen
@@ -170,8 +143,7 @@ export default defineComponent({
     
     // Aktive Filter
     const hasActiveFilters = computed(() => {
-      return localFilters.value.status !== '' || 
-             localFilters.value.priority !== '' || 
+      return localFilters.value.status !== '' ||
              localFilters.value.category !== '' || 
              localFilters.value.search !== '';
     });
@@ -204,7 +176,6 @@ export default defineComponent({
     const resetFilters = () => {
       localFilters.value = {
         status: '',
-        priority: '',
         category: '',
         search: '',
         sortBy: 'updatedAt'
@@ -232,11 +203,6 @@ export default defineComponent({
       return option ? option.label : statusValue;
     };
     
-    const getPriorityLabel = (priorityValue: string) => {
-      const option = priorityOptions.find(opt => opt.value === priorityValue);
-      return option ? option.label : priorityValue;
-    };
-    
     const getCategoryLabel = (categoryValue: string) => {
       const option = categoryOptions.find(opt => opt.value === categoryValue);
       return option ? option.label : categoryValue;
@@ -252,7 +218,6 @@ export default defineComponent({
       localFilters,
       searchQuery,
       statusOptions,
-      priorityOptions,
       categoryOptions,
       hasActiveFilters,
       debounceSearch,
@@ -261,7 +226,6 @@ export default defineComponent({
       resetFilters,
       removeFilter,
       getStatusLabel,
-      getPriorityLabel,
       getCategoryLabel
     };
   }

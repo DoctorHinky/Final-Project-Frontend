@@ -4,47 +4,55 @@
     <form @submit.prevent="submitForm">
       <!-- Ticket Titel -->
       <div class="form-group">
-        <label for="ticket-title" class="form-label">Titel <span class="required">*</span></label>
-        <input 
-          type="text" 
-          id="ticket-title" 
-          v-model="ticketData.title" 
+        <label for="ticket-title" class="form-label"
+          >Titel <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="ticket-title"
+          v-model="ticketData.title"
           class="form-input"
           placeholder="Geben Sie einen beschreibenden Titel ein"
           required
-        >
+        />
         <div v-if="errors.title" class="form-error">{{ errors.title }}</div>
       </div>
 
       <!-- Ticket Beschreibung -->
       <div class="form-group">
-        <label for="ticket-description" class="form-label">Beschreibung <span class="required">*</span></label>
-        <textarea 
-          id="ticket-description" 
-          v-model="ticketData.description" 
+        <label for="ticket-description" class="form-label"
+          >Beschreibung <span class="required">*</span></label
+        >
+        <textarea
+          id="ticket-description"
+          v-model="ticketData.description"
           class="form-textarea"
           placeholder="Beschreiben Sie das Problem oder die Anfrage detailliert"
           rows="6"
           required
         ></textarea>
-        <div v-if="errors.description" class="form-error">{{ errors.description }}</div>
+        <div v-if="errors.description" class="form-error">
+          {{ errors.description }}
+        </div>
       </div>
-
-      <!-- Ticket Priorität -->
       <div class="form-group">
-        <label for="ticket-priority" class="form-label">Priorität</label>
-        <select id="ticket-priority" v-model="ticketData.priority" class="form-select">
-          <option value="low">Niedrig</option>
-          <option value="medium">Mittel</option>
-          <option value="high">Hoch</option>
-          <option value="critical">Kritisch</option>
-        </select>
+        <label for="attachments">Anhänge (optional)</label>
+        <input
+          type="file"
+          id="attachments"
+          multiple
+          @change="handleFileChange"
+        />
       </div>
 
       <!-- Ticket Kategorie -->
       <div class="form-group">
         <label for="ticket-category" class="form-label">Kategorie</label>
-        <select id="ticket-category" v-model="ticketData.category" class="form-select">
+        <select
+          id="ticket-category"
+          v-model="ticketData.category"
+          class="form-select"
+        >
           <option value="account">Konto</option>
           <option value="payment">Zahlung</option>
           <option value="technical">Technisch</option>
@@ -55,25 +63,35 @@
 
       <!-- Benutzer-ID (Dummy-Feld für Demo) -->
       <div class="form-group">
-        <label for="ticket-user" class="form-label">Betroffener Benutzer <span class="required">*</span></label>
-        <input 
-          type="text" 
-          id="ticket-user" 
-          v-model="ticketData.createdBy" 
-          class="form-input"
-          placeholder="Benutzer-ID eingeben (z.B. user123)"
-          required
+        <label for="ticket-user" class="form-label"
+          >Betroffener Benutzer <span class="required">*</span></label
         >
-        <div v-if="errors.createdBy" class="form-error">{{ errors.createdBy }}</div>
       </div>
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button type="button" class="btn-cancel" @click="$emit('cancel')">Abbrechen</button>
+        <button type="button" class="btn-cancel" @click="$emit('cancel')">
+          Abbrechen
+        </button>
         <button type="submit" class="btn-submit" :disabled="isSubmitting">
           <span v-if="isSubmitting">
-            <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-dasharray="30 30" stroke-dashoffset="0">
+            <svg
+              class="spinner"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-dasharray="30 30"
+                stroke-dashoffset="0"
+              >
                 <animateTransform
                   attributeName="transform"
                   attributeType="XML"
@@ -95,93 +113,102 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { TicketPriority, TicketCategory } from '@/services/ticket.service';
+import { defineComponent, ref } from "vue";
+import type { TicketCategory } from "@/services/ticket.service";
 
 export default defineComponent({
-  name: 'TicketForm',
-  emits: ['submit', 'cancel'],
+  name: "TicketForm",
+  emits: ["submit", "cancel"],
   setup(props, { emit }) {
     // Ticket-Daten
     const ticketData = ref({
-      title: '',
-      description: '',
-      priority: TicketPriority.MEDIUM,
+      title: "",
+      description: "",
       category: TicketCategory.TECHNICAL,
-      createdBy: ''
     });
-    
+
     // Validation errors
     const errors = ref({
-      title: '',
-      description: '',
-      createdBy: ''
+      title: "",
+      description: "",
     });
-    
+    const attachments = ref<File[]>([]);
+    const handleFileChange = (event: Event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files) {
+        attachments.value = Array.from(files);
+      }
+    };
     // Submission state
     const isSubmitting = ref(false);
-    
+
     // Form validation
     const validateForm = () => {
       let isValid = true;
-      
+
       // Reset errors
       errors.value = {
-        title: '',
-        description: '',
-        createdBy: ''
+        title: "",
+        description: "",
+
       };
-      
+
       // Validate title
       if (!ticketData.value.title.trim()) {
-        errors.value.title = 'Titel ist erforderlich';
+        errors.value.title = "Titel ist erforderlich";
         isValid = false;
       } else if (ticketData.value.title.length < 5) {
-        errors.value.title = 'Titel muss mindestens 5 Zeichen lang sein';
+        errors.value.title = "Titel muss mindestens 5 Zeichen lang sein";
         isValid = false;
       }
-      
+
       // Validate description
       if (!ticketData.value.description.trim()) {
-        errors.value.description = 'Beschreibung ist erforderlich';
+        errors.value.description = "Beschreibung ist erforderlich";
         isValid = false;
       } else if (ticketData.value.description.length < 10) {
-        errors.value.description = 'Beschreibung muss mindestens 10 Zeichen lang sein';
+        errors.value.description =
+          "Beschreibung muss mindestens 10 Zeichen lang sein";
         isValid = false;
       }
-      
-      // Validate user
-      if (!ticketData.value.createdBy.trim()) {
-        errors.value.createdBy = 'Benutzer-ID ist erforderlich';
-        isValid = false;
-      }
-      
+
       return isValid;
     };
-    
+
     // Form submission
     const submitForm = async () => {
       if (!validateForm()) return;
-      
+
       isSubmitting.value = true;
-      
+
       try {
-        // Emit event with ticket data
-        emit('submit', { ...ticketData.value });
-      } catch (error) {
-        console.error('Fehler beim Erstellen des Tickets:', error);
+  const formData = new FormData();
+  formData.append("title", ticketData.value.title);
+  formData.append("description", ticketData.value.description);
+  formData.append("category", ticketData.value.category);
+
+  // Dateien anhängen
+  attachments.value.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  emit("submit", formData);
+} catch (error) {
+  console.error("Fehler beim Erstellen des Tickets:", error);
       } finally {
         isSubmitting.value = false;
       }
     };
-    
+
     return {
       ticketData,
       errors,
       isSubmitting,
-      submitForm
+      submitForm,
+      attachments,
+      handleFileChange,
     };
-  }
+  },
 });
 </script>
 
@@ -199,7 +226,7 @@ export default defineComponent({
   margin-bottom: 8px;
   font-weight: 500;
   color: #f0f0f0;
-  
+
   .required {
     color: #f44336;
     margin-left: 4px;
@@ -216,12 +243,12 @@ export default defineComponent({
   border: 1px solid #444;
   color: #fff;
   font-size: 0.875rem;
-  
+
   &:focus {
     outline: none;
     border-color: #ff9800;
   }
-  
+
   &::placeholder {
     color: #888;
   }
@@ -234,7 +261,7 @@ export default defineComponent({
 
 .form-select {
   cursor: pointer;
-  
+
   option {
     background-color: #222;
     color: #fff;
@@ -263,7 +290,7 @@ export default defineComponent({
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:hover {
     background-color: #444;
     color: #fff;
@@ -282,24 +309,28 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   &:hover {
     background-color: #f57c00;
   }
-  
+
   &:disabled {
     background-color: #555;
     color: #888;
     cursor: not-allowed;
   }
-  
+
   .spinner {
     animation: spin 1s linear infinite;
   }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

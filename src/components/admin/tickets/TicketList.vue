@@ -93,7 +93,6 @@
             </th>
             <th>Ticket</th>
             <th>Status</th>
-            <th>Priorität</th>
             <th>Kategorie</th>
             <th>Zugewiesen</th>
             <th>Erstellt</th>
@@ -113,16 +112,10 @@
             </td>
             <td class="ticket-info">
               <div class="ticket-title">{{ ticket.title }}</div>
-              <div class="ticket-meta">ID: {{ ticket.id }} | Von: {{ ticket.createdBy }}</div>
             </td>
             <td>
               <span class="status-badge" :class="statusClass(ticket.status)">
                 {{ formatStatus(ticket.status) }}
-              </span>
-            </td>
-            <td>
-              <span class="priority-badge" :class="priorityClass(ticket.priority)">
-                {{ formatPriority(ticket.priority) }}
               </span>
             </td>
             <td>{{ formatCategory(ticket.category) }}</td>
@@ -166,12 +159,6 @@
               <span class="detail-value">{{ ticket.id }}</span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Priorität:</span>
-              <span class="priority-badge" :class="priorityClass(ticket.priority)">
-                {{ formatPriority(ticket.priority) }}
-              </span>
-            </div>
-            <div class="detail-item">
               <span class="detail-label">Kategorie:</span>
               <span class="detail-value">{{ formatCategory(ticket.category) }}</span>
             </div>
@@ -210,7 +197,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { type Ticket, TicketStatus, TicketPriority, TicketCategory } from '@/services/ticket.service';
+import {
+  type Ticket,
+  TicketStatus,
+  TicketCategory
+} from '@/services/ticket.service';
 
 export default defineComponent({
   name: 'TicketList',
@@ -313,25 +304,6 @@ export default defineComponent({
       };
     };
     
-    const formatPriority = (priority: TicketPriority) => {
-      switch (priority) {
-        case TicketPriority.LOW: return 'Niedrig';
-        case TicketPriority.MEDIUM: return 'Mittel';
-        case TicketPriority.HIGH: return 'Hoch';
-        case TicketPriority.CRITICAL: return 'Kritisch';
-        default: return priority;
-      }
-    };
-    
-    const priorityClass = (priority: TicketPriority) => {
-      return {
-        'priority-low': priority === TicketPriority.LOW,
-        'priority-medium': priority === TicketPriority.MEDIUM,
-        'priority-high': priority === TicketPriority.HIGH,
-        'priority-critical': priority === TicketPriority.CRITICAL
-      };
-    };
-    
     const formatCategory = (category: TicketCategory) => {
       switch (category) {
         case TicketCategory.ACCOUNT: return 'Konto';
@@ -361,8 +333,6 @@ export default defineComponent({
       formatDate,
       formatStatus,
       statusClass,
-      formatPriority,
-      priorityClass,
       formatCategory,
       truncateText
     };
@@ -721,36 +691,6 @@ export default defineComponent({
   &.status-closed {
     background-color: rgba(158, 158, 158, 0.15);
     color: #bdbdbd;
-  }
-}
-
-.priority-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  
-  &.priority-low {
-    background-color: rgba(76, 175, 80, 0.15);
-    color: #81c784;
-  }
-  
-  &.priority-medium {
-    background-color: rgba(255, 193, 7, 0.15);
-    color: #ffd54f;
-  }
-  
-  &.priority-high {
-    background-color: rgba(255, 87, 34, 0.15);
-    color: #ff8a65;
-  }
-  
-  &.priority-critical {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: #e57373;
   }
 }
 

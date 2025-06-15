@@ -5,8 +5,17 @@
     <div class="ticket-header">
       <div class="header-left">
         <button class="btn-back" @click="$emit('close')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
@@ -16,8 +25,16 @@
       </div>
       <div class="ticket-status">
         <div class="status-switcher">
-          <select v-model="currentStatus" @change="updateTicketStatus" class="status-select">
-            <option v-for="status in availableStatuses" :key="status" :value="status">
+          <select
+            v-model="currentStatus"
+            @change="updateTicketStatus"
+            class="status-select"
+          >
+            <option
+              v-for="status in availableStatuses"
+              :key="status"
+              :value="status"
+            >
               {{ formatStatus(status) }}
             </option>
           </select>
@@ -40,24 +57,18 @@
         <div class="info-value">{{ formatDate(ticket.updatedAt) }}</div>
       </div>
       <div class="info-section">
-        <div class="info-label">Erstellt von</div>
-        <div class="info-value">{{ ticket.createdBy }}</div>
-      </div>
-      <div class="info-section">
-        <div class="info-label">Priorität</div>
-        <div class="info-value">
-          <select v-model="currentPriority" @change="updateTicketPriority" class="priority-select">
-            <option v-for="priority in availablePriorities" :key="priority" :value="priority">
-              {{ formatPriority(priority) }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="info-section">
         <div class="info-label">Kategorie</div>
         <div class="info-value">
-          <select v-model="currentCategory" @change="updateTicketCategory" class="category-select">
-            <option v-for="category in availableCategories" :key="category" :value="category">
+          <select
+            v-model="currentCategory"
+            @change="updateTicketCategory"
+            class="category-select"
+          >
+            <option
+              v-for="category in availableCategories"
+              :key="category"
+              :value="category"
+            >
               {{ formatCategory(category) }}
             </option>
           </select>
@@ -66,12 +77,36 @@
       <div class="info-section">
         <div class="info-label">Zugewiesen an</div>
         <div class="info-value">
-          <select v-model="currentAssignee" @change="assignTicket" class="assignee-select">
-            <option value="">Nicht zugewiesen</option>
-            <option v-for="admin in availableAdmins" :key="admin.id" :value="admin.id">
-              {{ admin.name }}
-            </option>
-          </select>
+          <div>
+          <button v-if="canTakeTicket" class="btn-primary" @click="takeTicket">
+            Ticket übernehmen
+          </button>
+          </div>
+          <button
+            v-if="canCloseTicket"
+            class="btn-secondary"
+            @click="closeTicket"
+          >
+            Ticket schließen
+          </button>
+          <button
+            v-if="canCancelTicket"
+            class="btn-danger"
+            @click="cancelTicket"
+          >
+            Ticket stornieren
+          </button>
+          <form @submit.prevent="submitMessage" class="message-form">
+            <textarea
+              v-model="newMessage"
+              placeholder="Nachricht eingeben..."
+              required
+            />
+            <button type="submit" :disabled="isSending">
+              <span v-if="isSending">Senden...</span>
+              <span v-else>Nachricht senden</span>
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -83,16 +118,46 @@
     </div>
 
     <!-- Message Timeline -->
-    <div class="message-timeline" v-if="ticket.messages && ticket.messages.length > 0">
+    <div
+      class="message-timeline"
+      v-if="ticket.messages && ticket.messages.length > 0"
+    >
       <h3 class="box-title">Nachrichtenverlauf</h3>
       <div class="timeline">
-        <div v-for="(message, index) in ticket.messages" :key="message.id" class="timeline-item" :class="{ 'is-staff': message.isStaff }">
+        <div
+          v-for="(message, index) in ticket.messages"
+          :key="message.id"
+          class="timeline-item"
+          :class="{ 'is-staff': message.isStaff }"
+        >
           <div class="timeline-icon" :class="{ 'staff-icon': message.isStaff }">
-            <svg v-if="message.isStaff" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              v-if="message.isStaff"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
@@ -103,7 +168,9 @@
                 {{ message.userName }}
                 <span class="author-role">{{ message.userRole }}</span>
               </div>
-              <div class="message-time">{{ formatDate(message.createdAt) }}</div>
+              <div class="message-time">
+                {{ formatDate(message.createdAt) }}
+              </div>
             </div>
             <div class="message-body">{{ message.message }}</div>
           </div>
@@ -114,35 +181,57 @@
     <!-- Reply Form -->
     <div class="reply-form">
       <h3 class="box-title">Antworten</h3>
-      <textarea 
-        v-model="replyMessage" 
-        class="reply-input" 
+      <textarea
+        v-model="replyMessage"
+        class="reply-input"
         placeholder="Geben Sie hier Ihre Antwort ein..."
         rows="4"
       ></textarea>
       <div class="form-actions">
         <button class="btn-cancel" @click="resetReplyForm">Abbrechen</button>
-        <button class="btn-submit" @click="sendReply" :disabled="!canSendReply">Antwort senden</button>
+        <button class="btn-submit" @click="sendReply" :disabled="!canSendReply">
+          Antwort senden
+        </button>
       </div>
     </div>
 
     <!-- Action Bar -->
     <div class="action-bar">
       <button class="btn-action delete" @click="confirmDeleteTicket">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          ></path>
           <line x1="10" y1="11" x2="10" y2="17"></line>
           <line x1="14" y1="11" x2="14" y2="17"></line>
         </svg>
         Ticket löschen
       </button>
-      
+
       <div v-if="currentStatus === TicketStatus.CLOSED">
         <button class="btn-action reopen" @click="reopenTicket">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M3 12h18"></path>
             <path d="M3 6h18"></path>
             <path d="M3 18h18"></path>
@@ -152,15 +241,33 @@
       </div>
       <div v-else>
         <button class="btn-action resolve" @click="resolveTicket">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           Als gelöst markieren
         </button>
-        <button class="btn-action close" @click="closeTicket">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="btn-action close" @click="cancelTicket">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -177,7 +284,10 @@
           <button class="close-button" @click="cancelDelete">×</button>
         </div>
         <div class="confirm-content">
-          <p>Sind Sie sicher, dass Sie dieses Ticket löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          <p>
+            Sind Sie sicher, dass Sie dieses Ticket löschen möchten? Diese
+            Aktion kann nicht rückgängig gemacht werden.
+          </p>
         </div>
         <div class="confirm-actions">
           <button class="btn-cancel" @click="cancelDelete">Abbrechen</button>
@@ -189,45 +299,92 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import { 
-  ticketService, 
-  type Ticket, 
+import { defineComponent, ref, computed, onMounted } from "vue";
+import {
+  ticketService,
+  type Ticket,
   type TicketMessage,
   TicketStatus,
-  TicketPriority,
-  TicketCategory
-} from '@/services/ticket.service';
-import { authService } from '@/services/auth.service';
+  TicketCategory,
+} from "@/services/ticket.service";
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
-  name: 'TicketDetail',
+  name: "TicketDetail",
   props: {
     ticket: {
       type: Object as () => Ticket,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['close', 'updated', 'deleted'],
+  emits: ["close", "updated", "deleted"],
   setup(props, { emit }) {
     // Status des aktuellen Tickets
     const currentStatus = ref(props.ticket.status);
-    const currentPriority = ref(props.ticket.priority);
     const currentCategory = ref(props.ticket.category);
-    const currentAssignee = ref(props.ticket.assignedTo || '');
-    
+    const currentAssignee = ref(props.ticket.assignedTo || "");
+
     // Antwortformular
-    const replyMessage = ref('');
-    
+    const replyMessage = ref("");
+    const newMessage = ref("");
+    const isSending = ref(false);
+
+    const submitMessage = async () => {
+      if (!newMessage.value.trim()) return;
+      isSending.value = true;
+      try {
+        await ticketService.addMessage(
+          props.ticket.id,
+          newMessage.value,
+          isString(userdata.id),
+          isString(userdata.username),
+          isString(userdata.role),
+          isStaff // true für Admins
+        );
+        newMessage.value = "";
+        emit("updated");
+      } catch (e) {
+        console.error("Fehler beim Senden der Nachricht", e);
+      } finally {
+        isSending.value = false;
+      }
+    };
+    const takeTicket = async () => {
+      await ticketService.takeTicket(props.ticket.id);
+      emit("updated");
+    };
+    const userdata = authService.getUserData();
+    const isString = (value: any) => {
+      if (value === null) {
+        return "";
+      }
+      if (typeof value === "string") {
+        return value.trim();
+      } else {
+        return "";
+      }
+    };
+    const canTakeTicket = computed(() => {
+      if (userdata === null) {
+        return false;
+      }
+      return userdata.role === "ADMIN" && !props.ticket.assignedTo;
+    });
+const canCloseTicket = computed(() => props.ticket.status === TicketStatus.IN_PROGRESS);
+const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN);
+    const isStaff = userdata.role === "ADMIN" || userdata.role === "MODERATOR";
+    const cancelTicket = async () => {
+      await ticketService.cancelTicket(props.ticket.id);
+      emit("deleted", props.ticket.id);
+    };
     // Löschen-Dialog
     const showDeleteConfirm = ref(false);
-    
+
     // Verfügbare Status-Optionen
     const availableStatuses = Object.values(TicketStatus);
-    const availablePriorities = Object.values(TicketPriority);
     const availableCategories = Object.values(TicketCategory);
-    const availableAdmins = ref<{id: string, name: string}[]>([]);
-    
+    const availableAdmins = ref<{ id: string; name: string }[]>([]);
+
     // Kann Antwort gesendet werden?
     const canSendReply = computed(() => {
       return replyMessage.value.trim().length > 0;
@@ -235,238 +392,234 @@ export default defineComponent({
 
     // Enums für den Template-Zugriff
     const TicketStatusEnum = TicketStatus;
-    
+
     // Status aktualisieren
     const updateTicketStatus = async () => {
       try {
-        await ticketService.changeTicketStatus(props.ticket.id, currentStatus.value);
-        emit('updated');
+        await ticketService.changeTicketStatus(
+          props.ticket.id,
+          currentStatus.value
+        );
+        emit("updated");
       } catch (error) {
-        console.error('Fehler beim Aktualisieren des Status:', error);
+        console.error("Fehler beim Aktualisieren des Status:", error);
         // Status zurücksetzen im Fehlerfall
         currentStatus.value = props.ticket.status;
       }
     };
-    
-    // Priorität aktualisieren
-    const updateTicketPriority = async () => {
-      try {
-        await ticketService.updateTicket(props.ticket.id, { priority: currentPriority.value });
-        emit('updated');
-      } catch (error) {
-        console.error('Fehler beim Aktualisieren der Priorität:', error);
-        currentPriority.value = props.ticket.priority;
-      }
-    };
-    
+
     // Kategorie aktualisieren
     const updateTicketCategory = async () => {
       try {
-        await ticketService.updateTicket(props.ticket.id, { category: currentCategory.value });
-        emit('updated');
+        await ticketService.updateTicket(props.ticket.id, {
+          category: currentCategory.value,
+        });
+        emit("updated");
       } catch (error) {
-        console.error('Fehler beim Aktualisieren der Kategorie:', error);
+        console.error("Fehler beim Aktualisieren der Kategorie:", error);
         currentCategory.value = props.ticket.category;
       }
     };
-    
-    // Ticket zuweisen
-    const assignTicket = async () => {
-      try {
-        await ticketService.assignTicket(props.ticket.id, currentAssignee.value || null);
-        emit('updated');
-      } catch (error) {
-        console.error('Fehler beim Zuweisen des Tickets:', error);
-        currentAssignee.value = props.ticket.assignedTo || '';
-      }
-    };
-    
+
     // Ticket als gelöst markieren
     const resolveTicket = async () => {
       try {
         currentStatus.value = TicketStatus.RESOLVED;
-        await ticketService.changeTicketStatus(props.ticket.id, TicketStatus.RESOLVED);
-        emit('updated');
+        await ticketService.changeTicketStatus(
+          props.ticket.id,
+          TicketStatus.RESOLVED
+        );
+        emit("updated");
       } catch (error) {
-        console.error('Fehler beim Markieren als gelöst:', error);
+        console.error("Fehler beim Markieren als gelöst:", error);
         currentStatus.value = props.ticket.status;
       }
     };
-    
+
     // Ticket schließen
-    const closeTicket = async () => {
-      try {
-        currentStatus.value = TicketStatus.CLOSED;
-        await ticketService.changeTicketStatus(props.ticket.id, TicketStatus.CLOSED);
-        emit('updated');
-      } catch (error) {
-        console.error('Fehler beim Schließen des Tickets:', error);
-        currentStatus.value = props.ticket.status;
-      }
-    };
-    
+   
+
     // Ticket wieder öffnen
     const reopenTicket = async () => {
       try {
         currentStatus.value = TicketStatus.OPEN;
-        await ticketService.changeTicketStatus(props.ticket.id, TicketStatus.OPEN);
-        emit('updated');
+        await ticketService.changeTicketStatus(
+          props.ticket.id,
+          TicketStatus.OPEN
+        );
+        emit("updated");
       } catch (error) {
-        console.error('Fehler beim Wiedereröffnen des Tickets:', error);
+        console.error("Fehler beim Wiedereröffnen des Tickets:", error);
         currentStatus.value = props.ticket.status;
       }
     };
-    
+
     // Antwort senden
     const sendReply = async () => {
       if (!canSendReply.value) return;
-      
+
       try {
         // Aktuelle Admin-Daten abrufen
         const adminId = authService.getCurrentAdminId();
-        const adminName = 'Admin Team'; // In einer echten Anwendung würde hier der Name aus dem Admin-Profil kommen
-        
+        const adminName = "Admin Team"; // In einer echten Anwendung würde hier der Name aus dem Admin-Profil kommen
+
         await ticketService.addMessage(
           props.ticket.id,
           replyMessage.value,
           adminId,
           adminName,
-          'admin',
+          "admin",
           true
         );
-        
+
         // Formular zurücksetzen
         resetReplyForm();
-        
+
         // Ticket aktualisiert
-        emit('updated');
+        emit("updated");
       } catch (error) {
-        console.error('Fehler beim Senden der Antwort:', error);
+        console.error("Fehler beim Senden der Antwort:", error);
       }
     };
-    
     // Antwortformular zurücksetzen
     const resetReplyForm = () => {
-      replyMessage.value = '';
+      replyMessage.value = "";
     };
-    
+
     // Ticket löschen Dialog anzeigen
     const confirmDeleteTicket = () => {
       showDeleteConfirm.value = true;
     };
-    
+
     // Löschen abbrechen
     const cancelDelete = () => {
       showDeleteConfirm.value = false;
     };
-    
+
     // Ticket löschen
     const deleteTicket = async () => {
       try {
         // In einer echten Anwendung würde hier ein API-Aufruf zum Löschen des Tickets erfolgen
         // Da wir hier nur mit Mock-Daten arbeiten, simulieren wir das Löschen
-        
+
         // Löschen-Dialog schließen
         showDeleteConfirm.value = false;
-        
+
         // Event auslösen, damit das übergeordnete Element weiß, dass das Ticket gelöscht wurde
-        emit('deleted', props.ticket.id);
+        emit("deleted", props.ticket.id);
       } catch (error) {
-        console.error('Fehler beim Löschen des Tickets:', error);
+        console.error("Fehler beim Löschen des Tickets:", error);
         showDeleteConfirm.value = false;
       }
     };
-    
+
     // Formatierungsfunktionen
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
     };
-    
+
     const formatStatus = (status: TicketStatus) => {
       switch (status) {
-        case TicketStatus.OPEN: return 'Offen';
-        case TicketStatus.IN_PROGRESS: return 'In Bearbeitung';
-        case TicketStatus.WAITING: return 'Wartend';
-        case TicketStatus.RESOLVED: return 'Gelöst';
-        case TicketStatus.CLOSED: return 'Geschlossen';
-        default: return status;
+        case TicketStatus.OPEN:
+          return "Offen";
+        case TicketStatus.IN_PROGRESS:
+          return "In Bearbeitung";
+        case TicketStatus.CLOSED:
+          return "Geschlossen";
+        case TicketStatus.CANCELED:
+          return "Storniert";
+        default:
+          return status;
       }
     };
-    
-    const formatPriority = (priority: TicketPriority) => {
-      switch (priority) {
-        case TicketPriority.LOW: return 'Niedrig';
-        case TicketPriority.MEDIUM: return 'Mittel';
-        case TicketPriority.HIGH: return 'Hoch';
-        case TicketPriority.CRITICAL: return 'Kritisch';
-        default: return priority;
-      }
-    };
-    
+
     const formatCategory = (category: TicketCategory) => {
       switch (category) {
-        case TicketCategory.ACCOUNT: return 'Konto';
-        case TicketCategory.PAYMENT: return 'Zahlung';
-        case TicketCategory.TECHNICAL: return 'Technisch';
-        case TicketCategory.CONTENT: return 'Inhalt';
-        case TicketCategory.OTHER: return 'Sonstiges';
-        default: return category;
+        case TicketCategory.ACCOUNT:
+          return "Konto";
+        case TicketCategory.TECHNICAL:
+          return "Technisch";
+        case TicketCategory.REPORT:
+          return "Bericht";
+        case TicketCategory.OTHER:
+          return "Sonstiges";
+        default:
+          return category;
       }
     };
-    
+
     // Verfügbare Admins laden
     const loadAvailableAdmins = async () => {
       try {
         availableAdmins.value = await ticketService.getAvailableAdmins();
       } catch (error) {
-        console.error('Fehler beim Laden der verfügbaren Admins:', error);
+        console.error("Fehler beim Laden der verfügbaren Admins:", error);
       }
     };
-    
+
     // Beim Mounten der Komponente
     onMounted(() => {
       loadAvailableAdmins();
     });
-    
+
     return {
+      // Reaktive States
       currentStatus,
-      currentPriority,
       currentCategory,
       currentAssignee,
       replyMessage,
+      newMessage,
+      isSending,
       showDeleteConfirm,
+
+      // Daten für Dropdowns
       availableStatuses,
-      availablePriorities,
       availableCategories,
       availableAdmins,
-      canSendReply,
-      TicketStatus, // Enum für den Template-Zugriff
-      updateTicketStatus,
-      updateTicketPriority,
-      updateTicketCategory,
-      assignTicket,
-      resolveTicket,
-      closeTicket,
-      reopenTicket,
-      sendReply,
-      resetReplyForm,
-      confirmDeleteTicket,
-      cancelDelete,
-      deleteTicket,
+
+      // Enums & Formatierungen
+      TicketStatusEnum,
+      TicketStatus,
+      TicketCategory,
       formatDate,
       formatStatus,
-      formatPriority,
-      formatCategory
+      formatCategory,
+
+      // Computed
+      canSendReply,
+      canTakeTicket,
+
+      // Methoden – Änderungen
+      updateTicketStatus,
+      updateTicketCategory,
+
+      // Methoden – Aktionen
+      resolveTicket,
+      closeTicket,
+      takeTicket,
+      reopenTicket,
+      cancelTicket,
+      deleteTicket,
+      submitMessage,
+      sendReply,
+      resetReplyForm,
+      canCloseTicket,
+  canCancelTicket,
+
+      // Dialoge
+      confirmDeleteTicket,
+      cancelDelete,
     };
-  }
+  },
 });
+
 </script>
 
 <style lang="scss" scoped>
@@ -483,13 +636,13 @@ export default defineComponent({
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
-  
+
   .header-left {
     display: flex;
     align-items: center;
     gap: 16px;
   }
-  
+
   .btn-back {
     display: flex;
     align-items: center;
@@ -502,19 +655,19 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #444;
     }
   }
-  
+
   .ticket-title {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
     color: #f0f0f0;
   }
-  
+
   .ticket-status {
     .status-switcher {
       .status-select {
@@ -526,12 +679,12 @@ export default defineComponent({
         font-weight: 500;
         cursor: pointer;
         min-width: 160px;
-        
+
         &:focus {
           outline: none;
           border-color: #ff9800;
         }
-        
+
         option {
           background-color: #222;
           color: #fff;
@@ -549,18 +702,18 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
-  
+
   .info-section {
     .info-label {
       font-size: 0.875rem;
       color: #888;
       margin-bottom: 4px;
     }
-    
+
     .info-value {
       font-size: 1rem;
       color: #f0f0f0;
-      
+
       select {
         width: 100%;
         padding: 6px 10px;
@@ -568,12 +721,12 @@ export default defineComponent({
         background-color: #333;
         border: 1px solid #444;
         color: #fff;
-        
+
         &:focus {
           outline: none;
           border-color: #ff9800;
         }
-        
+
         option {
           background-color: #222;
           color: #fff;
@@ -595,7 +748,7 @@ export default defineComponent({
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
-  
+
   .description-text {
     margin: 0;
     line-height: 1.6;
@@ -608,12 +761,12 @@ export default defineComponent({
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
-  
+
   .timeline {
     position: relative;
-    
+
     &:before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       bottom: 0;
@@ -622,16 +775,16 @@ export default defineComponent({
       background-color: #444;
     }
   }
-  
+
   .timeline-item {
     position: relative;
     padding-left: 60px;
     margin-bottom: 24px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     &.is-staff {
       .timeline-content {
         background-color: rgba(255, 152, 0, 0.05);
@@ -639,7 +792,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   .timeline-icon {
     position: absolute;
     left: 12px;
@@ -652,29 +805,29 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     color: #fff;
-    
+
     &.staff-icon {
       background-color: #ff9800;
     }
   }
-  
+
   .timeline-content {
     background-color: #333;
     border-radius: 6px;
     padding: 16px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+
   .message-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
-    
+
     .message-author {
       font-weight: 600;
       color: #f0f0f0;
-      
+
       .author-role {
         font-weight: normal;
         color: #888;
@@ -682,13 +835,13 @@ export default defineComponent({
         margin-left: 8px;
       }
     }
-    
+
     .message-time {
       font-size: 0.875rem;
       color: #888;
     }
   }
-  
+
   .message-body {
     line-height: 1.6;
     white-space: pre-line;
@@ -700,7 +853,7 @@ export default defineComponent({
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
-  
+
   .reply-input {
     width: 100%;
     padding: 12px;
@@ -711,20 +864,20 @@ export default defineComponent({
     resize: vertical;
     font-size: 1rem;
     line-height: 1.5;
-    
+
     &:focus {
       outline: none;
       border-color: #ff9800;
     }
   }
-  
+
   .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     margin-top: 16px;
   }
-  
+
   .btn-cancel {
     padding: 8px 16px;
     background-color: transparent;
@@ -734,13 +887,13 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #444;
       color: #fff;
     }
   }
-  
+
   .btn-submit {
     padding: 8px 16px;
     background-color: #ff9800;
@@ -750,11 +903,11 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #f57c00;
     }
-    
+
     &:disabled {
       background-color: #555;
       color: #888;
@@ -768,7 +921,7 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   margin-top: 32px;
-  
+
   > div {
     display: flex;
     gap: 12px;
@@ -785,38 +938,38 @@ export default defineComponent({
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  
+
   &.delete {
     background-color: #461e1e;
     color: #f44336;
-    
+
     &:hover {
       background-color: #5a2a2a;
     }
   }
-  
+
   &.resolve {
     background-color: #1e4620;
     color: #4caf50;
-    
+
     &:hover {
       background-color: #2a5a2a;
     }
   }
-  
+
   &.close {
     background-color: #333;
     color: #ccc;
-    
+
     &:hover {
       background-color: #444;
     }
   }
-  
+
   &.reopen {
     background-color: #1e3a46;
     color: #42a5f5;
-    
+
     &:hover {
       background-color: #2a4a5a;
     }
@@ -855,13 +1008,13 @@ export default defineComponent({
   align-items: center;
   border-bottom: 1px solid #333;
   background-color: #262626;
-  
+
   h3 {
     margin: 0;
     color: #f44336;
     font-size: 1.2rem;
   }
-  
+
   .close-button {
     background: none;
     border: none;
@@ -875,7 +1028,7 @@ export default defineComponent({
     justify-content: center;
     border-radius: 4px;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
@@ -885,7 +1038,7 @@ export default defineComponent({
 
 .confirm-content {
   padding: 20px;
-  
+
   p {
     margin: 0;
     line-height: 1.6;
@@ -899,7 +1052,7 @@ export default defineComponent({
   gap: 12px;
   border-top: 1px solid #333;
   background-color: #262626;
-  
+
   .btn-cancel {
     padding: 8px 16px;
     background-color: transparent;
@@ -909,13 +1062,13 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #444;
       color: #fff;
     }
   }
-  
+
   .btn-delete {
     padding: 8px 16px;
     background-color: #f44336;
@@ -925,7 +1078,7 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #d32f2f;
     }
@@ -948,16 +1101,16 @@ export default defineComponent({
   .ticket-header {
     flex-direction: column;
     align-items: flex-start;
-    
+
     .header-left {
       flex-direction: column;
       align-items: flex-start;
       gap: 12px;
     }
-    
+
     .ticket-status {
       width: 100%;
-      
+
       .status-switcher {
         .status-select {
           width: 100%;
@@ -965,21 +1118,21 @@ export default defineComponent({
       }
     }
   }
-  
+
   .ticket-info-box {
     grid-template-columns: 1fr;
   }
-  
+
   .action-bar {
     flex-direction: column;
     gap: 16px;
-    
+
     > div {
       width: 100%;
       justify-content: space-between;
     }
   }
-  
+
   .timeline-item {
     padding-left: 40px;
   }
