@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="friend-actions">
-          <button class="action-button message">
+          <button class="action-button message" @click="openChat(friend)">
             <ChatBubbleLeftIcon class="button-icon" />
             Nachricht
           </button>
@@ -59,7 +59,7 @@ import {
   ArrowPathIcon, 
   EnvelopeIcon 
 } from '@heroicons/vue/24/outline';
-import type { Friend } from '@/types/Friend';
+import type { Friend } from '@/types/Friends.types';
 
 export default defineComponent({
   name: 'FriendsList',
@@ -80,9 +80,9 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['unfriend', 'clear-search', 'show-invite-modal'],
+  emits: ['unfriend', 'clear-search', 'show-invite-modal', 'open-chat'],
   setup(_, { emit }) {
-    const activeFriendMenu = ref<number | null>(null);
+    const activeFriendMenu = ref<string | null>(null);
 
     const getInitials = (name: string) => {
       return name
@@ -92,11 +92,11 @@ export default defineComponent({
         .toUpperCase();
     };
 
-    const toggleFriendMenu = (friendId: number) => {
+    const toggleFriendMenu = (friendId: string) => {
       activeFriendMenu.value = activeFriendMenu.value === friendId ? null : friendId;
     };
 
-    const unfriend = (friendId: number) => {
+    const unfriend = (friendId: string) => {
       emit('unfriend', friendId);
       activeFriendMenu.value = null;
     };
@@ -109,13 +109,27 @@ export default defineComponent({
       emit('show-invite-modal');
     };
 
+    const openChat = (friend: Friend) => {
+      console.log('FriendsList: openChat called with friend:', friend); // DEBUG
+      console.log('FriendsList: Friend object details:', {
+        id: friend.id,
+        friendId: friend.friendId,
+        name: friend.name,
+        username: friend.username
+      }); // DEBUG
+      
+      emit('open-chat', friend);
+      console.log('FriendsList: open-chat event emitted'); // DEBUG
+    };
+
     return {
       activeFriendMenu,
       getInitials,
       toggleFriendMenu,
       unfriend,
       clearSearch,
-      showInviteModal
+      showInviteModal,
+      openChat
     };
   }
 });
