@@ -27,26 +27,13 @@
     <TicketStats :stats="ticketStats" @filter-by-status="filterByStatus" />
 
     <!-- Filter -->
-    <TicketFilter
-      :filters="filters"
-      @update:filters="updateFilters"
-      @reset-filters="resetFilters"
-    />
+    <TicketFilter :filters="filters" @update:filters="updateFilters" @reset-filters="resetFilters" />
 
     <!-- Ticket Liste -->
-    <TicketList
-      :tickets="filteredTickets"
-      :loading="isLoading"
-      @select-ticket="selectTicket"
-      @bulk-action="handleBulkAction"
-    />
+    <TicketList :tickets="filteredTickets" :loading="isLoading" @select-ticket="selectTicket" />
 
     <!-- Neues Ticket Formular Modal -->
-    <div
-      v-if="showNewTicketForm"
-      class="modal-overlay"
-      @click="closeNewTicketForm"
-    >
+    <div v-if="showNewTicketForm" class="modal-overlay" @click="closeNewTicketForm">
       <div class="modal-container" @click.stop>
         <div class="modal-header">
           <h3>Neues Ticket erstellen</h3>
@@ -79,12 +66,7 @@ import TicketFilter from "./TicketFilter.vue";
 import TicketList from "./TicketList.vue";
 import TicketForm from "./TicketForm.vue";
 import TicketDetail from "./TicketDetail.vue";
-import {
-  ticketService,
-  TicketStatus,
-  type Ticket,
-  type TicketCategory,
-} from "@/services/ticket.service";
+import { ticketService, TicketStatus, type Ticket } from "@/services/ticket.service";
 
 export default defineComponent({
   name: "Tickets",
@@ -116,8 +98,7 @@ export default defineComponent({
         byStatus: {
           open: 0,
           in_progress: 0,
-          waiting: 0,
-          resolved: 0,
+          website_bug: 0,
           closed: 0,
         },
         byCategory: {},
@@ -126,12 +107,8 @@ export default defineComponent({
       tickets.value.forEach((ticket) => {
         // Status
         if (ticket.status === TicketStatus.OPEN) stats.byStatus.open++;
-        else if (ticket.status === TicketStatus.IN_PROGRESS)
-          stats.byStatus.in_progress++;
-        else if (ticket.status === TicketStatus.WAITING)
-          stats.byStatus.waiting++;
-        else if (ticket.status === TicketStatus.RESOLVED)
-          stats.byStatus.resolved++;
+        else if (ticket.status === TicketStatus.IN_PROGRESS) stats.byStatus.in_progress++;
+        else if (ticket.status === TicketStatus.WEBSITE_BUG) stats.byStatus.website_bug++;
         else if (ticket.status === TicketStatus.CLOSED) stats.byStatus.closed++;
       });
 
@@ -144,16 +121,12 @@ export default defineComponent({
 
       // Status-Filter
       if (filters.value.status) {
-        result = result.filter(
-          (ticket) => ticket.status === filters.value.status
-        );
+        result = result.filter((ticket) => ticket.status === filters.value.status);
       }
 
       // Kategorie-Filter
       if (filters.value.category) {
-        result = result.filter(
-          (ticket) => ticket.category === filters.value.category
-        );
+        result = result.filter((ticket) => ticket.category === filters.value.category);
       }
 
       // Such-Filter
@@ -169,15 +142,9 @@ export default defineComponent({
 
       // Sortierung
       if (filters.value.sortBy === "updatedAt") {
-        result.sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
+        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       } else if (filters.value.sortBy === "createdAt") {
-        result.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       }
 
       return result;
@@ -246,9 +213,7 @@ export default defineComponent({
       await loadTickets();
       if (selectedTicket.value) {
         // Ausgewähltes Ticket aktualisieren
-        const updated = tickets.value.find(
-          (t) => t.id === selectedTicket.value!.id
-        );
+        const updated = tickets.value.find((t) => t.id === selectedTicket.value!.id);
         if (updated) {
           selectedTicket.value = updated;
         }
@@ -256,37 +221,24 @@ export default defineComponent({
     };
 
     // Ticket gelöscht
-    const handleTicketDeleted = (ticketId: string) => {
-      tickets.value = tickets.value.filter((t) => t.id !== ticketId);
-      closeTicketDetail();
-    };
+    const handleTicketDeleted = () => closeTicketDetail();
 
     // Bulk-Aktionen
-    const handleBulkAction = async (action: string, ticketIds: string[]) => {
+    /* const handleBulkAction = async (action: string, ticketIds: string[]) => {
       try {
         if (action === "resolve") {
-          await Promise.all(
-            ticketIds.map((id) =>
-              ticketService.changeTicketStatus(id, TicketStatus.RESOLVED)
-            )
-          );
+          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.RESOLVED)));
         } else if (action === "close") {
-          await Promise.all(
-            ticketIds.map((id) =>
-              ticketService.changeTicketStatus(id, TicketStatus.CLOSED)
-            )
-          );
+          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.CLOSED)));
         }
         await loadTickets();
       } catch (error) {
         console.error("Fehler bei Bulk-Aktion:", error);
       }
-    };
+    }; */
 
     // Beim Mounten
-    onMounted(() => {
-      loadTickets();
-    });
+    onMounted(() => loadTickets());
 
     return {
       createTicket,
@@ -303,10 +255,9 @@ export default defineComponent({
       selectTicket,
       closeTicketDetail,
       closeNewTicketForm,
-      createTicket,
       refreshTickets,
       handleTicketDeleted,
-      handleBulkAction,
+      // handleBulkAction,
     };
   },
 });

@@ -23,23 +23,6 @@
         </button>
         <h2 class="ticket-title">{{ ticket.title }}</h2>
       </div>
-      <div class="ticket-status">
-        <div class="status-switcher">
-          <select
-            v-model="currentStatus"
-            @change="updateTicketStatus"
-            class="status-select"
-          >
-            <option
-              v-for="status in availableStatuses"
-              :key="status"
-              :value="status"
-            >
-              {{ formatStatus(status) }}
-            </option>
-          </select>
-        </div>
-      </div>
     </div>
 
     <!-- Ticket Info Box -->
@@ -59,16 +42,8 @@
       <div class="info-section">
         <div class="info-label">Kategorie</div>
         <div class="info-value">
-          <select
-            v-model="currentCategory"
-            @change="updateTicketCategory"
-            class="category-select"
-          >
-            <option
-              v-for="category in availableCategories"
-              :key="category"
-              :value="category"
-            >
+          <select v-model="currentCategory" @change="updateTicketCategory" class="category-select">
+            <option v-for="category in availableCategories" :key="category" :value="category">
               {{ formatCategory(category) }}
             </option>
           </select>
@@ -78,30 +53,12 @@
         <div class="info-label">Zugewiesen an</div>
         <div class="info-value">
           <div>
-          <button v-if="canTakeTicket" class="btn-primary" @click="takeTicket">
-            Ticket übernehmen
-          </button>
+            <button v-if="canTakeTicket" class="btn-primary" @click="takeTicket">Ticket übernehmen</button>
           </div>
-          <button
-            v-if="canCloseTicket"
-            class="btn-secondary"
-            @click="closeTicket"
-          >
-            Ticket schließen
-          </button>
-          <button
-            v-if="canCancelTicket"
-            class="btn-danger"
-            @click="cancelTicket"
-          >
-            Ticket stornieren
-          </button>
+          <button v-if="canCloseTicket" class="btn-secondary" @click="closeTicket">Ticket schließen</button>
+          <button v-if="canCancelTicket" class="btn-danger" @click="cancelTicket">Ticket stornieren</button>
           <form @submit.prevent="submitMessage" class="message-form">
-            <textarea
-              v-model="newMessage"
-              placeholder="Nachricht eingeben..."
-              required
-            />
+            <textarea v-model="newMessage" placeholder="Nachricht eingeben..." required />
             <button type="submit" :disabled="isSending">
               <span v-if="isSending">Senden...</span>
               <span v-else>Nachricht senden</span>
@@ -118,14 +75,11 @@
     </div>
 
     <!-- Message Timeline -->
-    <div
-      class="message-timeline"
-      v-if="ticket.messages && ticket.messages.length > 0"
-    >
+    <div class="message-timeline" v-if="ticket.messages && ticket.messages.length > 0">
       <h3 class="box-title">Nachrichtenverlauf</h3>
       <div class="timeline">
         <div
-          v-for="(message, index) in ticket.messages"
+          v-for="message in ticket.messages"
           :key="message.id"
           class="timeline-item"
           :class="{ 'is-staff': message.isStaff }"
@@ -178,7 +132,6 @@
       </div>
     </div>
 
-
     <!-- Action Bar -->
     <div class="action-bar">
       <button class="btn-action delete" @click="confirmDeleteTicket">
@@ -194,9 +147,7 @@
           stroke-linejoin="round"
         >
           <polyline points="3 6 5 6 21 6"></polyline>
-          <path
-            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-          ></path>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           <line x1="10" y1="11" x2="10" y2="17"></line>
           <line x1="14" y1="11" x2="14" y2="17"></line>
         </svg>
@@ -224,22 +175,6 @@
         </button>
       </div>
       <div v-else>
-        <button class="btn-action resolve" @click="resolveTicket">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          Als gelöst markieren
-        </button>
         <button class="btn-action close" @click="cancelTicket">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -269,8 +204,7 @@
         </div>
         <div class="confirm-content">
           <p>
-            Sind Sie sicher, dass Sie dieses Ticket löschen möchten? Diese
-            Aktion kann nicht rückgängig gemacht werden.
+            Sind Sie sicher, dass Sie dieses Ticket löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
         </div>
         <div class="confirm-actions">
@@ -284,13 +218,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from "vue";
-import {
-  ticketService,
-  type Ticket,
-  type TicketMessage,
-  TicketStatus,
-  TicketCategory,
-} from "@/services/ticket.service";
+import { ticketService, type Ticket, TicketStatus, TicketCategory } from "@/services/ticket.service";
 import { authService } from "@/services/auth.service";
 
 export default defineComponent({
@@ -306,7 +234,7 @@ export default defineComponent({
     // Status des aktuellen Tickets
     const currentStatus = ref(props.ticket.status);
     const currentCategory = ref(props.ticket.category);
-    const currentAssignee = ref(props.ticket.assignedTo || "");
+    const currentAssignee = ref(props.ticket.workedBy.username || "");
 
     // Antwortformular
     const replyMessage = ref("");
@@ -317,10 +245,7 @@ export default defineComponent({
       if (!newMessage.value.trim()) return;
       isSending.value = true;
       try {
-        await ticketService.addMessage(
-          props.ticket.id,
-          newMessage.value,
-        );
+        await ticketService.addMessage(props.ticket.id, newMessage.value);
         newMessage.value = "";
         emit("updated");
       } catch (e) {
@@ -334,7 +259,7 @@ export default defineComponent({
       emit("updated");
     };
     const userdata = authService.getUserData();
-    const isString = (value: any) => {
+    /*     const isString = (value: any) => {
       if (value === null) {
         return "";
       }
@@ -343,16 +268,16 @@ export default defineComponent({
       } else {
         return "";
       }
-    };
+    }; */
     const canTakeTicket = computed(() => {
       if (userdata === null) {
         return false;
       }
-      return userdata.role === "ADMIN" && !props.ticket.assignedTo;
+      return userdata.role === "ADMIN" && !props.ticket.workedBy.username;
     });
-const canCloseTicket = computed(() => props.ticket.status === TicketStatus.IN_PROGRESS);
-const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN);
-    const isStaff = userdata.role === "ADMIN" || userdata.role === "MODERATOR";
+    const canCloseTicket = computed(() => props.ticket.status === TicketStatus.IN_PROGRESS);
+    const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN);
+    // const isStaff = userdata?.role === "ADMIN" || userdata?.role === "MODERATOR";
     const cancelTicket = async () => {
       await ticketService.cancelTicket(props.ticket.id);
       emit("deleted", props.ticket.id);
@@ -373,27 +298,10 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
     // Enums für den Template-Zugriff
     const TicketStatusEnum = TicketStatus;
 
-    // Status aktualisieren
-    const updateTicketStatus = async () => {
-      try {
-        await ticketService.changeTicketStatus(
-          props.ticket.id,
-          currentStatus.value
-        );
-        emit("updated");
-      } catch (error) {
-        console.error("Fehler beim Aktualisieren des Status:", error);
-        // Status zurücksetzen im Fehlerfall
-        currentStatus.value = props.ticket.status;
-      }
-    };
-
     // Kategorie aktualisieren
     const updateTicketCategory = async () => {
       try {
-        await ticketService.updateTicket(props.ticket.id, {
-          category: currentCategory.value,
-        });
+        await ticketService.updateTicketCategory(props.ticket.id, currentCategory.value);
         emit("updated");
       } catch (error) {
         console.error("Fehler beim Aktualisieren der Kategorie:", error);
@@ -401,22 +309,7 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       }
     };
 
-    // Ticket als gelöst markieren
-    const resolveTicket = async () => {
-      try {
-        currentStatus.value = TicketStatus.RESOLVED;
-        await ticketService.changeTicketStatus(
-          props.ticket.id,
-          TicketStatus.RESOLVED
-        );
-        emit("updated");
-      } catch (error) {
-        console.error("Fehler beim Markieren als gelöst:", error);
-        currentStatus.value = props.ticket.status;
-      }
-    };
-
-  const closeTicket = async () => {
+    const closeTicket = async () => {
       try {
         await ticketService.cancelTicket(props.ticket.id);
         emit("updated");
@@ -424,16 +317,12 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
         console.error("Fehler beim Schließen des Tickets:", error);
       }
     };
-   
 
     // Ticket wieder öffnen
     const reopenTicket = async () => {
       try {
         currentStatus.value = TicketStatus.OPEN;
-        await ticketService.changeTicketStatus(
-          props.ticket.id,
-          TicketStatus.OPEN
-        );
+        await ticketService.reopenTicket(props.ticket.id);
         emit("updated");
       } catch (error) {
         console.error("Fehler beim Wiedereröffnen des Tickets:", error);
@@ -446,18 +335,7 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       if (!canSendReply.value) return;
 
       try {
-        // Aktuelle Admin-Daten abrufen
-        const adminId = authService.getCurrentAdminId();
-        const adminName = "Admin Team"; // In einer echten Anwendung würde hier der Name aus dem Admin-Profil kommen
-
-        await ticketService.addMessage(
-          props.ticket.id,
-          replyMessage.value,
-          adminId,
-          adminName,
-          "admin",
-          true
-        );
+        await ticketService.addMessage(props.ticket.id, replyMessage.value);
 
         // Formular zurücksetzen
         resetReplyForm();
@@ -469,30 +347,21 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       }
     };
     // Antwortformular zurücksetzen
-    const resetReplyForm = () => {
-      replyMessage.value = "";
-    };
+    const resetReplyForm = () => (replyMessage.value = "");
 
     // Ticket löschen Dialog anzeigen
-    const confirmDeleteTicket = () => {
-      showDeleteConfirm.value = true;
-    };
+    const confirmDeleteTicket = () => (showDeleteConfirm.value = true);
 
     // Löschen abbrechen
-    const cancelDelete = () => {
-      showDeleteConfirm.value = false;
-    };
+    const cancelDelete = () => (showDeleteConfirm.value = false);
 
     // Ticket löschen
     const deleteTicket = async () => {
       try {
-        // In einer echten Anwendung würde hier ein API-Aufruf zum Löschen des Tickets erfolgen
-        // Da wir hier nur mit Mock-Daten arbeiten, simulieren wir das Löschen
-
+        await ticketService.cancelTicket(props.ticket.id);
         // Löschen-Dialog schließen
         showDeleteConfirm.value = false;
 
-        // Event auslösen, damit das übergeordnete Element weiß, dass das Ticket gelöscht wurde
         emit("deleted", props.ticket.id);
       } catch (error) {
         console.error("Fehler beim Löschen des Tickets:", error);
@@ -552,9 +421,7 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
     };
 
     // Beim Mounten der Komponente
-    onMounted(() => {
-      loadAvailableAdmins();
-    });
+    onMounted(() => loadAvailableAdmins());
 
     return {
       // Reaktive States
@@ -584,11 +451,9 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       canTakeTicket,
 
       // Methoden – Änderungen
-      updateTicketStatus,
       updateTicketCategory,
 
       // Methoden – Aktionen
-      resolveTicket,
       closeTicket,
       takeTicket,
       reopenTicket,
@@ -598,7 +463,7 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
       sendReply,
       resetReplyForm,
       canCloseTicket,
-  canCancelTicket,
+      canCancelTicket,
 
       // Dialoge
       confirmDeleteTicket,
@@ -606,7 +471,6 @@ const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN
     };
   },
 });
-
 </script>
 
 <style lang="scss" scoped>

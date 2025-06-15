@@ -4,9 +4,7 @@
     <form @submit.prevent="submitForm">
       <!-- Ticket Titel -->
       <div class="form-group">
-        <label for="ticket-title" class="form-label"
-          >Titel <span class="required">*</span></label
-        >
+        <label for="ticket-title" class="form-label">Titel <span class="required">*</span></label>
         <input
           type="text"
           id="ticket-title"
@@ -20,9 +18,7 @@
 
       <!-- Ticket Beschreibung -->
       <div class="form-group">
-        <label for="ticket-description" class="form-label"
-          >Beschreibung <span class="required">*</span></label
-        >
+        <label for="ticket-description" class="form-label">Beschreibung <span class="required">*</span></label>
         <textarea
           id="ticket-description"
           v-model="ticketData.description"
@@ -37,22 +33,13 @@
       </div>
       <div class="form-group">
         <label for="attachments">Anhänge (optional)</label>
-        <input
-          type="file"
-          id="attachments"
-          multiple
-          @change="handleFileChange"
-        />
+        <input type="file" id="attachments" multiple @change="handleFileChange" />
       </div>
 
       <!-- Ticket Kategorie -->
       <div class="form-group">
         <label for="ticket-category" class="form-label">Kategorie</label>
-        <select
-          id="ticket-category"
-          v-model="ticketData.category"
-          class="form-select"
-        >
+        <select id="ticket-category" v-model="ticketData.category" class="form-select">
           <option value="account">Konto</option>
           <option value="payment">Zahlung</option>
           <option value="technical">Technisch</option>
@@ -63,16 +50,12 @@
 
       <!-- Benutzer-ID (Dummy-Feld für Demo) -->
       <div class="form-group">
-        <label for="ticket-user" class="form-label"
-          >Betroffener Benutzer <span class="required">*</span></label
-        >
+        <label for="ticket-user" class="form-label">Betroffener Benutzer <span class="required">*</span></label>
       </div>
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button type="button" class="btn-cancel" @click="$emit('cancel')">
-          Abbrechen
-        </button>
+        <button type="button" class="btn-cancel" @click="$emit('cancel')">Abbrechen</button>
         <button type="submit" class="btn-submit" :disabled="isSubmitting">
           <span v-if="isSubmitting">
             <svg
@@ -114,12 +97,12 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import type { TicketCategory } from "@/services/ticket.service";
+import { TicketCategory } from "@/services/ticket.service";
 
 export default defineComponent({
   name: "TicketForm",
   emits: ["submit", "cancel"],
-  setup(props, { emit }) {
+  setup(_props, { emit }) {
     // Ticket-Daten
     const ticketData = ref({
       title: "",
@@ -150,7 +133,6 @@ export default defineComponent({
       errors.value = {
         title: "",
         description: "",
-
       };
 
       // Validate title
@@ -167,8 +149,7 @@ export default defineComponent({
         errors.value.description = "Beschreibung ist erforderlich";
         isValid = false;
       } else if (ticketData.value.description.length < 10) {
-        errors.value.description =
-          "Beschreibung muss mindestens 10 Zeichen lang sein";
+        errors.value.description = "Beschreibung muss mindestens 10 Zeichen lang sein";
         isValid = false;
       }
 
@@ -182,19 +163,19 @@ export default defineComponent({
       isSubmitting.value = true;
 
       try {
-  const formData = new FormData();
-  formData.append("title", ticketData.value.title);
-  formData.append("description", ticketData.value.description);
-  formData.append("category", ticketData.value.category);
+        const formData = new FormData();
+        formData.append("title", ticketData.value.title);
+        formData.append("description", ticketData.value.description);
+        formData.append("category", ticketData.value.category);
 
-  // Dateien anhängen
-  attachments.value.forEach((file) => {
-    formData.append("files", file);
-  });
+        // Dateien anhängen
+        attachments.value.forEach((file) => {
+          formData.append("files", file);
+        });
 
-  emit("submit", formData);
-} catch (error) {
-  console.error("Fehler beim Erstellen des Tickets:", error);
+        emit("submit", formData);
+      } catch (error) {
+        console.error("Fehler beim Erstellen des Tickets:", error);
       } finally {
         isSubmitting.value = false;
       }
