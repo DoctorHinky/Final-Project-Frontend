@@ -12,7 +12,7 @@
             <p>{{ setting.description }}</p>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" v-model="setting.enabled">
+            <input type="checkbox" v-model="setting.enabled" />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -29,45 +29,39 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-
-interface NotificationSetting {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-}
+import { defineComponent, type PropType } from "vue";
+import type { NotificationSetting } from "@/types/Notification.types";
 
 export default defineComponent({
-  name: 'SettingsModal',
+  name: "SettingsModal",
   props: {
     showModal: {
       type: Boolean,
-      required: true
+      required: true,
     },
     settings: {
       type: Array as PropType<NotificationSetting[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['close', 'save'],
+  emits: ["close", "save"],
   setup(props, { emit }) {
     const saveSettings = () => {
-      emit('save', props.settings);
+      emit("save", props.settings);
     };
 
     return {
-      saveSettings
+      saveSettings,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Modal und Bestätigungsdialog
 .modal-backdrop {
@@ -99,10 +93,10 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
-        @include mixins.shadow('large', $theme);
+        @include mixins.shadow("large", $theme);
         transition: all 0.4s ease-out;
       }
     }
@@ -115,7 +109,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), large);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -130,7 +124,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -159,7 +153,7 @@ export default defineComponent({
         gap: map.get(vars.$spacing, s);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-bottom: 1px solid mixins.theme-color($theme, border-light);
           transition: all 0.4s ease-out;
@@ -186,7 +180,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), small);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
               transition: all 0.4s ease-out;
@@ -202,7 +196,7 @@ export default defineComponent({
             font-size: 11px;
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
               transition: all 0.4s ease-out;
@@ -227,8 +221,8 @@ export default defineComponent({
           width: 0;
           height: 0;
 
-          &:checked+.toggle-slider {
-            @each $theme in ('light', 'dark') {
+          &:checked + .toggle-slider {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, accent-green);
                 transition: all 0.4s ease-out;
@@ -236,7 +230,7 @@ export default defineComponent({
             }
           }
 
-          &:checked+.toggle-slider:before {
+          &:checked + .toggle-slider:before {
             transform: translateX(24px);
           }
         }
@@ -249,9 +243,9 @@ export default defineComponent({
           right: 0;
           bottom: 0;
           border-radius: 34px;
-          transition: .4s;
+          transition: 0.4s;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, border-medium);
               transition: all 0.4s ease-out;
@@ -266,9 +260,9 @@ export default defineComponent({
             left: 4px;
             bottom: 4px;
             border-radius: 50%;
-            transition: .4s;
+            transition: 0.4s;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: white;
               }
@@ -302,7 +296,7 @@ export default defineComponent({
       }
 
       &.cancel-button {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
@@ -313,7 +307,7 @@ export default defineComponent({
       }
 
       &.save-button {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
@@ -347,7 +341,7 @@ export default defineComponent({
       font-size: 1.2rem;
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;

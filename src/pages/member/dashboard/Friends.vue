@@ -71,7 +71,6 @@
       @update:is-visible="showInviteModal = $event"
       @update:invite-email="inviteEmail = $event"
       @update:invite-message="inviteMessage = $event"
-      @send-invite="sendInvite"
     />
 
     <!-- Chat-Modal -->
@@ -357,8 +356,13 @@ export default defineComponent({
         showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", "error");
       }
     };
+    /* 
+      @send-invite="sendInvite"
+      wurde aus dem InviteModal entfernt, da es noch nicht implementiert ist.
+    */
 
-    const sendInvite = async () => {
+    // noch nicht implementiert, da Backend fehlt
+    /* const sendInvite = async () => {
       if (!inviteEmail.value.trim()) {
         showToast("Bitte gib eine E-Mail-Adresse ein.", "error");
         return;
@@ -375,7 +379,7 @@ export default defineComponent({
       } catch (err: any) {
         showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", "error");
       }
-    };
+    }; */
 
     // Chat-Funktionen
     const openChat = (friend: Friend) => {
@@ -433,7 +437,7 @@ export default defineComponent({
       unfriend,
       acceptRequest,
       declineRequest,
-      sendInvite,
+      // sendInvite, // noch nicht implementiert
       openChat,
       handleSendMessage,
       onFriendRequestSent,

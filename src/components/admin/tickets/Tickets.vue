@@ -180,7 +180,18 @@ export default defineComponent({
     const filterByStatus = (status: string) => (filters.value.status = status);
 
     // Ticket auswählen
-    const selectTicket = (ticket: Ticket) => (selectedTicket.value = ticket);
+    const selectTicket = async (ticket: Ticket) => {
+      try {
+        const res = await ticketService.getTicketById(ticket.id);
+        console.log("respone ", res);
+
+        if (res !== null) {
+          selectedTicket.value = res;
+        }
+      } catch (error) {
+        console.error("something gone wrong, ", error);
+      }
+    };
 
     // Ticket-Detail schließen
     const closeTicketDetail = () => (selectedTicket.value = null);

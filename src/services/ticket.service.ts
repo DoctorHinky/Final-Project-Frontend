@@ -1,22 +1,24 @@
 // src/services/ticket.service.ts
 import api from "@/services/axiosInstance";
 // Ticket-Status-Typen
-export enum TicketStatus {
-  OPEN = "OPEN",
-  IN_PROGRESS = "IN_PROGRESS",
-  WEBSITE_BUG = "WEBSITE_BUG",
-  CANCELED = "CANCELED",
-  CLOSED = "CLOSED",
-}
+export const TicketStatus = {
+  OPEN: "OPEN",
+  IN_PROGRESS: "IN_PROGRESS",
+  WEBSITE_BUG: "WEBSITE_BUG",
+  CANCELED: "CANCELED",
+  CLOSED: "CLOSED",
+} as const;
+export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus];
 
 // Ticket-Kategorie
-export enum TicketCategory {
-  WEBSITE_BUG = "WEBSITE_BUG",
-  ACCOUNT = "ACCOUNT",
-  TECHNICAL = "TECHNICAL",
-  REPORT = "REPORT",
-  OTHER = "OTHER",
-}
+export const TicketCategory = {
+  WEBSITE_BUG: "WEBSITE_BUG",
+  ACCOUNT: "ACCOUNT",
+  TECHNICAL: "TECHNICAL",
+  REPORT: "REPORT",
+  OTHER: "OTHER",
+} as const;
+export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
 // Ticket-Interface
 export interface Ticket {
@@ -51,8 +53,6 @@ export interface TicketMessage {
   content: string;
   createdAt: string;
 }
-
-// Mock-Daten für Tickets während der Entwicklung
 
 // API URL - Für Entwicklung und Produktion
 export const ticketService = {
@@ -135,12 +135,9 @@ export const ticketService = {
   // Ein einzelnes Ticket abrufen
   async getTicketById(id: string) {
     try {
-      const response = await api.get(`tickets/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log(response);
+      console.log("getTicketById called", id);
+      const response = await api.get(`tickets/${id}`);
+      console.log("res mit id: ", response);
       return response.data;
     } catch (error) {
       console.error(`Fehler beim Abrufen des Tickets mit ID ${id}:`, error);

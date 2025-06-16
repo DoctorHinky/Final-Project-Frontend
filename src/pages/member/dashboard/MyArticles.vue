@@ -54,38 +54,26 @@
       />
 
       <!-- Anzeige eines leeren Zustands -->
-      <empty-state 
-        v-else-if="!loading && articles.length === 0" 
+      <empty-state
+        v-else-if="!loading && articles.length === 0"
         @reset-filters="clearFilters"
         :is-empty-history="true"
       />
 
       <!-- Keine gefilterten Ergebnisse -->
-      <empty-state 
-        v-else-if="!loading && filteredArticles.length === 0" 
+      <empty-state
+        v-else-if="!loading && filteredArticles.length === 0"
         @reset-filters="clearFilters"
         :is-empty-history="false"
       />
 
       <!-- Pagination -->
       <div v-if="meta && meta.totalPages > 1" class="pagination">
-        <button 
-          class="pagination-button"
-          :disabled="meta.page <= 1"
-          @click="loadPage(meta.page - 1)"
-        >
-          Zurück
-        </button>
-        
-        <span class="pagination-info">
-          Seite {{ meta.page }} von {{ meta.totalPages }}
-        </span>
-        
-        <button 
-          class="pagination-button"
-          :disabled="meta.page >= meta.totalPages"
-          @click="loadPage(meta.page + 1)"
-        >
+        <button class="pagination-button" :disabled="meta.page <= 1" @click="loadPage(meta.page - 1)">Zurück</button>
+
+        <span class="pagination-info"> Seite {{ meta.page }} von {{ meta.totalPages }} </span>
+
+        <button class="pagination-button" :disabled="meta.page >= meta.totalPages" @click="loadPage(meta.page + 1)">
           Weiter
         </button>
       </div>
@@ -93,10 +81,7 @@
 
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader 
-        :article="selectedArticle" 
-        @close="closeArticleReader"
-      />
+      <article-reader :article="selectedArticle" @close="closeArticleReader" />
     </div>
   </div>
 </template>
@@ -106,7 +91,7 @@ import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import ArticleReader from "@/components/member/article/ArticleReader.vue";
 import { SearchSection, ArticlesTabs, ArticlesList, EmptyState } from "@/components/pages/DashboardPages/MyArticles";
 import { historyService, type HistoryItem } from "@/services/history.service";
-import type { MyArticleItem, MyArticleTab, MyArticleFilters } from "@/types/MyArticles.types";
+import type { MyArticleItem, MyArticleTab } from "@/types/MyArticles.types";
 
 export default defineComponent({
   name: "MyArticlesDashboard",
@@ -145,8 +130,8 @@ export default defineComponent({
     const articleCounts = computed(() => {
       return {
         all: articles.value.length,
-        reading: articles.value.filter(a => a.status === 'reading').length,
-        completed: articles.value.filter(a => a.status === 'completed').length,
+        reading: articles.value.filter((a) => a.status === "reading").length,
+        completed: articles.value.filter((a) => a.status === "completed").length,
       };
     });
 
@@ -166,14 +151,14 @@ export default defineComponent({
       const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
 
       if (diffHours < 1) return "Gerade eben";
-      if (diffHours < 24) return `Vor ${diffHours} Stunde${diffHours > 1 ? 'n' : ''}`;
+      if (diffHours < 24) return `Vor ${diffHours} Stunde${diffHours > 1 ? "n" : ""}`;
       if (diffDays === 1) return "Gestern";
       if (diffDays < 7) return `Vor ${diffDays} Tagen`;
-      
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     };
 
@@ -184,23 +169,23 @@ export default defineComponent({
         historyId: historyItem.id,
         readAt: historyItem.readAt,
         solvedAt: historyItem.solvedAt,
-        
+
         // Post-Daten (aus History-Response)
         id: historyItem.postId,
         title: historyItem.postTitle,
         quickDescription: historyItem.postQuickDescription,
         author: historyItem.postAuthor,
-        
+
         // Dummy-Werte (werden später durch echte Post-Daten ersetzt)
         image: null,
-        category: 'OTHER' as any,
+        category: "OTHER" as any,
         tags: [],
         createdAt: historyItem.readAt,
         isCertifiedAuthor: false,
-        
+
         // Computed Felder
         lastRead: formatLastRead(historyItem.readAt),
-        status: historyItem.solvedAt ? 'completed' : 'reading'
+        status: historyItem.solvedAt ? "completed" : "reading",
       };
     };
 
@@ -208,18 +193,17 @@ export default defineComponent({
     const loadArticles = async (page: number = 1) => {
       loading.value = true;
       error.value = null;
-      
+
       try {
         const response = await historyService.getHistory(page, itemsPerPage.value);
-        
+
         // Konvertiere History-Items zu MyArticleItems
         articles.value = response.data.map(convertHistoryToArticle);
         meta.value = response.meta;
         currentPage.value = page;
-        
       } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Unbekannter Fehler beim Laden der Artikel';
-        console.error('Error loading articles:', err);
+        error.value = err instanceof Error ? err.message : "Unbekannter Fehler beim Laden der Artikel";
+        console.error("Error loading articles:", err);
       } finally {
         loading.value = false;
       }
@@ -296,8 +280,8 @@ export default defineComponent({
         selectedArticle.value = article;
         articleReaderMode.value = true;
       } catch (err) {
-        console.error('Error opening article:', err);
-        alert('Fehler beim Öffnen des Artikels');
+        console.error("Error opening article:", err);
+        alert("Fehler beim Öffnen des Artikels");
       }
     };
 
@@ -311,7 +295,7 @@ export default defineComponent({
     const removeArticleFromHistory = async (articleId: string) => {
       try {
         // Finde das History-Item
-        const article = articles.value.find(a => a.id === articleId);
+        const article = articles.value.find((a) => a.id === articleId);
         if (!article) return;
 
         // Bestätigung anfordern
@@ -320,16 +304,15 @@ export default defineComponent({
 
         // Aus Backend entfernen
         await historyService.removeFromHistory(article.historyId);
-        
+
         // Aus lokaler Liste entfernen
-        articles.value = articles.value.filter(a => a.id !== articleId);
-        
+        articles.value = articles.value.filter((a) => a.id !== articleId);
+
         // Toast/Notification (falls verfügbar)
-        console.log('Artikel erfolgreich aus Historie entfernt');
-        
+        console.log("Artikel erfolgreich aus Historie entfernt");
       } catch (err) {
-        console.error('Error removing article:', err);
-        alert('Fehler beim Entfernen des Artikels aus der Historie');
+        console.error("Error removing article:", err);
+        alert("Fehler beim Entfernen des Artikels aus der Historie");
       }
     };
 
@@ -374,7 +357,7 @@ export default defineComponent({
       meta,
       selectedArticle,
       articleReaderMode,
-      
+
       // UI State
       tabs,
       activeTab,
@@ -384,7 +367,7 @@ export default defineComponent({
       viewMode,
       sortOption,
       articleCounts,
-      
+
       // Functions
       loadArticles,
       loadPage,
@@ -596,7 +579,11 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

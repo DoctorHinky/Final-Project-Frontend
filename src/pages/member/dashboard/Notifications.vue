@@ -7,34 +7,27 @@
     </div>
 
     <!-- Statistik-Karten -->
-    <notification-stats 
-      :unread-count="unreadCount" 
-      :total-count="totalCount" 
-    />
+    <notification-stats :unread-count="unreadCount" :total-count="totalCount" />
 
     <!-- Filter-Optionen -->
-    <notification-filters 
-      :filters="filters" 
-      :active-filter="activeFilter" 
-      :has-unread="hasUnread" 
+    <notification-filters
+      :filters="filters"
+      :active-filter="activeFilter"
+      :has-unread="hasUnread"
       :has-notifications="hasNotifications"
-      @update:active-filter="activeFilter = $event" 
-      @mark-all-read="markAllAsRead" 
-      @clear-all="clearAllNotifications" 
+      @update:active-filter="activeFilter = $event"
+      @mark-all-read="markAllAsRead"
+      @clear-all="clearAllNotifications"
     />
 
     <!-- Benachrichtigungsliste oder Leerer Zustand -->
-    <notifications-list 
-      v-if="filteredNotifications.length > 0" 
-      :notifications="filteredNotifications" 
+    <notifications-list
+      v-if="filteredNotifications.length > 0"
+      :notifications="filteredNotifications"
       @mark-read="markAsRead"
       @delete="deleteNotification"
     />
-    <empty-state 
-      v-else 
-      :active-filter="activeFilter" 
-      @update:active-filter="activeFilter = $event" 
-    />
+    <empty-state v-else :active-filter="activeFilter" @update:active-filter="activeFilter = $event" />
 
     <!-- Einstellungen-Link -->
     <div class="notification-settings">
@@ -45,198 +38,182 @@
     </div>
 
     <!-- Einstellungs-Modal -->
-    <settings-modal 
-      :show-modal="showSettings" 
+    <settings-modal
+      :show-modal="showSettings"
       :settings="notificationSettings"
-      @close="showSettings = false" 
-      @save="saveSettings" 
+      @close="showSettings = false"
+      @save="saveSettings"
     />
 
     <!-- Bestätigungsdialog -->
-    <confirm-dialog 
-      :show="showConfirmDialog" 
-      :title="confirmDialogTitle" 
-      :message="confirmDialogMessage" 
+    <confirm-dialog
+      :show="showConfirmDialog"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
       :action-text="confirmDialogAction"
-      @confirm="confirmAction" 
-      @cancel="cancelAction" 
+      @confirm="confirmAction"
+      @cancel="cancelAction"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed } from "vue";
 
 // Import der modularen Komponenten
-import { 
-  NotificationStats, 
-  NotificationFilters, 
-  NotificationsList, 
-  EmptyState, 
-  SettingsModal, 
-  ConfirmDialog 
-} from '@/components/pages/DashboardPages/Notifications';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: 'article' | 'comment' | 'friend' | 'system';
-  time: string;
-  read: boolean;
-  actionLink?: string;
-  actionText?: string;
-}
-
-interface NotificationSetting {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-}
+import {
+  NotificationStats,
+  NotificationFilters,
+  NotificationsList,
+  EmptyState,
+  SettingsModal,
+  ConfirmDialog,
+} from "@/components/pages/DashboardPages/Notifications";
+import type { Notification, NotificationSetting } from "@/types/Notification.types";
 
 export default defineComponent({
-  name: 'NotificationsDashboard',
+  name: "NotificationsDashboard",
   components: {
     NotificationStats,
     NotificationFilters,
     NotificationsList,
     EmptyState,
     SettingsModal,
-    ConfirmDialog
+    ConfirmDialog,
   },
   setup() {
     // Status
-    const activeFilter = ref('all');
+    const activeFilter = ref("all");
     const showSettings = ref(false);
     const showConfirmDialog = ref(false);
-    const confirmDialogTitle = ref('');
-    const confirmDialogMessage = ref('');
-    const confirmDialogAction = ref('');
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAction = ref("");
     const pendingAction = ref<(() => void) | null>(null);
 
     // Filter-Optionen
     const filters = ref([
-      { id: 'all', name: 'Alle', count: 0 },
-      { id: 'unread', name: 'Ungelesen', count: 0 },
-      { id: 'article', name: 'Artikel', count: 0 },
-      { id: 'comment', name: 'Kommentare', count: 0 },
-      { id: 'friend', name: 'Freunde', count: 0 },
-      { id: 'system', name: 'System', count: 0 }
+      { id: "all", name: "Alle", count: 0 },
+      { id: "unread", name: "Ungelesen", count: 0 },
+      { id: "article", name: "Artikel", count: 0 },
+      { id: "comment", name: "Kommentare", count: 0 },
+      { id: "friend", name: "Freunde", count: 0 },
+      { id: "system", name: "System", count: 0 },
     ]);
 
     // Beispiel-Benachrichtigungen (später durch API-Daten ersetzen)
     const notifications = ref<Notification[]>([
       {
         id: 1,
-        title: 'Neue Artikelempfehlung',
+        title: "Neue Artikelempfehlung",
         message: 'Basierend auf deinen Interessen: "Digitale Medien im Kindesalter: Fluch oder Segen?"',
-        type: 'article',
-        time: 'Vor 10 Minuten',
+        type: "article",
+        time: "Vor 10 Minuten",
         read: false,
-        actionLink: '#',
-        actionText: 'Artikel lesen'
+        actionLink: "#",
+        actionText: "Artikel lesen",
       },
       {
         id: 2,
-        title: 'Freundschaftsanfrage',
-        message: 'Thomas Schmidt möchte mit dir befreundet sein.',
-        type: 'friend',
-        time: 'Vor 1 Stunde',
+        title: "Freundschaftsanfrage",
+        message: "Thomas Schmidt möchte mit dir befreundet sein.",
+        type: "friend",
+        time: "Vor 1 Stunde",
         read: false,
-        actionLink: '#',
-        actionText: 'Anfrage ansehen'
+        actionLink: "#",
+        actionText: "Anfrage ansehen",
       },
       {
         id: 3,
-        title: 'Kommentar auf deinen Artikel',
+        title: "Kommentar auf deinen Artikel",
         message: 'Lisa Becker hat auf deinen Artikel "Grenzen setzen ohne Konflikte" geantwortet.',
-        type: 'comment',
-        time: 'Gestern',
+        type: "comment",
+        time: "Gestern",
         read: true,
-        actionLink: '#',
-        actionText: 'Zum Kommentar'
+        actionLink: "#",
+        actionText: "Zum Kommentar",
       },
       {
         id: 4,
-        title: 'Willkommen bei Eltern & Kind!',
-        message: 'Wir freuen uns, dich in unserer Community zu begrüßen. Entdecke unsere vielfältigen Artikel und Ressourcen für Eltern.',
-        type: 'system',
-        time: 'Vor 2 Tagen',
-        read: true
+        title: "Willkommen bei Eltern & Kind!",
+        message:
+          "Wir freuen uns, dich in unserer Community zu begrüßen. Entdecke unsere vielfältigen Artikel und Ressourcen für Eltern.",
+        type: "system",
+        time: "Vor 2 Tagen",
+        read: true,
       },
       {
         id: 5,
-        title: 'Neuer Artikel verfügbar',
+        title: "Neuer Artikel verfügbar",
         message: 'Der Artikel "Gesunde Ernährung für Kleinkinder" wurde gerade veröffentlicht.',
-        type: 'article',
-        time: 'Vor 3 Tagen',
+        type: "article",
+        time: "Vor 3 Tagen",
         read: true,
-        actionLink: '#',
-        actionText: 'Artikel lesen'
-      }
+        actionLink: "#",
+        actionText: "Artikel lesen",
+      },
     ]);
 
     // Benachrichtigungseinstellungen
     const notificationSettings = ref<NotificationSetting[]>([
       {
-        id: 'email_notifications',
-        name: 'E-Mail-Benachrichtigungen',
-        description: 'Erhalte wichtige Benachrichtigungen per E-Mail.',
-        enabled: true
+        id: "email_notifications",
+        name: "E-Mail-Benachrichtigungen",
+        description: "Erhalte wichtige Benachrichtigungen per E-Mail.",
+        enabled: true,
       },
       {
-        id: 'browser_notifications',
-        name: 'Browser-Benachrichtigungen',
-        description: 'Erlaube Benachrichtigungen im Browser.',
-        enabled: false
+        id: "browser_notifications",
+        name: "Browser-Benachrichtigungen",
+        description: "Erlaube Benachrichtigungen im Browser.",
+        enabled: false,
       },
       {
-        id: 'article_recommendations',
-        name: 'Artikelempfehlungen',
-        description: 'Benachrichtigungen für personalisierte Artikelempfehlungen.',
-        enabled: true
+        id: "article_recommendations",
+        name: "Artikelempfehlungen",
+        description: "Benachrichtigungen für personalisierte Artikelempfehlungen.",
+        enabled: true,
       },
       {
-        id: 'comment_notifications',
-        name: 'Kommentar-Benachrichtigungen',
-        description: 'Benachrichtigungen für Kommentare auf deine Artikel oder Beiträge.',
-        enabled: true
+        id: "comment_notifications",
+        name: "Kommentar-Benachrichtigungen",
+        description: "Benachrichtigungen für Kommentare auf deine Artikel oder Beiträge.",
+        enabled: true,
       },
       {
-        id: 'friend_requests',
-        name: 'Freundschaftsanfragen',
-        description: 'Benachrichtigungen für neue Freundschaftsanfragen.',
-        enabled: true
+        id: "friend_requests",
+        name: "Freundschaftsanfragen",
+        description: "Benachrichtigungen für neue Freundschaftsanfragen.",
+        enabled: true,
       },
       {
-        id: 'system_announcements',
-        name: 'Systemankündigungen',
-        description: 'Wichtige Ankündigungen zu Neuerungen und Updates.',
-        enabled: true
-      }
+        id: "system_announcements",
+        name: "Systemankündigungen",
+        description: "Wichtige Ankündigungen zu Neuerungen und Updates.",
+        enabled: true,
+      },
     ]);
 
     // Filtere Benachrichtigungen basierend auf aktivem Filter
     const filteredNotifications = computed(() => {
-      if (activeFilter.value === 'all') {
+      if (activeFilter.value === "all") {
         return notifications.value;
-      } else if (activeFilter.value === 'unread') {
-        return notifications.value.filter(notification => !notification.read);
+      } else if (activeFilter.value === "unread") {
+        return notifications.value.filter((notification) => !notification.read);
       } else {
-        return notifications.value.filter(notification => notification.type === activeFilter.value);
+        return notifications.value.filter((notification) => notification.type === activeFilter.value);
       }
     });
 
     // Dynamisch aktualisierte Anzahlen für Filter
     const updateFilterCounts = () => {
-      filters.value.forEach(filter => {
-        if (filter.id === 'all') {
+      filters.value.forEach((filter) => {
+        if (filter.id === "all") {
           filter.count = notifications.value.length;
-        } else if (filter.id === 'unread') {
-          filter.count = notifications.value.filter(n => !n.read).length;
+        } else if (filter.id === "unread") {
+          filter.count = notifications.value.filter((n) => !n.read).length;
         } else {
-          filter.count = notifications.value.filter(n => n.type === filter.id).length;
+          filter.count = notifications.value.filter((n) => n.type === filter.id).length;
         }
       });
     };
@@ -246,7 +223,7 @@ export default defineComponent({
 
     // Berechnete Werte für Status
     const unreadCount = computed(() => {
-      return notifications.value.filter(n => !n.read).length;
+      return notifications.value.filter((n) => !n.read).length;
     });
 
     const totalCount = computed(() => {
@@ -263,7 +240,7 @@ export default defineComponent({
 
     // Benachrichtigung als gelesen markieren
     const markAsRead = (id: number) => {
-      const notification = notifications.value.find(n => n.id === id);
+      const notification = notifications.value.find((n) => n.id === id);
       if (notification) {
         notification.read = true;
         updateFilterCounts();
@@ -273,11 +250,11 @@ export default defineComponent({
     // Alle Benachrichtigungen als gelesen markieren
     const markAllAsRead = () => {
       confirmDialog(
-        'Alle als gelesen markieren',
-        'Möchtest du wirklich alle Benachrichtigungen als gelesen markieren?',
-        'Alle markieren',
+        "Alle als gelesen markieren",
+        "Möchtest du wirklich alle Benachrichtigungen als gelesen markieren?",
+        "Alle markieren",
         () => {
-          notifications.value.forEach(notification => {
+          notifications.value.forEach((notification) => {
             notification.read = true;
           });
           updateFilterCounts();
@@ -287,14 +264,14 @@ export default defineComponent({
 
     // Benachrichtigung löschen
     const deleteNotification = (id: number) => {
-      const notification = notifications.value.find(n => n.id === id);
+      const notification = notifications.value.find((n) => n.id === id);
       if (notification) {
         confirmDialog(
-          'Benachrichtigung löschen',
+          "Benachrichtigung löschen",
           `Möchtest du wirklich die Benachrichtigung "${notification.title}" löschen?`,
-          'Löschen',
+          "Löschen",
           () => {
-            const index = notifications.value.findIndex(n => n.id === id);
+            const index = notifications.value.findIndex((n) => n.id === id);
             if (index !== -1) {
               notifications.value.splice(index, 1);
               updateFilterCounts();
@@ -307,9 +284,9 @@ export default defineComponent({
     // Alle Benachrichtigungen löschen
     const clearAllNotifications = () => {
       confirmDialog(
-        'Alle Benachrichtigungen löschen',
-        'Möchtest du wirklich alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.',
-        'Alle löschen',
+        "Alle Benachrichtigungen löschen",
+        "Möchtest du wirklich alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.",
+        "Alle löschen",
         () => {
           notifications.value = [];
           updateFilterCounts();
@@ -322,7 +299,7 @@ export default defineComponent({
       // Hier könntest du die Einstellungen an den Server senden
       notificationSettings.value = [...settings];
       showSettings.value = false;
-      alert('Einstellungen wurden gespeichert!');
+      alert("Einstellungen wurden gespeichert!");
     };
 
     // Bestätigungsdialog anzeigen
@@ -370,17 +347,17 @@ export default defineComponent({
       clearAllNotifications,
       saveSettings,
       confirmAction,
-      cancelAction
+      cancelAction,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .notifications-dashboard {
   @include animations.fade-in(0.5s);
@@ -407,7 +384,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -422,7 +399,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -458,7 +435,7 @@ export default defineComponent({
         justify-content: center;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -466,7 +443,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }

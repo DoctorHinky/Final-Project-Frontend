@@ -2,8 +2,12 @@
 <template>
   <div v-if="notifications.length > 0" class="notifications-list">
     <transition-group name="notification">
-      <div v-for="notification in notifications" :key="notification.id" class="notification-item"
-        :class="{ unread: !notification.read }">
+      <div
+        v-for="notification in notifications"
+        :key="notification.id"
+        class="notification-item"
+        :class="{ unread: !notification.read }"
+      >
         <div class="notification-icon" :class="notification.type">
           <span v-if="notification.type === 'article'">📚</span>
           <span v-else-if="notification.type === 'comment'">💬</span>
@@ -18,17 +22,19 @@
           </div>
           <p class="notification-message">{{ notification.message }}</p>
           <div v-if="notification.actionLink" class="notification-action">
-            <a :href="notification.actionLink">{{ notification.actionText || 'Ansehen' }}</a>
+            <a :href="notification.actionLink">{{ notification.actionText || "Ansehen" }}</a>
           </div>
         </div>
         <div class="notification-actions">
-          <button v-if="!notification.read" class="action-button mark-read" @click.stop="$emit('mark-read', notification.id)"
-            title="Als gelesen markieren">
+          <button
+            v-if="!notification.read"
+            class="action-button mark-read"
+            @click.stop="$emit('mark-read', notification.id)"
+            title="Als gelesen markieren"
+          >
             ✓
           </button>
-          <button class="action-button delete" @click.stop="$emit('delete', notification.id)" title="Löschen">
-            ×
-          </button>
+          <button class="action-button delete" @click.stop="$emit('delete', notification.id)" title="Löschen">×</button>
         </div>
       </div>
     </transition-group>
@@ -36,35 +42,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: 'article' | 'comment' | 'friend' | 'system';
-  time: string;
-  read: boolean;
-  actionLink?: string;
-  actionText?: string;
-}
+import { defineComponent, type PropType } from "vue";
+import type { Notification } from "@/types/Notification.types";
 
 export default defineComponent({
-  name: 'NotificationsList',
+  name: "NotificationsList",
   props: {
     notifications: {
       type: Array as PropType<Notification[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['mark-read', 'delete']
+  emits: ["mark-read", "delete"],
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Benachrichtigungsliste
 .notifications-list {
@@ -96,7 +92,7 @@ export default defineComponent({
       padding: map.get(vars.$spacing, s);
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         transition: all 0.4s ease-out !important;
         background-color: mixins.theme-color($theme, card-bg);
@@ -114,7 +110,7 @@ export default defineComponent({
         }
 
         &:hover {
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }
@@ -140,7 +136,7 @@ export default defineComponent({
       }
 
       &.article {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
             transition: all 0.4s ease-out;
@@ -149,7 +145,7 @@ export default defineComponent({
       }
 
       &.comment {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-teal), 0.15);
             transition: all 0.4s ease-out;
@@ -158,7 +154,7 @@ export default defineComponent({
       }
 
       &.friend {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-lime), 0.15);
             transition: all 0.4s ease-out;
@@ -167,7 +163,7 @@ export default defineComponent({
       }
 
       &.system {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-yellow), 0.15);
             transition: all 0.4s ease-out;
@@ -200,7 +196,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), small);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
               transition: all 0.4s ease-out;
@@ -216,7 +212,7 @@ export default defineComponent({
             font-size: 11px;
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
               transition: all 0.4s ease-out;
@@ -233,7 +229,7 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), small);
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -255,7 +251,7 @@ export default defineComponent({
             padding: 4px 10px;
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
               border: 1px solid mixins.theme-color($theme, accent-teal);
@@ -300,7 +296,7 @@ export default defineComponent({
         }
 
         &.mark-read {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, accent-green);
               color: white;
@@ -314,7 +310,7 @@ export default defineComponent({
         }
 
         &.delete {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: #ff6b6b;

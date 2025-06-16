@@ -3,15 +3,22 @@
   <div class="notification-filters">
     <div class="filter-toolbar">
       <div class="filter-buttons">
-        <button v-for="(filter, index) in filters" :key="index" class="filter-button"
-          :class="{ active: activeFilter === filter.id }" @click="$emit('update:activeFilter', filter.id)">
+        <button
+          v-for="(filter, index) in filters"
+          :key="index"
+          class="filter-button"
+          :class="{ active: activeFilter === filter.id }"
+          @click="$emit('update:activeFilter', filter.id)"
+        >
           {{ filter.name }}
           <span v-if="filter.count > 0" class="filter-count">{{ filter.count }}</span>
         </button>
       </div>
 
       <div class="action-buttons">
-        <button class="mark-all-read" @click="$emit('mark-all-read')" v-if="hasUnread">Alle als gelesen markieren</button>
+        <button class="mark-all-read" @click="$emit('mark-all-read')" v-if="hasUnread">
+          Alle als gelesen markieren
+        </button>
         <button class="clear-notifications" @click="$emit('clear-all')" v-if="hasNotifications">Alle löschen</button>
       </div>
     </div>
@@ -19,42 +26,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-
-interface Filter {
-  id: string;
-  name: string;
-  count: number;
-}
+import { defineComponent, type PropType } from "vue";
+import type { NotificationFilter as Filter } from "@/types/Notification.types";
 
 export default defineComponent({
-  name: 'NotificationFilters',
+  name: "NotificationFilters",
   props: {
     filters: {
       type: Array as PropType<Filter[]>,
-      required: true
+      required: true,
     },
     activeFilter: {
       type: String,
-      required: true
+      required: true,
     },
     hasUnread: {
       type: Boolean,
-      required: true
+      required: true,
     },
     hasNotifications: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:activeFilter', 'mark-all-read', 'clear-all']
+  emits: ["update:activeFilter", "mark-all-read", "clear-all"],
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Filter und Aktions-Buttons
 .notification-filters {
@@ -101,7 +103,7 @@ export default defineComponent({
         font-size: 12px;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
@@ -135,7 +137,7 @@ export default defineComponent({
           padding: 0 4px;
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(255, 255, 255, 0.2);
             transition: all 0.4s ease-out;
@@ -174,7 +176,7 @@ export default defineComponent({
         padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
           transition: all 0.4s ease-out;
@@ -186,7 +188,7 @@ export default defineComponent({
       }
 
       &.mark-all-read {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
             border: 1px solid mixins.theme-color($theme, accent-teal);
@@ -196,7 +198,7 @@ export default defineComponent({
       }
 
       &.clear-notifications {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: #ff6b6b;
             border: 1px solid rgba(255, 107, 107, 0.3);

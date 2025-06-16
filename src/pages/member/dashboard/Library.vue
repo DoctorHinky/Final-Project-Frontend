@@ -26,11 +26,7 @@
       />
 
       <!-- Themen-Schnellauswahl -->
-      <topics-section
-        :popular-topics="popularTopics"
-        :selected-tags="selectedTags"
-        @toggle-tag="toggleTag"
-      />
+      <topics-section :popular-topics="popularTopics" :selected-tags="selectedTags" @toggle-tag="toggleTag" />
 
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
@@ -70,35 +66,27 @@
       </div>
 
       <!-- Leerer Zustand -->
-      <empty-state
-        v-else-if="!loading"
-        @reset-filters="resetFilters"
-        @explore-all="exploreAll"
-      />
+      <empty-state v-else-if="!loading" @reset-filters="resetFilters" @explore-all="exploreAll" />
 
       <!-- Paginierung -->
       <div v-if="meta && meta.totalPages > 1" class="pagination">
-        <button 
-          class="pagination-button"
-          :disabled="meta.currentPage <= 1"
-          @click="loadPage(meta.currentPage - 1)"
-        >
+        <button class="pagination-button" :disabled="meta.currentPage <= 1" @click="loadPage(meta.currentPage - 1)">
           « Zurück
         </button>
-        
+
         <div class="page-numbers">
-          <button 
-            v-for="page in paginationPages" 
-            :key="page" 
-            class="page-number" 
+          <button
+            v-for="page in paginationPages"
+            :key="page"
+            class="page-number"
             :class="{ active: page === meta.currentPage }"
             @click="loadPage(page)"
           >
             {{ page }}
           </button>
         </div>
-        
-        <button 
+
+        <button
           class="pagination-button"
           :disabled="meta.currentPage >= meta.totalPages"
           @click="loadPage(meta.currentPage + 1)"
@@ -110,31 +98,28 @@
 
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader 
-        :article="selectedArticleForReader" 
-        @close="closeArticleReader"
-      />
+      <article-reader :article="selectedArticleForReader" @close="closeArticleReader" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-import ArticleReader from '@/components/member/article/ArticleReader.vue';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import ArticleReader from "@/components/member/article/ArticleReader.vue";
 import {
   SearchFilter,
   TopicsSection,
   ArticlesGrid,
   ArticlesList,
-  EmptyState
-} from '@/components/pages/DashboardPages/Library';
-import { postService, type PostPreviewItem } from '@/services/post.service';
-import { historyService } from '@/services/history.service';
-import type { BaseArticleItem } from '@/types/BaseArticle.types';
-import type { PostCategory } from '@/types/dtos/Post.Category.types';
+  EmptyState,
+} from "@/components/pages/DashboardPages/Library";
+import { postService, type PostPreviewItem } from "@/services/post.service";
+import { historyService } from "@/services/history.service";
+import type { BaseArticleItem } from "@/types/BaseArticle.types";
+import type { PostCategory } from "@/types/dtos/Post.Category.types";
 
 // Konvertierte Artikel-Interface für Frontend-Kompatibilität
-interface LibraryArticle {
+export interface LibraryArticle {
   id: string;
   title: string;
   preview: string;
@@ -143,7 +128,7 @@ interface LibraryArticle {
   date: string;
   tags: string[];
   readTime?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty?: "easy" | "medium" | "hard";
   bookmarked?: boolean;
   featured?: boolean;
   popularity?: number;
@@ -153,14 +138,14 @@ interface LibraryArticle {
 }
 
 export default defineComponent({
-  name: 'LibraryDashboard',
+  name: "LibraryDashboard",
   components: {
     ArticleReader,
     SearchFilter,
     TopicsSection,
     ArticlesGrid,
     ArticlesList,
-    EmptyState
+    EmptyState,
   },
   setup() {
     // Backend State
@@ -174,10 +159,10 @@ export default defineComponent({
     } | null>(null);
 
     // UI State
-    const searchQuery = ref('');
-    const filterCategory = ref('');
-    const sortOption = ref('date-desc');
-    const viewMode = ref('grid');
+    const searchQuery = ref("");
+    const filterCategory = ref("");
+    const sortOption = ref("date-desc");
+    const viewMode = ref("grid");
     const selectedTags = ref<string[]>([]);
     const itemsPerPage = ref(9);
 
@@ -187,14 +172,22 @@ export default defineComponent({
 
     // Beliebte Themen (später eventuell vom Backend)
     const popularTopics = [
-      'Erziehung', 'Gesundheit', 'Bildung', 'Entwicklung', 'Familienleben',
-      'Kleinkind', 'Kommunikation', 'Spiel', 'Grenzen', 'Medien'
+      "Erziehung",
+      "Gesundheit",
+      "Bildung",
+      "Entwicklung",
+      "Familienleben",
+      "Kleinkind",
+      "Kommunikation",
+      "Spiel",
+      "Grenzen",
+      "Medien",
     ];
 
     // Eindeutige Kategorien aus Backend-Daten
     const uniqueCategories = computed(() => {
       const categories = new Set<string>();
-      articles.value.forEach(article => {
+      articles.value.forEach((article) => {
         categories.add(article.category);
       });
       return Array.from(categories).sort();
@@ -215,26 +208,26 @@ export default defineComponent({
         createdAt: item.createdAt,
         // Geschätzte Werte
         readTime: estimateReadTime(item.quickDescription),
-        difficulty: 'medium',
+        difficulty: "medium",
         bookmarked: false,
         featured: false,
-        popularity: Math.floor(Math.random() * 200)
+        popularity: Math.floor(Math.random() * 200),
       };
     };
 
     // Helper: Datum formatieren
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     };
 
     // Helper: Lesezeit schätzen
     const estimateReadTime = (text: string): string => {
-      const words = text.split(' ').length;
+      const words = text.split(" ").length;
       const minutes = Math.max(1, Math.ceil(words / 200)); // ~200 Wörter pro Minute
       return `${minutes} min`;
     };
@@ -243,14 +236,14 @@ export default defineComponent({
     const loadArticles = async (page: number = 1) => {
       loading.value = true;
       error.value = null;
-      
+
       try {
         const response = await postService.getPostPreviews(page, itemsPerPage.value);
         articles.value = response.data;
         meta.value = response.meta;
       } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Fehler beim Laden der Artikel';
-        console.error('Error loading articles:', err);
+        error.value = err instanceof Error ? err.message : "Fehler beim Laden der Artikel";
+        console.error("Error loading articles:", err);
       } finally {
         loading.value = false;
       }
@@ -263,27 +256,26 @@ export default defineComponent({
       // Nach Suchbegriff filtern
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(article =>
-          article.title.toLowerCase().includes(query) ||
-          article.preview.toLowerCase().includes(query) ||
-          article.category.toLowerCase().includes(query) ||
-          article.author.toLowerCase().includes(query) ||
-          article.tags.some(tag => tag.toLowerCase().includes(query))
+        result = result.filter(
+          (article) =>
+            article.title.toLowerCase().includes(query) ||
+            article.preview.toLowerCase().includes(query) ||
+            article.category.toLowerCase().includes(query) ||
+            article.author.toLowerCase().includes(query) ||
+            article.tags.some((tag) => tag.toLowerCase().includes(query))
         );
       }
 
       // Nach Kategorie filtern
       if (filterCategory.value) {
-        result = result.filter(article => article.category === filterCategory.value);
+        result = result.filter((article) => article.category === filterCategory.value);
       }
 
       // Nach Tags filtern
       if (selectedTags.value.length > 0) {
-        result = result.filter(article =>
-          selectedTags.value.some(tag =>
-            article.tags.some(articleTag => 
-              articleTag.toLowerCase().includes(tag.toLowerCase())
-            )
+        result = result.filter((article) =>
+          selectedTags.value.some((tag) =>
+            article.tags.some((articleTag) => articleTag.toLowerCase().includes(tag.toLowerCase()))
           )
         );
       }
@@ -299,19 +291,15 @@ export default defineComponent({
       const sorted = [...articlesToSort];
 
       switch (sortOption.value) {
-        case 'date-desc':
-          return sorted.sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        case 'date-asc':
-          return sorted.sort((a, b) => 
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        case 'title-asc':
+        case "date-desc":
+          return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        case "date-asc":
+          return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        case "title-asc":
           return sorted.sort((a, b) => a.title.localeCompare(b.title));
-        case 'title-desc':
+        case "title-desc":
           return sorted.sort((a, b) => b.title.localeCompare(a.title));
-        case 'popular':
+        case "popular":
           return sorted.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
         default:
           return sorted;
@@ -322,26 +310,26 @@ export default defineComponent({
     const loadPage = (page: number) => {
       if (page >= 1 && meta.value && page <= meta.value.totalPages) {
         loadArticles(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     };
 
     // Pagination-Seiten berechnen
     const paginationPages = computed(() => {
       if (!meta.value) return [];
-      
+
       const current = meta.value.currentPage;
       const total = meta.value.totalPages;
       const pages = [];
-      
+
       // Zeige maximal 5 Seiten
       const start = Math.max(1, current - 2);
       const end = Math.min(total, start + 4);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       return pages;
     });
 
@@ -349,7 +337,7 @@ export default defineComponent({
     const openArticleReader = async (article: LibraryArticle) => {
       try {
         // Originalen PostPreviewItem finden
-        const originalArticle = articles.value.find(a => a.id === article.id);
+        const originalArticle = articles.value.find((a) => a.id === article.id);
         if (!originalArticle) return;
 
         selectedArticle.value = originalArticle;
@@ -358,8 +346,8 @@ export default defineComponent({
         // Artikel als gelesen markieren
         await historyService.markAsRead(article.id);
       } catch (err) {
-        console.error('Error opening article:', err);
-        alert('Fehler beim Öffnen des Artikels');
+        console.error("Error opening article:", err);
+        alert("Fehler beim Öffnen des Artikels");
       }
     };
 
@@ -372,7 +360,7 @@ export default defineComponent({
     // Artikel für ArticleReader konvertieren (BaseArticleItem-kompatibel)
     const selectedArticleForReader = computed((): BaseArticleItem | null => {
       if (!selectedArticle.value) return null;
-      
+
       return {
         id: selectedArticle.value.id,
         title: selectedArticle.value.title,
@@ -382,7 +370,7 @@ export default defineComponent({
         author: selectedArticle.value.author,
         category: selectedArticle.value.category as PostCategory,
         tags: selectedArticle.value.tags,
-        isCertifiedAuthor: selectedArticle.value.isCertifiedAuthor
+        isCertifiedAuthor: selectedArticle.value.isCertifiedAuthor,
       };
     });
 
@@ -415,10 +403,10 @@ export default defineComponent({
     };
 
     const resetFilters = () => {
-      searchQuery.value = '';
-      filterCategory.value = '';
+      searchQuery.value = "";
+      filterCategory.value = "";
       selectedTags.value = [];
-      sortOption.value = 'date-desc';
+      sortOption.value = "date-desc";
     };
 
     const exploreAll = () => {
@@ -428,7 +416,7 @@ export default defineComponent({
 
     // Dummy Bookmark-Funktion (später implementieren)
     const toggleBookmark = (article: LibraryArticle) => {
-      console.log('Bookmark toggled for:', article.title);
+      console.log("Bookmark toggled for:", article.title);
       // TODO: Backend-Integration für Bookmarks
     };
 
@@ -442,24 +430,24 @@ export default defineComponent({
       loading,
       error,
       meta,
-      
+
       // UI State
       searchQuery,
       filterCategory,
       sortOption,
       viewMode,
       selectedTags,
-      
+
       // Data
       filteredArticles,
       popularTopics,
       uniqueCategories,
       paginationPages,
-      
+
       // ArticleReader
       articleReaderMode,
       selectedArticleForReader,
-      
+
       // Functions
       loadArticles,
       loadPage,
@@ -472,17 +460,17 @@ export default defineComponent({
       clearTags,
       resetFilters,
       exploreAll,
-      toggleBookmark
+      toggleBookmark,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .library-dashboard {
   @include animations.fade-in(0.5s);
@@ -509,7 +497,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -523,7 +511,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -548,7 +536,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       animation: spin 1s linear infinite;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
           border-top-color: mixins.theme-color($theme, primary);
@@ -557,7 +545,7 @@ export default defineComponent({
     }
 
     p {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -582,7 +570,7 @@ export default defineComponent({
     h3 {
       margin-bottom: map.get(vars.$spacing, s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -592,7 +580,7 @@ export default defineComponent({
     p {
       margin-bottom: map.get(vars.$spacing, l);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -606,7 +594,7 @@ export default defineComponent({
       border: none;
       cursor: pointer;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -623,12 +611,6 @@ export default defineComponent({
   // Artikel-Sektion
   .articles-section {
     margin-bottom: map.get(vars.$spacing, xl);
-
-    .articles-container {
-      &.grid, &.list {
-        // Gemeinsame Stile für beide Ansichten
-      }
-    }
   }
 
   // Pagination
@@ -648,7 +630,7 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
@@ -683,7 +665,7 @@ export default defineComponent({
         border: none;
         transition: all 0.3s;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
@@ -711,7 +693,11 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
