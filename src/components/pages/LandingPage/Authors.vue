@@ -1,7 +1,7 @@
 <template>
   <section class="section epic-authors-section" id="Authors">
     <div class="floating-particles"></div>
-    
+
     <!-- Animated Section Header -->
     <div class="section-header" ref="headerRef">
       <h2 class="main-title">Unsere Autoren</h2>
@@ -13,28 +13,35 @@
     <!-- Authors Grid with Different Card Types -->
     <div class="authors-grid" ref="authorsGrid">
       <!-- Card Type 1: Hexagon Hero -->
-      <div 
-        v-for="(author, index) in authors" 
-        :key="author.id" 
+      <div
+        v-for="(author, index) in authors"
+        :key="author.id"
         :class="['author-card', `card-type-${(index % 4) + 1}`, 'animation-pending']"
         :data-index="index"
         :ref="`authorCard${index}`"
       >
         <!-- Background Pattern -->
         <div class="card-bg-pattern"></div>
-        
+
         <!-- Rating Badge (Top Right) -->
         <div class="rating-badge">
           <div class="stars-container">
-            <StarIcon 
-              v-for="star in 5" 
+            <StarIcon
+              v-for="star in 5"
               :key="star"
-              :class="['star-icon', star <= Math.floor(author.rating) ? 'filled' : star === Math.ceil(author.rating) && author.rating % 1 >= 0.5 ? 'half-filled' : 'empty']"
+              :class="[
+                'star-icon',
+                star <= Math.floor(author.rating)
+                  ? 'filled'
+                  : star === Math.ceil(author.rating) && author.rating % 1 >= 0.5
+                  ? 'half-filled'
+                  : 'empty',
+              ]"
             />
           </div>
           <span class="rating-number">{{ author.rating }}</span>
         </div>
-        
+
         <!-- Main Content -->
         <div class="card-content">
           <!-- Author Image with Unique Shape -->
@@ -43,8 +50,8 @@
             <img :src="author.image" :alt="author.name" class="author-image" />
             <div class="floating-icons">
               <!-- Hero Icons instead of Emojis -->
-              <component 
-                v-for="(icon, iconIndex) in author.iconComponents" 
+              <component
+                v-for="(icon, iconIndex) in author.iconComponents"
                 :key="iconIndex"
                 :is="icon"
                 :class="['floating-icon', `icon-${iconIndex + 1}`]"
@@ -55,26 +62,28 @@
           <!-- Author Info with Staggered Text Animation -->
           <div class="author-info">
             <h3 class="author-name" :data-text="author.name">
-              <span v-for="(char, charIndex) in author.name.split('')" 
-                    :key="charIndex" 
-                    :class="['char', char === ' ' ? 'space' : '']"
-                    :style="`--char-delay: ${charIndex * 0.05}s`">
-                {{ char === ' ' ? '\u00A0' : char }}
+              <span
+                v-for="(char, charIndex) in author.name.split('')"
+                :key="charIndex"
+                :class="['char', char === ' ' ? 'space' : '']"
+                :style="`--char-delay: ${charIndex * 0.05}s`"
+              >
+                {{ char === " " ? "\u00A0" : char }}
               </span>
             </h3>
-            
+
             <div class="author-role">
               <BriefcaseIcon class="role-icon" />
               {{ author.role }}
             </div>
-            
+
             <p class="author-bio">{{ author.bio }}</p>
 
             <!-- Specialties with Morphing Tags -->
             <div class="author-specialties">
-              <div 
-                v-for="(specialty, specIndex) in author.specialties" 
-                :key="specIndex" 
+              <div
+                v-for="(specialty, specIndex) in author.specialties"
+                :key="specIndex"
                 class="specialty-tag"
                 :style="`--tag-delay: ${specIndex * 0.1}s`"
               >
@@ -115,8 +124,11 @@
             <h4>Mehr über {{ author.name }}</h4>
             <p>{{ author.extendedBio }}</p>
             <div class="social-links">
-              <div v-for="social in author.socialLinks" :key="social.platform" 
-                    :class="['social-link', social.platform]">
+              <div
+                v-for="social in author.socialLinks"
+                :key="social.platform"
+                :class="['social-link', social.platform]"
+              >
                 <component :is="social.iconComponent" class="social-icon" />
               </div>
             </div>
@@ -128,8 +140,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, nextTick } from 'vue';
-import { 
+import { defineComponent, ref, onMounted, nextTick } from "vue";
+import {
   StarIcon,
   BriefcaseIcon,
   DocumentTextIcon,
@@ -148,8 +160,8 @@ import {
   HomeIcon,
   MagnifyingGlassIcon,
   HeartIcon,
-  FaceSmileIcon
-} from '@heroicons/vue/24/outline';
+  FaceSmileIcon,
+} from "@heroicons/vue/24/outline";
 
 // Custom LinkedIn and Twitter icons (simplified)
 const LinkedInIcon = {
@@ -157,7 +169,7 @@ const LinkedInIcon = {
     <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
     </svg>
-  `
+  `,
 };
 
 const TwitterIcon = {
@@ -165,153 +177,159 @@ const TwitterIcon = {
     <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full">
       <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
     </svg>
-  `
+  `,
 };
 
 // Realistic dummy authors with CORRECT Hero Icons
 const authors = [
   {
     id: 1,
-    name: 'Dr. Maria Schneider',
-    role: 'Pädagogische Psychologin',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b632?w=400&h=400&fit=crop&crop=face',
-    bio: 'Spezialistin für frühkindliche Entwicklung und innovative Lernmethoden.',
-    extendedBio: 'Mit über 15 Jahren Erfahrung in der Kinderpsychologie entwickelt Dr. Schneider revolutionäre Ansätze für das Lernen im digitalen Zeitalter.',
+    name: "Dr. Maria Schneider",
+    role: "Pädagogische Psychologin",
+    image: "https://images.unsplash.com/photo-1494790108755-2616b612b632?w=400&h=400&fit=crop&crop=face",
+    bio: "Spezialistin für frühkindliche Entwicklung und innovative Lernmethoden.",
+    extendedBio:
+      "Mit über 15 Jahren Erfahrung in der Kinderpsychologie entwickelt Dr. Schneider revolutionäre Ansätze für das Lernen im digitalen Zeitalter.",
     specialties: [
-      { name: 'Neuroplastizität', icon: AcademicCapIcon },
-      { name: 'ADHS-Therapie', icon: HeartIcon },
-      { name: 'Digitales Lernen', icon: ComputerDesktopIcon }
+      { name: "Neuroplastizität", icon: AcademicCapIcon },
+      { name: "ADHS-Therapie", icon: HeartIcon },
+      { name: "Digitales Lernen", icon: ComputerDesktopIcon },
     ],
     iconComponents: [AcademicCapIcon, DocumentTextIcon, BoltIcon],
     articlesCount: 127,
     rating: 4.9,
     yearsExperience: 15,
-    followersCount: '12K',
+    followersCount: "12K",
     socialLinks: [
-      { platform: 'linkedin', iconComponent: LinkedInIcon },
-      { platform: 'twitter', iconComponent: TwitterIcon },
-      { platform: 'research', iconComponent: BeakerIcon }
-    ]
+      { platform: "linkedin", iconComponent: LinkedInIcon },
+      { platform: "twitter", iconComponent: TwitterIcon },
+      { platform: "research", iconComponent: BeakerIcon },
+    ],
   },
   {
     id: 2,
-    name: 'Prof. Ahmed Hassan',
-    role: 'Kultur- & Sprachwissenschaftler',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    bio: 'Forscher für multikulturelle Bildung und Spracherwerb bei Kindern.',
-    extendedBio: 'Professor Hassan verbindet traditionelle Weisheit mit modernen pädagogischen Ansätzen und schafft Brücken zwischen den Kulturen.',
+    name: "Prof. Ahmed Hassan",
+    role: "Kultur- & Sprachwissenschaftler",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+    bio: "Forscher für multikulturelle Bildung und Spracherwerb bei Kindern.",
+    extendedBio:
+      "Professor Hassan verbindet traditionelle Weisheit mit modernen pädagogischen Ansätzen und schafft Brücken zwischen den Kulturen.",
     specialties: [
-      { name: 'Mehrsprachigkeit', icon: LanguageIcon },
-      { name: 'Kulturpädagogik', icon: GlobeAltIcon },
-      { name: 'Integration', icon: HandRaisedIcon }
+      { name: "Mehrsprachigkeit", icon: LanguageIcon },
+      { name: "Kulturpädagogik", icon: GlobeAltIcon },
+      { name: "Integration", icon: HandRaisedIcon },
     ],
     iconComponents: [GlobeAltIcon, LanguageIcon, HandRaisedIcon],
     articlesCount: 89,
     rating: 4.8,
     yearsExperience: 12,
-    followersCount: '8.5K',
+    followersCount: "8.5K",
     socialLinks: [
-      { platform: 'academia', iconComponent: AcademicCapIcon },
-      { platform: 'youtube', iconComponent: FaceSmileIcon },
-      { platform: 'podcast', iconComponent: MagnifyingGlassIcon }
-    ]
+      { platform: "academia", iconComponent: AcademicCapIcon },
+      { platform: "youtube", iconComponent: FaceSmileIcon },
+      { platform: "podcast", iconComponent: MagnifyingGlassIcon },
+    ],
   },
   {
     id: 3,
-    name: 'Lisa Chen',
-    role: 'Kreativpädagogin & Künstlerin',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-    bio: 'Entwickelt kunstbasierte Lernprogramme für kreative Problemlösung.',
-    extendedBio: 'Lisa verbindet ihre Leidenschaft für Kunst mit evidenzbasierter Pädagogik und schafft einzigartige Lernerfahrungen für Kinder aller Altersgruppen.',
+    name: "Lisa Chen",
+    role: "Kreativpädagogin & Künstlerin",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+    bio: "Entwickelt kunstbasierte Lernprogramme für kreative Problemlösung.",
+    extendedBio:
+      "Lisa verbindet ihre Leidenschaft für Kunst mit evidenzbasierter Pädagogik und schafft einzigartige Lernerfahrungen für Kinder aller Altersgruppen.",
     specialties: [
-      { name: 'Kunsttherapie', icon: PaintBrushIcon },
-      { name: 'Design Thinking', icon: SparklesIcon },
-      { name: 'Kreativitätsförderung', icon: HeartIcon }
+      { name: "Kunsttherapie", icon: PaintBrushIcon },
+      { name: "Design Thinking", icon: SparklesIcon },
+      { name: "Kreativitätsförderung", icon: HeartIcon },
     ],
     iconComponents: [PaintBrushIcon, SparklesIcon, HeartIcon],
     articlesCount: 156,
     rating: 4.9,
     yearsExperience: 8,
-    followersCount: '15K',
+    followersCount: "15K",
     socialLinks: [
-      { platform: 'instagram', iconComponent: PaintBrushIcon },
-      { platform: 'behance', iconComponent: SparklesIcon },
-      { platform: 'tiktok', iconComponent: FaceSmileIcon }
-    ]
+      { platform: "instagram", iconComponent: PaintBrushIcon },
+      { platform: "behance", iconComponent: SparklesIcon },
+      { platform: "tiktok", iconComponent: FaceSmileIcon },
+    ],
   },
   {
     id: 4,
-    name: 'Dr. Thomas Müller',
-    role: 'Technologie & Bildung',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    bio: 'Pionier für KI-gestützte Lernsysteme und digitale Kompetenzentwicklung.',
-    extendedBio: 'Dr. Müller forscht an der Schnittstelle von Künstlicher Intelligenz und Pädagogik und entwickelt die Lernplattformen von morgen.',
+    name: "Dr. Thomas Müller",
+    role: "Technologie & Bildung",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    bio: "Pionier für KI-gestützte Lernsysteme und digitale Kompetenzentwicklung.",
+    extendedBio:
+      "Dr. Müller forscht an der Schnittstelle von Künstlicher Intelligenz und Pädagogik und entwickelt die Lernplattformen von morgen.",
     specialties: [
-      { name: 'KI in Bildung', icon: CpuChipIcon },
-      { name: 'EdTech', icon: ComputerDesktopIcon },
-      { name: 'Algorithmic Learning', icon: BoltIcon }
+      { name: "KI in Bildung", icon: CpuChipIcon },
+      { name: "EdTech", icon: ComputerDesktopIcon },
+      { name: "Algorithmic Learning", icon: BoltIcon },
     ],
     iconComponents: [CpuChipIcon, ComputerDesktopIcon, BoltIcon],
     articlesCount: 73,
     rating: 4.7,
     yearsExperience: 10,
-    followersCount: '9.2K',
+    followersCount: "9.2K",
     socialLinks: [
-      { platform: 'github', iconComponent: ComputerDesktopIcon },
-      { platform: 'medium', iconComponent: DocumentTextIcon },
-      { platform: 'conferences', iconComponent: AcademicCapIcon }
-    ]
+      { platform: "github", iconComponent: ComputerDesktopIcon },
+      { platform: "medium", iconComponent: DocumentTextIcon },
+      { platform: "conferences", iconComponent: AcademicCapIcon },
+    ],
   },
   {
     id: 5,
-    name: 'Sarah Johnson',
-    role: 'Montessori-Expertin',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
-    bio: 'Zertifizierte Montessori-Pädagogin mit Fokus auf selbstbestimmtes Lernen.',
-    extendedBio: 'Sarah bringt über ein Jahrzehnt Erfahrung in der Montessori-Pädagogik mit und entwickelt innovative Materialien für das eigenständige Lernen.',
+    name: "Sarah Johnson",
+    role: "Montessori-Expertin",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+    bio: "Zertifizierte Montessori-Pädagogin mit Fokus auf selbstbestimmtes Lernen.",
+    extendedBio:
+      "Sarah bringt über ein Jahrzehnt Erfahrung in der Montessori-Pädagogik mit und entwickelt innovative Materialien für das eigenständige Lernen.",
     specialties: [
-      { name: 'Montessori-Methode', icon: HomeIcon },
-      { name: 'Selbstständigkeit', icon: HandRaisedIcon },
-      { name: 'Materialentwicklung', icon: MagnifyingGlassIcon }
+      { name: "Montessori-Methode", icon: HomeIcon },
+      { name: "Selbstständigkeit", icon: HandRaisedIcon },
+      { name: "Materialentwicklung", icon: MagnifyingGlassIcon },
     ],
     iconComponents: [HomeIcon, HandRaisedIcon, MagnifyingGlassIcon],
     articlesCount: 94,
     rating: 4.8,
     yearsExperience: 11,
-    followersCount: '7.8K',
+    followersCount: "7.8K",
     socialLinks: [
-      { platform: 'workshops', iconComponent: UsersIcon },
-      { platform: 'books', iconComponent: DocumentTextIcon },
-      { platform: 'consulting', iconComponent: BriefcaseIcon }
-    ]
+      { platform: "workshops", iconComponent: UsersIcon },
+      { platform: "books", iconComponent: DocumentTextIcon },
+      { platform: "consulting", iconComponent: BriefcaseIcon },
+    ],
   },
   {
     id: 6,
-    name: 'Dr. Roberto Silva',
-    role: 'Bewegung & Gesundheit',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
-    bio: 'Sportwissenschaftler, der Bewegung als Schlüssel zum Lernerfolg erforscht.',
-    extendedBio: 'Dr. Silva zeigt auf, wie körperliche Aktivität die kognitive Entwicklung fördert und entwickelt bewegungsbasierte Lernkonzepte.',
+    name: "Dr. Roberto Silva",
+    role: "Bewegung & Gesundheit",
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face",
+    bio: "Sportwissenschaftler, der Bewegung als Schlüssel zum Lernerfolg erforscht.",
+    extendedBio:
+      "Dr. Silva zeigt auf, wie körperliche Aktivität die kognitive Entwicklung fördert und entwickelt bewegungsbasierte Lernkonzepte.",
     specialties: [
-      { name: 'Bewegungslernen', icon: BoltIcon },
-      { name: 'Neuromotorische Entwicklung', icon: AcademicCapIcon },
-      { name: 'Gesundheitspädagogik', icon: HeartIcon }
+      { name: "Bewegungslernen", icon: BoltIcon },
+      { name: "Neuromotorische Entwicklung", icon: AcademicCapIcon },
+      { name: "Gesundheitspädagogik", icon: HeartIcon },
     ],
     iconComponents: [BoltIcon, AcademicCapIcon, HeartIcon],
     articlesCount: 112,
     rating: 4.9,
     yearsExperience: 14,
-    followersCount: '11K',
+    followersCount: "11K",
     socialLinks: [
-      { platform: 'fitness', iconComponent: BoltIcon },
-      { platform: 'nutrition', iconComponent: HeartIcon },
-      { platform: 'health', iconComponent: BeakerIcon }
-    ]
-  }
+      { platform: "fitness", iconComponent: BoltIcon },
+      { platform: "nutrition", iconComponent: HeartIcon },
+      { platform: "health", iconComponent: BeakerIcon },
+    ],
+  },
 ];
 
 export default defineComponent({
-  name: 'EpicAuthorsSection',
+  name: "EpicAuthorsSection",
   components: {
     StarIcon,
     BriefcaseIcon,
@@ -333,7 +351,7 @@ export default defineComponent({
     HeartIcon,
     FaceSmileIcon,
     LinkedInIcon,
-    TwitterIcon
+    TwitterIcon,
   },
   setup() {
     const headerRef = ref<HTMLElement>();
@@ -342,29 +360,29 @@ export default defineComponent({
     const authorCards = ref<HTMLElement[]>([]);
 
     const createFloatingParticles = () => {
-      const container = document.querySelector('.floating-particles');
+      const container = document.querySelector(".floating-particles");
       if (!container) return;
 
       for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'floating-particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 10 + 's';
-        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        const particle = document.createElement("div");
+        particle.className = "floating-particle";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.animationDelay = Math.random() * 10 + "s";
+        particle.style.animationDuration = Math.random() * 10 + 10 + "s";
         container.appendChild(particle);
       }
     };
 
     const animateCards = () => {
-      const cards = document.querySelectorAll('.author-card.animation-pending');
-      
+      const cards = document.querySelectorAll(".author-card.animation-pending");
+
       cards.forEach((card, index) => {
         const animationType = (index % 4) + 1;
-        
+
         setTimeout(() => {
-          card.classList.remove('animation-pending');
-          card.classList.add('animate-in', `animation-type-${animationType}`);
-          
+          card.classList.remove("animation-pending");
+          card.classList.add("animate-in", `animation-type-${animationType}`);
+
           // Animate text after card is visible
           setTimeout(() => {
             animateCardText(card as HTMLElement);
@@ -374,19 +392,19 @@ export default defineComponent({
     };
 
     const animateCardText = (card: HTMLElement) => {
-      const chars = card.querySelectorAll('.author-name .char');
-      const tags = card.querySelectorAll('.specialty-tag');
-      const stats = card.querySelectorAll('.stat-number');
-      
+      const chars = card.querySelectorAll(".author-name .char");
+      const tags = card.querySelectorAll(".specialty-tag");
+      const stats = card.querySelectorAll(".stat-number");
+
       chars.forEach((char, index) => {
         setTimeout(() => {
-          char.classList.add('animate-char');
+          char.classList.add("animate-char");
         }, index * 50);
       });
 
       tags.forEach((tag, index) => {
         setTimeout(() => {
-          tag.classList.add('animate-tag');
+          tag.classList.add("animate-tag");
         }, 500 + index * 100);
       });
 
@@ -398,65 +416,66 @@ export default defineComponent({
     };
 
     const animateCountUp = (element: HTMLElement) => {
-      const finalValue = element.textContent || '0';
-      
+      const finalValue = element.textContent || "0";
+
       // Handle follower counts with 'K' suffix
-      if (finalValue.includes('K')) {
-        const numValue = parseFloat(finalValue.replace('K', ''));
+      if (finalValue.includes("K")) {
+        const numValue = parseFloat(finalValue.replace("K", ""));
         let currentValue = 0;
         const increment = numValue / 30;
-        
+
         const timer = setInterval(() => {
           currentValue += increment;
           if (currentValue >= numValue) {
             currentValue = numValue;
             clearInterval(timer);
           }
-          
-          element.textContent = currentValue.toFixed(1) + 'K';
+
+          element.textContent = currentValue.toFixed(1) + "K";
         }, 50);
         return;
       }
-      
+
       // Handle ratings with decimal points
-      const isRating = finalValue.includes('.');
+      const isRating = finalValue.includes(".");
       const targetNumber = parseFloat(finalValue);
-      
+
       let currentValue = 0;
       const increment = targetNumber / 30;
-      
+
       const timer = setInterval(() => {
         currentValue += increment;
         if (currentValue >= targetNumber) {
           currentValue = targetNumber;
           clearInterval(timer);
         }
-        
-        element.textContent = isRating 
-          ? currentValue.toFixed(1)
-          : Math.floor(currentValue).toString();
+
+        element.textContent = isRating ? currentValue.toFixed(1) : Math.floor(currentValue).toString();
       }, 50);
     };
 
     const setupIntersectionObserver = () => {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            if (entry.target.classList.contains('section-header')) {
-              entry.target.classList.add('animate-header');
-              
-              // Start typewriter effect
-              setTimeout(() => {
-                startTypewriter();
-              }, 800);
-            } else if (entry.target.classList.contains('authors-grid')) {
-              setTimeout(() => {
-                animateCards();
-              }, 500);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              if (entry.target.classList.contains("section-header")) {
+                entry.target.classList.add("animate-header");
+
+                // Start typewriter effect
+                setTimeout(() => {
+                  startTypewriter();
+                }, 800);
+              } else if (entry.target.classList.contains("authors-grid")) {
+                setTimeout(() => {
+                  animateCards();
+                }, 500);
+              }
             }
-          }
-        });
-      }, { threshold: 0.3 });
+          });
+        },
+        { threshold: 0.3 }
+      );
 
       if (headerRef.value) observer.observe(headerRef.value);
       if (authorsGrid.value) observer.observe(authorsGrid.value);
@@ -466,9 +485,9 @@ export default defineComponent({
       const element = subtitleRef.value;
       if (!element) return;
 
-      const text = element.textContent || '';
-      element.textContent = '';
-      element.style.visibility = 'visible';
+      const text = element.textContent || "";
+      element.textContent = "";
+      element.style.visibility = "visible";
 
       let i = 0;
       const timer = setInterval(() => {
@@ -476,7 +495,7 @@ export default defineComponent({
         i++;
         if (i >= text.length) {
           clearInterval(timer);
-          element.classList.add('typewriter-complete');
+          element.classList.add("typewriter-complete");
         }
       }, 100);
     };
@@ -491,24 +510,23 @@ export default defineComponent({
       authors,
       headerRef,
       subtitleRef,
-      authorsGrid
+      authorsGrid,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .epic-authors-section {
   position: relative;
   padding: map.get(vars.$spacing, xxxl) 0;
   overflow: hidden;
   min-height: 100vh;
-  
 
   // Floating Background Particles
   .floating-particles {
@@ -527,7 +545,7 @@ export default defineComponent({
       border-radius: 50%;
       animation: float-particle 15s infinite linear;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-color($theme, accent-teal);
           box-shadow: 0 0 6px mixins.theme-color($theme, glow-teal);
@@ -557,12 +575,12 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, l);
       position: relative;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
-          
+
           &::after {
-            content: '';
+            content: "";
             position: absolute;
             width: 70%;
             height: 4px;
@@ -582,7 +600,7 @@ export default defineComponent({
       visibility: hidden;
       position: relative;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -590,10 +608,10 @@ export default defineComponent({
 
       .typewriter-text {
         &::after {
-          content: '|';
+          content: "|";
           animation: blink 1s infinite;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -686,18 +704,20 @@ export default defineComponent({
       animation: morphIn 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        background: linear-gradient(135deg,
+        background: linear-gradient(
+          135deg,
           rgba(mixins.theme-color($theme, card-bg), 0.9) 0%,
-          rgba(mixins.theme-color($theme, secondary-bg), 0.8) 100%);
+          rgba(mixins.theme-color($theme, secondary-bg), 0.8) 100%
+        );
         border: 2px solid rgba(mixins.theme-color($theme, accent-green), 0.3);
         backdrop-filter: blur(20px);
-        @include mixins.shadow('large', $theme);
+        @include mixins.shadow("large", $theme);
 
         &:hover {
           border-color: mixins.theme-color($theme, accent-green);
-          @include mixins.glow('green', 'large', $theme);
+          @include mixins.glow("green", "large", $theme);
         }
       }
     }
@@ -715,7 +735,7 @@ export default defineComponent({
       z-index: 10;
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, card-bg), 0.95);
           border: 2px solid mixins.theme-color($theme, accent-yellow);
@@ -734,7 +754,7 @@ export default defineComponent({
           transition: all 0.3s ease;
 
           &.filled {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, accent-yellow);
                 fill: mixins.theme-color($theme, accent-yellow);
@@ -743,7 +763,7 @@ export default defineComponent({
           }
 
           &.half-filled {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, accent-yellow);
                 fill: url(#half-star-gradient);
@@ -752,7 +772,7 @@ export default defineComponent({
           }
 
           &.empty {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: rgba(mixins.theme-color($theme, text-tertiary), 0.3);
                 fill: none;
@@ -766,7 +786,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -782,8 +802,7 @@ export default defineComponent({
       width: 100%;
       height: 100%;
       opacity: 0.1;
-      background-image: 
-        radial-gradient(circle at 25% 25%, #fff 2px, transparent 2px),
+      background-image: radial-gradient(circle at 25% 25%, #fff 2px, transparent 2px),
         radial-gradient(circle at 75% 75%, #fff 1px, transparent 1px);
       background-size: 30px 30px, 20px 20px;
       animation: patternMove 20s linear infinite;
@@ -840,12 +859,14 @@ export default defineComponent({
         border-radius: inherit;
         z-index: -1;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background: linear-gradient(45deg,
+            background: linear-gradient(
+              45deg,
               mixins.theme-color($theme, accent-green),
               mixins.theme-color($theme, accent-teal),
-              mixins.theme-color($theme, accent-lime));
+              mixins.theme-color($theme, accent-lime)
+            );
             filter: blur(15px);
             opacity: 0.6;
           }
@@ -873,7 +894,7 @@ export default defineComponent({
           height: 20px;
           animation: floatIcon 3s ease-in-out infinite;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-green);
               filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -921,7 +942,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -959,7 +980,7 @@ export default defineComponent({
         font-size: 11px; // Noch kleiner auf Mobile
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, accent-teal);
         }
@@ -982,7 +1003,7 @@ export default defineComponent({
         line-height: 1.3;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1014,11 +1035,13 @@ export default defineComponent({
           padding: 2px 6px;
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background: linear-gradient(45deg,
+            background: linear-gradient(
+              45deg,
               mixins.theme-color($theme, accent-teal),
-              mixins.theme-color($theme, accent-green));
+              mixins.theme-color($theme, accent-green)
+            );
             color: white;
           }
         }
@@ -1052,7 +1075,7 @@ export default defineComponent({
           width: 18px; // Reduziert von 20px
           height: 18px;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
             }
@@ -1068,7 +1091,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), small);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -1083,7 +1106,7 @@ export default defineComponent({
             font-size: 10px;
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -1109,7 +1132,7 @@ export default defineComponent({
         opacity: 0;
         animation: particleFloat 4s ease-in-out infinite;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
           }
@@ -1141,11 +1164,13 @@ export default defineComponent({
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 3;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          background: linear-gradient(135deg,
+          background: linear-gradient(
+            135deg,
             rgba(mixins.theme-color($theme, accent-green), 0.95) 0%,
-            rgba(mixins.theme-color($theme, accent-teal), 0.95) 100%);
+            rgba(mixins.theme-color($theme, accent-teal), 0.95) 100%
+          );
           color: white;
         }
       }
@@ -1224,8 +1249,14 @@ export default defineComponent({
 
 // Keyframe Animations
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes float-particle {
@@ -1233,8 +1264,12 @@ export default defineComponent({
     transform: translateY(100vh) translateX(0) rotate(0deg);
     opacity: 0;
   }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
   100% {
     transform: translateY(-100px) translateX(100px) rotate(360deg);
     opacity: 0;
@@ -1296,7 +1331,8 @@ export default defineComponent({
 }
 
 @keyframes morphing {
-  0%, 100% {
+  0%,
+  100% {
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   }
   25% {
@@ -1311,7 +1347,8 @@ export default defineComponent({
 }
 
 @keyframes morphing-alt {
-  0%, 100% {
+  0%,
+  100% {
     border-radius: 50% 20% 80% 40% / 60% 30% 70% 40%;
   }
   33% {
@@ -1323,7 +1360,8 @@ export default defineComponent({
 }
 
 @keyframes floatIcon {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
     opacity: 0.7;
   }
@@ -1334,7 +1372,8 @@ export default defineComponent({
 }
 
 @keyframes particleFloat {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
     transform: translateY(0) scale(0);
   }
@@ -1397,7 +1436,9 @@ export default defineComponent({
       min-height: 420px; // Noch kompakter für sehr kleine Screens
 
       .author-image-container {
-        &.shape-1, &.shape-2, &.shape-3 {
+        &.shape-1,
+        &.shape-2,
+        &.shape-3 {
           width: 80px; // Noch kleineres Bild
           height: 80px;
         }

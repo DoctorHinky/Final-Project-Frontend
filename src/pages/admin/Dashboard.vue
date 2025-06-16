@@ -14,8 +14,8 @@
     <div v-if="activeTab === 'applications'" class="applications-section">
       <!-- Subtabs für Bewerbungen -->
       <div class="applications-nav">
-        <button 
-          v-for="subtab in applicationSubtabs" 
+        <button
+          v-for="subtab in applicationSubtabs"
           :key="subtab.id"
           :class="{ active: activeApplicationSubtab === subtab.id }"
           @click="activeApplicationSubtab = subtab.id"
@@ -27,14 +27,8 @@
       </div>
 
       <!-- Application Komponenten -->
-      <ApplicationList 
-        v-if="activeApplicationSubtab === 'list'" 
-        @application-selected="viewApplicationDetails" 
-      />
-      <ApplicationSearch 
-        v-if="activeApplicationSubtab === 'search'" 
-        @application-selected="viewApplicationDetails" 
-      />
+      <ApplicationList v-if="activeApplicationSubtab === 'list'" @application-selected="viewApplicationDetails" />
+      <ApplicationSearch v-if="activeApplicationSubtab === 'search'" @application-selected="viewApplicationDetails" />
     </div>
 
     <!-- Active Posts -->
@@ -49,7 +43,7 @@
     <div v-if="activeTab === 'overview'" class="overview-content">
       <h2>Willkommen im Admin Dashboard</h2>
       <p>Wählen Sie einen Bereich aus dem Menü aus.</p>
-      
+
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-container">
         <div class="loading-spinner"></div>
@@ -61,13 +55,23 @@
         <p class="error-message">{{ loadError }}</p>
         <button @click="loadDashboardStats" class="retry-button">Erneut versuchen</button>
       </div>
-      
+
       <!-- Quick Stats Overview -->
       <div v-else class="quick-stats">
         <!-- Aktive Benutzer -->
         <div class="stat-card users" @click="navigateToTab('all-users')">
           <div class="stat-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="5" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -79,11 +83,21 @@
             <p>Aktive Benutzer</p>
           </div>
         </div>
-        
+
         <!-- Bewerbungen -->
         <div class="stat-card applications" @click="navigateToTab('applications')">
           <div class="stat-icon applications">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
               <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -99,7 +113,17 @@
         <!-- Ausstehende Bewerbungen -->
         <div class="stat-card urgent" @click="navigateToApplications('pending')">
           <div class="stat-icon pending">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -109,11 +133,21 @@
             <p>Ausstehende Bewerbungen</p>
           </div>
         </div>
-        
+
         <!-- Gelöschte Benutzer -->
         <div class="stat-card deleted" @click="navigateToTab('deleted-users')">
           <div class="stat-icon deleted">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M3 6h18"></path>
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
             </svg>
@@ -123,11 +157,21 @@
             <p>Gelöschte Benutzer</p>
           </div>
         </div>
-        
+
         <!-- Aktive Beiträge -->
         <div class="stat-card posts" @click="navigateToTab('active-posts')">
           <div class="stat-icon posts">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
               <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -140,11 +184,21 @@
             <p>Aktive Beiträge</p>
           </div>
         </div>
-        
+
         <!-- Offene Tickets -->
         <div class="stat-card tickets" @click="navigateToTab('tickets')">
           <div class="stat-icon tickets">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
             </svg>
           </div>
@@ -157,7 +211,17 @@
         <!-- Neue User heute -->
         <div class="stat-card new-users">
           <div class="stat-icon new-users">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -173,7 +237,17 @@
         <!-- Deaktivierte User -->
         <div class="stat-card deactivated">
           <div class="stat-icon deactivated">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
             </svg>
@@ -189,7 +263,17 @@
       <div v-if="!isLoading && !loadError" class="last-update">
         <p>Letzte Aktualisierung: {{ lastUpdateFormatted }}</p>
         <button @click="loadDashboardStats" class="refresh-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="23 4 23 10 17 10"></polyline>
             <polyline points="1 20 1 14 7 14"></polyline>
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -220,10 +304,7 @@
           <button class="close-button" @click="closeApplicationDetails">×</button>
         </div>
         <div class="modal-content">
-          <ApplicationDetail 
-            :application-id="selectedApplicationId" 
-            @application-updated="handleApplicationUpdated"
-          />
+          <ApplicationDetail :application-id="selectedApplicationId" @application-updated="handleApplicationUpdated" />
         </div>
       </div>
     </div>
@@ -231,30 +312,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, watch, reactive } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import api from '@/services/axiosInstance';
-import userService from '@/services/user.service';
-import applicationService from '@/services/application.service'; // NEU
+import { defineComponent, ref, computed, onMounted, watch, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import api from "@/services/axiosInstance";
+import userService from "@/services/user.service";
+import applicationService from "@/services/application.service"; // NEU
 // User Komponenten
-import UserSearch from '@/components/admin/users/UserSearch.vue';
-import UserList from '@/components/admin/users/UserList.vue';
-import DeletedUsers from '@/components/admin/DeletedUsers/DeletedUsers.vue';
-import UserDetail from '@/components/admin/users/UserDetail.vue';
+import UserSearch from "@/components/admin/users/UserSearch.vue";
+import UserList from "@/components/admin/users/UserList.vue";
+import DeletedUsers from "@/components/admin/DeletedUsers/DeletedUsers.vue";
+import UserDetail from "@/components/admin/users/UserDetail.vue";
 // Application Komponenten - NEU
-import ApplicationList from '@/components/admin/application/ApplicationList.vue';
-import ApplicationSearch from '@/components/admin/application/ApplicationSearch.vue';
-import ApplicationDetail from '@/components/admin/application/ApplicationDetail.vue';
+import ApplicationList from "@/components/admin/application/ApplicationList.vue";
+import ApplicationSearch from "@/components/admin/application/ApplicationSearch.vue";
+import ApplicationDetail from "@/components/admin/application/ApplicationDetail.vue";
 // Andere Komponenten
-import PostList from '@/components/admin/posts/PostList.vue';
-import Tickets from '@/components/admin/tickets/Tickets.vue';
+import PostList from "@/components/admin/posts/PostList.vue";
+import Tickets from "@/components/admin/tickets/Tickets.vue";
 // Icons für Application Subtabs
-import { 
-  QueueListIcon as ListIcon,
-  MagnifyingGlassIcon as SearchIcon
-} from '@heroicons/vue/24/outline';
+import { QueueListIcon as ListIcon, MagnifyingGlassIcon as SearchIcon } from "@heroicons/vue/24/outline";
 
-interface DashboardStats {
+export interface DashboardStats {
   totalUsers: number;
   deletedUsers: number;
   deactivatedUsers: number;
@@ -266,7 +344,7 @@ interface DashboardStats {
 }
 
 export default defineComponent({
-  name: 'AdminDashboard',
+  name: "AdminDashboard",
   components: {
     UserSearch,
     UserList,
@@ -278,30 +356,30 @@ export default defineComponent({
     ApplicationDetail,
     // Andere
     PostList,
-    Tickets
+    Tickets,
   },
   props: {
     defaultTab: {
       type: String,
-      default: 'overview'
-    }
+      default: "overview",
+    },
   },
   setup(props) {
     const route = useRoute();
     const router = useRouter();
-    
+
     // State
     const isLoading = ref(false);
-    const loadError = ref('');
+    const loadError = ref("");
     const lastUpdate = ref(new Date());
-    
+
     // Application Subtabs - NEU
-    const activeApplicationSubtab = ref('list');
+    const activeApplicationSubtab = ref("list");
     const applicationSubtabs = [
-      { id: 'list', label: 'Alle Bewerbungen', icon: ListIcon },
-      { id: 'search', label: 'Suche', icon: SearchIcon }
+      { id: "list", label: "Alle Bewerbungen", icon: ListIcon },
+      { id: "search", label: "Suche", icon: SearchIcon },
     ];
-    
+
     // Dashboard Stats
     const stats = reactive<DashboardStats>({
       totalUsers: 0,
@@ -311,9 +389,9 @@ export default defineComponent({
       openTickets: 0,
       newUsersToday: 0,
       totalApplications: 0, // NEU
-      pendingApplications: 0 // NEU
+      pendingApplications: 0, // NEU
     });
-    
+
     // Aktiver Tab
     const activeTab = computed(() => {
       if (route.query.tab) {
@@ -321,7 +399,7 @@ export default defineComponent({
       }
       return props.defaultTab;
     });
-    
+
     // Modal States
     const showUserDetails = ref(false);
     const selectedUserId = ref<string | null>(null);
@@ -330,40 +408,40 @@ export default defineComponent({
 
     // Formatierte letzte Aktualisierung
     const lastUpdateFormatted = computed(() => {
-      return new Intl.DateTimeFormat('de-DE', {
-        dateStyle: 'short',
-        timeStyle: 'medium'
+      return new Intl.DateTimeFormat("de-DE", {
+        dateStyle: "short",
+        timeStyle: "medium",
       }).format(lastUpdate.value);
     });
 
     // Dashboard Stats laden
     const loadDashboardStats = async () => {
       isLoading.value = true;
-      loadError.value = '';
-      
+      loadError.value = "";
+
       try {
         // Parallele API-Aufrufe für bessere Performance
         const [usersResponse, deletedUsersResponse, applicationsResponse] = await Promise.all([
           userService.getAllUsers(),
           userService.getDeletedUsers(),
-          applicationService.getAllApplications('ALL') // NEU: Bewerbungen laden
+          applicationService.getAllApplications("ALL"), // NEU: Bewerbungen laden
         ]);
 
         // Aktive User (nicht gelöscht und nicht deaktiviert)
-        const activeUsers = usersResponse.filter(user => !user.isDeleted && !user.deactivated);
+        const activeUsers = usersResponse.filter((user) => !user.isDeleted && !user.deactivated);
         stats.totalUsers = activeUsers.length;
 
         // Gelöschte User
         stats.deletedUsers = deletedUsersResponse.length;
 
         // Deaktivierte User
-        const deactivatedUsers = usersResponse.filter(user => user.deactivated && !user.isDeleted);
+        const deactivatedUsers = usersResponse.filter((user) => user.deactivated && !user.isDeleted);
         stats.deactivatedUsers = deactivatedUsers.length;
 
         // Neue User heute
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const newUsersToday = usersResponse.filter(user => {
+        const newUsersToday = usersResponse.filter((user) => {
           const createdAt = new Date(user.createdAt);
           return createdAt >= today && !user.isDeleted;
         });
@@ -371,61 +449,58 @@ export default defineComponent({
 
         // NEU: Bewerbungsstatistiken
         stats.totalApplications = applicationsResponse.length;
-        stats.pendingApplications = applicationsResponse.filter(app => app.status === 'PENDING').length;
+        stats.pendingApplications = applicationsResponse.filter((app) => app.status === "PENDING").length;
 
         // Posts Stats
         try {
-          const postsResponse = await api.get('/article/getPreviews', {
-            params: { limit: 1000 }
+          const postsResponse = await api.get("/article/getPreviews", {
+            params: { limit: 1000 },
           });
-          
+
           if (postsResponse.data?.data) {
             stats.activePosts = postsResponse.data.meta.totalPosts || 0;
           } else {
             stats.activePosts = 0;
           }
         } catch (error) {
-          console.error('Fehler beim Laden der Post-Statistiken:', error);
+          console.error("Fehler beim Laden der Post-Statistiken:", error);
           stats.activePosts = 0;
         }
 
         // Ticket Stats
         try {
-          const ticketsResponse = await api.get('/tickets/all', {
-            params: { 
-              status: 'OPEN',
-              limit: 1
-            }
+          const ticketsResponse = await api.get("/tickets/all", {
+            params: {
+              status: "OPEN",
+              limit: 1,
+            },
           });
-          
+
           if (Array.isArray(ticketsResponse.data)) {
             stats.openTickets = ticketsResponse.data.length;
-          } else if (typeof ticketsResponse.data === 'string') {
+          } else if (typeof ticketsResponse.data === "string") {
             stats.openTickets = 0;
           } else {
             stats.openTickets = 0;
           }
-          
-          const allTicketsResponse = await api.get('/tickets/all', {
-            params: { limit: 1000 }
+
+          const allTicketsResponse = await api.get("/tickets/all", {
+            params: { limit: 1000 },
           });
-          
+
           if (Array.isArray(allTicketsResponse.data)) {
-            const openTickets = allTicketsResponse.data.filter(
-              (ticket: any) => ticket.status === 'OPEN'
-            );
+            const openTickets = allTicketsResponse.data.filter((ticket: any) => ticket.status === "OPEN");
             stats.openTickets = openTickets.length;
           }
         } catch (error) {
-          console.error('Fehler beim Laden der Ticket-Statistiken:', error);
+          console.error("Fehler beim Laden der Ticket-Statistiken:", error);
           stats.openTickets = 0;
         }
 
         lastUpdate.value = new Date();
-        
       } catch (error: any) {
-        console.error('Fehler beim Laden der Dashboard-Statistiken:', error);
-        loadError.value = error.response?.data?.message || 'Fehler beim Laden der Statistiken';
+        console.error("Fehler beim Laden der Dashboard-Statistiken:", error);
+        loadError.value = error.response?.data?.message || "Fehler beim Laden der Statistiken";
       } finally {
         isLoading.value = false;
       }
@@ -433,17 +508,17 @@ export default defineComponent({
 
     // Navigation zu Tab
     const navigateToTab = (tab: string) => {
-      router.push({ 
-        path: route.path, 
-        query: { ...route.query, tab } 
+      router.push({
+        path: route.path,
+        query: { ...route.query, tab },
       });
     };
 
     // NEU: Navigation zu Bewerbungen mit Filter
     const navigateToApplications = (filter: string) => {
-      router.push({ 
-        path: route.path, 
-        query: { tab: 'applications' } 
+      router.push({
+        path: route.path,
+        query: { tab: "applications" },
       });
       // Optional: Filter später setzen wenn ApplicationList erweitert wird
     };
@@ -452,28 +527,28 @@ export default defineComponent({
     const viewUserDetails = (userId: string) => {
       selectedUserId.value = userId;
       showUserDetails.value = true;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     };
 
     // User Details schließen
     const closeUserDetails = () => {
       showUserDetails.value = false;
       selectedUserId.value = null;
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
 
     // NEU: Application Details anzeigen
     const viewApplicationDetails = (applicationId: string) => {
       selectedApplicationId.value = applicationId;
       showApplicationDetails.value = true;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     };
 
     // NEU: Application Details schließen
     const closeApplicationDetails = () => {
       showApplicationDetails.value = false;
       selectedApplicationId.value = null;
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
 
     // NEU: Application Update Handler
@@ -484,14 +559,14 @@ export default defineComponent({
 
     // Beim Mounten Stats laden
     onMounted(() => {
-      if (activeTab.value === 'overview') {
+      if (activeTab.value === "overview") {
         loadDashboardStats();
       }
     });
 
     // Stats neu laden wenn zu Overview gewechselt wird
     watch(activeTab, (newTab) => {
-      if (newTab === 'overview' && stats.totalUsers === 0) {
+      if (newTab === "overview" && stats.totalUsers === 0) {
         loadDashboardStats();
       }
     });
@@ -500,7 +575,7 @@ export default defineComponent({
     let refreshInterval: number | null = null;
     onMounted(() => {
       refreshInterval = window.setInterval(() => {
-        if (activeTab.value === 'overview') {
+        if (activeTab.value === "overview") {
           loadDashboardStats();
         }
       }, 5 * 60 * 1000); // 5 Minuten
@@ -539,9 +614,9 @@ export default defineComponent({
       handleApplicationUpdated, // NEU
       loadDashboardStats,
       navigateToTab,
-      navigateToApplications // NEU
+      navigateToApplications, // NEU
     };
-  }
+  },
 });
 </script>
 
@@ -605,13 +680,13 @@ export default defineComponent({
 .overview-content {
   text-align: center;
   padding: 40px 20px;
-  
+
   h2 {
     color: #fff;
     margin-bottom: 12px;
     font-size: 2rem;
   }
-  
+
   p {
     color: #888;
     font-size: 1.1rem;
@@ -625,7 +700,7 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     min-height: 300px;
-    
+
     .loading-spinner {
       width: 48px;
       height: 48px;
@@ -635,7 +710,7 @@ export default defineComponent({
       animation: spin 1s linear infinite;
       margin-bottom: 20px;
     }
-    
+
     p {
       color: #aaa;
       font-size: 1rem;
@@ -650,13 +725,13 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     min-height: 200px;
-    
+
     .error-message {
       color: #e74c3c;
       font-size: 1rem;
       margin-bottom: 20px;
     }
-    
+
     .retry-button {
       background-color: #0078d7;
       color: white;
@@ -666,20 +741,20 @@ export default defineComponent({
       cursor: pointer;
       font-size: 0.95rem;
       transition: background-color 0.2s;
-      
+
       &:hover {
         background-color: #106ebe;
       }
     }
   }
-  
+
   .quick-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    
+
     .stat-card {
       background-color: #222;
       border: 1px solid #333;
@@ -690,7 +765,7 @@ export default defineComponent({
       gap: 20px;
       transition: all 0.3s ease;
       cursor: pointer;
-      
+
       &:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
@@ -784,7 +859,7 @@ export default defineComponent({
           box-shadow: 0 8px 20px rgba(255, 193, 7, 0.2);
         }
       }
-      
+
       .stat-icon {
         width: 60px;
         height: 60px;
@@ -794,17 +869,17 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         color: #0078d7;
-        
+
         &.deleted {
           background-color: rgba(231, 76, 60, 0.2);
           color: #e74c3c;
         }
-        
+
         &.posts {
           background-color: rgba(46, 204, 113, 0.2);
           color: #2ecc71;
         }
-        
+
         &.tickets {
           background-color: rgba(255, 152, 0, 0.2);
           color: #ff9800;
@@ -830,23 +905,23 @@ export default defineComponent({
           background-color: rgba(255, 193, 7, 0.2);
           color: #ffc107;
         }
-        
+
         svg {
           width: 28px;
           height: 28px;
         }
       }
-      
+
       .stat-content {
         text-align: left;
-        
+
         h3 {
           margin: 0;
           font-size: 2rem;
           color: #f0f0f0;
           font-weight: 600;
         }
-        
+
         p {
           margin: 4px 0 0 0;
           color: #a0a0a0;
@@ -863,13 +938,13 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     gap: 20px;
-    
+
     p {
       margin: 0;
       color: #666;
       font-size: 0.9rem;
     }
-    
+
     .refresh-button {
       background-color: transparent;
       border: 1px solid #444;
@@ -882,12 +957,12 @@ export default defineComponent({
       align-items: center;
       gap: 6px;
       transition: all 0.2s;
-      
+
       svg {
         width: 16px;
         height: 16px;
       }
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.05);
         border-color: #666;
@@ -977,7 +1052,9 @@ export default defineComponent({
 
 // Animations
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes modal-appear {
@@ -995,15 +1072,15 @@ export default defineComponent({
 @media (max-width: 768px) {
   .overview-content {
     padding: 20px;
-    
+
     h2 {
       font-size: 1.5rem;
     }
-    
+
     p {
       font-size: 1rem;
     }
-    
+
     .quick-stats {
       grid-template-columns: 1fr;
       gap: 16px;
@@ -1014,7 +1091,7 @@ export default defineComponent({
       gap: 12px;
     }
   }
-  
+
   .modal-container {
     width: 95%;
     max-width: none;

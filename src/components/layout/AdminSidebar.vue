@@ -1,14 +1,14 @@
 <!-- src/components/layout/AdminSidebar.vue -->
 <template>
-  <aside class="admin-sidebar" :class="{ 'open': isOpen }">
+  <aside class="admin-sidebar" :class="{ open: isOpen }">
     <!-- Logo wie in Member-Sidebar -->
     <a href="/" class="logo-link">
       <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
     </a>
-    
+
     <!-- Sidebar-Header mit Benutzerinfo -->
     <div class="sidebar-header">
-      <img src="../../assets/images/AvatarIcon1.webp" alt="Account Logo" class="account-logo" />
+      <img :src="userPicture" alt="Account Logo" class="account-logo" />
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
@@ -18,8 +18,13 @@
 
     <!-- Sidebar-Navigation -->
     <nav class="sidebar-nav">
-      <div v-for="(item, index) in menuItems" :key="index" class="nav-item" :class="{ active: isActiveItem(item.id) }"
-        @click="selectMenuItem(item.id)">
+      <div
+        v-for="(item, index) in menuItems"
+        :key="index"
+        class="nav-item"
+        :class="{ active: isActiveItem(item.id) }"
+        @click="selectMenuItem(item.id)"
+      >
         <span class="nav-icon">
           <component :is="item.icon" class="h-6 w-6" />
         </span>
@@ -40,32 +45,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { 
+import { defineComponent, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import {
   HomeIcon,
-  UsersIcon, 
+  UsersIcon,
   UserMinusIcon,
-  DocumentTextIcon, 
+  DocumentTextIcon,
   TicketIcon,
   DocumentIcon, // Neues Icon für Bewerbungen
   ArrowLeftIcon,
-} from '@heroicons/vue/24/outline';
+} from "@heroicons/vue/24/outline";
+import userService from "@/services/userMD.services";
 
 // TypeScript Interface für Token-Payload
-interface TokenPayload {
+export interface TokenPayload {
   userId?: string;
   username?: string;
-  name?: string;
   email?: string;
   role?: string;
-  roles?: string[];
-  isAdmin?: boolean;
-  isAuthor?: boolean;
 }
 
 export default defineComponent({
-  name: 'AdminSidebar',
+  name: "AdminSidebar",
   components: {
     HomeIcon,
     UsersIcon,
@@ -78,108 +80,113 @@ export default defineComponent({
   props: {
     isOpen: {
       type: Boolean,
-      default: false
+      default: false,
     },
     activeMenu: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  emits: ['select-menu', 'close', 'logout'],
+  emits: ["select-menu", "close", "logout"],
   setup(props, { emit }) {
     const router = useRouter();
     const route = useRoute();
-    
+
     // Benutzerinformationen
-    const userName = ref('');
-    const userRole = ref('');
-    
+    const userName = ref("");
+    const userRole = ref("");
+    const userPicture = ref("");
+
     // Menüelemente definieren mit HeroIcons - ERWEITERT um Bewerbungen
     const menuItems = ref([
-      { 
-        id: 'overview',
-        text: 'Überblick', 
-        icon: HomeIcon
+      {
+        id: "overview",
+        text: "Überblick",
+        icon: HomeIcon,
       },
-      { 
-        id: 'all-users', 
-        text: 'Alle User', 
-        icon: UsersIcon
+      {
+        id: "all-users",
+        text: "Alle User",
+        icon: UsersIcon,
       },
-      { 
-        id: 'applications', // NEU: Bewerbungen Menüpunkt
-        text: 'Bewerbungen', 
-        icon: DocumentIcon
+      {
+        id: "applications", // NEU: Bewerbungen Menüpunkt
+        text: "Bewerbungen",
+        icon: DocumentIcon,
       },
-      { 
-        id: 'active-posts', 
-        text: 'Active Posts', 
-        icon: DocumentTextIcon
+      {
+        id: "active-posts",
+        text: "Active Posts",
+        icon: DocumentTextIcon,
       },
-      { 
-        id: 'tickets', 
-        text: 'Tickets', 
-        icon: TicketIcon
+      {
+        id: "tickets",
+        text: "Tickets",
+        icon: TicketIcon,
       },
-      { 
-        id: 'deleted-users', 
-        text: 'Gelöschte User', 
-        icon: UserMinusIcon
+      {
+        id: "deleted-users",
+        text: "Gelöschte User",
+        icon: UserMinusIcon,
       },
     ]);
 
     // Bei Montage der Komponente die Benutzerinformationen laden
-    onMounted(() => {
+    onMounted(async () => {
       try {
         // Token dekodieren für Benutzerinformationen
-        const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+        const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
         if (token) {
           try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
             const decoded = JSON.parse(window.atob(base64)) as TokenPayload;
-            
+
             // Username direkt aus dem Token
-            userName.value = decoded.username || 'Administrator';
-            
+            userName.value = decoded.username || "Administrator";
+
             // Rolle anzeigen (auf Deutsch)
             const roleMap: Record<string, string> = {
-              'admin': 'Administrator',
-              'author': 'Autor',
-              'user': 'Benutzer',
-              'moderator': 'Moderator'
+              admin: "Administrator",
+              author: "Autor",
+              user: "Benutzer",
+              moderator: "Moderator",
             };
-            
+
             // Rolle für Anzeige setzen
-            const displayRole = decoded.role || '';
+            const displayRole = decoded.role || "";
             userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
-            
+            const userData = await userService.getCurrentUser();
+            if (userData && userData.profilePicture) {
+              console.log("Benutzerprofilbild gefunden:", userData.profilePicture);
+              userPicture.value = userData.profilePicture;
+            } else {
+              userPicture.value = "https://api.api-ninjas.com/v1/randomimage";
+            }
           } catch (e) {
-            console.error('Token konnte nicht dekodiert werden:', e);
-            userName.value = 'Administrator';
-            userRole.value = 'Admin';
+            console.error("Token konnte nicht dekodiert werden:", e);
+            userName.value = "Administrator";
+            userRole.value = "Admin";
           }
         } else {
           // Kein Token
-          userName.value = 'Administrator';
-          userRole.value = 'Admin';
+          userName.value = "Administrator";
+          userRole.value = "Admin";
         }
-        
       } catch (error) {
-        console.error('Fehler beim Laden der Benutzerinformationen:', error);
-        userName.value = 'Administrator';
-        userRole.value = 'Admin';
+        console.error("Fehler beim Laden der Benutzerinformationen:", error);
+        userName.value = "Administrator";
+        userRole.value = "Admin";
       }
     });
-
     // Prüfen ob ein Item aktiv ist
     const isActiveItem = (itemId: string) => {
       // Wenn kein activeMenu gesetzt ist und wir auf der Dashboard-Route ohne tab sind,
       // dann ist 'overview' aktiv
-      if (!props.activeMenu && route.path === '/admin/dashboard' && !route.query.tab) {
-        return itemId === 'overview';
+      if (!props.activeMenu && route.path === "/admin/dashboard" && !route.query.tab) {
+        return itemId === "overview";
       }
-      
+
       // Ansonsten normaler Check
       return props.activeMenu === itemId;
     };
@@ -187,26 +194,26 @@ export default defineComponent({
     // Menüpunkt auswählen
     const selectMenuItem = (itemId: string) => {
       // Event emittieren
-      emit('select-menu', itemId);
-      
+      emit("select-menu", itemId);
+
       // Navigation anpassen
-      if (itemId === 'overview') {
+      if (itemId === "overview") {
         // Für Dashboard/Übersicht keine Query-Parameter
         router.push({
-          path: '/admin/dashboard'
+          path: "/admin/dashboard",
         });
       } else {
         // Für alle anderen Items mit Tab-Query navigieren
         router.push({
-          path: '/admin/dashboard',
-          query: { tab: itemId }
+          path: "/admin/dashboard",
+          query: { tab: itemId },
         });
       }
     };
 
     // Navigation zum Member Dashboard
     const navigateToMemberDashboard = () => {
-      router.push('/member/dashboard');
+      router.push("/member/dashboard");
     };
 
     return {
@@ -215,9 +222,10 @@ export default defineComponent({
       isActiveItem,
       navigateToMemberDashboard,
       userName,
-      userRole
+      userRole,
+      userPicture,
     };
-  }
+  },
 });
 </script>
 
@@ -251,7 +259,7 @@ export default defineComponent({
     margin: 0 auto 20px;
     width: 80px;
     height: 80px;
-    
+
     .logo-Sidebar {
       width: 100%;
       height: 100%;
@@ -264,9 +272,7 @@ export default defineComponent({
       &:hover {
         opacity: 1;
         transform: scale(1.05);
-        box-shadow: 
-          0 6px 20px rgba(93, 173, 226, 0.4),
-          0 4px 12px rgba(255, 107, 157, 0.3);
+        box-shadow: 0 6px 20px rgba(93, 173, 226, 0.4), 0 4px 12px rgba(255, 107, 157, 0.3);
       }
     }
   }
@@ -304,7 +310,7 @@ export default defineComponent({
       .user-role {
         margin: 0;
         font-size: 0.85rem;
-        color: #5DADE2;
+        color: #5dade2;
         font-weight: 500;
       }
     }
@@ -355,18 +361,18 @@ export default defineComponent({
       }
 
       &.active {
-        background: linear-gradient(135deg, #5DADE2, #FF6B9D);
+        background: linear-gradient(135deg, #5dade2, #ff6b9d);
         color: #fff;
         box-shadow: 0 2px 8px rgba(93, 173, 226, 0.3);
-        
+
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           left: 0;
           top: 0;
           bottom: 0;
           width: 3px;
-          background: linear-gradient(to bottom, #FF8C42, #FF6B9D);
+          background: linear-gradient(to bottom, #ff8c42, #ff6b9d);
           border-radius: 0 3px 3px 0;
         }
       }
@@ -417,7 +423,7 @@ export default defineComponent({
       &:hover {
         background: linear-gradient(135deg, #333, #252525);
         color: #fff;
-        border-color: #5DADE2;
+        border-color: #5dade2;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(93, 173, 226, 0.2);
 
