@@ -6,7 +6,7 @@ export interface ChatMessage {
   conversationId: string;
   senderId: string;
   content: string | null;
-  messageType: 'TEXT' | 'FILE' | 'COMBINED' | 'SYSTEM';
+  messageType: "TEXT" | "FILE" | "COMBINED" | "SYSTEM";
   attachmentUrl?: string | null;
   isRead: boolean;
   createdAt: string;
@@ -60,7 +60,7 @@ class ChatService {
       const response = await api.post(`/conversation/create/${targetUserId}`);
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Erstellen/Laden der Conversation:', error);
+      console.error("Fehler beim Erstellen/Laden der Conversation:", error);
       throw error;
     }
   }
@@ -72,10 +72,10 @@ class ChatService {
   async getConversation(conversationId: string): Promise<Conversation> {
     try {
       const response = await api.get(`/conversation/${conversationId}`);
-      console.log('Conversation geladen:', response.data);
+      console.log("Conversation geladen:", response.data);
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Laden der Conversation:', error);
+      console.error("Fehler beim Laden der Conversation:", error);
       throw error;
     }
   }
@@ -86,10 +86,10 @@ class ChatService {
    */
   async getAllConversations(): Promise<ConversationPreview[]> {
     try {
-      const response = await api.get('/conversation/loadPreview');
+      const response = await api.get("/conversation/loadPreview");
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Laden der Conversations:', error);
+      console.error("Fehler beim Laden der Conversations:", error);
       throw error;
     }
   }
@@ -100,16 +100,16 @@ class ChatService {
    */
   async sendMessage(conversationId: string, message: string): Promise<SendMessageResponse> {
     try {
-      const response = await api.post(`/chat/send/${conversationId}`, {
-        message: message.trim()
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await api.post(
+        `/chat/send/${conversationId}`,
+        {
+          message: message.trim(),
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Senden der Nachricht:', error);
+      console.error("Fehler beim Senden der Nachricht:", error);
       throw error;
     }
   }
@@ -118,26 +118,22 @@ class ChatService {
    * Sendet eine Nachricht mit Datei-Anhang
    * POST /chat/send/:chatId (mit FormData)
    */
-  async sendMessageWithFile(
-    conversationId: string, 
-    message: string, 
-    file: File
-  ): Promise<SendMessageResponse> {
+  async sendMessageWithFile(conversationId: string, message: string, file: File): Promise<SendMessageResponse> {
     try {
       const formData = new FormData();
       if (message.trim()) {
-        formData.append('message', message.trim());
+        formData.append("message", message.trim());
       }
-      formData.append('file', file);
+      formData.append("file", file);
 
       const response = await api.post(`/chat/send/${conversationId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Senden der Nachricht mit Datei:', error);
+      console.error("Fehler beim Senden der Nachricht mit Datei:", error);
       throw error;
     }
   }
@@ -148,16 +144,20 @@ class ChatService {
    */
   async updateMessage(messageId: string, newContent: string): Promise<ChatMessage> {
     try {
-      const response = await api.patch(`/chat/update/${messageId}`, {
-        message: newContent.trim()
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await api.patch(
+        `/chat/update/${messageId}`,
+        {
+          message: newContent.trim(),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Bearbeiten der Nachricht:', error);
+      console.error("Fehler beim Bearbeiten der Nachricht:", error);
       throw error;
     }
   }
@@ -170,7 +170,7 @@ class ChatService {
     try {
       await api.delete(`/chat/${messageId}`);
     } catch (error) {
-      console.error('Fehler beim Löschen der Nachricht:', error);
+      console.error("Fehler beim Löschen der Nachricht:", error);
       throw error;
     }
   }
@@ -184,7 +184,7 @@ class ChatService {
       const response = await api.delete(`/conversation/${conversationId}`);
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Löschen der Conversation:', error);
+      console.error("Fehler beim Löschen der Conversation:", error);
       throw error;
     }
   }
@@ -198,17 +198,18 @@ class ChatService {
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
     if (diffInMinutes < 1) {
-      return 'Gerade eben';
+      return "Gerade eben";
     } else if (diffInMinutes < 60) {
       return `vor ${diffInMinutes} Min`;
-    } else if (diffInMinutes < 1440) { // 24 Stunden
+    } else if (diffInMinutes < 1440) {
+      // 24 Stunden
       const hours = Math.floor(diffInMinutes / 60);
       return `vor ${hours} Std`;
     } else {
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit'
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
       });
     }
   }
@@ -218,9 +219,9 @@ class ChatService {
    */
   formatChatTime(timestamp: string): string {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('de-DE', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
@@ -236,9 +237,9 @@ class ChatService {
    */
   getInitials(name: string): string {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   }

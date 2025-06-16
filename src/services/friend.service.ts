@@ -39,6 +39,7 @@ export interface SearchUser {
   id: string;
   username: string;
   profilePicture: string | null;
+  verified: boolean;
 }
 
 export interface ApiResponse<T = any> {
@@ -85,7 +86,7 @@ class FriendService {
       // Verwende den User-Service um eigene ID zu bekommen
       const userResponse = await api.get("/user/getMe");
       const userId = userResponse.data.id;
-      
+
       // Hole alle Anfragen des Users
       const response = await api.get(`/friends/requestsOfUser/${userId}`);
       return response.data;
@@ -227,22 +228,23 @@ class FriendService {
    */
   async searchUsers(searchQuery: string): Promise<SearchUser | null> {
     try {
-      const username = searchQuery.replace(/^@/, '').trim();
-      
+      const username = searchQuery.replace(/^@/, "").trim();
+
       if (!username || username.length < 3) {
         return null;
       }
 
       const response = await api.get(`/user/getUserByUserName?userName=${encodeURIComponent(username)}`);
-      
+
       if (response.status === 200 && response.data) {
         return {
           id: response.data.id,
           username: response.data.username,
-          profilePicture: response.data.profilePicture || null
+          profilePicture: response.data.profilePicture || null,
+          verified: response.data.verified || false,
         };
       }
-      
+
       return null;
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -257,19 +259,19 @@ class FriendService {
   /**
    * Sendet eine E-Mail-Einladung (Mock - bis Backend-Endpunkt implementiert ist)
    */
-  async sendEmailInvite(email: string, message?: string): Promise<ApiResponse> {
+  /*  async sendEmailInvite(email: string, message?: string): Promise<ApiResponse> {
     // TODO: Implementieren wenn Backend-Endpunkt vorhanden
     // const response = await api.post('/friends/invite', { email, message });
     // return response.data;
-    
+
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
-          message: `Einladung an ${email} wurde erfolgreich gesendet!`
+          message: `Einladung an ${email} wurde erfolgreich gesendet!`,
         });
       }, 1000);
     });
-  }
+  } */
 
   // ===========================
   // CHAT-FUNKTIONEN (echte API-Calls)
@@ -283,13 +285,13 @@ class FriendService {
     try {
       // Erstelle oder lade Conversation
       const conversation = await chatService.createOrGetConversation(friendId);
-      
+
       // Sende Nachricht
       const result = await chatService.sendMessage(conversation.id, message);
-      
+
       return {
         message: "Nachricht erfolgreich gesendet",
-        data: result.message
+        data: result.message,
       };
     } catch (error) {
       console.error("Fehler beim Senden der Nachricht:", error);
@@ -304,10 +306,10 @@ class FriendService {
     try {
       // Erstelle oder lade Conversation
       const conversation = await chatService.createOrGetConversation(friendId);
-      
+
       return {
         message: "Chat-Verlauf geladen",
-        data: conversation.messages
+        data: conversation.messages,
       };
     } catch (error) {
       console.error("Fehler beim Laden des Chat-Verlaufs:", error);
@@ -318,7 +320,7 @@ class FriendService {
   /**
    * Markiert Nachrichten als gelesen
    */
-  async markMessagesAsRead(friendId: string): Promise<ApiResponse> {
+  /*   async markMessagesAsRead(friendId: string): Promise<ApiResponse> {
     try {
       // Erstelle oder lade Conversation
       const conversation = await chatService.createOrGetConversation(friendId);
@@ -333,7 +335,7 @@ class FriendService {
       console.error("Fehler beim Markieren der Nachrichten:", error);
       throw error;
     }
-  }
+  } */
 
   /**
    * Öffnet einen Chat mit einem Freund (lädt Conversation)
@@ -341,10 +343,10 @@ class FriendService {
   async openChatWithFriend(friendId: string): Promise<{ conversationId: string; messages: any[] }> {
     try {
       const conversation = await chatService.createOrGetConversation(friendId);
-      
+
       return {
         conversationId: conversation.id,
-        messages: conversation.messages || []
+        messages: conversation.messages || [],
       };
     } catch (error) {
       console.error("Fehler beim Öffnen des Chats:", error);

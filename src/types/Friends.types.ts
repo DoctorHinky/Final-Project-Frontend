@@ -1,5 +1,7 @@
 // src/types/Friends.types.ts
 
+import type { TabType } from "./Tab";
+
 /**
  * Basis-Interface für einen Freund
  */
@@ -37,7 +39,7 @@ export interface FriendRequest {
 export interface SentRequest {
   id: string;
   receiverId: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
+  status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELED";
   receiver: {
     id: string;
     username: string;
@@ -52,7 +54,7 @@ export interface SentRequest {
  */
 export interface Tab {
   id: string;
-  name: string;
+  name: TabType | string;
 }
 
 /**
@@ -61,7 +63,7 @@ export interface Tab {
 export interface Toast {
   show: boolean;
   message: string;
-  type: 'success' | 'error' | 'info' | 'warning';
+  type: "success" | "error" | "info" | "warning";
 }
 
 /**
@@ -115,7 +117,7 @@ export interface ChatMessage {
   conversationId: string;
   senderId: string;
   content: string | null;
-  messageType: 'TEXT' | 'FILE' | 'COMBINED' | 'SYSTEM';
+  messageType: "TEXT" | "FILE" | "COMBINED" | "SYSTEM";
   attachmentUrl?: string | null;
   isRead: boolean;
   createdAt: string;
@@ -182,21 +184,21 @@ export interface InviteData {
  * Enum für Freundschaftsanfrage-Status
  */
 export enum FriendRequestStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED', 
-  REJECTED = 'REJECTED',
-  CANCELED = 'CANCELED',
-  BLOCKED = 'BLOCKED'
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
+  CANCELED = "CANCELED",
+  BLOCKED = "BLOCKED",
 }
 
 /**
  * Enum für Message-Typen
  */
 export enum MessageType {
-  TEXT = 'TEXT',
-  FILE = 'FILE',
-  COMBINED = 'COMBINED',
-  SYSTEM = 'SYSTEM'
+  TEXT = "TEXT",
+  FILE = "FILE",
+  COMBINED = "COMBINED",
+  SYSTEM = "SYSTEM",
 }
 
 /**
@@ -204,26 +206,29 @@ export enum MessageType {
  */
 
 export const isFriend = (obj: any): obj is Friend => {
-  return obj && 
-    typeof obj.id === 'string' &&
-    typeof obj.friendId === 'string' &&
-    typeof obj.name === 'string' &&
-    typeof obj.username === 'string';
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    typeof obj.friendId === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.username === "string"
+  );
 };
 
 export const isFriendRequest = (obj: any): obj is FriendRequest => {
-  return obj && 
-    typeof obj.id === 'string' &&
-    typeof obj.senderId === 'string' &&
-    typeof obj.name === 'string' &&
-    typeof obj.username === 'string';
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    typeof obj.senderId === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.username === "string"
+  );
 };
 
 export const isChatMessage = (obj: any): obj is ChatMessage => {
-  return obj && 
-    typeof obj.id === 'string' &&
-    typeof obj.conversationId === 'string' &&
-    typeof obj.senderId === 'string';
+  return (
+    obj && typeof obj.id === "string" && typeof obj.conversationId === "string" && typeof obj.senderId === "string"
+  );
 };
 
 /**
@@ -234,10 +239,10 @@ export const isChatMessage = (obj: any): obj is ChatMessage => {
 export type PartialFriend = Partial<Friend> & { id: string };
 
 // Friend ohne interne IDs (für API-Anfragen)
-export type CreateFriendRequest = Omit<FriendRequest, 'id' | 'requestDate'>;
+export type CreateFriendRequest = Omit<FriendRequest, "id" | "requestDate">;
 
 // Chat-Message ohne Metadaten (für Senden)
-export type SendChatMessage = Omit<ChatMessage, 'id' | 'createdAt' | 'updatedAt' | 'isRead'>;
+export type SendChatMessage = Omit<ChatMessage, "id" | "createdAt" | "updatedAt" | "isRead">;
 
 // Exportiere alle Types als Default für einfache Imports
 export type {
@@ -247,5 +252,5 @@ export type {
   Tab as TabType,
   Toast as ToastType,
   ChatMessage as ChatMessageType,
-  Conversation as ConversationType
+  Conversation as ConversationType,
 };

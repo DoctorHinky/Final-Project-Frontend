@@ -8,7 +8,7 @@
         </div>
         <div class="request-info">
           <h3>{{ request.name }}</h3>
-          <p class="request-message">{{ request.message || 'Möchte mit dir befreundet sein.' }}</p>
+          <p class="request-message">{{ request.message || "Möchte mit dir befreundet sein." }}</p>
           <div class="request-meta">
             <span class="request-date">Angefragt am {{ request.requestDate }}</span>
             <span class="mutual-friends">{{ request.mutualFriends }} gemeinsame Freunde</span>
@@ -37,58 +37,58 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-import { InboxIcon, EnvelopeIcon } from '@heroicons/vue/24/outline';
-import type { FriendRequest } from '@/types/FriendRequest';
+import { defineComponent, type PropType } from "vue";
+import { InboxIcon, EnvelopeIcon } from "@heroicons/vue/24/outline";
+import type { FriendRequest } from "@/types/Friends.types";
 
 export default defineComponent({
-  name: 'RequestsList',
+  name: "RequestsList",
   components: {
     InboxIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
   },
   props: {
     pendingRequests: {
       type: Array as PropType<FriendRequest[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['accept-request', 'decline-request', 'show-invite-modal'],
+  emits: ["accept-request", "decline-request", "show-invite-modal"],
   setup(_, { emit }) {
     const getInitials = (name: string) => {
       return name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
         .toUpperCase();
     };
 
     const acceptRequest = (requestId: number) => {
-      emit('accept-request', requestId);
+      emit("accept-request", requestId);
     };
 
     const declineRequest = (requestId: number) => {
-      emit('decline-request', requestId);
+      emit("decline-request", requestId);
     };
 
     const showInviteModal = () => {
-      emit('show-invite-modal');
+      emit("show-invite-modal");
     };
 
     return {
       getInitials,
       acceptRequest,
       declineRequest,
-      showInviteModal
+      showInviteModal,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .requests-grid {
   display: flex;
@@ -112,7 +112,7 @@ export default defineComponent({
   gap: map.get(vars.$spacing, m);
   overflow: hidden;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -120,7 +120,7 @@ export default defineComponent({
 
       &:hover {
         transform: translateY(-4px);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
         border-color: mixins.theme-color($theme, border-medium);
       }
     }
@@ -138,7 +138,7 @@ export default defineComponent({
     position: relative;
     flex-shrink: 0;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 2px solid mixins.theme-color($theme, accent-green);
@@ -150,7 +150,7 @@ export default defineComponent({
       font-size: 2rem;
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -169,7 +169,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -182,7 +182,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       line-height: 1.4;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -196,7 +196,7 @@ export default defineComponent({
       gap: map.get(vars.$spacing, s);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -209,7 +209,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         white-space: nowrap;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             transition: all 0.4s ease-out;
@@ -236,7 +236,7 @@ export default defineComponent({
       transition: all 0.2s ease;
 
       &.accept {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-green);
             color: white;
@@ -244,14 +244,14 @@ export default defineComponent({
 
             &:hover {
               transform: translateY(-2px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
             }
           }
         }
       }
 
       &.decline {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             color: #ff6b6b; // Red for decline
@@ -280,13 +280,13 @@ export default defineComponent({
 
   .empty-icon {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .empty-icon-svg {
       width: 64px;
       height: 64px;
       opacity: 0.5;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -299,7 +299,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), xl);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -312,7 +312,7 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, l);
     max-width: 500px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -330,7 +330,7 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, s);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
@@ -338,7 +338,7 @@ export default defineComponent({
 
         &:hover {
           transform: translateY(-3px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }

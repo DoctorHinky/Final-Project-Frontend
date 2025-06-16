@@ -3,19 +3,11 @@
   <div class="search-section">
     <!-- Search Mode Toggle -->
     <div class="search-mode-toggle">
-      <button 
-        @click="searchMode = 'filter'"
-        :class="{ active: searchMode === 'filter' }"
-        class="mode-button"
-      >
+      <button @click="searchMode = 'filter'" :class="{ active: searchMode === 'filter' }" class="mode-button">
         <AdjustmentsHorizontalIcon class="mode-icon" />
         Freunde filtern
       </button>
-      <button 
-        @click="searchMode = 'users'"
-        :class="{ active: searchMode === 'users' }"
-        class="mode-button"
-      >
+      <button @click="searchMode = 'users'" :class="{ active: searchMode === 'users' }" class="mode-button">
         <UserPlusIcon class="mode-icon" />
         Neue Freunde finden
       </button>
@@ -25,26 +17,21 @@
     <div class="search-container">
       <div class="search-input-wrapper">
         <MagnifyingGlassIcon class="search-icon" />
-        <input 
-          type="text" 
+        <input
+          type="text"
           :placeholder="searchMode === 'filter' ? 'Freunde suchen...' : 'Username suchen (z.B. @benutzername)'"
-          v-model="searchQueryValue" 
+          v-model="searchQueryValue"
           @input="onSearchInput"
           @keyup.enter="handleSearch"
           :disabled="isSearching"
         />
-        <button 
-          v-if="searchQueryValue" 
-          @click="clearSearch" 
-          class="clear-button"
-          type="button"
-        >
+        <button v-if="searchQueryValue" @click="clearSearch" class="clear-button" type="button">
           <XMarkIcon class="clear-icon" />
         </button>
       </div>
-      <button 
+      <button
         v-if="searchMode === 'users'"
-        @click="searchUsers" 
+        @click="searchUsers"
         class="search-button"
         :disabled="!isValidUsername || isSearching"
       >
@@ -68,36 +55,32 @@
       <div class="user-result">
         <div class="user-card">
           <div class="user-avatar">
-            <img 
-              v-if="searchResult.profileImage" 
-              :src="searchResult.profileImage" 
+            <img
+              v-if="searchResult.profileImage"
+              :src="searchResult.profileImage"
               :alt="searchResult.displayName || searchResult.username"
               class="avatar-image"
             />
             <span v-else class="avatar-placeholder">
               {{ getInitials(searchResult.displayName || searchResult.username) }}
             </span>
-            <CheckBadgeIcon 
-              v-if="searchResult.verified" 
-              class="verified-badge" 
-              title="Verifizierter Benutzer"
-            />
+            <CheckBadgeIcon v-if="searchResult.verified" class="verified-badge" title="Verifizierter Benutzer" />
           </div>
-          
+
           <div class="user-info">
             <h5>{{ searchResult.displayName || searchResult.username }}</h5>
             <p class="username">@{{ searchResult.username }}</p>
             <div class="user-meta">
               <span class="user-type">
                 <UserIcon class="meta-icon" />
-                {{ searchResult.verified ? 'Verifiziert' : 'Benutzer' }}
+                {{ searchResult.verified ? "Verifiziert" : "Benutzer" }}
               </span>
             </div>
           </div>
 
           <div class="user-actions">
             <!-- Anfragen Button oder Zurückziehen Button -->
-            <button 
+            <button
               v-if="!hasPendingRequest(searchResult.id)"
               @click="sendFriendRequest(searchResult.id, searchResult.displayName || searchResult.username)"
               :disabled="requestingUsers.has(searchResult.id)"
@@ -109,7 +92,7 @@
             </button>
 
             <!-- Zurückziehen Button -->
-            <button 
+            <button
               v-else
               @click="cancelFriendRequest(searchResult.id, searchResult.displayName || searchResult.username)"
               :disabled="cancellingUsers.has(searchResult.id)"
@@ -125,7 +108,10 @@
     </div>
 
     <!-- Empty Search Results -->
-    <div v-else-if="searchMode === 'users' && hasSearched && !isSearching && !searchResult" class="empty-search-results">
+    <div
+      v-else-if="searchMode === 'users' && hasSearched && !isSearching && !searchResult"
+      class="empty-search-results"
+    >
       <div class="empty-icon">
         <MagnifyingGlassIcon class="empty-icon-svg" />
       </div>
@@ -150,9 +136,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, computed, type PropType } from 'vue';
-import { 
-  MagnifyingGlassIcon, 
+import { defineComponent, ref, watch, computed, type PropType } from "vue";
+import {
+  MagnifyingGlassIcon,
   XMarkIcon,
   AdjustmentsHorizontalIcon,
   UserPlusIcon,
@@ -160,11 +146,11 @@ import {
   CheckBadgeIcon,
   UserIcon,
   InformationCircleIcon,
-  ExclamationTriangleIcon
-} from '@heroicons/vue/24/outline';
-import friendService from '@/services/friend.service';
+  ExclamationTriangleIcon,
+} from "@heroicons/vue/24/outline";
+import friendService from "@/services/friend.service";
 
-interface SearchUser {
+export interface SearchUser {
   id: string;
   username: string;
   displayName?: string;
@@ -172,7 +158,7 @@ interface SearchUser {
   verified?: boolean;
 }
 
-interface SentRequest {
+export interface SentRequest {
   id: string;
   receiverId: string;
   status: string;
@@ -184,7 +170,7 @@ interface SentRequest {
 }
 
 export default defineComponent({
-  name: 'SearchSection',
+  name: "SearchSection",
   components: {
     MagnifyingGlassIcon,
     XMarkIcon,
@@ -194,29 +180,23 @@ export default defineComponent({
     CheckBadgeIcon,
     UserIcon,
     InformationCircleIcon,
-    ExclamationTriangleIcon
+    ExclamationTriangleIcon,
   },
   props: {
     searchQuery: {
       type: String,
-      required: true
+      required: true,
     },
     sentRequests: {
       type: Array as PropType<SentRequest[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: [
-    'update:searchQuery', 
-    'filter-friends', 
-    'friend-request-sent', 
-    'friend-request-cancelled',
-    'show-toast'
-  ],
+  emits: ["update:searchQuery", "filter-friends", "friend-request-sent", "friend-request-cancelled", "show-toast"],
   setup(props, { emit }) {
     // State
     const searchQueryValue = ref(props.searchQuery);
-    const searchMode = ref<'filter' | 'users'>('filter');
+    const searchMode = ref<"filter" | "users">("filter");
     const searchResult = ref<SearchUser | null>(null);
     const isSearching = ref(false);
     const hasSearched = ref(false);
@@ -224,75 +204,74 @@ export default defineComponent({
     const cancellingUsers = ref(new Set<string>());
 
     // Debounced search
-    let searchTimeout: NodeJS.Timeout | null = null;
+    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
     // Computed - Username validation
     const isValidUsername = computed(() => {
-      if (searchMode.value !== 'users') return true;
-      const cleanUsername = searchQueryValue.value.replace(/^@/, '').trim();
+      if (searchMode.value !== "users") return true;
+      const cleanUsername = searchQueryValue.value.replace(/^@/, "").trim();
       return cleanUsername.length >= 3;
     });
 
     // Prüft ob für einen User bereits eine pending Anfrage existiert
     const hasPendingRequest = (userId: string): boolean => {
-      return props.sentRequests.some(req => 
-        req.receiverId === userId && req.status === 'PENDING'
-      );
+      return props.sentRequests.some((req) => req.receiverId === userId && req.status === "PENDING");
     };
 
     // Findet die Request ID für einen User
     const findRequestId = (userId: string): string | null => {
-      const request = props.sentRequests.find(req => 
-        req.receiverId === userId && req.status === 'PENDING'
-      );
+      const request = props.sentRequests.find((req) => req.receiverId === userId && req.status === "PENDING");
       return request?.id || null;
     };
 
     // Methods für Filter-Modus
     const onSearchInput = () => {
-      if (searchMode.value === 'filter') {
-        emit('update:searchQuery', searchQueryValue.value);
-        
+      if (searchMode.value === "filter") {
+        emit("update:searchQuery", searchQueryValue.value);
+
         if (searchTimeout) {
           clearTimeout(searchTimeout);
         }
-        
+
         searchTimeout = setTimeout(() => {
-          emit('filter-friends');
+          emit("filter-friends");
         }, 300);
       }
     };
 
     // Watchers
-    watch(() => props.searchQuery, (newValue) => {
-      searchQueryValue.value = newValue;
-    });
+    watch(
+      () => props.searchQuery,
+      (newValue) => {
+        searchQueryValue.value = newValue;
+      }
+    );
 
     // Methods
     const getInitials = (name: string) => {
-      return (name || 'U')
-        .split(' ')
-        .map(n => n[0])
-        .join('')
+      return (name || "U")
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     };
 
     const normalizeUsername = (username: string) => {
-      return username.replace(/^@/, '').trim();
+      return username.replace(/^@/, "").trim();
     };
 
     const handleSearch = () => {
-      if (searchMode.value === 'users') {
+      if (searchMode.value === "users") {
         searchUsers();
       }
     };
 
     const searchUsers = async () => {
       const query = normalizeUsername(searchQueryValue.value);
-      
+
       if (!isValidUsername.value) {
-        emit('show-toast', 'Username muss mindestens 3 Zeichen lang sein.', 'error');
+        emit("show-toast", "Username muss mindestens 3 Zeichen lang sein.", "error");
         return;
       }
 
@@ -301,17 +280,23 @@ export default defineComponent({
 
       try {
         const user = await friendService.searchUsers(query);
-        
+
         if (!user) {
           searchResult.value = null;
-          emit('show-toast', `Username "${query}" nicht gefunden.`, 'info');
+          emit("show-toast", `Username "${query}" nicht gefunden.`, "info");
           return;
         }
-        
-        searchResult.value = user;
+
+        searchResult.value = {
+          id: user.id,
+          username: user.username,
+          displayName: user.username,
+          profileImage: user.profilePicture ?? null,
+          verified: user.verified || false,
+        };
       } catch (error: any) {
-        console.error('Search error:', error);
-        emit('show-toast', 'Fehler bei der Suche. Versuche es später erneut.', 'error');
+        console.error("Search error:", error);
+        emit("show-toast", "Fehler bei der Suche. Versuche es später erneut.", "error");
         searchResult.value = null;
       } finally {
         isSearching.value = false;
@@ -319,17 +304,17 @@ export default defineComponent({
     };
 
     const clearSearch = () => {
-      searchQueryValue.value = '';
+      searchQueryValue.value = "";
       searchResult.value = null;
       hasSearched.value = false;
-      
+
       if (searchTimeout) {
         clearTimeout(searchTimeout);
       }
 
-      if (searchMode.value === 'filter') {
-        emit('update:searchQuery', '');
-        emit('filter-friends');
+      if (searchMode.value === "filter") {
+        emit("update:searchQuery", "");
+        emit("filter-friends");
       }
     };
 
@@ -340,14 +325,14 @@ export default defineComponent({
 
       try {
         await friendService.sendFriendRequest(userId);
-        
-        emit('show-toast', `Freundschaftsanfrage an ${displayName} gesendet!`, 'success');
-        emit('friend-request-sent', { userId, displayName });
-        
+
+        emit("show-toast", `Freundschaftsanfrage an ${displayName} gesendet!`, "success");
+        emit("friend-request-sent", { userId, displayName });
+
         // Card bleibt sichtbar - State wird durch sentRequests Update geändert
       } catch (error: any) {
-        const errorMessage = error.response?.data?.message || 'Fehler beim Senden der Anfrage';
-        emit('show-toast', errorMessage, 'error');
+        const errorMessage = error.response?.data?.message || "Fehler beim Senden der Anfrage";
+        emit("show-toast", errorMessage, "error");
       } finally {
         requestingUsers.value.delete(userId);
       }
@@ -358,7 +343,7 @@ export default defineComponent({
 
       const requestId = findRequestId(userId);
       if (!requestId) {
-        emit('show-toast', 'Anfrage nicht gefunden.', 'error');
+        emit("show-toast", "Anfrage nicht gefunden.", "error");
         return;
       }
 
@@ -366,14 +351,14 @@ export default defineComponent({
 
       try {
         await friendService.cancelFriendRequest(requestId);
-        
-        emit('show-toast', `Freundschaftsanfrage an ${displayName} zurückgezogen.`, 'info');
-        emit('friend-request-cancelled', { userId, displayName });
-        
+
+        emit("show-toast", `Freundschaftsanfrage an ${displayName} zurückgezogen.`, "info");
+        emit("friend-request-cancelled", { userId, displayName });
+
         // Card bleibt sichtbar - State wird durch sentRequests Update geändert
       } catch (error: any) {
-        const errorMessage = error.response?.data?.message || 'Fehler beim Zurückziehen der Anfrage';
-        emit('show-toast', errorMessage, 'error');
+        const errorMessage = error.response?.data?.message || "Fehler beim Zurückziehen der Anfrage";
+        emit("show-toast", errorMessage, "error");
       } finally {
         cancellingUsers.value.delete(userId);
       }
@@ -382,9 +367,9 @@ export default defineComponent({
     // Watch search mode change
     watch(searchMode, (newMode) => {
       clearSearch();
-      if (newMode === 'filter') {
-        emit('update:searchQuery', '');
-        emit('filter-friends');
+      if (newMode === "filter") {
+        emit("update:searchQuery", "");
+        emit("filter-friends");
       }
     });
 
@@ -406,14 +391,14 @@ export default defineComponent({
       sendFriendRequest,
       cancelFriendRequest,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .search-section {
   display: flex;
@@ -437,7 +422,7 @@ export default defineComponent({
       border: none;
       transition: all 0.3s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
@@ -479,7 +464,7 @@ export default defineComponent({
         height: 20px;
         z-index: 1;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -494,7 +479,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             @include mixins.form-element($theme);
             transition: all 0.4s ease-out;
@@ -522,7 +507,7 @@ export default defineComponent({
         padding: 4px;
         border-radius: 50%;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -549,7 +534,7 @@ export default defineComponent({
       cursor: pointer;
       min-width: 100px;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -557,7 +542,7 @@ export default defineComponent({
 
           &:hover:not(:disabled) {
             transform: translateY(-2px);
-            @include mixins.shadow('small', $theme);
+            @include mixins.shadow("small", $theme);
           }
 
           &:disabled {
@@ -578,7 +563,7 @@ export default defineComponent({
     border-radius: map.get(map.get(vars.$layout, border-radius), medium);
     font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: rgba(255, 193, 7, 0.1);
         color: #856404;
@@ -603,7 +588,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, m);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -614,7 +599,7 @@ export default defineComponent({
         width: 20px;
         height: 20px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
           }
@@ -635,7 +620,7 @@ export default defineComponent({
         max-width: 500px;
         width: 100%;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
@@ -643,7 +628,7 @@ export default defineComponent({
 
             &:hover {
               transform: translateY(-2px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
               border-color: mixins.theme-color($theme, border-medium);
             }
           }
@@ -673,7 +658,7 @@ export default defineComponent({
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
             font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, secondary-bg);
                 color: mixins.theme-color($theme, text-primary);
@@ -689,7 +674,7 @@ export default defineComponent({
             right: -2px;
             width: 18px;
             height: 18px;
-            color: #1DA1F2;
+            color: #1da1f2;
             background-color: white;
             border-radius: 50%;
             padding: 2px;
@@ -705,7 +690,7 @@ export default defineComponent({
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
             margin: 0 0 map.get(vars.$spacing, xxs) 0;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
                 transition: all 0.4s ease-out;
@@ -717,7 +702,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), small);
             margin: 0 0 map.get(vars.$spacing, xs) 0;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
                 transition: all 0.4s ease-out;
@@ -737,7 +722,7 @@ export default defineComponent({
               padding: 2px 8px;
               border-radius: map.get(map.get(vars.$layout, border-radius), pill);
 
-              @each $theme in ('light', 'dark') {
+              @each $theme in ("light", "dark") {
                 .theme-#{$theme} & {
                   background-color: mixins.theme-color($theme, secondary-bg);
                   color: mixins.theme-color($theme, text-tertiary);
@@ -766,7 +751,7 @@ export default defineComponent({
             gap: map.get(vars.$spacing, xs);
 
             &.send-request {
-              @each $theme in ('light', 'dark') {
+              @each $theme in ("light", "dark") {
                 .theme-#{$theme} & {
                   background-color: mixins.theme-color($theme, accent-teal);
                   color: white;
@@ -774,7 +759,7 @@ export default defineComponent({
 
                   &:hover:not(:disabled) {
                     transform: translateY(-1px);
-                    @include mixins.shadow('xs', $theme);
+                    @include mixins.shadow("xs", $theme);
                   }
 
                   &:disabled {
@@ -787,7 +772,7 @@ export default defineComponent({
             }
 
             &.cancel-request {
-              @each $theme in ('light', 'dark') {
+              @each $theme in ("light", "dark") {
                 .theme-#{$theme} & {
                   background-color: #ff6b6b;
                   color: white;
@@ -795,7 +780,7 @@ export default defineComponent({
 
                   &:hover:not(:disabled) {
                     transform: translateY(-1px);
-                    @include mixins.shadow('xs', $theme);
+                    @include mixins.shadow("xs", $theme);
                     background-color: #ff5252;
                   }
 
@@ -836,7 +821,7 @@ export default defineComponent({
         height: 48px;
         opacity: 0.5;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -850,7 +835,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -859,7 +844,7 @@ export default defineComponent({
     }
 
     p {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -879,7 +864,7 @@ export default defineComponent({
         position: relative;
         padding-left: map.get(vars.$spacing, m);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -887,11 +872,11 @@ export default defineComponent({
         }
 
         &::before {
-          content: '•';
+          content: "•";
           position: absolute;
           left: 0;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
             }

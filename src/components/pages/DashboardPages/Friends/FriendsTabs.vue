@@ -1,19 +1,16 @@
 <!-- src/components/pages/DashboardPages/Friends/FriendsTabs.vue -->
 <template>
   <div class="friends-tabs">
-    <button 
-      v-for="(tab, index) in tabs" 
-      :key="index" 
-      class="tab-button" 
+    <button
+      v-for="(tab, index) in tabs"
+      :key="index"
+      class="tab-button"
       :class="{ active: activeTab === tab.id }"
       @click="onTabChange(tab.id)"
     >
       {{ tab.name }}
       <!-- Status Badge für Anfragen -->
-      <span 
-        v-if="tab.id === 'requests' && pendingRequestsCount > 0" 
-        class="badge"
-      >
+      <span v-if="tab.id === 'requests' && pendingRequestsCount > 0" class="badge">
         {{ pendingRequestsCount }}
       </span>
     </button>
@@ -21,43 +18,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-import type { Tab } from '@/types/Tab';
+import { defineComponent, type PropType } from "vue";
+import type { Tab } from "@/types/Tab";
 
 export default defineComponent({
-  name: 'FriendsTabs',
+  name: "FriendsTabs",
   props: {
     tabs: {
       type: Array as PropType<Tab[]>,
-      required: true
+      required: true,
     },
     activeTab: {
       type: String,
-      required: true
+      required: true,
     },
     pendingRequestsCount: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:activeTab'],
+  emits: ["update:activeTab"],
   setup(_, { emit }) {
     const onTabChange = (tabId: string) => {
-      emit('update:activeTab', tabId);
+      emit("update:activeTab", tabId);
     };
 
     return {
-      onTabChange
+      onTabChange,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Tabs
 .friends-tabs {
@@ -79,7 +76,7 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, xs);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-secondary);
@@ -109,7 +106,7 @@ export default defineComponent({
       line-height: 1;
       @include animations.fade-in(0.3s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: #ff4757; // Rot für Aufmerksamkeit
           color: white;

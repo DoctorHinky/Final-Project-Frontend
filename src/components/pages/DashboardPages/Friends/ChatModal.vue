@@ -10,7 +10,7 @@
           </div>
           <div class="user-details">
             <h3 class="modal-title">{{ friendName }}</h3>
-            <span class="user-status">{{ isOnline ? 'Online' : 'Zuletzt aktiv vor 2h' }}</span>
+            <span class="user-status">{{ isOnline ? "Online" : "Zuletzt aktiv vor 2h" }}</span>
           </div>
         </div>
         <button class="close-button" @click="closeModal" aria-label="Chat schließen">
@@ -34,36 +34,37 @@
           </div>
 
           <!-- Messages -->
-          <div 
+          <div
             v-else
-            v-for="message in messages" 
-            :key="message.id" 
-            :class="['message', { 
-              'own-message': isOwnMessage(message), 
-              'friend-message': !isOwnMessage(message),
-              'deleted-message': message.content === 'Die Nachricht wurde gelöscht'
-            }]"
+            v-for="message in messages"
+            :key="message.id"
+            :class="[
+              'message',
+              {
+                'own-message': isOwnMessage(message),
+                'friend-message': !isOwnMessage(message),
+                'deleted-message': message.content === 'Die Nachricht wurde gelöscht',
+              },
+            ]"
           >
             <div class="message-content">
               <!-- Deleted message -->
               <p v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-text">
                 <em>Diese Nachricht wurde gelöscht</em>
               </p>
-              
+
               <!-- Normal message -->
               <p v-else>{{ message.content }}</p>
-              
+
               <!-- Attachment (if any) -->
               <div v-if="message.attachmentUrl" class="message-attachment">
-                <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
-                  📎 Datei anhang
-                </a>
+                <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer"> 📎 Datei anhang </a>
               </div>
-              
+
               <span class="message-time">{{ formatTime(message.createdAt) }}</span>
             </div>
           </div>
-          
+
           <!-- Own Typing Indicator -->
           <div v-if="isUserTyping && newMessage.trim()" class="typing-indicator own-typing">
             <div class="typing-dots">
@@ -73,7 +74,7 @@
             </div>
             <span class="typing-text">Du schreibst...</span>
           </div>
-          
+
           <!-- Friend Typing Indicator (nur wenn echte WebSocket-Verbindung) -->
           <div v-if="isTyping" class="typing-indicator">
             <div class="typing-dots">
@@ -88,8 +89,8 @@
 
       <form class="message-form" @submit.prevent="sendMessage">
         <div class="message-input-wrapper">
-          <input 
-            type="text" 
+          <input
+            type="text"
             class="message-input"
             placeholder="Nachricht schreiben..."
             v-model="newMessage"
@@ -98,11 +99,7 @@
             :disabled="isSending"
             ref="messageInput"
           />
-          <button 
-            type="submit" 
-            class="send-button"
-            :disabled="!newMessage.trim() || isSending"
-          >
+          <button type="submit" class="send-button" :disabled="!newMessage.trim() || isSending">
             <PaperAirplaneIcon class="send-icon" />
           </button>
         </div>
@@ -112,57 +109,63 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/vue/24/outline';
-import chatService, { type ChatMessage } from '@/services/chat.service';
-import { authService } from '@/services/auth.service';
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
+import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/vue/24/outline";
+import chatService, { type ChatMessage } from "@/services/chat.service";
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
-  name: 'ChatModal',
+  name: "ChatModal",
   components: {
     XMarkIcon,
-    PaperAirplaneIcon
+    PaperAirplaneIcon,
   },
   props: {
     isVisible: {
       type: Boolean,
-      required: true
+      required: true,
     },
     friendId: {
       type: [String, Number],
-      required: true
+      required: true,
     },
     friendName: {
       type: String,
-      required: true
+      required: true,
     },
     isOnline: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['update:isVisible', 'send-message'],
+  emits: ["update:isVisible", "send-message"],
   setup(props, { emit }) {
-    const newMessage = ref('');
+    const newMessage = ref("");
     const messages = ref<ChatMessage[]>([]);
     const isSending = ref(false);
     const isTyping = ref(false);
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
     const messageInput = ref<HTMLInputElement>();
-    const currentConversationId = ref<string>('');
-    const currentUserId = ref<string>('');
+    const currentConversationId = ref<string>("");
+    const currentUserId = ref<string>("");
     const isUserTyping = ref(false); // Eigener Typing-Status
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
     // Debug logging
-    watch(() => props.isVisible, (visible) => {
-      console.log('ChatModal: isVisible changed to:', visible);
-    });
+    watch(
+      () => props.isVisible,
+      (visible) => {
+        console.log("ChatModal: isVisible changed to:", visible);
+      }
+    );
 
-    watch(() => props.friendId, (friendId) => {
-      console.log('ChatModal: friendId changed to:', friendId);
-    });
+    watch(
+      () => props.friendId,
+      (friendId) => {
+        console.log("ChatModal: friendId changed to:", friendId);
+      }
+    );
 
     // Lade aktuelle User-ID
     const loadCurrentUser = () => {
@@ -172,44 +175,43 @@ export default defineComponent({
           currentUserId.value = userData.sub;
         }
       } catch (error) {
-        console.error('Fehler beim Laden der User-Daten:', error);
+        console.error("Fehler beim Laden der User-Daten:", error);
       }
     };
 
     // Nachrichten und Conversation laden
     const loadMessages = async () => {
       if (!props.friendId) {
-        console.warn('ChatModal: No friendId provided');
+        console.warn("ChatModal: No friendId provided");
         return;
       }
-      
+
       isLoading.value = true;
-      console.log('ChatModal: Loading messages for friendId:', props.friendId);
-      
+      console.log("ChatModal: Loading messages for friendId:", props.friendId);
+
       try {
         const conversation = await chatService.createOrGetConversation(props.friendId.toString());
         currentConversationId.value = conversation.id;
-        
+
         // Nachrichten umkehren, damit die neuesten unten stehen
         messages.value = [...(conversation.messages || [])].reverse();
-        
+
         // 🔍 DEBUG: Prüfe was vom Backend kommt
-        console.log('ChatModal: Raw conversation from backend:', conversation);
+        console.log("ChatModal: Raw conversation from backend:", conversation);
         conversation.messages?.forEach((msg, index) => {
           console.log(`ChatModal: Message ${index + 1}:`, {
             id: msg.id,
             content: msg.content,
             contentLength: msg.content?.length || 0,
-            looksEncrypted: msg.content?.length > 50 && !msg.content?.includes(' '),
             messageType: msg.messageType,
-            senderId: msg.senderId
+            senderId: msg.senderId,
           });
         });
-        
-        console.log('ChatModal: Loaded', messages.value.length, 'messages');
+
+        console.log("ChatModal: Loaded", messages.value.length, "messages");
         scrollToBottom();
       } catch (error) {
-        console.error('Fehler beim Laden der Nachrichten:', error);
+        console.error("Fehler beim Laden der Nachrichten:", error);
         messages.value = [];
       } finally {
         isLoading.value = false;
@@ -218,9 +220,9 @@ export default defineComponent({
 
     const getInitials = (name: string) => {
       return name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     };
@@ -244,12 +246,12 @@ export default defineComponent({
     const handleTyping = () => {
       // Zeige "Du schreibst..." wenn User tippt
       isUserTyping.value = true;
-      
+
       // Reset Timer
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
-      
+
       // Nach 2 Sekunden ohne tippen, verstecke Indicator
       typingTimeout = setTimeout(() => {
         isUserTyping.value = false;
@@ -262,46 +264,45 @@ export default defineComponent({
 
       isSending.value = true;
       isUserTyping.value = false; // Stoppe eigenen Typing-Indicator
-      
+
       // Clear typing timeout
       if (typingTimeout) {
         clearTimeout(typingTimeout);
         typingTimeout = null;
       }
-      
-      console.log('ChatModal: Sending message:', messageText);
+
+      console.log("ChatModal: Sending message:", messageText);
 
       try {
         // Sende Nachricht über Chat-Service
         const response = await chatService.sendMessage(currentConversationId.value, messageText);
-        
+
         // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
           id: response.message.id || Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: messageText,
-          messageType: 'TEXT',
+          messageType: "TEXT",
           attachmentUrl: null,
           isRead: true,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
 
         messages.value.push(localMessage);
-        newMessage.value = '';
+        newMessage.value = "";
         scrollToBottom();
 
         // Emit message to parent
-        emit('send-message', {
+        emit("send-message", {
           friendId: props.friendId,
-          message: messageText
+          message: messageText,
         });
 
-        console.log('ChatModal: Message sent successfully');
-
+        console.log("ChatModal: Message sent successfully");
       } catch (error) {
-        console.error('Fehler beim Senden der Nachricht:', error);
+        console.error("Fehler beim Senden der Nachricht:", error);
         // TODO: Toast-Benachrichtigung für Fehler anzeigen
       } finally {
         isSending.value = false;
@@ -309,8 +310,8 @@ export default defineComponent({
     };
 
     const closeModal = () => {
-      console.log('ChatModal: Closing modal');
-      emit('update:isVisible', false);
+      console.log("ChatModal: Closing modal");
+      emit("update:isVisible", false);
     };
 
     const focusInput = () => {
@@ -322,51 +323,57 @@ export default defineComponent({
     };
 
     // Watchers
-    watch(() => props.isVisible, (visible) => {
-      console.log('ChatModal: isVisible watcher triggered:', visible);
-      if (visible) {
-        loadCurrentUser();
-        loadMessages();
-        focusInput();
-      } else {
-        // Reset state when modal closes
-        messages.value = [];
-        currentConversationId.value = '';
-        newMessage.value = '';
-        isTyping.value = false;
-        isUserTyping.value = false;
-        
-        // Clear typing timeout
-        if (typingTimeout) {
-          clearTimeout(typingTimeout);
-          typingTimeout = null;
+    watch(
+      () => props.isVisible,
+      (visible) => {
+        console.log("ChatModal: isVisible watcher triggered:", visible);
+        if (visible) {
+          loadCurrentUser();
+          loadMessages();
+          focusInput();
+        } else {
+          // Reset state when modal closes
+          messages.value = [];
+          currentConversationId.value = "";
+          newMessage.value = "";
+          isTyping.value = false;
+          isUserTyping.value = false;
+
+          // Clear typing timeout
+          if (typingTimeout) {
+            clearTimeout(typingTimeout);
+            typingTimeout = null;
+          }
         }
       }
-    });
+    );
 
-    watch(() => props.friendId, () => {
-      if (props.isVisible && props.friendId) {
-        console.log('ChatModal: friendId changed, reloading messages');
-        loadMessages();
+    watch(
+      () => props.friendId,
+      () => {
+        if (props.isVisible && props.friendId) {
+          console.log("ChatModal: friendId changed, reloading messages");
+          loadMessages();
+        }
       }
-    });
+    );
 
     // Keyboard shortcuts
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && props.isVisible) {
+      if (event.key === "Escape" && props.isVisible) {
         closeModal();
       }
     };
 
     onMounted(() => {
-      console.log('ChatModal: Component mounted');
-      document.addEventListener('keydown', handleKeyDown);
+      console.log("ChatModal: Component mounted");
+      document.addEventListener("keydown", handleKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener('keydown', handleKeyDown);
-      
+      document.removeEventListener("keydown", handleKeyDown);
+
       // Cleanup typing timeout
       if (typingTimeout) {
         clearTimeout(typingTimeout);
@@ -387,17 +394,17 @@ export default defineComponent({
       isOwnMessage,
       handleTyping,
       sendMessage,
-      closeModal
+      closeModal,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .modal-backdrop {
   position: fixed;
@@ -425,11 +432,11 @@ export default defineComponent({
   position: relative;
   @include animations.fade-in(0.3s);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-subtle);
-      @include mixins.shadow('large', $theme);
+      @include mixins.shadow("large", $theme);
       transition: all 0.4s ease-out;
     }
   }
@@ -442,7 +449,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, l);
   border-bottom: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -463,7 +470,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 2px solid mixins.theme-color($theme, accent-teal);
@@ -475,7 +482,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: color 0.4s ease-out;
@@ -490,7 +497,7 @@ export default defineComponent({
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background-color: #4CAF50;
+        background-color: #4caf50;
         border: 2px solid white;
       }
     }
@@ -501,7 +508,7 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), semibold);
         margin: 0 0 map.get(vars.$spacing, xxs) 0;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: color 0.4s ease-out;
@@ -512,7 +519,7 @@ export default defineComponent({
       .user-status {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: color 0.4s ease-out;
@@ -534,7 +541,7 @@ export default defineComponent({
     flex-shrink: 0;
     transition: all 0.2s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
         color: mixins.theme-color($theme, text-secondary);
@@ -561,7 +568,7 @@ export default defineComponent({
   flex: 1;
   overflow-y: auto;
   padding: map.get(vars.$spacing, m);
-  
+
   .loading-indicator {
     display: flex;
     flex-direction: column;
@@ -577,7 +584,7 @@ export default defineComponent({
       border-radius: 50%;
       animation: spin 1s linear infinite;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
           border-top-color: mixins.theme-color($theme, accent-teal);
@@ -588,7 +595,7 @@ export default defineComponent({
     span {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -613,7 +620,7 @@ export default defineComponent({
     p {
       margin: map.get(vars.$spacing, xs) 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -622,7 +629,7 @@ export default defineComponent({
       &:first-of-type {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -630,7 +637,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   .messages-list {
     display: flex;
     flex-direction: column;
@@ -644,7 +651,7 @@ export default defineComponent({
         align-self: flex-end;
 
         .message-content {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
@@ -657,7 +664,7 @@ export default defineComponent({
         align-self: flex-start;
 
         .message-content {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
@@ -674,7 +681,7 @@ export default defineComponent({
           .deleted-text {
             font-style: italic;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -697,7 +704,7 @@ export default defineComponent({
 
         .message-attachment {
           margin: map.get(vars.$spacing, xs) 0;
-          
+
           a {
             display: inline-flex;
             align-items: center;
@@ -708,7 +715,7 @@ export default defineComponent({
             text-decoration: none;
             transition: all 0.2s ease;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: rgba(255, 255, 255, 0.1);
                 color: inherit;
@@ -736,7 +743,7 @@ export default defineComponent({
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           transition: all 0.4s ease-out;
@@ -745,8 +752,8 @@ export default defineComponent({
 
       &.own-typing {
         align-self: flex-end;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
             border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
@@ -754,7 +761,7 @@ export default defineComponent({
         }
 
         .typing-text {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
               font-style: italic;
@@ -787,7 +794,7 @@ export default defineComponent({
       .typing-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -801,7 +808,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, l);
   border-top: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -819,7 +826,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           @include mixins.form-element($theme);
           transition: all 0.4s ease-out;
@@ -849,14 +856,14 @@ export default defineComponent({
       border: none;
       transition: all 0.2s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
 
           &:hover:not(:disabled) {
             transform: scale(1.05);
-            @include mixins.shadow('small', $theme);
+            @include mixins.shadow("small", $theme);
           }
 
           &:disabled {
@@ -885,7 +892,9 @@ export default defineComponent({
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.4;
   }

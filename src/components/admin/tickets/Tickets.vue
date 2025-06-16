@@ -177,24 +177,16 @@ export default defineComponent({
     };
 
     // Nach Status filtern (von Stats)
-    const filterByStatus = (status: string) => {
-      filters.value.status = status;
-    };
+    const filterByStatus = (status: string) => (filters.value.status = status);
 
     // Ticket auswählen
-    const selectTicket = (ticket: Ticket) => {
-      selectedTicket.value = ticket;
-    };
+    const selectTicket = (ticket: Ticket) => (selectedTicket.value = ticket);
 
     // Ticket-Detail schließen
-    const closeTicketDetail = () => {
-      selectedTicket.value = null;
-    };
+    const closeTicketDetail = () => (selectedTicket.value = null);
 
     // Neues Ticket Formular schließen
-    const closeNewTicketForm = () => {
-      showNewTicketForm.value = false;
-    };
+    const closeNewTicketForm = () => (showNewTicketForm.value = false);
 
     // Neues Ticket erstellen
     const createTicket = async (ticketData: any) => {
@@ -221,20 +213,6 @@ export default defineComponent({
 
     // Ticket gelöscht
     const handleTicketDeleted = () => closeTicketDetail();
-
-    // Bulk-Aktionen
-    /* const handleBulkAction = async (action: string, ticketIds: string[]) => {
-      try {
-        if (action === "resolve") {
-          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.RESOLVED)));
-        } else if (action === "close") {
-          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.CLOSED)));
-        }
-        await loadTickets();
-      } catch (error) {
-        console.error("Fehler bei Bulk-Aktion:", error);
-      }
-    }; */
 
     // Beim Mounten
     onMounted(() => loadTickets());

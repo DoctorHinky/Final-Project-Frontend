@@ -303,9 +303,7 @@ export default defineComponent({
     });
 
     // Ticket auswählen
-    const selectTicket = (ticket: Ticket) => {
-      emit("select-ticket", ticket);
-    };
+    const selectTicket = (ticket: Ticket) => emit("select-ticket", ticket);
 
     // Alle Tickets auswählen/abwählen
     const toggleSelectAll = (event: Event) => {

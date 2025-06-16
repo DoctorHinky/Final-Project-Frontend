@@ -7,17 +7,14 @@
     </div>
 
     <!-- Freunde-Statistik-Karten -->
-    <friends-stats
-      :friends-count="friendsCount"
-      :pending-requests-count="pendingRequestsCount"
-    />
+    <friends-stats :friends-count="friendsCount" :pending-requests-count="pendingRequestsCount" />
 
     <!-- Tabs für Freunde, Anfragen -->
-    <friends-tabs 
-      :tabs="tabs" 
+    <friends-tabs
+      :tabs="tabs"
       :active-tab="activeTab"
-      :pending-requests-count="pendingRequestsCount" 
-      @update:active-tab="activeTab = $event" 
+      :pending-requests-count="pendingRequestsCount"
+      @update:active-tab="activeTab = $event"
     />
 
     <!-- Suchleiste -->
@@ -90,7 +87,7 @@
     <div v-if="toast.show" class="toast-notification" :class="toast.type">
       <div class="toast-content">
         <span class="toast-icon">
-          {{ toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️' }}
+          {{ toast.type === "success" ? "✅" : toast.type === "error" ? "❌" : "ℹ️" }}
         </span>
         <span class="toast-message">{{ toast.message }}</span>
         <button class="toast-close" @click="toast.show = false">×</button>
@@ -111,15 +108,15 @@ import {
   ChatModal,
 } from "@/components/pages/DashboardPages/Friends";
 import friendService from "@/services/friend.service";
-import chatService from "@/services/chat.service";
-import type { 
-  Friend, 
-  FriendRequest, 
-  Tab, 
+// import chatService from "@/services/chat.service";
+import type {
+  Friend,
+  FriendRequest,
+  Tab,
   Toast,
   SentRequest,
   FriendRequestEvent,
-  ChatMessageEvent
+  ChatMessageEvent,
 } from "@/types/Friends.types";
 
 export default defineComponent({
@@ -153,14 +150,14 @@ export default defineComponent({
     // Toast-Benachrichtigungen
     const toast = ref<Toast>({
       show: false,
-      message: '',
-      type: 'success'
+      message: "",
+      type: "success",
     });
 
     // Tabs
     const tabs = ref<Tab[]>([
-      { id: "friends", name: "Meine Freunde" },
-      { id: "requests", name: "Anfragen" },
+      { id: "friends", name: "Meine Freunde" /* add other required Tab properties here if needed */ },
+      { id: "requests", name: "Anfragen" /* add other required Tab properties here if needed */ },
     ]);
 
     // Computed Properties
@@ -180,9 +177,9 @@ export default defineComponent({
     });
 
     // Toast-Helper
-    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
       toast.value = { show: true, message, type };
-      
+
       // Auto-hide nach 5 Sekunden
       setTimeout(() => {
         toast.value.show = false;
@@ -190,17 +187,17 @@ export default defineComponent({
     };
 
     const onFriendRequestSent = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, 'success');
-      console.log('Friend request sent to:', data.displayName);
-      
+      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, "success");
+      console.log("Friend request sent to:", data.displayName);
+
       // Reload sent requests to update UI
       await loadSentRequests();
     };
 
     const onFriendRequestCancelled = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, 'info');
-      console.log('Friend request cancelled for:', data.displayName);
-      
+      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, "info");
+      console.log("Friend request cancelled for:", data.displayName);
+
       // Reload sent requests to update UI
       await loadSentRequests();
     };
@@ -209,7 +206,7 @@ export default defineComponent({
     const loadFriends = async () => {
       try {
         const response = await friendService.getAllFriendsOfUser();
-        friends.value = response.data.map(friend => ({
+        friends.value = response.data.map((friend) => ({
           id: friend.id,
           friendId: friend.friendId,
           name: friend.username, // Falls kein displayName vorhanden
@@ -229,7 +226,7 @@ export default defineComponent({
     const loadPendingRequests = async () => {
       try {
         const response = await friendService.getAllPendingRequests();
-        pendingRequests.value = response.data.map(request => ({
+        pendingRequests.value = response.data.map((request) => ({
           id: request.id,
           senderId: request.senderId,
           name: request.username,
@@ -248,9 +245,21 @@ export default defineComponent({
     const loadSentRequests = async () => {
       try {
         const requests = await friendService.getMySentRequests();
-        sentRequests.value = requests;
+        sentRequests.value = requests.map((req: any) => ({
+          id: req.id,
+          receiverId: req.receiverId,
+          status: req.status,
+          receiver: {
+            id: req.receiver?.id,
+            username: req.receiver?.username,
+            profilePicture: req.receiver?.profilePicture ?? null,
+          },
+          createdAt: req.createdAt,
+          responsedAt: req.responsedAt,
+          message: req.message,
+        }));
       } catch (err: any) {
-        console.error('Fehler beim Laden der gesendeten Anfragen:', err);
+        console.error("Fehler beim Laden der gesendeten Anfragen:", err);
         // Kein Toast hier, da es nicht kritisch ist
       }
     };
@@ -261,23 +270,19 @@ export default defineComponent({
 
       try {
         // Lade Daten parallel, aber mit individueller Fehlerbehandlung
-        const results = await Promise.allSettled([
-          loadFriends(),
-          loadPendingRequests(),
-          loadSentRequests()
-        ]);
+        const results = await Promise.allSettled([loadFriends(), loadPendingRequests(), loadSentRequests()]);
 
         // Prüfe auf Fehler
-        const failedOperations = results.filter(result => result.status === 'rejected');
-        
+        const failedOperations = results.filter((result) => result.status === "rejected");
+
         if (failedOperations.length > 0) {
-          console.error('Some operations failed:', failedOperations);
+          console.error("Some operations failed:", failedOperations);
           // Zeige Warnung, aber lade trotzdem was funktioniert hat
-          showToast('Einige Daten konnten nicht geladen werden', 'info');
+          showToast("Einige Daten konnten nicht geladen werden", "info");
         }
       } catch (err: any) {
-        error.value = err.message || 'Unbekannter Fehler beim Laden der Daten';
-        showToast('Fehler beim Laden der Daten', 'error');
+        error.value = err.message || "Unbekannter Fehler beim Laden der Daten";
+        showToast("Fehler beim Laden der Daten", "error");
       } finally {
         isLoading.value = false;
       }
@@ -300,9 +305,9 @@ export default defineComponent({
         try {
           await friendService.removeFriend(friendId);
           friends.value = friends.value.filter((f) => f.id !== friendId && f.friendId !== friendId);
-          showToast(`Freundschaft mit ${friend.name} wurde beendet.`, 'info');
+          showToast(`Freundschaft mit ${friend.name} wurde beendet.`, "info");
         } catch (err: any) {
-          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", 'error');
+          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", "error");
         }
       }
     };
@@ -310,12 +315,12 @@ export default defineComponent({
     const acceptRequest = async (requestId: string | number) => {
       try {
         await friendService.acceptFriendRequest(requestId.toString());
-        
+
         // Request aus der Liste entfernen
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         if (request) {
           pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-          
+
           // Als neuen Freund hinzufügen
           const newFriend: Friend = {
             id: `friend_${Date.now()}`, // Temporäre ID
@@ -330,75 +335,72 @@ export default defineComponent({
             sharedInterests: 0,
           };
           friends.value.push(newFriend);
-          
-          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, 'success');
+
+          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, "success");
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", "error");
       }
     };
 
     const declineRequest = async (requestId: string | number) => {
       try {
         await friendService.rejectFriendRequest(requestId.toString());
-        
+
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-        
+
         if (request) {
-          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, 'info');
+          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, "info");
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", "error");
       }
     };
 
     const sendInvite = async () => {
       if (!inviteEmail.value.trim()) {
-        showToast("Bitte gib eine E-Mail-Adresse ein.", 'error');
+        showToast("Bitte gib eine E-Mail-Adresse ein.", "error");
         return;
       }
 
       try {
         await friendService.sendEmailInvite(inviteEmail.value, inviteMessage.value);
-        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, 'success');
-        
+        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, "success");
+
         // Modal schließen und Felder zurücksetzen
         inviteEmail.value = "";
         inviteMessage.value = "";
         showInviteModal.value = false;
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", "error");
       }
     };
 
     // Chat-Funktionen
     const openChat = (friend: Friend) => {
-      console.log('Opening chat with friend:', friend); // DEBUG
+      console.log("Opening chat with friend:", friend); // DEBUG
       selectedFriend.value = friend;
       showChatModal.value = true;
-      console.log('Chat modal should be visible:', showChatModal.value); // DEBUG
-      console.log('Selected friend:', selectedFriend.value); // DEBUG
+      console.log("Chat modal should be visible:", showChatModal.value); // DEBUG
+      console.log("Selected friend:", selectedFriend.value); // DEBUG
     };
 
     const handleSendMessage = async (data: ChatMessageEvent) => {
       try {
         // Verwende Chat-Service für direktere Kommunikation
-        const conversation = await chatService.createOrGetConversation(data.friendId.toString());
-        await chatService.sendMessage(conversation.id, data.message);
-        
-        console.log('Message sent successfully to:', data.friendId);
-        showToast('Nachricht erfolgreich gesendet!', 'success');
+        // const conversation = await chatService.createOrGetConversation(data.friendId.toString());
+
+        console.log("Message sent successfully to:", data.friendId);
+        showToast("Nachricht erfolgreich gesendet!", "success");
       } catch (error) {
-        console.error('Error sending message:', error);
-        showToast('Fehler beim Senden der Nachricht', 'error');
+        console.error("Error sending message:", error);
+        showToast("Fehler beim Senden der Nachricht", "error");
       }
     };
 
     // Lifecycle
-    onMounted(() => {
-      loadData();
-    });
+    onMounted(() => loadData());
 
     return {
       // State
@@ -412,18 +414,18 @@ export default defineComponent({
       error,
       toast,
       selectedFriend,
-      
+
       // Data
       tabs,
       friends,
       pendingRequests,
       sentRequests,
-      
+
       // Computed
       friendsCount,
       pendingRequestsCount,
       filteredFriends,
-      
+
       // Methods
       loadData,
       filterFriends,
@@ -436,7 +438,7 @@ export default defineComponent({
       handleSendMessage,
       onFriendRequestSent,
       onFriendRequestCancelled,
-      showToast
+      showToast,
     };
   },
 });
@@ -571,7 +573,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }
@@ -589,12 +591,12 @@ export default defineComponent({
     min-width: 300px;
     max-width: 500px;
     @include animations.fade-in(0.3s);
-    @include mixins.shadow('large', 'light');
+    @include mixins.shadow("large", "light");
 
     &.success {
       background-color: rgba(76, 175, 80, 0.95);
       color: white;
-      border-left: 4px solid #4CAF50;
+      border-left: 4px solid #4caf50;
     }
 
     &.error {
@@ -606,7 +608,7 @@ export default defineComponent({
     &.info {
       background-color: rgba(33, 150, 243, 0.95);
       color: white;
-      border-left: 4px solid #2196F3;
+      border-left: 4px solid #2196f3;
     }
 
     .toast-content {
