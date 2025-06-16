@@ -7,21 +7,72 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+node_modules/
+.pnpm/
+jspm_packages/
+
+# Build output
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+.vite/
 *.local
 
+# Environment files
 .env
+.env.*.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.vite/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# npm package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+*.tgz
+*.zip
+*.bak
+*.tmp
+
+# Test output
+test-results/
+*.spec.ts.snap
+*.spec.js.snap
+
+# Storybook
+.storybook-out/
+storybook-static/
+
+# VS Code settings
+.vscode-test/
+
+# SASS cache
+.sass-cache/
+
+# Mac system files
+__MACOSX/
+
+# Local history for JetBrains IDEs
+.idea/.idea.LocalHistory/
+
+# Optional: Ignore public/assets if generated
+# public/assets/

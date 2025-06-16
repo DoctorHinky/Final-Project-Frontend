@@ -1,4 +1,4 @@
-<!-- src/components/admin/AdminSidebar.vue -->
+<!-- src/components/layout/AdminSidebar.vue -->
 <template>
   <aside class="admin-sidebar" :class="{ 'open': isOpen }">
     <!-- Logo wie in Member-Sidebar -->
@@ -14,11 +14,6 @@
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
       </div>
       <button class="close-sidebar" @click="$emit('close')">×</button>
-    </div>
-
-    <!-- Admin Dashboard Titel -->
-    <div class="dashboard-title">
-      <h2 class="admin-title">Dashboard</h2>
     </div>
 
     <!-- Sidebar-Navigation -->
@@ -48,11 +43,12 @@
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { 
-  HomeIcon,  // Neues Icon für Dashboard
+  HomeIcon,
   UsersIcon, 
   UserMinusIcon,
   DocumentTextIcon, 
   TicketIcon,
+  DocumentIcon, // Neues Icon für Bewerbungen
   ArrowLeftIcon,
 } from '@heroicons/vue/24/outline';
 
@@ -75,6 +71,7 @@ export default defineComponent({
     UsersIcon,
     UserMinusIcon,
     DocumentTextIcon,
+    DocumentIcon, // Bewerbungen Icon
     TicketIcon,
     ArrowLeftIcon,
   },
@@ -97,10 +94,10 @@ export default defineComponent({
     const userName = ref('');
     const userRole = ref('');
     
-    // Menüelemente definieren mit HeroIcons
+    // Menüelemente definieren mit HeroIcons - ERWEITERT um Bewerbungen
     const menuItems = ref([
       { 
-        id: 'overview',  // Dashboard/Übersicht als erster Punkt
+        id: 'overview',
         text: 'Überblick', 
         icon: HomeIcon
       },
@@ -108,6 +105,11 @@ export default defineComponent({
         id: 'all-users', 
         text: 'Alle User', 
         icon: UsersIcon
+      },
+      { 
+        id: 'applications', // NEU: Bewerbungen Menüpunkt
+        text: 'Bewerbungen', 
+        icon: DocumentIcon
       },
       { 
         id: 'active-posts', 
@@ -222,15 +224,15 @@ export default defineComponent({
 <style lang="scss" scoped>
 .admin-sidebar {
   position: fixed;
-  top: 0;
+  top: 70px;
   left: -280px;
   width: 280px;
   height: 100vh;
-  z-index: 990;
+  z-index: 11990;
   transition: left 0.3s ease;
   display: flex;
   flex-direction: column;
-  padding-top: 20px; // Reduziert für Logo
+  padding-top: 20px;
   background-color: #1c1c1c;
   border-right: 1px solid #333;
   box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.2);
@@ -240,6 +242,7 @@ export default defineComponent({
   &.open {
     left: 0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 11990;
   }
 
   // Logo Styling
@@ -324,22 +327,6 @@ export default defineComponent({
         color: #fff;
         background: rgba(255, 255, 255, 0.1);
       }
-    }
-  }
-
-  // Dashboard Titel
-  .dashboard-title {
-    padding: 16px;
-    border-bottom: 1px solid #333;
-    background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
-    
-    .admin-title {
-      margin: 0;
-      font-size: 0.9rem;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #888;
-      text-align: center;
     }
   }
 

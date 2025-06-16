@@ -1,8 +1,6 @@
 <!-- src/components/member/dashboard/Overview.vue -->
 <template>
   <div class="overview-dashboard">
-    <!-- Animierte Blätter im Hintergrund -->
-
     <!-- Willkommenssektion mit CTA-Button -->
     <welcome-section @open-author-modal="toggleAuthorModal" class="dashboard-section dashboard-section--hero" />
 
@@ -73,13 +71,9 @@ export default defineComponent({
     
     // Loading states
     const isLoading = ref(true);
-    const isLoadingStats = ref(true);
-    const isLoadingRecentArticles = ref(true);
-    const isLoadingRecommendedArticles = ref(true);
 
     // Autor-Bewerbung Modal
     const showAuthorModal = ref(false);
-    const isSubmitting = ref(false);
 
     // Dashboard-Daten
     const stats = ref([
@@ -110,149 +104,70 @@ export default defineComponent({
     const recentArticles = ref<RecentActivityArticle[]>([]);
     const recommendedArticles = ref<RecommendedArticle[]>([]);
 
-    // Dashboard-Statistiken laden
-    const loadDashboardStats = async () => {
-      try {
-        isLoadingStats.value = true;
-        const dashboardStats = await overviewService.getDashboardStats();
-        
-        // Statistiken aktualisieren
-        stats.value = [
-          {
-            icon: '📚',
-            label: 'Gelesene Artikel',
-            value: dashboardStats.readArticles.toString(),
-            color: 'gradient-green',
-            animation: 'pulse'
-          },
-          {
-            icon: '⭐',
-            label: 'Favoriten',
-            value: dashboardStats.favorites.toString(),
-            color: 'gradient-yellow',
-            animation: 'float'
-          },
-          {
-            icon: '👥',
-            label: 'Freunde',
-            value: dashboardStats.friends.toString(),
-            color: 'gradient-teal',
-            animation: 'bounce'
-          },
-        ];
-      } catch (error) {
-        console.error('Fehler beim Laden der Dashboard-Statistiken:', error);
-      } finally {
-        isLoadingStats.value = false;
-      }
-    };
-
-    // Kürzlich gelesene Artikel laden
-    const loadRecentArticles = async () => {
-      try {
-        isLoadingRecentArticles.value = true;
-        const activities = await overviewService.getRecentActivities();
-        recentArticles.value = activities;
-      } catch (error) {
-        console.error('Fehler beim Laden der kürzlich gelesenen Artikel:', error);
-        recentArticles.value = [];
-      } finally {
-        isLoadingRecentArticles.value = false;
-      }
-    };
-
-    // Empfohlene Artikel laden
-    const loadRecommendedArticles = async () => {
-      try {
-        isLoadingRecommendedArticles.value = true;
-        const recommended = await overviewService.getRecommendedArticles();
-        recommendedArticles.value = recommended;
-      } catch (error) {
-        console.error('Fehler beim Laden der empfohlenen Artikel:', error);
-        recommendedArticles.value = [];
-      } finally {
-        isLoadingRecommendedArticles.value = false;
-      }
-    };
-
     // Alle Dashboard-Daten laden
     const loadAllDashboardData = async () => {
       try {
         isLoading.value = true;
         
-        // Alle Daten parallel laden für bessere Performance
-        const { stats: dashboardStats, recentActivities, recommendedArticles: recommended } = 
-          await overviewService.getAllDashboardData();
+        const result = await overviewService.getAllDashboardData();
 
         // Statistiken aktualisieren
         stats.value = [
           {
             icon: '📚',
             label: 'Gelesene Artikel',
-            value: dashboardStats.readArticles.toString(),
+            value: result.stats.readArticles.toString(),
             color: 'gradient-green',
             animation: 'pulse'
           },
           {
             icon: '⭐',
             label: 'Favoriten',
-            value: dashboardStats.favorites.toString(),
+            value: result.stats.favorites.toString(),
             color: 'gradient-yellow',
             animation: 'float'
           },
           {
             icon: '👥',
             label: 'Freunde',
-            value: dashboardStats.friends.toString(),
+            value: result.stats.friends.toString(),
             color: 'gradient-teal',
             animation: 'bounce'
           },
         ];
 
         // Artikel-Daten setzen
-        recentArticles.value = recentActivities;
-        recommendedArticles.value = recommended;
+        recentArticles.value = result.recentActivities;
+        recommendedArticles.value = result.recommendedArticles;
 
       } catch (error) {
         console.error('Fehler beim Laden der Dashboard-Daten:', error);
+        
+        // Fallback: Leere Arrays
+        recentArticles.value = [];
+        recommendedArticles.value = [];
+        
       } finally {
         isLoading.value = false;
-        isLoadingStats.value = false;
-        isLoadingRecentArticles.value = false;
-        isLoadingRecommendedArticles.value = false;
       }
     };
 
-    // Modal öffnen/schließen mit Animation
+    // Modal öffnen/schließen
     const toggleAuthorModal = () => {
       showAuthorModal.value = !showAuthorModal.value;
     };
 
-    // Formular absenden - MIT BACKEND-ANBINDUNG
+    // Formular absenden
     const submitAuthorApplication = async (data: any) => {
-      // Das Modal handhabt jetzt die Backend-Anbindung selbst
-      // Hier können wir auf Success/Error reagieren
       if (data.success) {
-        console.log('✅ Bewerbung erfolgreich gesendet:', data);
-        
-        // Optional: Dashboard-Daten neu laden oder andere Aktionen
-        // await loadAllDashboardData();
-        
-        // Success-Feedback (später durch Toast ersetzen)
-        setTimeout(() => {
-          alert(`✅ ${data.message || 'Bewerbung erfolgreich eingereicht!'}`);
-        }, 500);
+        // Das Modal zeigt bereits die Erfolgsmeldung an
       } else {
-        console.error('❌ Fehler bei Bewerbung:', data.error);
-        
-        // Error wird bereits im Modal angezeigt, hier nur für Debug
+        console.error('Fehler bei Bewerbung:', data.error);
       }
     };
 
-    // Artikel öffnen mit Transition
+    // Artikel öffnen
     const openArticle = (article: Article) => {
-      console.log('Artikel öffnen:', article.title);
-      // Weiterleitung zu my-articles Tab
       window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
     };
 
@@ -265,7 +180,7 @@ export default defineComponent({
       window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
     };
 
-    // Daten neu laden (für Refresh-Button oder Pull-to-Refresh)
+    // Daten neu laden
     const refreshDashboard = async () => {
       await loadAllDashboardData();
     };
@@ -277,7 +192,6 @@ export default defineComponent({
         userName.value = userData.name.split(' ')[0];
       }
 
-      // Dashboard-Daten laden
       await loadAllDashboardData();
 
       // Scroll-Animationen aktivieren
@@ -304,12 +218,7 @@ export default defineComponent({
       stats,
       recentArticles,
       recommendedArticles,
-      
-      // Loading states
       isLoading,
-      isLoadingStats,
-      isLoadingRecentArticles,
-      isLoadingRecommendedArticles,
       
       // Modal
       showAuthorModal,
@@ -322,10 +231,7 @@ export default defineComponent({
       goToDiscovery,
       
       // Refresh
-      refreshDashboard,
-      loadDashboardStats,
-      loadRecentArticles,
-      loadRecommendedArticles
+      refreshDashboard
     };
   }
 });
@@ -337,7 +243,6 @@ export default defineComponent({
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
 
-// Global Box-Sizing für konsistente Größenberechnung
 * {
   box-sizing: border-box;
 }
@@ -349,7 +254,7 @@ export default defineComponent({
   flex-direction: column;
   gap: map.get(vars.$spacing, xxl);
   padding: map.get(vars.$spacing, xl);
-  margin: 0 auto; // Zentriert den gesamten Container
+  margin: 0 auto;
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
@@ -357,19 +262,17 @@ export default defineComponent({
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
-      transition: all 0.4s; // <--- Transition für Theme-Switch
+      transition: all 0.4s;
     }
   }
 
-  // Dashboard-Sektionen mit Theme-Support
   .dashboard-section {
     @include mixins.card-style($theme: 'light', $padding: 'medium', $hover-effect: true);
     @include animations.scroll-fade-in();
     position: relative;
     overflow: hidden;
-    z-index: map.get(vars.$z-index, base); // Basis z-index
+    z-index: map.get(vars.$z-index, base);
 
-    // Shine-Effekt für alle Sektionen
     &::before {
       content: "";
       position: absolute;
@@ -383,21 +286,18 @@ export default defineComponent({
           transparent);
       transition: left 0.8s ease;
       z-index: 0;
-      pointer-events: none; // Verhindert Klick-Blockierung
+      pointer-events: none;
     }
 
     &:hover::before {
       left: 100%;
     }
 
-    // Theme-Anpassungen für Dark Mode
     .theme-dark & {
       @include mixins.card-style($theme: 'dark', $padding: 'medium', $hover-effect: true);
     }
 
     &--hero {
-
-      // Gradient-Border für Hero-Sektion
       &::before {
         content: '';
         position: absolute;
@@ -410,8 +310,8 @@ export default defineComponent({
         mask-composite: exclude;
         opacity: 0.6;
         transition: opacity map.get(vars.$transitions, default);
-        z-index: -1; // Hinter dem Content
-        pointer-events: none; // Keine Klick-Interferenz
+        z-index: -1;
+        pointer-events: none;
 
         .theme-dark & {
           background: mixins.theme-gradient('dark', 'primary');
@@ -424,7 +324,6 @@ export default defineComponent({
     }
 
     &--activities {
-      // Spezieller Hover-Effekt für Aktivitäten
       transition: all map.get(vars.$transitions, default);
 
       &:hover {
@@ -437,8 +336,6 @@ export default defineComponent({
     }
 
     &--recommendations {
-
-      // Pulsierender Rahmen für Empfehlungen
       &::after {
         content: '';
         position: absolute;
@@ -451,8 +348,8 @@ export default defineComponent({
         mask-composite: exclude;
         opacity: 0;
         transition: opacity map.get(vars.$transitions, default);
-        z-index: -1; // Hinter dem Content
-        pointer-events: none; // Keine Klick-Interferenz
+        z-index: -1;
+        pointer-events: none;
 
         .theme-dark & {
           background: mixins.theme-gradient('dark', 'header') border-box;
@@ -465,13 +362,11 @@ export default defineComponent({
       }
     }
 
-    // Sicherstellen, dass der Content klickbar bleibt
     &>* {
       position: relative;
       z-index: 1;
     }
 
-    // Explizit für Links und Buttons
     :deep(a),
     :deep(button),
     :deep(.clickable),
@@ -482,7 +377,6 @@ export default defineComponent({
     }
   }
 
-  // Statistik-Container
   .stats-container {
     @include animations.fade-in(0.8s, 0.2s);
     width: 100%;
@@ -490,7 +384,6 @@ export default defineComponent({
     justify-content: center;
   }
 
-  // Statistik-Grid
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -505,7 +398,6 @@ export default defineComponent({
       margin: 0 auto;
     }
 
-    // Individuelle Stat-Karten-Animationen
     :deep(.stat-card) {
       @include mixins.card-style($theme: 'light', $padding: 'small', $hover-effect: false);
       @include animations.fade-in(0.6s);
@@ -518,7 +410,6 @@ export default defineComponent({
         @include mixins.card-style($theme: 'dark', $padding: 'small', $hover-effect: false);
       }
 
-      // Icon-Container mit Gradient
       .icon-container {
         @include mixins.icon-container($theme: 'light', $size: 'medium');
         margin-bottom: map.get(vars.$spacing, m);
@@ -529,7 +420,6 @@ export default defineComponent({
         }
       }
 
-      // Hover-Effekte für Stat-Karten
       &:hover {
         transform: translateY(-5px) scale(1.02);
         @include mixins.shadow('large', 'light');
@@ -542,7 +432,6 @@ export default defineComponent({
           transform: rotate(10deg) scale(1.1);
         }
 
-        // Animationen basierend auf Typ
         &[data-animation="pulse"] .icon-container {
           @include animations.pulse(1s);
         }
@@ -558,7 +447,6 @@ export default defineComponent({
     }
   }
 
-  // Hauptinhaltsbereich
   .dashboard-content {
     display: grid;
     grid-template-columns: 1fr;
@@ -575,13 +463,11 @@ export default defineComponent({
       gap: map.get(vars.$spacing, xl);
     }
 
-    // Container für bessere Ausrichtung
     >* {
       width: 100%;
-      min-width: 0; // Verhindert Grid-Overflow
+      min-width: 0;
     }
 
-    // Artikel-Karten Hover-Effekte
     :deep(.article-card) {
       transition: all map.get(vars.$transitions, default);
       cursor: pointer;
@@ -590,7 +476,7 @@ export default defineComponent({
 
       &:hover {
         transform: translateX(8px);
-        z-index: 2; // Erhöht bei Hover
+        z-index: 2;
 
         .article-title {
           @include mixins.text-gradient('primary', 'light');
@@ -607,7 +493,6 @@ export default defineComponent({
     }
   }
 
-  // Modal-Verbesserungen
   .modal-enhanced {
     :deep(.modal-backdrop) {
       backdrop-filter: blur(10px);
@@ -628,34 +513,24 @@ export default defineComponent({
   }
 }
 
-// Bounce Animation
 @keyframes bounce {
-
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
+  0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);
   }
-
   40% {
     transform: translateY(-15px);
   }
-
   60% {
     transform: translateY(-7px);
   }
 }
 
-// Responsive Anpassungen
 @include mixins.responsive(tablet) {
   .overview-dashboard {
     padding: map.get(vars.$spacing, m);
     gap: map.get(vars.$spacing, l);
 
     .dashboard-section {
-      // Reduzierte Padding auf Mobile
       padding: map.get(vars.$spacing, l);
     }
   }

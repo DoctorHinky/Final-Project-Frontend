@@ -84,13 +84,14 @@ export default defineComponent({
       return (route.query.tab as string) || 'overview';
     });
 
-    // Seitentitel basierend auf aktivem Menü
+    // Seitentitel basierend auf aktivem Menü - ERWEITERT um Bewerbungen
     const pageTitle = computed(() => {
       switch (activeMenu.value) {
-        case 'overview': return 'Dashboard Übersicht'; // NEU: Dashboard-Titel
+        case 'overview': return 'Dashboard Übersicht';
         case 'user-search': return 'User Suche';
         case 'all-users': return 'Alle User';
         case 'deleted-users': return 'Gelöschte Benutzer';
+        case 'applications': return 'Bewerbungen'; // NEU
         case 'active-posts': return 'Active Posts';
         case 'tickets': return 'Ticket Management';
         case 'staff-team': return 'Staff Team';
@@ -118,16 +119,17 @@ export default defineComponent({
       }
     };
 
-    // Menüpunkt auswählen
+    // Menüpunkt auswählen - ERWEITERT um Bewerbungen
     const onMenuSelect = (menuItem: string) => {
       
       // Navigation basierend auf dem ausgewählten Menüpunkt
       if (menuItem === 'tickets') {
         router.push('/admin/tickets');
       } else if (menuItem === 'overview') {
-        // NEU: Für Dashboard/Overview ohne Query-Parameter navigieren
+        // Für Dashboard/Overview ohne Query-Parameter navigieren
         router.push('/admin/dashboard');
       } else {
+        // Für alle anderen Items (including 'applications') mit Tab-Query navigieren
         router.push({
           path: '/admin/dashboard',
           query: { tab: menuItem }
@@ -207,6 +209,14 @@ export default defineComponent({
   flex-direction: column;
   background: #161616;
   color: #f0f0f0;
+  
+  /* Überschreibt AppLayout Styles komplett */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999; /* Über AppLayout aber unter Header */
 }
 
 /* Header Stil */
@@ -216,7 +226,7 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 70px;
-  z-index: 1000;
+  z-index: 1500; /* Erhöht um über anderen Elementen zu bleiben */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -329,7 +339,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  z-index: 950;
+  z-index: 1300; /* Zwischen Sidebar und Header */
   backdrop-filter: blur(2px);
 }
 

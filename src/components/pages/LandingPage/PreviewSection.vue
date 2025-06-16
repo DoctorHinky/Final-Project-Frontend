@@ -1,5 +1,5 @@
 <template>
-  <section class="section preview-section" id="preview">
+  <section class="section preview-section" id="sub">
     <div class="section-header">
       <h2>Entdecke unsere neuesten Artikel</h2>
       <div class="header-decoration"></div>
@@ -1065,8 +1065,8 @@ export default defineComponent({
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background: mixins.theme-gradient($theme, accent);
-          color: white;
+          background: mixins.theme-gradient($theme, primary);
+          color: white; 
           box-shadow: 0 10px 20px rgba(mixins.theme-color($theme, accent-teal), 0.3);
 
           &:hover {

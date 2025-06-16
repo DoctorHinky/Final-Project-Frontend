@@ -10,6 +10,33 @@
     <!-- Gelöschte User -->
     <DeletedUsers v-if="activeTab === 'deleted-users'" />
 
+    <!-- NEU: Bewerbungen Tab -->
+    <div v-if="activeTab === 'applications'" class="applications-section">
+      <!-- Subtabs für Bewerbungen -->
+      <div class="applications-nav">
+        <button 
+          v-for="subtab in applicationSubtabs" 
+          :key="subtab.id"
+          :class="{ active: activeApplicationSubtab === subtab.id }"
+          @click="activeApplicationSubtab = subtab.id"
+          class="subtab-button"
+        >
+          <component :is="subtab.icon" class="subtab-icon" />
+          {{ subtab.label }}
+        </button>
+      </div>
+
+      <!-- Application Komponenten -->
+      <ApplicationList 
+        v-if="activeApplicationSubtab === 'list'" 
+        @application-selected="viewApplicationDetails" 
+      />
+      <ApplicationSearch 
+        v-if="activeApplicationSubtab === 'search'" 
+        @application-selected="viewApplicationDetails" 
+      />
+    </div>
+
     <!-- Active Posts -->
     <PostList v-if="activeTab === 'active-posts'" />
 
@@ -37,7 +64,8 @@
       
       <!-- Quick Stats Overview -->
       <div v-else class="quick-stats">
-        <div class="stat-card" @click="navigateToTab('all-users')">
+        <!-- Aktive Benutzer -->
+        <div class="stat-card users" @click="navigateToTab('all-users')">
           <div class="stat-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -52,7 +80,38 @@
           </div>
         </div>
         
-        <div class="stat-card" @click="navigateToTab('deleted-users')">
+        <!-- Bewerbungen -->
+        <div class="stat-card applications" @click="navigateToTab('applications')">
+          <div class="stat-icon applications">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.totalApplications }}</h3>
+            <p>Bewerbungen</p>
+          </div>
+        </div>
+
+        <!-- Ausstehende Bewerbungen -->
+        <div class="stat-card urgent" @click="navigateToApplications('pending')">
+          <div class="stat-icon pending">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.pendingApplications }}</h3>
+            <p>Ausstehende Bewerbungen</p>
+          </div>
+        </div>
+        
+        <!-- Gelöschte Benutzer -->
+        <div class="stat-card deleted" @click="navigateToTab('deleted-users')">
           <div class="stat-icon deleted">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
@@ -65,7 +124,8 @@
           </div>
         </div>
         
-        <div class="stat-card" @click="navigateToTab('active-posts')">
+        <!-- Aktive Beiträge -->
+        <div class="stat-card posts" @click="navigateToTab('active-posts')">
           <div class="stat-icon posts">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -81,7 +141,8 @@
           </div>
         </div>
         
-        <div class="stat-card" @click="navigateToTab('tickets')">
+        <!-- Offene Tickets -->
+        <div class="stat-card tickets" @click="navigateToTab('tickets')">
           <div class="stat-icon tickets">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
@@ -93,8 +154,8 @@
           </div>
         </div>
 
-        <!-- Additional Stats -->
-        <div class="stat-card">
+        <!-- Neue User heute -->
+        <div class="stat-card new-users">
           <div class="stat-icon new-users">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -109,7 +170,8 @@
           </div>
         </div>
 
-        <div class="stat-card">
+        <!-- Deaktivierte User -->
+        <div class="stat-card deactivated">
           <div class="stat-icon deactivated">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -149,6 +211,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Application Details Modal -->
+    <div class="modal-overlay" v-if="showApplicationDetails" @click="closeApplicationDetails">
+      <div class="modal-container" @click.stop>
+        <div class="modal-header">
+          <h3>Bewerbungsdetails</h3>
+          <button class="close-button" @click="closeApplicationDetails">×</button>
+        </div>
+        <div class="modal-content">
+          <ApplicationDetail 
+            :application-id="selectedApplicationId" 
+            @application-updated="handleApplicationUpdated"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -157,12 +235,24 @@ import { defineComponent, ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/axiosInstance';
 import userService from '@/services/user.service';
+import applicationService from '@/services/application.service'; // NEU
+// User Komponenten
 import UserSearch from '@/components/admin/users/UserSearch.vue';
 import UserList from '@/components/admin/users/UserList.vue';
 import DeletedUsers from '@/components/admin/DeletedUsers/DeletedUsers.vue';
+import UserDetail from '@/components/admin/users/UserDetail.vue';
+// Application Komponenten - NEU
+import ApplicationList from '@/components/admin/application/ApplicationList.vue';
+import ApplicationSearch from '@/components/admin/application/ApplicationSearch.vue';
+import ApplicationDetail from '@/components/admin/application/ApplicationDetail.vue';
+// Andere Komponenten
 import PostList from '@/components/admin/posts/PostList.vue';
 import Tickets from '@/components/admin/tickets/Tickets.vue';
-import UserDetail from '@/components/admin/users/UserDetail.vue';
+// Icons für Application Subtabs
+import { 
+  QueueListIcon as ListIcon,
+  MagnifyingGlassIcon as SearchIcon
+} from '@heroicons/vue/24/outline';
 
 interface DashboardStats {
   totalUsers: number;
@@ -171,6 +261,8 @@ interface DashboardStats {
   activePosts: number;
   openTickets: number;
   newUsersToday: number;
+  totalApplications: number; // NEU
+  pendingApplications: number; // NEU
 }
 
 export default defineComponent({
@@ -179,9 +271,14 @@ export default defineComponent({
     UserSearch,
     UserList,
     DeletedUsers,
+    UserDetail,
+    // Application Komponenten - NEU
+    ApplicationList,
+    ApplicationSearch,
+    ApplicationDetail,
+    // Andere
     PostList,
-    Tickets,
-    UserDetail
+    Tickets
   },
   props: {
     defaultTab: {
@@ -198,6 +295,13 @@ export default defineComponent({
     const loadError = ref('');
     const lastUpdate = ref(new Date());
     
+    // Application Subtabs - NEU
+    const activeApplicationSubtab = ref('list');
+    const applicationSubtabs = [
+      { id: 'list', label: 'Alle Bewerbungen', icon: ListIcon },
+      { id: 'search', label: 'Suche', icon: SearchIcon }
+    ];
+    
     // Dashboard Stats
     const stats = reactive<DashboardStats>({
       totalUsers: 0,
@@ -205,7 +309,9 @@ export default defineComponent({
       deactivatedUsers: 0,
       activePosts: 0,
       openTickets: 0,
-      newUsersToday: 0
+      newUsersToday: 0,
+      totalApplications: 0, // NEU
+      pendingApplications: 0 // NEU
     });
     
     // Aktiver Tab
@@ -216,9 +322,11 @@ export default defineComponent({
       return props.defaultTab;
     });
     
-    // User Details Modal
+    // Modal States
     const showUserDetails = ref(false);
     const selectedUserId = ref<string | null>(null);
+    const showApplicationDetails = ref(false); // NEU
+    const selectedApplicationId = ref<string | null>(null); // NEU
 
     // Formatierte letzte Aktualisierung
     const lastUpdateFormatted = computed(() => {
@@ -235,9 +343,10 @@ export default defineComponent({
       
       try {
         // Parallele API-Aufrufe für bessere Performance
-        const [usersResponse, deletedUsersResponse] = await Promise.all([
+        const [usersResponse, deletedUsersResponse, applicationsResponse] = await Promise.all([
           userService.getAllUsers(),
-          userService.getDeletedUsers()
+          userService.getDeletedUsers(),
+          applicationService.getAllApplications('ALL') // NEU: Bewerbungen laden
         ]);
 
         // Aktive User (nicht gelöscht und nicht deaktiviert)
@@ -260,11 +369,14 @@ export default defineComponent({
         });
         stats.newUsersToday = newUsersToday.length;
 
+        // NEU: Bewerbungsstatistiken
+        stats.totalApplications = applicationsResponse.length;
+        stats.pendingApplications = applicationsResponse.filter(app => app.status === 'PENDING').length;
+
         // Posts Stats
         try {
-          // Alle Posts vom aktuellen User (Admin/Mod) holen
           const postsResponse = await api.get('/article/getPreviews', {
-            params: { limit: 1000 } // Großes Limit um alle zu bekommen
+            params: { limit: 1000 }
           });
           
           if (postsResponse.data?.data) {
@@ -277,28 +389,25 @@ export default defineComponent({
           stats.activePosts = 0;
         }
 
-        // Ticket Stats (wenn API verfügbar)
+        // Ticket Stats
         try {
           const ticketsResponse = await api.get('/tickets/all', {
             params: { 
               status: 'OPEN',
-              limit: 1 // Wir brauchen nur die Anzahl
+              limit: 1
             }
           });
           
-          // Wenn es ein Array ist, zähle die Elemente
           if (Array.isArray(ticketsResponse.data)) {
             stats.openTickets = ticketsResponse.data.length;
           } else if (typeof ticketsResponse.data === 'string') {
-            // "Fetch successfully, but no tickets found"
             stats.openTickets = 0;
           } else {
             stats.openTickets = 0;
           }
           
-          // Alternative: Alle Tickets holen und filtern für genauere Stats
           const allTicketsResponse = await api.get('/tickets/all', {
-            params: { limit: 1000 } // Größeres Limit für alle Tickets
+            params: { limit: 1000 }
           });
           
           if (Array.isArray(allTicketsResponse.data)) {
@@ -330,6 +439,15 @@ export default defineComponent({
       });
     };
 
+    // NEU: Navigation zu Bewerbungen mit Filter
+    const navigateToApplications = (filter: string) => {
+      router.push({ 
+        path: route.path, 
+        query: { tab: 'applications' } 
+      });
+      // Optional: Filter später setzen wenn ApplicationList erweitert wird
+    };
+
     // User Details anzeigen
     const viewUserDetails = (userId: string) => {
       selectedUserId.value = userId;
@@ -342,6 +460,26 @@ export default defineComponent({
       showUserDetails.value = false;
       selectedUserId.value = null;
       document.body.style.overflow = '';
+    };
+
+    // NEU: Application Details anzeigen
+    const viewApplicationDetails = (applicationId: string) => {
+      selectedApplicationId.value = applicationId;
+      showApplicationDetails.value = true;
+      document.body.style.overflow = 'hidden';
+    };
+
+    // NEU: Application Details schließen
+    const closeApplicationDetails = () => {
+      showApplicationDetails.value = false;
+      selectedApplicationId.value = null;
+      document.body.style.overflow = '';
+    };
+
+    // NEU: Application Update Handler
+    const handleApplicationUpdated = () => {
+      // Statistiken neu laden wenn eine Bewerbung aktualisiert wurde
+      loadDashboardStats();
     };
 
     // Beim Mounten Stats laden
@@ -379,17 +517,29 @@ export default defineComponent({
 
     return {
       activeTab,
+      // Application Subtabs - NEU
+      activeApplicationSubtab,
+      applicationSubtabs,
+      // Modal States
       showUserDetails,
       selectedUserId,
+      showApplicationDetails, // NEU
+      selectedApplicationId, // NEU
+      // Stats & Loading
       stats,
       isLoading,
       loadError,
       lastUpdate,
       lastUpdateFormatted,
+      // Methods
       viewUserDetails,
       closeUserDetails,
+      viewApplicationDetails, // NEU
+      closeApplicationDetails, // NEU
+      handleApplicationUpdated, // NEU
       loadDashboardStats,
-      navigateToTab
+      navigateToTab,
+      navigateToApplications // NEU
     };
   }
 });
@@ -405,6 +555,51 @@ export default defineComponent({
   background: #2a2a2a;
   padding: 20px;
   border-radius: 8px;
+}
+
+// NEU: Applications Section Styles
+.applications-section {
+  .applications-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 12px;
+    background-color: #222;
+    border-radius: 8px;
+    border: 1px solid #333;
+
+    .subtab-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background-color: #2a2a2a;
+      color: #a0a0a0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      .subtab-icon {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        background-color: #333;
+        border-color: #666;
+        color: #f0f0f0;
+      }
+
+      &.active {
+        background-color: rgba(255, 152, 0, 0.2);
+        border-color: rgba(255, 152, 0, 0.4);
+        color: #ff9800;
+      }
+    }
+  }
 }
 
 .overview-content {
@@ -501,6 +696,94 @@ export default defineComponent({
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         border-color: #444;
       }
+
+      // Standard Users (Blau)
+      &.users {
+        border-color: rgba(0, 120, 215, 0.3);
+        background-color: rgba(0, 120, 215, 0.05);
+
+        &:hover {
+          border-color: rgba(0, 120, 215, 0.5);
+          box-shadow: 0 8px 20px rgba(0, 120, 215, 0.2);
+        }
+      }
+
+      // Gelöschte Users (Rot)
+      &.deleted {
+        border-color: rgba(231, 76, 60, 0.3);
+        background-color: rgba(231, 76, 60, 0.05);
+
+        &:hover {
+          border-color: rgba(231, 76, 60, 0.5);
+          box-shadow: 0 8px 20px rgba(231, 76, 60, 0.2);
+        }
+      }
+
+      // Posts (Grün)
+      &.posts {
+        border-color: rgba(46, 204, 113, 0.3);
+        background-color: rgba(46, 204, 113, 0.05);
+
+        &:hover {
+          border-color: rgba(46, 204, 113, 0.5);
+          box-shadow: 0 8px 20px rgba(46, 204, 113, 0.2);
+        }
+      }
+
+      // Tickets (Orange)
+      &.tickets {
+        border-color: rgba(255, 152, 0, 0.3);
+        background-color: rgba(255, 152, 0, 0.05);
+
+        &:hover {
+          border-color: rgba(255, 152, 0, 0.5);
+          box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        }
+      }
+
+      // Neue Users (Lila)
+      &.new-users {
+        border-color: rgba(155, 89, 182, 0.3);
+        background-color: rgba(155, 89, 182, 0.05);
+
+        &:hover {
+          border-color: rgba(155, 89, 182, 0.5);
+          box-shadow: 0 8px 20px rgba(155, 89, 182, 0.2);
+        }
+      }
+
+      // Deaktivierte Users (Grau)
+      &.deactivated {
+        border-color: rgba(149, 165, 166, 0.3);
+        background-color: rgba(149, 165, 166, 0.05);
+
+        &:hover {
+          border-color: rgba(149, 165, 166, 0.5);
+          box-shadow: 0 8px 20px rgba(149, 165, 166, 0.2);
+        }
+      }
+
+      // Bewerbungen (Orange)
+      &.applications {
+        border-color: rgba(255, 152, 0, 0.3);
+        background-color: rgba(255, 152, 0, 0.05);
+
+        &:hover {
+          border-color: rgba(255, 152, 0, 0.5);
+          box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        }
+      }
+
+      // Ausstehende Bewerbungen (Gelb)
+      &.urgent {
+        border-color: rgba(255, 193, 7, 0.3);
+        background-color: rgba(255, 193, 7, 0.05);
+
+        &:hover {
+          border-color: rgba(255, 193, 7, 0.5);
+          box-shadow: 0 8px 20px rgba(255, 193, 7, 0.2);
+        }
+      }
       
       .stat-icon {
         width: 60px;
@@ -535,6 +818,17 @@ export default defineComponent({
         &.deactivated {
           background-color: rgba(149, 165, 166, 0.2);
           color: #95a5a6;
+        }
+
+        // NEU: Application Icons
+        &.applications {
+          background-color: rgba(255, 152, 0, 0.2);
+          color: #ff9800;
+        }
+
+        &.pending {
+          background-color: rgba(255, 193, 7, 0.2);
+          color: #ffc107;
         }
         
         svg {
@@ -614,7 +908,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1100;
+  z-index: 1900; /* User Details etwas niedriger als Application Details */
   backdrop-filter: blur(3px);
 }
 
@@ -630,6 +924,8 @@ export default defineComponent({
   flex-direction: column;
   border: 1px solid #444;
   animation: modal-appear 0.3s ease-out;
+  position: relative;
+  z-index: 2000; /* Niedriger als ApplicationDetail */
 }
 
 .modal-header {
@@ -639,6 +935,8 @@ export default defineComponent({
   align-items: center;
   border-bottom: 1px solid #333;
   background-color: #262626;
+  position: relative;
+  z-index: 2100;
 
   h3 {
     margin: 0;
@@ -659,6 +957,8 @@ export default defineComponent({
     justify-content: center;
     border-radius: 4px;
     transition: all 0.2s;
+    position: relative;
+    z-index: 2200;
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
@@ -671,6 +971,8 @@ export default defineComponent({
   padding: 20px;
   overflow-y: auto;
   flex: 1;
+  position: relative;
+  z-index: 2100;
 }
 
 // Animations
@@ -717,6 +1019,14 @@ export default defineComponent({
     width: 95%;
     max-width: none;
     margin: 10px;
+  }
+
+  // Applications Nav responsive
+  .applications-nav {
+    .subtab-button {
+      flex: 1;
+      justify-content: center;
+    }
   }
 }
 </style>

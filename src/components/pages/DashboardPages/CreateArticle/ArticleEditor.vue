@@ -783,9 +783,6 @@ export default defineComponent({
 
     const editPublishedArticle = async (article: PublishedArticle) => {
       try {
-        if (!confirm(`Möchten Sie "${article.title}" bearbeiten? (ungespeicherte Änderungen gehen verloren)`)) {
-          return;
-        }
         editMode.value = true;
         // Artikel laden
         articleId.value = article.id;

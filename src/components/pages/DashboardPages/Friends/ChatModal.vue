@@ -19,19 +19,62 @@
       </header>
 
       <div class="chat-container" ref="chatContainer">
-        <div class="messages-list">
+        <!-- Loading indicator -->
+        <div v-if="isLoading" class="loading-indicator">
+          <div class="loading-spinner"></div>
+          <span>Nachrichten werden geladen...</span>
+        </div>
+
+        <div v-else class="messages-list">
+          <!-- Empty state -->
+          <div v-if="messages.length === 0" class="empty-chat">
+            <div class="empty-chat-icon">💬</div>
+            <p>Noch keine Nachrichten vorhanden.</p>
+            <p>Schreibe die erste Nachricht!</p>
+          </div>
+
+          <!-- Messages -->
           <div 
+            v-else
             v-for="message in messages" 
             :key="message.id" 
-            :class="['message', { 'own-message': message.isOwn, 'friend-message': !message.isOwn }]"
+            :class="['message', { 
+              'own-message': isOwnMessage(message), 
+              'friend-message': !isOwnMessage(message),
+              'deleted-message': message.content === 'Die Nachricht wurde gelöscht'
+            }]"
           >
             <div class="message-content">
-              <p>{{ message.content }}</p>
-              <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+              <!-- Deleted message -->
+              <p v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-text">
+                <em>Diese Nachricht wurde gelöscht</em>
+              </p>
+              
+              <!-- Normal message -->
+              <p v-else>{{ message.content }}</p>
+              
+              <!-- Attachment (if any) -->
+              <div v-if="message.attachmentUrl" class="message-attachment">
+                <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
+                  📎 Datei anhang
+                </a>
+              </div>
+              
+              <span class="message-time">{{ formatTime(message.createdAt) }}</span>
             </div>
           </div>
           
-          <!-- Typing Indicator -->
+          <!-- Own Typing Indicator -->
+          <div v-if="isUserTyping && newMessage.trim()" class="typing-indicator own-typing">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-text">Du schreibst...</span>
+          </div>
+          
+          <!-- Friend Typing Indicator (nur wenn echte WebSocket-Verbindung) -->
           <div v-if="isTyping" class="typing-indicator">
             <div class="typing-dots">
               <span></span>
@@ -50,6 +93,7 @@
             class="message-input"
             placeholder="Nachricht schreiben..."
             v-model="newMessage"
+            @input="handleTyping"
             @keyup.enter="sendMessage"
             :disabled="isSending"
             ref="messageInput"
@@ -70,16 +114,8 @@
 <script lang="ts">
 import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/vue/24/outline';
-import friendService from '@/services/friend.service';
-
-interface ChatMessage {
-  id: string;
-  senderId: string;
-  recipientId: string;
-  content: string;
-  timestamp: Date;
-  isOwn: boolean;
-}
+import chatService, { type ChatMessage } from '@/services/chat.service';
+import { authService } from '@/services/auth.service';
 
 export default defineComponent({
   name: 'ChatModal',
@@ -111,30 +147,72 @@ export default defineComponent({
     const messages = ref<ChatMessage[]>([]);
     const isSending = ref(false);
     const isTyping = ref(false);
+    const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
     const messageInput = ref<HTMLInputElement>();
+    const currentConversationId = ref<string>('');
+    const currentUserId = ref<string>('');
+    const isUserTyping = ref(false); // Eigener Typing-Status
+    let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Nachrichten aus Backend laden
+    // Debug logging
+    watch(() => props.isVisible, (visible) => {
+      console.log('ChatModal: isVisible changed to:', visible);
+    });
+
+    watch(() => props.friendId, (friendId) => {
+      console.log('ChatModal: friendId changed to:', friendId);
+    });
+
+    // Lade aktuelle User-ID
+    const loadCurrentUser = () => {
+      try {
+        const userData = authService.getUserData();
+        if (userData?.sub) {
+          currentUserId.value = userData.sub;
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der User-Daten:', error);
+      }
+    };
+
+    // Nachrichten und Conversation laden
     const loadMessages = async () => {
-      if (!props.friendId) return;
+      if (!props.friendId) {
+        console.warn('ChatModal: No friendId provided');
+        return;
+      }
+      
+      isLoading.value = true;
+      console.log('ChatModal: Loading messages for friendId:', props.friendId);
       
       try {
-        const response = await friendService.getChatHistory(props.friendId.toString());
-        messages.value = response.data.map(msg => ({
-          id: msg.id,
-          senderId: msg.senderId,
-          recipientId: msg.recipientId,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp),
-          isOwn: msg.senderId !== props.friendId.toString() // Nachricht ist eigene wenn nicht vom Freund
-        }));
+        const conversation = await chatService.createOrGetConversation(props.friendId.toString());
+        currentConversationId.value = conversation.id;
         
-        // Nachrichten als gelesen markieren
-        await friendService.markMessagesAsRead(props.friendId.toString());
+        // Nachrichten umkehren, damit die neuesten unten stehen
+        messages.value = [...(conversation.messages || [])].reverse();
+        
+        // 🔍 DEBUG: Prüfe was vom Backend kommt
+        console.log('ChatModal: Raw conversation from backend:', conversation);
+        conversation.messages?.forEach((msg, index) => {
+          console.log(`ChatModal: Message ${index + 1}:`, {
+            id: msg.id,
+            content: msg.content,
+            contentLength: msg.content?.length || 0,
+            looksEncrypted: msg.content?.length > 50 && !msg.content?.includes(' '),
+            messageType: msg.messageType,
+            senderId: msg.senderId
+          });
+        });
+        
+        console.log('ChatModal: Loaded', messages.value.length, 'messages');
+        scrollToBottom();
       } catch (error) {
         console.error('Fehler beim Laden der Nachrichten:', error);
-        // Fallback auf leere Liste
         messages.value = [];
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -147,11 +225,12 @@ export default defineComponent({
         .slice(0, 2);
     };
 
-    const formatTime = (timestamp: Date) => {
-      return timestamp.toLocaleTimeString('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+    const formatTime = (timestamp: string) => {
+      return chatService.formatChatTime(timestamp);
+    };
+
+    const isOwnMessage = (message: ChatMessage): boolean => {
+      return chatService.isOwnMessage(message, currentUserId.value);
     };
 
     const scrollToBottom = () => {
@@ -162,27 +241,54 @@ export default defineComponent({
       });
     };
 
+    const handleTyping = () => {
+      // Zeige "Du schreibst..." wenn User tippt
+      isUserTyping.value = true;
+      
+      // Reset Timer
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      
+      // Nach 2 Sekunden ohne tippen, verstecke Indicator
+      typingTimeout = setTimeout(() => {
+        isUserTyping.value = false;
+      }, 2000);
+    };
+
     const sendMessage = async () => {
       const messageText = newMessage.value.trim();
-      if (!messageText || isSending.value || !props.friendId) return;
+      if (!messageText || isSending.value || !currentConversationId.value) return;
 
       isSending.value = true;
+      isUserTyping.value = false; // Stoppe eigenen Typing-Indicator
+      
+      // Clear typing timeout
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+        typingTimeout = null;
+      }
+      
+      console.log('ChatModal: Sending message:', messageText);
 
       try {
-        // Nachricht an Backend senden
-        const response = await friendService.sendMessage(props.friendId.toString(), messageText);
+        // Sende Nachricht über Chat-Service
+        const response = await chatService.sendMessage(currentConversationId.value, messageText);
         
-        // Neue Nachricht zur lokalen Liste hinzufügen
-        const message: ChatMessage = {
-          id: response.data?.id || Date.now().toString(),
-          senderId: 'current_user', // TODO: Echte User-ID verwenden
-          recipientId: props.friendId.toString(),
+        // Erstelle lokale Nachricht für sofortige Anzeige
+        const localMessage: ChatMessage = {
+          id: response.message.id || Date.now().toString(),
+          conversationId: currentConversationId.value,
+          senderId: currentUserId.value,
           content: messageText,
-          timestamp: new Date(),
-          isOwn: true
+          messageType: 'TEXT',
+          attachmentUrl: null,
+          isRead: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
 
-        messages.value.push(message);
+        messages.value.push(localMessage);
         newMessage.value = '';
         scrollToBottom();
 
@@ -192,25 +298,18 @@ export default defineComponent({
           message: messageText
         });
 
-        // Simuliere Typing-Indikator (optional für bessere UX)
-        setTimeout(() => {
-          isTyping.value = true;
-          setTimeout(() => {
-            isTyping.value = false;
-            // Könnte hier neue Nachrichten vom Backend laden
-            // loadMessages();
-          }, 2000);
-        }, 500);
+        console.log('ChatModal: Message sent successfully');
 
       } catch (error) {
         console.error('Fehler beim Senden der Nachricht:', error);
-        // Optinal: Toast-Benachrichtigung für Fehler
+        // TODO: Toast-Benachrichtigung für Fehler anzeigen
       } finally {
         isSending.value = false;
       }
     };
 
     const closeModal = () => {
+      console.log('ChatModal: Closing modal');
       emit('update:isVisible', false);
     };
 
@@ -224,10 +323,31 @@ export default defineComponent({
 
     // Watchers
     watch(() => props.isVisible, (visible) => {
+      console.log('ChatModal: isVisible watcher triggered:', visible);
       if (visible) {
+        loadCurrentUser();
         loadMessages();
         focusInput();
-        scrollToBottom();
+      } else {
+        // Reset state when modal closes
+        messages.value = [];
+        currentConversationId.value = '';
+        newMessage.value = '';
+        isTyping.value = false;
+        isUserTyping.value = false;
+        
+        // Clear typing timeout
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+          typingTimeout = null;
+        }
+      }
+    });
+
+    watch(() => props.friendId, () => {
+      if (props.isVisible && props.friendId) {
+        console.log('ChatModal: friendId changed, reloading messages');
+        loadMessages();
       }
     });
 
@@ -239,11 +359,18 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      console.log('ChatModal: Component mounted');
       document.addEventListener('keydown', handleKeyDown);
+      loadCurrentUser();
     });
 
     onUnmounted(() => {
       document.removeEventListener('keydown', handleKeyDown);
+      
+      // Cleanup typing timeout
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
     });
 
     return {
@@ -251,10 +378,14 @@ export default defineComponent({
       messages,
       isSending,
       isTyping,
+      isLoading,
+      isUserTyping,
       chatContainer,
       messageInput,
       getInitials,
       formatTime,
+      isOwnMessage,
+      handleTyping,
       sendMessage,
       closeModal
     };
@@ -278,8 +409,9 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1050; // Höher als Sidebar (950)
   padding: map.get(vars.$spacing, m);
+  background-color: rgba(0, 0, 0, 0.5); // Dunkler Hintergrund für bessere Sichtbarkeit
 }
 
 .modal-content {
@@ -430,6 +562,75 @@ export default defineComponent({
   overflow-y: auto;
   padding: map.get(vars.$spacing, m);
   
+  .loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xl);
+    gap: map.get(vars.$spacing, m);
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+          border-top-color: mixins.theme-color($theme, accent-teal);
+        }
+      }
+    }
+
+    span {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
+  .empty-chat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .empty-chat-icon {
+      font-size: 48px;
+      margin-bottom: map.get(vars.$spacing, m);
+      opacity: 0.6;
+    }
+
+    p {
+      margin: map.get(vars.$spacing, xs) 0;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+
+      &:first-of-type {
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+    }
+  }
+  
   .messages-list {
     display: flex;
     flex-direction: column;
@@ -466,6 +667,22 @@ export default defineComponent({
         }
       }
 
+      &.deleted-message {
+        .message-content {
+          opacity: 0.6;
+
+          .deleted-text {
+            font-style: italic;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+        }
+      }
+
       .message-content {
         padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -475,6 +692,33 @@ export default defineComponent({
           margin: 0 0 map.get(vars.$spacing, xs) 0;
           line-height: 1.4;
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          word-wrap: break-word;
+        }
+
+        .message-attachment {
+          margin: map.get(vars.$spacing, xs) 0;
+          
+          a {
+            display: inline-flex;
+            align-items: center;
+            gap: map.get(vars.$spacing, xs);
+            padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            font-size: map.get(map.get(vars.$fonts, sizes), small);
+            text-decoration: none;
+            transition: all 0.2s ease;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: inherit;
+
+                &:hover {
+                  background-color: rgba(255, 255, 255, 0.2);
+                }
+              }
+            }
+          }
         }
 
         .message-time {
@@ -496,6 +740,26 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           transition: all 0.4s ease-out;
+        }
+      }
+
+      &.own-typing {
+        align-self: flex-end;
+        
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+            border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+          }
+        }
+
+        .typing-text {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, accent-teal);
+              font-style: italic;
+            }
+          }
         }
       }
 
@@ -608,6 +872,15 @@ export default defineComponent({
         height: 20px;
       }
     }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 

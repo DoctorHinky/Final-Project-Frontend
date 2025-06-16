@@ -780,7 +780,6 @@ export default defineComponent({
         });
         newComment.value = '';
         await loadComments(); // Kommentare neu laden
-        showAlertMessage('success', 'Erfolgreich', 'Kommentar wurde gesendet!');
       } catch (error) {
         console.error('Error submitting comment:', error);
         showAlertMessage('error', 'Fehler', 'Fehler beim Senden des Kommentars');
@@ -819,14 +818,15 @@ export default defineComponent({
       if (!props.article?.id) return;
 
       try {
-        const response = await axiosInstance.get(`/rating/getRating/${props.article.id}`);
-        likes.value = response.data.likes;
-        dislikes.value = response.data.dislikes;
+      // Angepasste Backend-Route: /rating/rating/:postId
+      const response = await axiosInstance.get(`/rating/rating/${props.article.id}`);
+      likes.value = response.data.likes;
+      dislikes.value = response.data.dislikes;
+      userRating.value = response.data.userRating ?? null;
       } catch (error) {
-        console.error('Error loading rating:', error);
+      console.error('Error loading rating:', error);
       }
     };
-
     const likeArticle = async () => {
       if (!props.article?.id || loadingRating.value) return;
 
@@ -923,7 +923,7 @@ export default defineComponent({
       loadingComments,
       newComment,
       replyingTo,
-       // Rating
+      // Rating
       userRating,
       likes,
       dislikes,
@@ -943,7 +943,6 @@ export default defineComponent({
       restartQuiz,
       backToArticle,
       shareArticle,
-
       // Kommentar-Funktionen
       loadComments,
       submitComment,
@@ -953,10 +952,10 @@ export default defineComponent({
 
       // Rating-Funktionen
       likeArticle,
-      dislikeArticle,replyContent,
+      dislikeArticle, replyContent,
       totalComments,
 
-     
+
     };
   },
 });
@@ -996,19 +995,18 @@ export default defineComponent({
 
   // ===== CUSTOM ALERT MODAL =====
   .alert-overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    min-height: 100vh;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 9999;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 1rem;
+    align-items: center;
+    z-index: 9999;
     animation: fadeIn 0.3s ease;
 
     .alert-modal {
@@ -1019,6 +1017,8 @@ export default defineComponent({
       animation: slideUp 0.3s ease;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       position: absolute;
+      top: 5%;
+      z-index: 10000;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -2600,6 +2600,7 @@ export default defineComponent({
             color: mixins.theme-color($theme, text-primary);
           }
         }
+
         &::before {
           content: '';
           position: absolute;
@@ -2611,6 +2612,7 @@ export default defineComponent({
           border-radius: 1px;
           background: linear-gradient(90deg, transparent 0%, currentColor 50%, transparent 100%);
           opacity: 0.3;
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);

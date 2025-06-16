@@ -7,17 +7,28 @@
     </div>
 
     <!-- Liste der empfohlenen Artikel -->
-    <div class="recommended-list">
+    <div class="recommended-list" v-if="articles.length > 0">
       <div v-for="(article, index) in articles" :key="index" class="recommended-item"
         @click="$emit('open-article', article)">
         <!-- Artikel-Bild -->
         <div class="article-image">
-          <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
-          <div v-else class="image-placeholder">
-            <span class="placeholder-icon">📖</span>
+          <!-- Loading-State oder kein Bild -->
+          <div v-if="!getImageUrl(article)" class="image-placeholder">
+            <div class="placeholder-icon">📄</div>
           </div>
+          
+          <!-- Hauptbild -->
+          <img 
+            v-else
+            :src="getImageUrl(article)" 
+            :alt="article.title"
+            @error="handleImageError"
+            loading="lazy"
+            decoding="async"
+          />
+          
           <!-- Kategorie-Badge -->
-          <div class="category-badge">{{ article.category }}</div>
+          <div class="category-badge" v-if="article.category">{{ article.category }}</div>
         </div>
 
         <div class="article-content">
@@ -25,9 +36,9 @@
           <p class="article-preview">{{ article.preview }}</p>
           
           <div class="article-meta">
-            <span class="meta-author">{{ article.author }}</span>
+            <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
             <span class="meta-separator">•</span>
-            <span class="meta-date">{{ article.date }}</span>
+            <span class="meta-date">{{ formatDate(article.date) }}</span>
             <span class="meta-separator">•</span>
             <span class="meta-readtime">{{ article.readTime || '10 min' }}</span>
           </div>
@@ -47,6 +58,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Nichts gefunden Anzeige -->
+    <div v-else class="no-articles-found">
+      <div class="no-articles-icon">📚</div>
+      <h4>Keine Empfehlungen verfügbar</h4>
+      <p>Zurzeit können wir dir keine Artikel empfehlen. Schau später wieder vorbei!</p>
+    </div>
   </div>
 </template>
 
@@ -61,6 +79,7 @@ interface Article {
   author?: string;
   date?: string;
   coverImage?: string;
+  image?: string;
   readTime?: string;
   tags?: string[];
 }
@@ -73,7 +92,47 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['open-article']
+  emits: ['open-article'],
+  setup() {
+    // Datum formatieren (deutsche Lokalisierung)
+    const formatDate = (dateString?: string) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+
+    // Bildquelle ermitteln
+    const getImageUrl = (article: Article): string | null => {
+      // Backend-Bild hat Priorität
+      if (article.image && article.image.trim() !== '') {
+        return article.image;
+      }
+      
+      // Fallback: coverImage
+      if (article.coverImage && article.coverImage.trim() !== '') {
+        return article.coverImage;
+      }
+      
+      return null;
+    };
+
+    // Error-Handling für Bilder
+    const handleImageError = (event: Event) => {
+      const img = event.target as HTMLImageElement;
+      // Verstecke das Bild bei Fehlern
+      img.style.display = 'none';
+    };
+
+    return {
+      getImageUrl,
+      handleImageError,
+      formatDate
+    };
+  }
 });
 </script>
 
@@ -82,7 +141,6 @@ export default defineComponent({
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
 
-// Container-Styles
 .section-container {
   padding: map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
@@ -97,7 +155,6 @@ export default defineComponent({
     }
   }
 
-  // Sektionsüberschrift
   .section-header {
     margin-bottom: map.get(vars.$spacing, xl);
 
@@ -138,7 +195,6 @@ export default defineComponent({
   }
 }
 
-// Empfehlungen-Grid
 .recommendations {
   .recommended-list {
     display: grid;
@@ -185,7 +241,6 @@ export default defineComponent({
         }
       }
 
-      // Artikel-Bild
       .article-image {
         position: relative;
         width: 100%;
@@ -201,6 +256,8 @@ export default defineComponent({
           height: 100%;
           object-fit: cover;
           transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          display: block;
+          opacity: 1;
         }
 
         .image-placeholder {
@@ -236,7 +293,6 @@ export default defineComponent({
           }
         }
 
-        // Kategorie-Badge
         .category-badge {
           position: absolute;
           top: 15px;
@@ -258,7 +314,6 @@ export default defineComponent({
         }
       }
 
-      // Artikel-Inhalt
       .article-content {
         padding: map.get(vars.$spacing, l);
         display: flex;
@@ -372,11 +427,11 @@ export default defineComponent({
               letter-spacing: 0.03em;
 
               @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, accent-teal);
-            color: white;
-            border: none;
-          }
+                .theme-#{$theme} & {
+                  background-color: mixins.theme-color($theme, accent-teal);
+                  color: white;
+                  border: none;
+                }
               }
             }
           }
@@ -408,17 +463,17 @@ export default defineComponent({
 
             @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
-            background: mixins.theme-gradient($theme, sidebar-active);
-          color: white;
+                background: mixins.theme-gradient($theme, sidebar-active);
+                color: white;
 
-          &:hover {
-            filter: brightness(1.08);
-            transform: translateY(-2px) scale(1.03);
+                &:hover {
+                  filter: brightness(1.08);
+                  transform: translateY(-2px) scale(1.03);
 
-            .arrow-icon {
-              transform: translateX(4px);
-            }
-          }
+                  .arrow-icon {
+                    transform: translateX(4px);
+                  }
+                }
               }
             }
           }
@@ -428,7 +483,64 @@ export default defineComponent({
   }
 }
 
-// Animation für Shimmer-Effekt
+// Nichts gefunden Anzeige
+.no-articles-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: map.get(vars.$spacing, xxl) map.get(vars.$spacing, xl);
+  text-align: center;
+  min-height: 300px;
+
+  .no-articles-icon {
+    font-size: 4rem;
+    margin-bottom: map.get(vars.$spacing, l);
+    opacity: 0.6;
+  }
+
+  h4 {
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    margin: 0 0 map.get(vars.$spacing, m) 0;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+      }
+    }
+  }
+
+  p {
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    margin: 0;
+    max-width: 400px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
+    min-height: 250px;
+
+    .no-articles-icon {
+      font-size: 3rem;
+    }
+
+    h4 {
+      font-size: map.get(map.get(vars.$fonts, sizes), large);
+    }
+
+    p {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+    }
+  }
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%) translateY(-100%) rotate(45deg);

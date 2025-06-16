@@ -9,6 +9,13 @@
       @click="onTabChange(tab.id)"
     >
       {{ tab.name }}
+      <!-- Status Badge für Anfragen -->
+      <span 
+        v-if="tab.id === 'requests' && pendingRequestsCount > 0" 
+        class="badge"
+      >
+        {{ pendingRequestsCount }}
+      </span>
     </button>
   </div>
 </template>
@@ -16,6 +23,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 import type { Tab } from '@/types/Tab';
+
 export default defineComponent({
   name: 'FriendsTabs',
   props: {
@@ -25,6 +33,10 @@ export default defineComponent({
     },
     activeTab: {
       type: String,
+      required: true
+    },
+    pendingRequestsCount: {
+      type: Number,
       required: true
     }
   },
@@ -45,6 +57,7 @@ export default defineComponent({
 @use 'sass:map';
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
+@use '@/style/base/animations' as animations;
 
 // Tabs
 .friends-tabs {
@@ -61,6 +74,10 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.3s;
     border: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, xs);
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
@@ -77,6 +94,57 @@ export default defineComponent({
           color: white;
         }
       }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 50%;
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      line-height: 1;
+      @include animations.fade-in(0.3s);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: #ff4757; // Rot für Aufmerksamkeit
+          color: white;
+          transition: all 0.4s ease-out;
+        }
+      }
+
+      // Badge Animation
+      animation: badge-pulse 2s infinite;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 1;
+    }
+  }
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 640px) {
+  .friends-tabs {
+    .tab-button {
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
     }
   }
 }
