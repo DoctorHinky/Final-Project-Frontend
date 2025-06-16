@@ -41,13 +41,15 @@ export interface Ticket {
 // Ticket-Nachricht-Interface
 export interface TicketMessage {
   id: string;
+  isStaff?: boolean;
+  author?: {
+    username: string;
+  };
+
   ticketId: string;
   userId: string;
-  userName: string;
-  userRole: string;
-  message: string;
+  content: string;
   createdAt: string;
-  isStaff: boolean;
 }
 
 // Mock-Daten für Tickets während der Entwicklung

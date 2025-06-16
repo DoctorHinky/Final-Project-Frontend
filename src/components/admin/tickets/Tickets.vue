@@ -120,9 +120,7 @@ export default defineComponent({
       let result = [...tickets.value];
 
       // Status-Filter
-      if (filters.value.status) {
-        result = result.filter((ticket) => ticket.status === filters.value.status);
-      }
+      if (filters.value.status) result = result.filter((ticket) => ticket.status === filters.value.status);
 
       // Kategorie-Filter
       if (filters.value.category) {
@@ -155,6 +153,7 @@ export default defineComponent({
       isLoading.value = true;
       try {
         tickets.value = await ticketService.getTickets();
+        console.log("Tickets geladen:", tickets.value);
       } catch (error) {
         console.error("Fehler beim Laden der Tickets:", error);
       } finally {

@@ -32,7 +32,7 @@
         <div class="info-value">{{ ticket.id }}</div>
       </div>
       <div class="info-section">
-        <div class="info-label">Erstellt</div>
+        <div class="info-label">Erstellt am:</div>
         <div class="info-value">{{ formatDate(ticket.createdAt) }}</div>
       </div>
       <div class="info-section">
@@ -51,6 +51,8 @@
       </div>
       <div class="info-section">
         <div class="info-label">Zugewiesen an</div>
+        <div class="info-value">{{ ticket.workedBy?.username || "nicht zugewiesen" }}</div>
+
         <div class="info-value">
           <div>
             <button v-if="canTakeTicket" class="btn-primary" @click="takeTicket">Ticket übernehmen</button>
@@ -119,14 +121,13 @@
           <div class="timeline-content">
             <div class="message-header">
               <div class="message-author">
-                {{ message.userName }}
-                <span class="author-role">{{ message.userRole }}</span>
+                {{ message.author?.username || "Unbekannt" }}
               </div>
               <div class="message-time">
                 {{ formatDate(message.createdAt) }}
               </div>
             </div>
-            <div class="message-body">{{ message.message }}</div>
+            <div class="message-body">{{ message.content }}</div>
           </div>
         </div>
       </div>
@@ -234,7 +235,7 @@ export default defineComponent({
     // Status des aktuellen Tickets
     const currentStatus = ref(props.ticket.status);
     const currentCategory = ref(props.ticket.category);
-    const currentAssignee = ref(props.ticket.workedBy.username || "");
+    const currentAssignee = ref(props.ticket.workedBy?.username || "");
 
     // Antwortformular
     const replyMessage = ref("");
@@ -273,7 +274,7 @@ export default defineComponent({
       if (userdata === null) {
         return false;
       }
-      return userdata.role === "ADMIN" && !props.ticket.workedBy.username;
+      return userdata.role === "ADMIN" && !props.ticket.workedBy?.username;
     });
     const canCloseTicket = computed(() => props.ticket.status === TicketStatus.IN_PROGRESS);
     const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN);
