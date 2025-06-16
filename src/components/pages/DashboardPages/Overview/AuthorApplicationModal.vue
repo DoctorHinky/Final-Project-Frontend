@@ -182,7 +182,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
-import { applicationService, type ApplicationFormData, type ApplicationFiles } from '@/services/application.service';
+import { applicationService, type ApplicationFiles } from '@/services/application.service';
 import {
   XMarkIcon as IconXMark,
   DocumentIcon as IconDocument,

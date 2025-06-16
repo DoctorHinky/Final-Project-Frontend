@@ -509,14 +509,6 @@ export default defineComponent({
   overflow: hidden;
   min-height: 100vh;
   
-  @each $theme in ('light', 'dark') {
-    .theme-#{$theme} & {
-      background: linear-gradient(135deg, 
-        mixins.theme-color($theme, primary-bg) 0%,
-        mixins.theme-color($theme, secondary-bg) 50%,
-        mixins.theme-color($theme, card-bg) 100%);
-    }
-  }
 
   // Floating Background Particles
   .floating-particles {
