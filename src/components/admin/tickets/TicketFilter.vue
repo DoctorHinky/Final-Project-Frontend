@@ -4,8 +4,17 @@
     <div class="filter-header">
       <h3 class="filter-title">Filter & Sortierung</h3>
       <button class="btn-reset" @click="resetFilters" title="Filter zurücksetzen">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M21 12a9 9 0 0 1-9 9"></path>
           <path d="M3 12a9 9 0 0 1 9-9"></path>
           <path d="M21 12H3"></path>
@@ -14,31 +23,45 @@
         Zurücksetzen
       </button>
     </div>
-    
+
     <div class="filter-grid">
       <!-- Suchfeld -->
       <div class="filter-group search-group">
         <div class="filter-input-wrapper">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="search-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input 
-            type="text" 
-            v-model="searchQuery" 
+          <input
+            type="text"
+            v-model="searchQuery"
             @input="debounceSearch"
-            class="filter-input search-input" 
+            class="filter-input search-input"
             placeholder="Suche nach Tickets..."
-          >
-          <button 
-            v-if="searchQuery" 
-            class="clear-search" 
-            @click="clearSearch"
-            title="Suche löschen"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          />
+          <button v-if="searchQuery" class="clear-search" @click="clearSearch" title="Suche löschen">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -53,17 +76,6 @@
           <option value="">Alle Status</option>
           <option v-for="status in statusOptions" :key="status.value" :value="status.value">
             {{ status.label }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Priorität Filter -->
-      <div class="filter-group">
-        <label class="filter-label">Priorität</label>
-        <select v-model="localFilters.priority" @change="applyFilters" class="filter-select">
-          <option value="">Alle Prioritäten</option>
-          <option v-for="priority in priorityOptions" :key="priority.value" :value="priority.value">
-            {{ priority.label }}
           </option>
         </select>
       </div>
@@ -85,7 +97,6 @@
         <select v-model="localFilters.sortBy" @change="applyFilters" class="filter-select">
           <option value="updatedAt">Zuletzt aktualisiert</option>
           <option value="createdAt">Erstellungsdatum</option>
-          <option value="priority">Priorität</option>
         </select>
       </div>
     </div>
@@ -97,10 +108,6 @@
         <div v-if="localFilters.status" class="filter-tag">
           Status: {{ getStatusLabel(localFilters.status) }}
           <button class="remove-filter" @click="removeFilter('status')" title="Filter entfernen">×</button>
-        </div>
-        <div v-if="localFilters.priority" class="filter-tag">
-          Priorität: {{ getPriorityLabel(localFilters.priority) }}
-          <button class="remove-filter" @click="removeFilter('priority')" title="Filter entfernen">×</button>
         </div>
         <div v-if="localFilters.category" class="filter-tag">
           Kategorie: {{ getCategoryLabel(localFilters.category) }}
@@ -116,143 +123,123 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
-import { TicketStatus, TicketPriority, TicketCategory } from '@/services/ticket.service';
+import { defineComponent, ref, computed, watch } from "vue";
+import { TicketStatus, TicketCategory } from "@/services/ticket.service";
 
 export default defineComponent({
-  name: 'TicketFilter',
+  name: "TicketFilter",
   props: {
     filters: {
       type: Object,
       default: () => ({
-        status: '',
-        priority: '',
-        category: '',
-        search: '',
-        sortBy: 'updatedAt'
-      })
-    }
+        status: "",
+        category: "",
+        search: "",
+        sortBy: "updatedAt",
+      }),
+    },
   },
-  emits: ['update:filters', 'reset-filters'],
+  emits: ["update:filters", "reset-filters"],
   setup(props, { emit }) {
     // Lokale Kopie der Filter
     const localFilters = ref({ ...props.filters });
-    
+
     // Suchfeld
-    const searchQuery = ref(props.filters.search || '');
+    const searchQuery = ref(props.filters.search || "");
     let searchTimeout: ReturnType<typeof setTimeout> | null = null;
-    
+
     // Status-Optionen
     const statusOptions = [
-      { value: TicketStatus.OPEN, label: 'Offen' },
-      { value: TicketStatus.IN_PROGRESS, label: 'In Bearbeitung' },
-      { value: TicketStatus.WAITING, label: 'Wartend' },
-      { value: TicketStatus.RESOLVED, label: 'Gelöst' },
-      { value: TicketStatus.CLOSED, label: 'Geschlossen' }
+      { value: TicketStatus.OPEN, label: "Offen" },
+      { value: TicketStatus.IN_PROGRESS, label: "In Bearbeitung" },
+      { value: TicketStatus.CLOSED, label: "Geschlossen" },
     ];
-    
-    // Prioritäts-Optionen
-    const priorityOptions = [
-      { value: TicketPriority.LOW, label: 'Niedrig' },
-      { value: TicketPriority.MEDIUM, label: 'Mittel' },
-      { value: TicketPriority.HIGH, label: 'Hoch' },
-      { value: TicketPriority.CRITICAL, label: 'Kritisch' }
-    ];
-    
+
     // Kategorie-Optionen
     const categoryOptions = [
-      { value: TicketCategory.ACCOUNT, label: 'Konto' },
-      { value: TicketCategory.PAYMENT, label: 'Zahlung' },
-      { value: TicketCategory.TECHNICAL, label: 'Technisch' },
-      { value: TicketCategory.CONTENT, label: 'Inhalt' },
-      { value: TicketCategory.OTHER, label: 'Sonstiges' }
+      { value: TicketCategory.ACCOUNT, label: "Konto" },
+      { value: TicketCategory.WEBSITE_BUG, label: "Website Fehler" },
+      { value: TicketCategory.TECHNICAL, label: "Technisch" },
+      { value: TicketCategory.OTHER, label: "Sonstiges" },
     ];
-    
+
     // Aktive Filter
     const hasActiveFilters = computed(() => {
-      return localFilters.value.status !== '' || 
-             localFilters.value.priority !== '' || 
-             localFilters.value.category !== '' || 
-             localFilters.value.search !== '';
+      return localFilters.value.status !== "" || localFilters.value.category !== "" || localFilters.value.search !== "";
     });
-    
+
     // Debounce für die Suche
     const debounceSearch = () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-      
+      if (searchTimeout) clearTimeout(searchTimeout);
+
       searchTimeout = setTimeout(() => {
         localFilters.value.search = searchQuery.value;
         applyFilters();
       }, 300);
     };
-    
+
     // Suche zurücksetzen
     const clearSearch = () => {
-      searchQuery.value = '';
-      localFilters.value.search = '';
+      searchQuery.value = "";
+      localFilters.value.search = "";
       applyFilters();
     };
-    
+
     // Filter anwenden
     const applyFilters = () => {
-      emit('update:filters', { ...localFilters.value });
+      emit("update:filters", { ...localFilters.value });
     };
-    
+
     // Alle Filter zurücksetzen
     const resetFilters = () => {
       localFilters.value = {
-        status: '',
-        priority: '',
-        category: '',
-        search: '',
-        sortBy: 'updatedAt'
+        status: "",
+        category: "",
+        search: "",
+        sortBy: "updatedAt",
       };
-      searchQuery.value = '';
-      emit('reset-filters');
+      searchQuery.value = "";
+      emit("reset-filters");
     };
-    
+
     // Einzelnen Filter entfernen
     const removeFilter = (filterKey: string) => {
       if (filterKey in localFilters.value) {
-        (localFilters.value as any)[filterKey] = '';
-        
-        if (filterKey === 'search') {
-          searchQuery.value = '';
+        (localFilters.value as any)[filterKey] = "";
+
+        if (filterKey === "search") {
+          searchQuery.value = "";
         }
-        
+
         applyFilters();
       }
     };
-    
+
     // Label-Helfer
     const getStatusLabel = (statusValue: string) => {
-      const option = statusOptions.find(opt => opt.value === statusValue);
+      const option = statusOptions.find((opt) => opt.value === statusValue);
       return option ? option.label : statusValue;
     };
-    
-    const getPriorityLabel = (priorityValue: string) => {
-      const option = priorityOptions.find(opt => opt.value === priorityValue);
-      return option ? option.label : priorityValue;
-    };
-    
+
     const getCategoryLabel = (categoryValue: string) => {
-      const option = categoryOptions.find(opt => opt.value === categoryValue);
+      const option = categoryOptions.find((opt) => opt.value === categoryValue);
       return option ? option.label : categoryValue;
     };
-    
+
     // Props-Änderungen überwachen
-    watch(() => props.filters, (newFilters) => {
-      localFilters.value = { ...newFilters };
-      searchQuery.value = newFilters.search || '';
-    }, { deep: true });
-    
+    watch(
+      () => props.filters,
+      (newFilters) => {
+        localFilters.value = { ...newFilters };
+        searchQuery.value = newFilters.search || "";
+      },
+      { deep: true }
+    );
+
     return {
       localFilters,
       searchQuery,
       statusOptions,
-      priorityOptions,
       categoryOptions,
       hasActiveFilters,
       debounceSearch,
@@ -261,10 +248,9 @@ export default defineComponent({
       resetFilters,
       removeFilter,
       getStatusLabel,
-      getPriorityLabel,
-      getCategoryLabel
+      getCategoryLabel,
     };
-  }
+  },
 });
 </script>
 
@@ -302,7 +288,7 @@ export default defineComponent({
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:hover {
     background-color: #333;
     color: #fff;
@@ -313,7 +299,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
-  
+
   .search-group {
     grid-column: 1 / -1;
   }
@@ -338,12 +324,12 @@ export default defineComponent({
   color: #fff;
   font-size: 0.875rem;
   cursor: pointer;
-  
+
   &:focus {
     outline: none;
     border-color: #ff9800;
   }
-  
+
   option {
     background-color: #222;
     color: #fff;
@@ -352,7 +338,7 @@ export default defineComponent({
 
 .filter-input-wrapper {
   position: relative;
-  
+
   .search-icon {
     position: absolute;
     left: 12px;
@@ -360,7 +346,7 @@ export default defineComponent({
     transform: translateY(-50%);
     color: #888;
   }
-  
+
   .search-input {
     width: 100%;
     padding: 10px 12px 10px 36px;
@@ -369,17 +355,17 @@ export default defineComponent({
     border: 1px solid #444;
     color: #fff;
     font-size: 0.875rem;
-    
+
     &:focus {
       outline: none;
       border-color: #ff9800;
     }
-    
+
     &::placeholder {
       color: #888;
     }
   }
-  
+
   .clear-search {
     position: absolute;
     right: 12px;
@@ -393,7 +379,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     &:hover {
       color: #fff;
     }
@@ -408,18 +394,18 @@ export default defineComponent({
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  
+
   .active-filters-title {
     font-size: 0.875rem;
     color: #bbb;
   }
-  
+
   .active-filter-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .filter-tag {
     display: flex;
     align-items: center;
@@ -429,7 +415,7 @@ export default defineComponent({
     border-radius: 4px;
     font-size: 0.75rem;
     color: #ff9800;
-    
+
     .remove-filter {
       background: none;
       border: none;
@@ -441,7 +427,7 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       &:hover {
         color: #fff;
       }

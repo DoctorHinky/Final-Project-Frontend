@@ -5,8 +5,17 @@
     <div class="tickets-header">
       <h1>Ticket Management</h1>
       <button class="btn-new-ticket" @click="showNewTicketForm = true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -15,25 +24,13 @@
     </div>
 
     <!-- Statistiken -->
-    <TicketStats 
-      :stats="ticketStats" 
-      @filter-by-status="filterByStatus"
-    />
+    <TicketStats :stats="ticketStats" @filter-by-status="filterByStatus" />
 
     <!-- Filter -->
-    <TicketFilter 
-      :filters="filters" 
-      @update:filters="updateFilters"
-      @reset-filters="resetFilters"
-    />
+    <TicketFilter :filters="filters" @update:filters="updateFilters" @reset-filters="resetFilters" />
 
     <!-- Ticket Liste -->
-    <TicketList 
-      :tickets="filteredTickets" 
-      :loading="isLoading"
-      @select-ticket="selectTicket"
-      @bulk-action="handleBulkAction"
-    />
+    <TicketList :tickets="filteredTickets" :loading="isLoading" @select-ticket="selectTicket" />
 
     <!-- Neues Ticket Formular Modal -->
     <div v-if="showNewTicketForm" class="modal-overlay" @click="closeNewTicketForm">
@@ -43,10 +40,7 @@
           <button class="close-button" @click="closeNewTicketForm">×</button>
         </div>
         <div class="modal-content">
-          <TicketForm 
-            @submit="createTicket"
-            @cancel="closeNewTicketForm"
-          />
+          <TicketForm @submit="createTicket" @cancel="closeNewTicketForm" />
         </div>
       </div>
     </div>
@@ -54,7 +48,7 @@
     <!-- Ticket Detail Modal -->
     <div v-if="selectedTicket" class="modal-overlay" @click="closeTicketDetail">
       <div class="modal-container large" @click.stop>
-        <TicketDetail 
+        <TicketDetail
           :ticket="selectedTicket"
           @close="closeTicketDetail"
           @updated="refreshTickets"
@@ -66,28 +60,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import TicketStats from './TicketStats.vue';
-import TicketFilter from './TicketFilter.vue';
-import TicketList from './TicketList.vue';
-import TicketForm from './TicketForm.vue';
-import TicketDetail from './TicketDetail.vue';
-import { 
-  ticketService, 
-  type Ticket,
-  TicketStatus,
-  TicketPriority,
-  TicketCategory
-} from '@/services/ticket.service';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import TicketStats from "./TicketStats.vue";
+import TicketFilter from "./TicketFilter.vue";
+import TicketList from "./TicketList.vue";
+import TicketForm from "./TicketForm.vue";
+import TicketDetail from "./TicketDetail.vue";
+import { ticketService, TicketStatus, type Ticket } from "@/services/ticket.service";
 
 export default defineComponent({
-  name: 'Tickets',
+  name: "Tickets",
   components: {
     TicketStats,
     TicketFilter,
     TicketList,
     TicketForm,
-    TicketDetail
+    TicketDetail,
   },
   setup() {
     // State
@@ -95,14 +83,12 @@ export default defineComponent({
     const isLoading = ref(false);
     const showNewTicketForm = ref(false);
     const selectedTicket = ref<Ticket | null>(null);
-    
     // Filter
     const filters = ref({
-      status: '',
-      priority: '',
-      category: '',
-      search: '',
-      sortBy: 'updatedAt'
+      status: "",
+      category: "",
+      search: "",
+      sortBy: "updatedAt",
     });
 
     // Ticket-Statistiken
@@ -112,32 +98,18 @@ export default defineComponent({
         byStatus: {
           open: 0,
           in_progress: 0,
-          waiting: 0,
-          resolved: 0,
-          closed: 0
+          website_bug: 0,
+          closed: 0,
         },
-        byPriority: {
-          low: 0,
-          medium: 0,
-          high: 0,
-          critical: 0
-        },
-        byCategory: {}
+        byCategory: {},
       };
 
-      tickets.value.forEach(ticket => {
+      tickets.value.forEach((ticket) => {
         // Status
         if (ticket.status === TicketStatus.OPEN) stats.byStatus.open++;
         else if (ticket.status === TicketStatus.IN_PROGRESS) stats.byStatus.in_progress++;
-        else if (ticket.status === TicketStatus.WAITING) stats.byStatus.waiting++;
-        else if (ticket.status === TicketStatus.RESOLVED) stats.byStatus.resolved++;
+        else if (ticket.status === TicketStatus.WEBSITE_BUG) stats.byStatus.website_bug++;
         else if (ticket.status === TicketStatus.CLOSED) stats.byStatus.closed++;
-
-        // Priorität
-        if (ticket.priority === TicketPriority.LOW) stats.byPriority.low++;
-        else if (ticket.priority === TicketPriority.MEDIUM) stats.byPriority.medium++;
-        else if (ticket.priority === TicketPriority.HIGH) stats.byPriority.high++;
-        else if (ticket.priority === TicketPriority.CRITICAL) stats.byPriority.critical++;
       });
 
       return stats;
@@ -148,44 +120,29 @@ export default defineComponent({
       let result = [...tickets.value];
 
       // Status-Filter
-      if (filters.value.status) {
-        result = result.filter(ticket => ticket.status === filters.value.status);
-      }
-
-      // Prioritäts-Filter
-      if (filters.value.priority) {
-        result = result.filter(ticket => ticket.priority === filters.value.priority);
-      }
+      if (filters.value.status) result = result.filter((ticket) => ticket.status === filters.value.status);
 
       // Kategorie-Filter
       if (filters.value.category) {
-        result = result.filter(ticket => ticket.category === filters.value.category);
+        result = result.filter((ticket) => ticket.category === filters.value.category);
       }
 
       // Such-Filter
       if (filters.value.search) {
         const searchLower = filters.value.search.toLowerCase();
-        result = result.filter(ticket => 
-          ticket.title.toLowerCase().includes(searchLower) ||
-          ticket.description.toLowerCase().includes(searchLower) ||
-          ticket.id.toLowerCase().includes(searchLower) ||
-          ticket.createdBy.toLowerCase().includes(searchLower)
+        result = result.filter(
+          (ticket) =>
+            ticket.title.toLowerCase().includes(searchLower) ||
+            ticket.description.toLowerCase().includes(searchLower) ||
+            ticket.id.toLowerCase().includes(searchLower)
         );
       }
 
       // Sortierung
-      if (filters.value.sortBy === 'updatedAt') {
+      if (filters.value.sortBy === "updatedAt") {
         result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-      } else if (filters.value.sortBy === 'createdAt') {
+      } else if (filters.value.sortBy === "createdAt") {
         result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      } else if (filters.value.sortBy === 'priority') {
-        const priorityOrder = {
-          [TicketPriority.CRITICAL]: 0,
-          [TicketPriority.HIGH]: 1,
-          [TicketPriority.MEDIUM]: 2,
-          [TicketPriority.LOW]: 3
-        };
-        result.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
       }
 
       return result;
@@ -195,9 +152,10 @@ export default defineComponent({
     const loadTickets = async () => {
       isLoading.value = true;
       try {
-        tickets.value = await ticketService.getAllTickets();
+        tickets.value = await ticketService.getTickets();
+        console.log("Tickets geladen:", tickets.value);
       } catch (error) {
-        console.error('Fehler beim Laden der Tickets:', error);
+        console.error("Fehler beim Laden der Tickets:", error);
       } finally {
         isLoading.value = false;
       }
@@ -211,11 +169,10 @@ export default defineComponent({
     // Filter zurücksetzen
     const resetFilters = () => {
       filters.value = {
-        status: '',
-        priority: '',
-        category: '',
-        search: '',
-        sortBy: 'updatedAt'
+        status: "",
+        category: "",
+        search: "",
+        sortBy: "updatedAt",
       };
     };
 
@@ -242,11 +199,11 @@ export default defineComponent({
     // Neues Ticket erstellen
     const createTicket = async (ticketData: any) => {
       try {
-        await ticketService.createTicket(ticketData);
+        await ticketService.createTicket(ticketData); // <- ticketData ist schon FormData
         showNewTicketForm.value = false;
         await loadTickets();
       } catch (error) {
-        console.error('Fehler beim Erstellen des Tickets:', error);
+        console.error("Fehler beim Erstellen des Tickets:", error);
       }
     };
 
@@ -255,7 +212,7 @@ export default defineComponent({
       await loadTickets();
       if (selectedTicket.value) {
         // Ausgewähltes Ticket aktualisieren
-        const updated = tickets.value.find(t => t.id === selectedTicket.value!.id);
+        const updated = tickets.value.find((t) => t.id === selectedTicket.value!.id);
         if (updated) {
           selectedTicket.value = updated;
         }
@@ -263,35 +220,27 @@ export default defineComponent({
     };
 
     // Ticket gelöscht
-    const handleTicketDeleted = (ticketId: string) => {
-      tickets.value = tickets.value.filter(t => t.id !== ticketId);
-      closeTicketDetail();
-    };
+    const handleTicketDeleted = () => closeTicketDetail();
 
     // Bulk-Aktionen
-    const handleBulkAction = async (action: string, ticketIds: string[]) => {
+    /* const handleBulkAction = async (action: string, ticketIds: string[]) => {
       try {
-        if (action === 'resolve') {
-          await Promise.all(ticketIds.map(id => 
-            ticketService.changeTicketStatus(id, TicketStatus.RESOLVED)
-          ));
-        } else if (action === 'close') {
-          await Promise.all(ticketIds.map(id => 
-            ticketService.changeTicketStatus(id, TicketStatus.CLOSED)
-          ));
+        if (action === "resolve") {
+          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.RESOLVED)));
+        } else if (action === "close") {
+          await Promise.all(ticketIds.map((id) => ticketService.changeTicketStatus(id, TicketStatus.CLOSED)));
         }
         await loadTickets();
       } catch (error) {
-        console.error('Fehler bei Bulk-Aktion:', error);
+        console.error("Fehler bei Bulk-Aktion:", error);
       }
-    };
+    }; */
 
     // Beim Mounten
-    onMounted(() => {
-      loadTickets();
-    });
+    onMounted(() => loadTickets());
 
     return {
+      createTicket,
       tickets,
       isLoading,
       showNewTicketForm,
@@ -305,12 +254,11 @@ export default defineComponent({
       selectTicket,
       closeTicketDetail,
       closeNewTicketForm,
-      createTicket,
       refreshTickets,
       handleTicketDeleted,
-      handleBulkAction
+      // handleBulkAction,
     };
-  }
+  },
 });
 </script>
 
@@ -324,13 +272,13 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  
+
   h1 {
     font-size: 2rem;
     margin: 0;
     color: #f0f0f0;
   }
-  
+
   .btn-new-ticket {
     display: flex;
     align-items: center;
@@ -343,7 +291,7 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: #f57c00;
     }
@@ -376,7 +324,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   animation: modal-appear 0.3s ease-out;
-  
+
   &.large {
     max-width: 1000px;
   }
@@ -389,13 +337,13 @@ export default defineComponent({
   align-items: center;
   border-bottom: 1px solid #333;
   background-color: #262626;
-  
+
   h3 {
     margin: 0;
     color: #fff;
     font-size: 1.2rem;
   }
-  
+
   .close-button {
     background: none;
     border: none;
@@ -409,7 +357,7 @@ export default defineComponent({
     justify-content: center;
     border-radius: 4px;
     transition: all 0.2s;
-    
+
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
@@ -439,7 +387,7 @@ export default defineComponent({
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
-    
+
     h1 {
       font-size: 1.5rem;
     }
