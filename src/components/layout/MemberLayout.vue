@@ -37,8 +37,8 @@
     <div class="member-container custom-container" :class="{ 'sidebar-open': isSidebarOpen }">
       <!-- Sidebar Komponente einbinden -->
       <MemberSidebar :is-open="isSidebarOpen" :active-menu="activeMenu" @select-menu="onMenuSelect"
-      @close="closeSidebar" @logout="handleLogout" />
-      
+        @close="closeSidebar" @logout="handleLogout" />
+
       <!-- Hauptinhalt -->
       <main class="member-content custom-content" :class="{ 'sidebar-active': isSidebarOpen }">
         <div class="content-wrapper">
@@ -52,6 +52,7 @@
       <div class="sidebar-overlay" v-if="isSidebarOpen && isSmallScreen" @click="closeSidebar" aria-hidden="true"></div>
     </transition>
   </div>
+  <div class="bubble"></div>
 
 </template>
 
@@ -203,6 +204,137 @@ export default defineComponent({
 @use '@/style/base/animations' as animations;
 
 /* Grundlegendes Layout */
+
+/* Info-Point + Sprechblase als Bubble */
+.bubble {
+  border: 1px solid black;
+  position: fixed;
+  top: 40px;
+  bottom: map.get(vars.$spacing, l);
+  right: map.get(vars.$spacing, l);
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(
+    135deg,
+    rgba(100, 180, 255, 0.7) 60%,
+    rgba(255, 255, 255, 0.25) 100%
+  );
+  border-radius: 50%;
+  box-shadow:
+    0 4px 16px 0 rgba(31, 38, 135, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px) saturate(140%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: map.get(vars.$z-index, modal) + 1000;
+  cursor: pointer;
+  transition:
+    box-shadow map.get(vars.$transitions, default),
+    background map.get(vars.$transitions, default),
+    width 0.3s cubic-bezier(0.4, 0.2, 0.2, 1),
+    height 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+
+  /* Info-i */
+  &::before {
+    content: "i";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f3de21;
+    font-size: map.get(map.get(vars.$fonts, sizes), base);
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    font-family: map.get(vars.$fonts, primary);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  /* Sprechblase */
+  &::after {
+    content: "Jetzt Feedback geben!";
+    position: absolute;
+    right: 110%;
+    bottom: 50%;
+    transform: translateY(50%);
+    min-width: 140px;
+    max-width: 220px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95) 60%,
+      rgba(100, 180, 255, 0.18) 100%
+    );
+    color: map.get(map.get(vars.$colors, light), text-primary);
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    font-family: map.get(vars.$fonts, primary);
+    text-align: left;
+    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+    border-radius: 16px 16px 16px 0;
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.10);
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: pre-line;
+    transition: opacity 0.25s, transform 0.25s;
+    /* Sprechblasen-Pfeil */
+    clip-path: polygon(
+      0 0, 100% 0, 100% 100%, 16px 100%, 0 100%, 0 16px
+    );
+  }
+
+  &:hover,
+  &:focus {
+    width: 40px;
+    height: 40px;
+    box-shadow:
+      0 8px 32px 0 rgba(31, 38, 135, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.10);
+    background: linear-gradient(
+      135deg,
+      rgba(100, 180, 255, 0.85) 60%,
+      rgba(255, 255, 255, 0.35) 100%
+    );
+
+    &::after {
+      opacity: 1;
+      transform: translateY(50%) translateX(-8px);
+      transition-delay: 0.1s;
+    }
+    &::before {
+      color: #1565c0;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .bubble {
+    width: 24px;
+    height: 24px;
+    bottom: map.get(vars.$spacing, s);
+    right: map.get(vars.$spacing, s);
+
+    &::after {
+      min-width: 90px;
+      font-size: map.get(map.get(vars.$fonts, sizes), xxs);
+      padding: map.get(vars.$spacing, xxs) map.get(vars.$spacing, xs);
+    }
+
+    &:hover,
+    &:focus {
+      width: 32px;
+      height: 32px;
+      &::after {
+        font-size: map.get(map.get(vars.$fonts, sizes), xs);
+      }
+    }
+  }
+}
+
 .member-layout {
   min-height: 100vh;
   position: relative;
@@ -252,7 +384,7 @@ export default defineComponent({
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: if($theme == 'light', rgba(255,255,255,0.65), rgba(30,30,30,0.45));
+      background-color: if($theme =='light', rgba(255, 255, 255, 0.65), rgba(30, 30, 30, 0.45));
       box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
       border-bottom: 1px solid mixins.theme-color($theme, border-light);
       transition: all 0.4s ease-out;

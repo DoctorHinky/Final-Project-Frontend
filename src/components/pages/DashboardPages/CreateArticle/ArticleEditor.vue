@@ -1112,7 +1112,7 @@ export default defineComponent({
   gap: map.get(vars.$spacing, xl);
   margin: 0 auto;
   align-items: flex-start;
-
+  border-radius: 50px;
   @media (max-width: 1200px) {
     flex-direction: column;
   }
@@ -1164,6 +1164,7 @@ export default defineComponent({
     background-color: transparent;
     border-radius: map.get(map.get(vars.$layout, border-radius), medium);
     overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {

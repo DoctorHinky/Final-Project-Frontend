@@ -16,8 +16,13 @@
           </div>
         </div>
         <div class="friend-actions">
-          <button class="action-button message">Nachricht</button>
-          <button class="action-button more" @click.stop="toggleFriendMenu(friend.id)">⋮</button>
+          <button class="action-button message">
+            <ChatBubbleLeftIcon class="button-icon" />
+            Nachricht
+          </button>
+          <button class="action-button more" @click.stop="toggleFriendMenu(friend.id)">
+            <EllipsisVerticalIcon class="menu-icon" />
+          </button>
           <div v-if="activeFriendMenu === friend.id" class="friend-menu">
             <button @click="unfriend(friend.id)">Freundschaft beenden</button>
           </div>
@@ -27,22 +32,44 @@
 
     <!-- Leerer Zustand für Freunde -->
     <div v-else class="empty-state">
-      <div class="empty-icon">👥</div>
+      <div class="empty-icon">
+        <UserGroupIcon class="empty-icon-svg" />
+      </div>
       <h3>Keine Freunde gefunden</h3>
       <p v-if="searchQuery">Deine Suche ergab keine Treffer. Versuche es mit einem anderen Suchbegriff.</p>
-      <p v-else>Du hast noch keine Freunde hinzugefügt. Entdecke Empfehlungen oder lade Freunde ein.</p>
-      <button v-if="searchQuery" @click="clearSearch" class="reset-button">Suche zurücksetzen</button>
-      <button v-else @click="showSuggestions" class="reset-button">Empfehlungen anzeigen</button>
+      <p v-else>Du hast noch keine Freunde hinzugefügt. Lade Freunde ein, um zu beginnen.</p>
+      <button v-if="searchQuery" @click="clearSearch" class="reset-button">
+        <ArrowPathIcon class="button-icon" />
+        Suche zurücksetzen
+      </button>
+      <button v-else @click="showInviteModal" class="reset-button">
+        <EnvelopeIcon class="button-icon" />
+        Freunde einladen
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, type PropType } from 'vue';
+import { 
+  UserGroupIcon, 
+  ChatBubbleLeftIcon, 
+  EllipsisVerticalIcon, 
+  ArrowPathIcon, 
+  EnvelopeIcon 
+} from '@heroicons/vue/24/outline';
 import type { Friend } from '@/types/Friend';
 
 export default defineComponent({
   name: 'FriendsList',
+  components: {
+    UserGroupIcon,
+    ChatBubbleLeftIcon,
+    EllipsisVerticalIcon,
+    ArrowPathIcon,
+    EnvelopeIcon
+  },
   props: {
     filteredFriends: {
       type: Array as PropType<Friend[]>,
@@ -53,7 +80,7 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['unfriend', 'clear-search', 'show-suggestions'],
+  emits: ['unfriend', 'clear-search', 'show-invite-modal'],
   setup(_, { emit }) {
     const activeFriendMenu = ref<number | null>(null);
 
@@ -78,8 +105,8 @@ export default defineComponent({
       emit('clear-search');
     };
 
-    const showSuggestions = () => {
-      emit('show-suggestions');
+    const showInviteModal = () => {
+      emit('show-invite-modal');
     };
 
     return {
@@ -88,7 +115,7 @@ export default defineComponent({
       toggleFriendMenu,
       unfriend,
       clearSearch,
-      showSuggestions
+      showInviteModal
     };
   }
 });
@@ -104,10 +131,10 @@ export default defineComponent({
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: map.get(vars.$spacing, l); // Adjusted spacing for better alignment
+  gap: map.get(vars.$spacing, l);
 
   @media (max-width: 768px) {
-    justify-content: center; // Center align cards on smaller screens
+    justify-content: center;
   }
 }
 
@@ -175,7 +202,7 @@ export default defineComponent({
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background-color: #4CAF50; // Green for online
+      background-color: #4CAF50;
       border: 2px solid white;
     }
   }
@@ -183,7 +210,7 @@ export default defineComponent({
   // Info area
   .friend-info {
     flex: 1;
-    min-width: 0; // For text truncation
+    min-width: 0;
 
     h3 {
       margin: 0 0 map.get(vars.$spacing, xs) 0;
@@ -254,6 +281,9 @@ export default defineComponent({
       cursor: pointer;
       border: none;
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, xs);
 
       &.message {
         @each $theme in ('light', 'dark') {
@@ -268,6 +298,11 @@ export default defineComponent({
             }
           }
         }
+
+        .button-icon {
+          width: 16px;
+          height: 16px;
+        }
       }
 
       &.more {
@@ -277,7 +312,6 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         padding: 0;
-        font-size: 18px;
 
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
@@ -289,6 +323,11 @@ export default defineComponent({
               background-color: mixins.theme-color($theme, hover-color);
             }
           }
+        }
+
+        .menu-icon {
+          width: 18px;
+          height: 18px;
         }
       }
     }
@@ -320,7 +359,7 @@ export default defineComponent({
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: transparent;
-            color: #ff6b6b; // Red for delete
+            color: #ff6b6b;
             transition: all 0.4s ease-out;
 
             &:hover {
@@ -329,6 +368,87 @@ export default defineComponent({
           }
         }
       }
+    }
+  }
+}
+
+// Empty State Styling
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: map.get(vars.$spacing, xxl);
+  text-align: center;
+
+  .empty-icon {
+    margin-bottom: map.get(vars.$spacing, l);
+    
+    .empty-icon-svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
+  }
+
+  h3 {
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    margin-bottom: map.get(vars.$spacing, m);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+        transition: all 0.4s ease-out;
+      }
+    }
+  }
+
+  p {
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    margin-bottom: map.get(vars.$spacing, l);
+    max-width: 500px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+        transition: all 0.4s ease-out;
+      }
+    }
+  }
+
+  .reset-button {
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+    font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, s);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background: mixins.theme-gradient($theme, primary);
+        color: white;
+        transition: all 0.4s ease-out;
+
+        &:hover {
+          transform: translateY(-3px);
+          @include mixins.shadow('medium', $theme);
+        }
+      }
+    }
+
+    .button-icon {
+      width: 20px;
+      height: 20px;
     }
   }
 }

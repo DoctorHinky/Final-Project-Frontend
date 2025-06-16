@@ -6,7 +6,7 @@
       <p>Hier ist deine Übersicht für {{ currentDate }}</p>
     </div>
 
-    <!-- Neuer CTA-Button für Autor-Bewerbung -->
+    <!-- CTA-Button für Autor-Bewerbung -->
     <button class="become-author-cta" @click="$emit('open-author-modal')">
       <IconPencilSquare class="cta-icon" />
       Werde Autor

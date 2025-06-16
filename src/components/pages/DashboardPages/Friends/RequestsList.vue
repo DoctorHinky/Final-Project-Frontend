@@ -23,27 +23,37 @@
 
     <!-- Leerer Zustand für Anfragen -->
     <div v-else class="empty-state">
-      <div class="empty-icon">📨</div>
+      <div class="empty-icon">
+        <InboxIcon class="empty-icon-svg" />
+      </div>
       <h3>Keine Anfragen vorhanden</h3>
       <p>Du hast derzeit keine offenen Freundschaftsanfragen.</p>
-      <button @click="showSuggestions" class="reset-button">Empfehlungen anzeigen</button>
+      <button @click="showInviteModal" class="reset-button">
+        <EnvelopeIcon class="button-icon" />
+        Freunde einladen
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-
+import { InboxIcon, EnvelopeIcon } from '@heroicons/vue/24/outline';
 import type { FriendRequest } from '@/types/FriendRequest';
+
 export default defineComponent({
   name: 'RequestsList',
+  components: {
+    InboxIcon,
+    EnvelopeIcon
+  },
   props: {
     pendingRequests: {
       type: Array as PropType<FriendRequest[]>,
       required: true
     }
   },
-  emits: ['accept-request', 'decline-request', 'show-suggestions'],
+  emits: ['accept-request', 'decline-request', 'show-invite-modal'],
   setup(_, { emit }) {
     const getInitials = (name: string) => {
       return name
@@ -61,15 +71,15 @@ export default defineComponent({
       emit('decline-request', requestId);
     };
 
-    const showSuggestions = () => {
-      emit('show-suggestions');
+    const showInviteModal = () => {
+      emit('show-invite-modal');
     };
 
     return {
       getInitials,
       acceptRequest,
       declineRequest,
-      showSuggestions
+      showInviteModal
     };
   }
 });
@@ -255,6 +265,87 @@ export default defineComponent({
           }
         }
       }
+    }
+  }
+}
+
+// Empty State Styling
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: map.get(vars.$spacing, xxl);
+  text-align: center;
+
+  .empty-icon {
+    margin-bottom: map.get(vars.$spacing, l);
+    
+    .empty-icon-svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
+  }
+
+  h3 {
+    font-size: map.get(map.get(vars.$fonts, sizes), xl);
+    margin-bottom: map.get(vars.$spacing, m);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+        transition: all 0.4s ease-out;
+      }
+    }
+  }
+
+  p {
+    font-size: map.get(map.get(vars.$fonts, sizes), medium);
+    margin-bottom: map.get(vars.$spacing, l);
+    max-width: 500px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+        transition: all 0.4s ease-out;
+      }
+    }
+  }
+
+  .reset-button {
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
+    border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+    font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, s);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background: mixins.theme-gradient($theme, primary);
+        color: white;
+        transition: all 0.4s ease-out;
+
+        &:hover {
+          transform: translateY(-3px);
+          @include mixins.shadow('medium', $theme);
+        }
+      }
+    }
+
+    .button-icon {
+      width: 20px;
+      height: 20px;
     }
   }
 }

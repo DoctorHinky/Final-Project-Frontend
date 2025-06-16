@@ -34,12 +34,6 @@
         <!-- Beschreibung -->
         <p class="article-preview">{{ article.preview }}</p>
 
-        <!-- Lesezeit -->
-        <div class="read-time-info">
-          <span class="read-time-icon">⏱</span>
-          <span class="read-time-text">{{ article.readTime || '10 min' }} Lesezeit</span>
-        </div>
-
         <!-- Tags -->
         <div class="article-tags">
           <span v-for="(tag, idx) in article.tags" :key="idx" class="article-tag" @click.stop="addTag(tag)">
@@ -382,28 +376,6 @@ export default defineComponent({
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
-        }
-      }
-    }
-
-    // Lesezeit-Info
-    .read-time-info {
-      display: flex;
-      align-items: center;
-      gap: map.get(vars.$spacing, xs);
-      margin-bottom: map.get(vars.$spacing, m);
-      font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-      .read-time-icon {
-        font-size: 1rem;
-        opacity: 0.7;
-      }
-
-      .read-time-text {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-tertiary);
-          }
         }
       }
     }

@@ -78,6 +78,7 @@
 ./src/components/pages/DashboardPages/CreateArticle/types/Draft.Chapter.types.d.ts
 ./src/components/pages/DashboardPages/CreateArticle/types/Draft.types.d.ts
 ./src/components/pages/DashboardPages/CreateArticle/types/index.ts
+./src/components/pages/DashboardPages/CreateArticle/types/Notification.types.d.ts
 ./src/components/pages/DashboardPages/CreateArticle/types/Published.Article.types.d.ts
 ./src/components/pages/DashboardPages/Friends
 ./src/components/pages/DashboardPages/Friends/EmptyState.vue
@@ -126,6 +127,7 @@
 ./src/components/pages/DashboardPages/Settings/NotificationSettings.vue
 ./src/components/pages/DashboardPages/Settings/PrivacySettings.vue
 ./src/components/pages/DashboardPages/Settings/ProfileSettings.vue
+./src/components/pages/DashboardPages/todo
 ./src/components/pages/LandingPage
 ./src/components/pages/LandingPage/Authors.vue
 ./src/components/pages/LandingPage/CommunitySection.vue
@@ -140,6 +142,7 @@
 ./src/components/route/ProtectedRoute.vue
 ./src/components/ui
 ./src/components/ui/ThemeToggle.vue
+./src/components/ui/ToastNotification.vue
 ./src/composables
 ./src/composables/usePasswordUtils.ts
 ./src/main.ts
@@ -171,7 +174,11 @@
 ./src/services/auth.service.ts
 ./src/services/author.service.ts
 ./src/services/axiosInstance.ts
+./src/services/bookmark.service.ts
 ./src/services/cloudinaryService.ts
+./src/services/comment.service.ts
+./src/services/history.service.ts
+./src/services/post.service.ts
 ./src/services/theme.service.ts
 ./src/services/ticket.service.ts
 ./src/services/user.service.ts
@@ -186,9 +193,11 @@
 ./src/style/base/mixins.scss
 ./src/style/base/variables.scss
 ./src/types
+./src/types/BaseArticle.types.ts
 ./src/types/dtos
 ./src/types/dtos/Article.types.d.ts
 ./src/types/dtos/Chapter.types.ts
+./src/types/dtos/index.ts
 ./src/types/dtos/Post.Category.types.ts
 ./src/types/dtos/Quiz.Answers.types.ts
 ./src/types/dtos/Quiz.Question.types.ts
@@ -200,6 +209,7 @@
 ./src/types/Friend.ts
 ./src/types/FriendRequest.ts
 ./src/types/FriendSuggestion.ts
+./src/types/MyArticles.types.ts
 ./src/types/Tab.ts
 ./src/types/TabItem.ts
 ./src/utils

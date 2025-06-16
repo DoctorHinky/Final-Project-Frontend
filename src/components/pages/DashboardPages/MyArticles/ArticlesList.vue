@@ -46,7 +46,7 @@
             <!-- Hauptbild -->
             <img 
               v-else
-              :src="getImageUrl(article)" 
+              :src="getImageUrl(article) ?? undefined" 
               :alt="article.title"
               @error="handleImageError($event, article.id)"
               @load="handleImageLoad($event, article.id)"
@@ -271,7 +271,6 @@ export default defineComponent({
 
       try {
         loadingImages.value.add(postId);
-        console.log(`🔄 Lade Bild für Post ${postId}...`);
 
         // Vollständigen Post laden (hat das Bild)
         const postResponse = await postService.getPostById(postId);
@@ -280,7 +279,6 @@ export default defineComponent({
         // In Cache speichern
         articleImages.value.set(postId, imageUrl);
         
-        console.log(`✅ Bild geladen für Post ${postId}:`, imageUrl);
         return imageUrl;
         
       } catch (error) {
@@ -298,7 +296,6 @@ export default defineComponent({
 
       // 1. Prüfe ob echtes Bild vom Backend verfügbar
       if (article.image && article.image.trim() !== '') {
-        console.log(`✅ Original-Bild gefunden für "${article.title}":`, article.image);
         return article.image;
       }
 
@@ -306,7 +303,6 @@ export default defineComponent({
       if (articleImages.value.has(postId)) {
         const cachedImage = articleImages.value.get(postId);
         if (cachedImage) {
-          console.log(`📦 Cache-Bild für "${article.title}":`, cachedImage);
           return cachedImage;
         }
         // Wenn im Cache aber null → kein Bild verfügbar
@@ -329,7 +325,6 @@ export default defineComponent({
     const preloadArticleImages = async () => {
       if (!props.filteredArticles || props.filteredArticles.length === 0) return;
 
-      console.log(`🚀 Starte Vorladung von ${props.filteredArticles.length} Artikel-Bildern...`);
       
       // Parallel alle Bilder laden (max 5 gleichzeitig)
       const batchSize = 5;
@@ -340,7 +335,6 @@ export default defineComponent({
         );
       }
       
-      console.log(`✅ Vorladung abgeschlossen. ${articleImages.value.size} Bilder geladen.`);
     };
 
     // VERBESSERT: Einfacheres Error-Handling
@@ -360,49 +354,11 @@ export default defineComponent({
     };
 
     // Bild erfolgreich geladen
-    const handleImageLoad = (event: Event, articleId: string) => {
-      const img = event.target as HTMLImageElement;
-      
-      console.log(`✅ Bild erfolgreich geladen für Artikel ${articleId}:`, {
-        src: img.src,
-        naturalWidth: img.naturalWidth,
-        naturalHeight: img.naturalHeight
-      });
-      
+    const handleImageLoad = (_: Event, articleId: string) => {
       // Entferne Error-Status falls vorhanden
       imageErrors.value.delete(articleId);
     };
 
-    // DEBUG: Artikel-Daten ausgeben
-    const debugArticleImages = () => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('=== ARTIKEL BILD-DEBUG ===');
-        props.filteredArticles.forEach((article, index) => {
-          console.log(`Artikel ${index + 1}: "${article.title}"`, {
-            id: article.id,
-            image: article.image,
-            hasValidImage: !!getImageUrl(article),
-            finalImageUrl: getImageUrl(article),
-            inCache: articleImages.value.has(article.id),
-            cachedImage: articleImages.value.get(article.id),
-            isLoading: loadingImages.value.has(article.id)
-          });
-        });
-        console.log('=== END DEBUG ===');
-      }
-      return '';
-    };
-
-    // Beim Mount und bei Artikel-Änderungen vorladen
-    onMounted(() => {
-      debugArticleImages();
-      preloadArticleImages();
-    });
-
-    watch(() => props.filteredArticles, () => {
-      debugArticleImages();
-      preloadArticleImages();
-    }, { deep: true });
 
     return {
       openArticleReader,
@@ -412,7 +368,6 @@ export default defineComponent({
       getImageUrl,
       handleImageError,
       handleImageLoad,
-      debugArticleImages,
       imageErrors,
       articleImages, // Für Debugging
       loadingImages, // Für Loading-States
@@ -572,6 +527,7 @@ export default defineComponent({
         }
 
         .remove-icon {
+          position: absolute;
           width: 16px;
           height: 16px;
         }
@@ -1010,6 +966,7 @@ export default defineComponent({
         .remove-icon {
           width: 16px;
           height: 16px;
+          position: absolute;
         }
 
         @media (max-width: 768px) {

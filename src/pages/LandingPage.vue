@@ -46,7 +46,7 @@ import HeroSection from '../components/pages/LandingPage/HeroSection.vue';
 import ContentBlocksSection from '../components/pages/LandingPage/ContentBlocksSection.vue';
 import QuizSection from '../components/pages/LandingPage/QuizSection.vue';
 import CommunitySection from '../components/pages/LandingPage/CommunitySection.vue';
-import SubscriptionSection from '../components/pages/LandingPage/SubscriptionSection.vue';
+import SubscriptionSection from '../components/pages/LandingPage/PreviewSection.vue';
 import Authors from '../components/pages/LandingPage/Authors.vue'
 
 export default defineComponent({

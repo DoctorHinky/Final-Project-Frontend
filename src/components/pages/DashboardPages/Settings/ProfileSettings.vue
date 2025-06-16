@@ -348,47 +348,84 @@ export default defineComponent({
       }
     };
 
+    // 🔧 GEFIXTER UPLOAD - verwendet Backend statt direkter Cloudinary
     const uploadFile = async (file: File): Promise<void> => {
       try {
         isUploading.value = true;
         saveError.value = false;
 
-        // Wenn es ein vorheriges Bild gibt, löschen wir es
-        if (profileForm.value.publicId_picture) {
-          await cloudinaryDelete(profileForm.value.publicId_picture);
+        // Datei-Validierung
+        const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!validTypes.includes(file.type)) {
+          throw new Error("Ungültiger Dateityp. Nur JPG, PNG und WebP sind erlaubt.");
         }
 
-        // Hochladen des neuen Bildes
-        const result = await cloudinaryUpload(file, "profile_avatars", profileForm.value.username);
+        if (file.size > maxSize) {
+          throw new Error("Datei ist zu groß. Maximum 5MB erlaubt.");
+        }
 
-        profileForm.value.profilePicture = result.secureUrl;
-        profileForm.value.publicId_picture = result.publicId;
+        // Backend-Upload verwenden statt direkter Cloudinary-Upload
+        const formData = new FormData();
+        formData.append("file", file); // Backend erwartet 'file' als field name
 
-        // Automatisch speichern nach Upload
-        await saveProfileSettings();
-      } catch (error) {
+        const uploadResponse = await api.post("/cloud", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (uploadResponse.data?.url) {
+          // Formular-Daten aktualisieren
+          profileForm.value.profilePicture = uploadResponse.data.url;
+          profileForm.value.publicId_picture = uploadResponse.data.public_id || `profile_${Date.now()}`;
+
+          // Automatisch speichern nach Upload
+          await saveProfileSettings();
+
+          // Event für andere Komponenten triggern
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("profile-updated"));
+          }
+        } else {
+          throw new Error("Keine URL vom Server erhalten");
+        }
+      } catch (error: any) {
+        console.error("Fehler beim Hochladen des Bildes:", error);
         saveError.value = true;
-        errorMessage.value = "Fehler beim Hochladen des Bildes. Bitte versuche es erneut.";
+        errorMessage.value =
+          error.message ||
+          error.response?.data?.message ||
+          "Fehler beim Hochladen des Bildes. Bitte versuche es erneut.";
       } finally {
         isUploading.value = false;
       }
     };
 
+    // 🔧 GEFIXTER REMOVE - vereinfacht ohne direkten Cloudinary-Delete
     const removeAvatar = async (): Promise<void> => {
       try {
-        if (!profileForm.value.publicId_picture) return;
+        if (!profileForm.value.profilePicture) return;
 
         isUploading.value = true;
-        await cloudinaryDelete(profileForm.value.publicId_picture);
 
+        // Profilbild über Backend entfernen (nur Form-Daten löschen)
         profileForm.value.profilePicture = "";
         profileForm.value.publicId_picture = null;
 
         // Automatisch speichern nach Entfernen
         await saveProfileSettings();
-      } catch (error) {
+
+        // Event für andere Komponenten triggern
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("profile-updated"));
+        }
+      } catch (error: any) {
+        console.error("Fehler beim Entfernen des Bildes:", error);
         saveError.value = true;
-        errorMessage.value = "Fehler beim Entfernen des Bildes. Bitte versuche es erneut.";
+        errorMessage.value =
+          error.message ||
+          error.response?.data?.message ||
+          "Fehler beim Entfernen des Bildes. Bitte versuche es erneut.";
       } finally {
         isUploading.value = false;
       }
@@ -422,7 +459,7 @@ export default defineComponent({
         // Profilbild nur senden, wenn es geändert wurde
         if (profileForm.value.profilePicture !== originalProfileData.value?.profilePicture) {
           updateData.profilePicture = profileForm.value.profilePicture;
-          updateData.publicId_picture = profileForm.value.publicId_picture;
+          updateData.publicid_picture = profileForm.value.publicId_picture;
         }
 
         // Username nur senden, wenn editierbar und geändert

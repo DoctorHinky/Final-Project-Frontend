@@ -1,25 +1,44 @@
 <!-- src/components/pages/DashboardPages/Friends/EmptyState.vue -->
 <template>
   <div class="empty-state">
-    <div class="empty-icon">{{ icon }}</div>
+    <div class="empty-icon">
+      <component :is="iconComponent" class="empty-icon-svg" />
+    </div>
     <h3>{{ title }}</h3>
     <p>{{ message }}</p>
-    <button @click="onButtonClick" class="reset-button" :class="{ 'invite-button': buttonAction === 'show-invite-modal' }">
-      <span v-if="buttonAction === 'show-invite-modal'" class="invite-icon">✉️</span>
+    <button @click="onButtonClick" class="reset-button">
+      <component :is="buttonIconComponent" class="button-icon" />
       {{ buttonText }}
     </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
+import { 
+  UserGroupIcon, 
+  InboxIcon, 
+  MagnifyingGlassIcon,
+  EnvelopeIcon,
+  ArrowPathIcon,
+  PlusIcon
+} from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'EmptyState',
+  components: {
+    UserGroupIcon,
+    InboxIcon,
+    MagnifyingGlassIcon,
+    EnvelopeIcon,
+    ArrowPathIcon,
+    PlusIcon
+  },
   props: {
-    icon: {
+    iconType: {
       type: String,
-      required: true
+      required: true,
+      validator: (value: string) => ['friends', 'requests', 'search', 'general'].includes(value)
     },
     title: {
       type: String,
@@ -40,11 +59,39 @@ export default defineComponent({
   },
   emits: ['button-click'],
   setup(props, { emit }) {
+    const iconComponent = computed(() => {
+      switch (props.iconType) {
+        case 'friends':
+          return UserGroupIcon;
+        case 'requests':
+          return InboxIcon;
+        case 'search':
+          return MagnifyingGlassIcon;
+        default:
+          return UserGroupIcon;
+      }
+    });
+
+    const buttonIconComponent = computed(() => {
+      switch (props.buttonAction) {
+        case 'show-invite-modal':
+          return EnvelopeIcon;
+        case 'clear-search':
+          return ArrowPathIcon;
+        case 'add-friends':
+          return PlusIcon;
+        default:
+          return EnvelopeIcon;
+      }
+    });
+
     const onButtonClick = () => {
       emit('button-click', props.buttonAction);
     };
 
     return {
+      iconComponent,
+      buttonIconComponent,
       onButtonClick
     };
   }
@@ -66,9 +113,20 @@ export default defineComponent({
   text-align: center;
 
   .empty-icon {
-    font-size: 4rem;
     margin-bottom: map.get(vars.$spacing, l);
-    opacity: 0.5;
+    
+    .empty-icon-svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+          transition: all 0.4s ease-out;
+        }
+      }
+    }
   }
 
   h3 {
@@ -119,10 +177,9 @@ export default defineComponent({
       }
     }
 
-    &.invite-button {
-      .invite-icon {
-        font-size: 1.2rem;
-      }
+    .button-icon {
+      width: 20px;
+      height: 20px;
     }
   }
 }
