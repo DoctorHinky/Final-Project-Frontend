@@ -16,7 +16,8 @@
     <friends-tabs 
       :tabs="tabs" 
       :active-tab="activeTab"
-      :pending-requests-count="pendingRequestsCount" 
+      :pending-requests-count="pendingRequestsCount"
+      :unread-messages-count="unreadMessagesCount"
       @update:active-tab="activeTab = $event" 
     />
 
@@ -100,7 +101,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
 import {
   FriendsStats,
   FriendsTabs,
@@ -149,6 +150,7 @@ export default defineComponent({
     const friends = ref<Friend[]>([]);
     const pendingRequests = ref<FriendRequest[]>([]);
     const sentRequests = ref<SentRequest[]>([]);
+    const unreadMessagesCount = ref(0);
 
     // Toast-Benachrichtigungen
     const toast = ref<Toast>({
@@ -178,6 +180,51 @@ export default defineComponent({
           friend.bio?.toLowerCase().includes(query)
       );
     });
+
+    // Ungelesene Nachrichten laden
+    const loadUnreadMessagesCount = async () => {
+      try {
+        const conversations = await chatService.getAllConversations();
+        let totalUnread = 0;
+        
+        for (const conv of conversations) {
+          const unreadCount = await chatService.getUnreadMessageCount(conv.id);
+          totalUnread += unreadCount;
+        }
+        
+        unreadMessagesCount.value = totalUnread;
+        
+        // Event für MemberSidebar senden
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('unread-messages-updated', { 
+            detail: { count: totalUnread } 
+          }));
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der ungelesenen Nachrichten:', error);
+        unreadMessagesCount.value = 0;
+      }
+    };
+
+    // Polling für ungelesene Nachrichten
+    let unreadMessagesInterval: ReturnType<typeof setInterval> | null = null;
+
+    const startUnreadMessagesPolling = () => {
+      // Initial laden
+      loadUnreadMessagesCount();
+      
+      // Alle 30 Sekunden aktualisieren
+      unreadMessagesInterval = setInterval(() => {
+        loadUnreadMessagesCount();
+      }, 30000);
+    };
+
+    const stopUnreadMessagesPolling = () => {
+      if (unreadMessagesInterval) {
+        clearInterval(unreadMessagesInterval);
+        unreadMessagesInterval = null;
+      }
+    };
 
     // Toast-Helper
     const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -275,6 +322,10 @@ export default defineComponent({
           // Zeige Warnung, aber lade trotzdem was funktioniert hat
           showToast('Einige Daten konnten nicht geladen werden', 'info');
         }
+
+        // Starte ungelesene Nachrichten Polling nach dem Laden der Freunde
+        startUnreadMessagesPolling();
+        
       } catch (err: any) {
         error.value = err.message || 'Unbekannter Fehler beim Laden der Daten';
         showToast('Fehler beim Laden der Daten', 'error');
@@ -389,6 +440,9 @@ export default defineComponent({
         
         console.log('Message sent successfully to:', data.friendId);
         showToast('Nachricht erfolgreich gesendet!', 'success');
+        
+        // Aktualisiere ungelesene Nachrichten
+        loadUnreadMessagesCount();
       } catch (error) {
         console.error('Error sending message:', error);
         showToast('Fehler beim Senden der Nachricht', 'error');
@@ -398,6 +452,10 @@ export default defineComponent({
     // Lifecycle
     onMounted(() => {
       loadData();
+    });
+
+    onUnmounted(() => {
+      stopUnreadMessagesPolling();
     });
 
     return {
@@ -418,6 +476,7 @@ export default defineComponent({
       friends,
       pendingRequests,
       sentRequests,
+      unreadMessagesCount,
       
       // Computed
       friendsCount,

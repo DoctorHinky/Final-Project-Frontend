@@ -70,7 +70,7 @@ export default defineComponent({
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    cursor: pointer;
+    user-select: none;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {

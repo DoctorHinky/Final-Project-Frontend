@@ -796,10 +796,8 @@ export default defineComponent({
         replyContent.value = '';
         replyingTo.value = null;
         await loadComments(); // Kommentare neu laden
-        showAlertMessage('success', 'Erfolgreich', 'Antwort wurde gesendet!');
       } catch (error) {
         console.error('Error submitting reply:', error);
-        showAlertMessage('error', 'Fehler', 'Fehler beim Senden der Antwort');
       }
     };
 
@@ -837,7 +835,6 @@ export default defineComponent({
         await loadRating(); // Rating neu laden
       } catch (error) {
         console.error('Error liking article:', error);
-        showAlertMessage('error', 'Fehler', 'Fehler beim Bewerten des Artikels');
       } finally {
         loadingRating.value = false;
       }
@@ -853,7 +850,6 @@ export default defineComponent({
         await loadRating(); // Rating neu laden
       } catch (error) {
         console.error('Error disliking article:', error);
-        showAlertMessage('error', 'Fehler', 'Fehler beim Bewerten des Artikels');
       } finally {
         loadingRating.value = false;
       }

@@ -12,9 +12,17 @@
       <!-- Status Badge für Anfragen -->
       <span 
         v-if="tab.id === 'requests' && pendingRequestsCount > 0" 
-        class="badge"
+        class="badge requests-badge"
       >
         {{ pendingRequestsCount }}
+      </span>
+      <!-- Status Badge für ungelesene Nachrichten -->
+      <span 
+        v-if="tab.id === 'friends' && unreadMessagesCount > 0" 
+        class="badge messages-badge"
+        :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
+      >
+        {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
       </span>
     </button>
   </div>
@@ -38,6 +46,10 @@ export default defineComponent({
     pendingRequestsCount: {
       type: Number,
       required: true
+    },
+    unreadMessagesCount: {
+      type: Number,
+      default: 0
     }
   },
   emits: ['update:activeTab'],
@@ -108,14 +120,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       line-height: 1;
       @include animations.fade-in(0.3s);
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background-color: #ff4757; // Rot für Aufmerksamkeit
-          color: white;
-          transition: all 0.4s ease-out;
-        }
-      }
+      transition: all 0.25s ease;
 
       // Badge Animation
       animation: badge-pulse 2s infinite;
@@ -123,6 +128,29 @@ export default defineComponent({
       top: 6px;
       right: 6px;
       z-index: 1;
+
+      &.requests-badge {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: #ff4757; // Rot für Aufmerksamkeit
+            color: white;
+            transition: all 0.4s ease-out;
+          }
+        }
+      }
+
+      &.messages-badge {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: #2ed573; // Grün für Nachrichten
+            color: white;
+            transition: all 0.4s ease-out;
+          }
+        }
+
+        // Spezielle Animation für Nachrichten-Badge
+        animation: message-pulse 3s infinite;
+      }
     }
   }
 }
@@ -139,12 +167,43 @@ export default defineComponent({
   }
 }
 
+@keyframes message-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 // Responsive Design
 @media (max-width: 640px) {
   .friends-tabs {
     .tab-button {
       padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
       font-size: map.get(map.get(vars.$fonts, sizes), xs);
+
+      .badge {
+        min-width: 18px;
+        height: 18px;
+        font-size: map.get(map.get(vars.$fonts, sizes), xxs);
+        top: 4px;
+        right: 4px;
+      }
     }
   }
 }

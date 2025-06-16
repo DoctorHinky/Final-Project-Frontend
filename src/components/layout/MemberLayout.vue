@@ -209,14 +209,13 @@ export default defineComponent({
 .bubble {
   border: 1px solid black;
   position: fixed;
-  top: 40px;
-  bottom: map.get(vars.$spacing, l);
+  bottom: 40px;
   right: map.get(vars.$spacing, l);
   width: 32px;
   height: 32px;
   background: linear-gradient(
     135deg,
-    rgba(100, 180, 255, 0.7) 60%,
+    rgba(9, 114, 88, 0.7) 60%,
     rgba(255, 255, 255, 0.25) 100%
   );
   border-radius: 50%;
@@ -296,7 +295,7 @@ export default defineComponent({
       0 2px 8px rgba(0, 0, 0, 0.10);
     background: linear-gradient(
       135deg,
-      rgba(100, 180, 255, 0.85) 60%,
+      rgba(14, 131, 67, 0.85) 60%,
       rgba(255, 255, 255, 0.35) 100%
     );
 
@@ -306,7 +305,7 @@ export default defineComponent({
       transition-delay: 0.1s;
     }
     &::before {
-      color: #1565c0;
+      color: #fcfcfc8f;
     }
   }
 }

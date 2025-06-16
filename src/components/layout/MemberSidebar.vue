@@ -32,7 +32,7 @@
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
-        <span v-if="isCustomProfileImage" class="profile-status">Eigenes Bild</span>
+        <span v-if="isCustomProfileImage" class="profile-status">Am Verfassen</span>
       </div>
       
       <button class="close-sidebar" @click="$emit('close')">×</button>
@@ -46,13 +46,46 @@
           <component :is="item.icon" class="h-6 w-6" />
         </span>
         <span class="nav-text">{{ item.text }}</span>
+        <!-- Badge für ungelesene Nachrichten bei Freunde -->
+        <span 
+          v-if="item.id === 'friends' && unreadMessagesCount > 0" 
+          class="nav-badge"
+          :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
+        >
+          {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
+        </span>
       </div>
     </nav>
+
+    <!-- Support-Bereich -->
+    <div class="support-section">
+      <div class="support-divider"></div>
+      <button class="support-button" @click="openSupportModal" title="Support kontaktieren">
+        <span class="support-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <path d="M8 10h8"></path>
+            <path d="M8 14h6"></path>
+          </svg>
+        </span>
+        <span class="support-text">Support</span>
+      </button>
+    </div>
+
+    <!-- Support Modal -->
+    <Teleport to="body">
+      <UserTicketModal 
+        :isOpen="showSupportModal" 
+        @close="closeSupportModal"
+        @ticket-created="handleTicketCreated"
+      />
+    </Teleport>
   </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, watch } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -64,6 +97,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { authorService } from '@/services/author.service';
 import { userService } from '@/services/userMD.services';
+import UserTicketModal from '@/components/member/support/UserTicketModal.vue';
 import type { User } from '@/types/dtos/User.types';
 
 // TypeScript Interface für Token-Payload
@@ -87,7 +121,8 @@ export default defineComponent({
     BellIcon,
     Cog6ToothIcon,
     DocumentTextIcon,
-    PencilIcon
+    PencilIcon,
+    UserTicketModal
   },
   props: {
     isOpen: {
@@ -108,6 +143,8 @@ export default defineComponent({
     const userData = ref<User | null>(null);
     const isImageLoaded = ref(true);
     const fallbackImageUrl = '/src/assets/images/AvatarIcon1.webp';
+    const showSupportModal = ref(false);
+    const unreadMessagesCount = ref(0);
     
     // Computed Properties
     const userProfileImage = computed(() => {
@@ -233,9 +270,43 @@ export default defineComponent({
       }, 100);
     };
 
+    // Support Modal-Funktionen
+    const openSupportModal = () => {
+      console.log('Support Modal wird geöffnet...'); // Debug
+      showSupportModal.value = true;
+      console.log('showSupportModal.value:', showSupportModal.value); // Debug
+    };
+
+    const closeSupportModal = () => {
+      console.log('Support Modal wird geschlossen...'); // Debug
+      showSupportModal.value = false;
+    };
+
+    const handleTicketCreated = () => {
+      console.log('Ticket wurde erfolgreich erstellt'); // Debug
+      closeSupportModal();
+    };
+
+    // Event-Listener für ungelesene Nachrichten
+    const handleUnreadMessagesUpdate = (event: CustomEvent) => {
+      unreadMessagesCount.value = event.detail.count || 0;
+    };
+
     // Lifecycle hooks
     onMounted(() => {
       loadUserData();
+      
+      // Event-Listener für ungelesene Nachrichten registrieren
+      if (typeof window !== 'undefined') {
+        window.addEventListener('unread-messages-updated', handleUnreadMessagesUpdate as EventListener);
+      }
+    });
+
+    onUnmounted(() => {
+      // Event-Listener entfernen
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('unread-messages-updated', handleUnreadMessagesUpdate as EventListener);
+      }
     });
 
     // Watch für Updates der Benutzerdaten (z.B. nach Profilbild-Upload)
@@ -265,12 +336,17 @@ export default defineComponent({
       userProfileImage,
       isCustomProfileImage,
       isImageLoaded,
+      showSupportModal,
+      unreadMessagesCount,
       
       // Methods
       selectMenuItem,
       handleImageError,
       loadUserData,
-      goToProfileSettings
+      goToProfileSettings,
+      openSupportModal,
+      closeSupportModal,
+      handleTicketCreated
     };
   }
 });
@@ -293,7 +369,9 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   padding-top: 70px; // Platz für den Header
+  padding-bottom: 20px; // Mehr Platz für Support-Bereich
   user-select: none;
+  padding-bottom: 5rem;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
@@ -537,6 +615,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       cursor: pointer;
       transition: all 0.3s;
+      position: relative;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -570,10 +649,97 @@ export default defineComponent({
       .nav-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         transition: all 0.3s ease;
+        flex: 1;
+      }
+
+      .nav-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 50%;
+        font-size: map.get(map.get(vars.$fonts, sizes), xs);
+        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        line-height: 1;
+        margin-left: auto;
+        @include animations.fade-in(0.3s);
+        animation: nav-badge-pulse 3s infinite;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: #2ed573; // Grün für Nachrichten
+            color: white;
+            box-shadow: 0 2px 4px rgba(46, 213, 115, 0.3);
+            transition: all 0.4s ease-out;
+          }
+        }
       }
 
       &:hover .nav-icon {
         transform: scale(1.1);
+      }
+    }
+  }
+
+  // Support-Bereich
+  .support-section {
+    margin-top: auto;
+    padding: map.get(vars.$spacing, m);
+    
+    .support-divider {
+      height: 1px;
+      margin-bottom: map.get(vars.$spacing, m);
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, border-light);
+        }
+      }
+    }
+
+    .support-button {
+      display: flex;
+      align-items: center;
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: none;
+      border: none;
+      width: 100%;
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+          
+          &:hover {
+            background-color: mixins.theme-color($theme, hover-color);
+            color: mixins.theme-color($theme, text-secondary);
+            transform: translateX(2px);
+          }
+        }
+      }
+
+      .support-icon {
+        margin-right: map.get(vars.$spacing, s);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      .support-text {
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        transition: all 0.3s ease;
+      }
+
+      &:hover .support-icon {
+        opacity: 1;
+        transform: scale(1.05);
       }
     }
   }
@@ -632,6 +798,29 @@ export default defineComponent({
   50% {
     opacity: 0.7;
     transform: scale(1.1);
+  }
+}
+
+@keyframes nav-badge-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
