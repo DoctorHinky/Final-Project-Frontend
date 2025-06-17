@@ -3,7 +3,7 @@
   <div class="modal-overlay" @click="$emit('close')">
     <div class="modal-container" @click.stop>
       <div class="modal-header">
-        <h3>{{ post?.title || 'Lade...' }}</h3>
+        <h3>{{ post?.title || "Lade..." }}</h3>
         <button class="close-button" @click="$emit('close')">×</button>
       </div>
 
@@ -19,7 +19,7 @@
         <div class="post-info">
           <div class="info-row">
             <span class="label">Autor:</span>
-            <span>{{ post.author?.username || 'Unbekannt' }}</span>
+            <span>{{ post.author?.username || "Unbekannt" }}</span>
           </div>
           <div class="info-row">
             <span class="label">Kategorie:</span>
@@ -33,11 +33,7 @@
           </div>
           <div class="info-row" v-if="post.publishedAt">
             <span class="label">Veröffentlicht:</span>
-            <span>{{ formatDate(post.publishedAt) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Aufrufe:</span>
-            <span>{{ post.views || 0 }}</span>
+            <span>{{ formatDate(post.publishedAt, "-") }}</span>
           </div>
         </div>
 
@@ -61,14 +57,17 @@
         </div>
 
         <div class="post-actions">
-          <button v-if="!post.isDeleted" @click="toggleStatus" class="action-button"
-            :class="post.published ? 'unpublish' : 'publish'" :disabled="!canPublish">
-            {{ post.published ? 'Depublizieren' : 'Veröffentlichen' }}
+          <button
+            v-if="!post.isDeleted"
+            @click="toggleStatus"
+            class="action-button"
+            :class="post.published ? 'unpublish' : 'publish'"
+            :disabled="!canPublish"
+          >
+            {{ post.published ? "Depublizieren" : "Veröffentlichen" }}
           </button>
 
-          <button v-if="!post.isDeleted" @click="deletePost" class="action-button delete">
-            Löschen
-          </button>
+          <button v-if="!post.isDeleted" @click="deletePost" class="action-button delete">Löschen</button>
         </div>
       </div>
     </div>
@@ -76,38 +75,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue';
-import adminPostService from '@/services/admin.post.service';
-import { authService } from '@/services/auth.service';
-
-interface Post {
-  id: string;
-  title: string;
-  quickDescription: string;
-  image?: string;
-  author?: { username: string; id?: string };
-  authorId?: string;
-  category: string;
-  publishedAt: Date | null;
-  published: boolean;
-  isDeleted?: boolean;
-  views?: number;
-  chapters?: Array<{ id: string; title: string }>;
-}
+import { defineComponent, ref, onMounted, computed } from "vue";
+import adminPostService from "@/services/admin.post.service";
+import { authService } from "@/services/auth.service";
+import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
+import { formatDate } from "@/composables/helperFunctions";
 
 export default defineComponent({
-  name: 'PostDetailModal',
+  name: "PostDetailModal",
   props: {
     postId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['close'],
-  setup(props, { emit }) {
+  emits: ["close"],
+  setup(props) {
     const post = ref<Post | null>(null);
     const loading = ref(true);
-    const error = ref('');
+    const error = ref("");
 
     // Prüfen ob User der Autor ist
     const currentUser = authService.getUserData();
@@ -120,13 +106,13 @@ export default defineComponent({
     });
     const loadPost = async () => {
       loading.value = true;
-      error.value = '';
+      error.value = "";
 
       try {
         const response = await adminPostService.getPostById(props.postId);
         post.value = response;
       } catch (err: any) {
-        error.value = err.response?.data?.message || 'Fehler beim Laden des Artikels';
+        error.value = err.response?.data?.message || "Fehler beim Laden des Artikels";
       } finally {
         loading.value = false;
       }
@@ -141,7 +127,7 @@ export default defineComponent({
           post.value.published = false;
         } else {
           if (!canPublish.value) {
-            alert('Nur der Autor kann seinen Artikel veröffentlichen.');
+            alert("Nur der Autor kann seinen Artikel veröffentlichen.");
             return;
           }
           await adminPostService.publishPost(post.value.id);
@@ -150,63 +136,52 @@ export default defineComponent({
         }
       } catch (err: any) {
         if (err.response?.status === 403) {
-          alert('Sie haben keine Berechtigung für diese Aktion.');
+          alert("Sie haben keine Berechtigung für diese Aktion.");
         } else {
-          alert(err.response?.data?.message || 'Fehler beim Ändern des Status');
+          alert(err.response?.data?.message || "Fehler beim Ändern des Status");
         }
       }
     };
 
-    const restore = async () => {
+    /* const restore = async () => {
       if (!post.value) return;
 
       try {
         await adminPostService.restorePost(post.value.id);
         post.value.isDeleted = false;
       } catch (err: any) {
-        alert(err.response?.data?.message || 'Fehler beim Wiederherstellen');
+        alert(err.response?.data?.message || "Fehler beim Wiederherstellen");
       }
-    };
+    }; */
 
     const deletePost = async () => {
       if (!post.value) return;
 
-      const reason = prompt('Grund für die Löschung:');
+      const reason = prompt("Grund für die Löschung:");
       if (!reason) return;
 
       try {
         await adminPostService.deletePost(post.value.id, reason);
         post.value.isDeleted = true;
       } catch (err: any) {
-        alert(err.response?.data?.message || 'Fehler beim Löschen');
+        alert(err.response?.data?.message || "Fehler beim Löschen");
       }
     };
 
-    const formatDate = (date: Date | null): string => {
-      if (!date) return '-';
-      return new Date(date).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
-
     const formatCategory = (category: string): string => {
-      return category.replace(/_/g, ' ');
+      return category.replace(/_/g, " ");
     };
 
     const getStatusClass = (post: Post): string => {
-      if (post.isDeleted) return 'deleted';
-      if (!post.published) return 'draft';
-      return 'published';
+      if (post.isDeleted) return "deleted";
+      if (!post.published) return "draft";
+      return "published";
     };
 
     const getStatusText = (post: Post): string => {
-      if (post.isDeleted) return 'Gelöscht';
-      if (!post.published) return 'Entwurf';
-      return 'Veröffentlicht';
+      if (post.isDeleted) return "Gelöscht";
+      if (!post.published) return "Entwurf";
+      return "Veröffentlicht";
     };
 
     onMounted(() => {
@@ -223,9 +198,9 @@ export default defineComponent({
       formatDate,
       formatCategory,
       getStatusClass,
-      getStatusText
+      getStatusText,
     };
-  }
+  },
 });
 </script>
 

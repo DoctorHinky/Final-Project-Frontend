@@ -16,9 +16,9 @@ export type Article = {
   authorId: string | null;
   moderatorId: string | null;
   published: boolean;
-  publishedAt: string | null;
+  publishedAt: string | Date | null;
   isDeleted: boolean;
-  deletedAt: string | null;
+  deletedAt: string | Date | null;
   deletedBy: string | null;
   deleteReason: string | null;
   createdAt: Date | string;

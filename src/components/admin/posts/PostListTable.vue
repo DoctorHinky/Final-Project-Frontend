@@ -43,7 +43,6 @@
               {{ getStatusText(post) }}
             </span>
           </td>
-          <td class="col-views">{{ formatNumber(post.views) }}</td>
           <td class="col-actions">
             <div class="actions-container">
               <button class="action-button view-button" @click.stop="$emit('view', post.id)" title="Artikel ansehen">
@@ -108,19 +107,8 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-
-interface Post {
-  id: string;
-  title: string;
-  quickDescription?: string;
-  image?: string;
-  author?: { username: string };
-  category?: string;
-  publishedAt?: Date | string | null;
-  published: boolean;
-  isDeleted?: boolean;
-  views?: number;
-}
+import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
+import { formatDate } from "@/composables/helperFunctions";
 
 export default defineComponent({
   name: "PostListTable",
@@ -132,6 +120,7 @@ export default defineComponent({
   },
   emits: ["view", "toggle-status"],
   methods: {
+    formatDate, // Importing the formatDate function from the composable
     getAuthorInitials(author?: { username: string }): string {
       if (!author?.username) return "??";
       const parts = author.username.split(" ");
@@ -144,15 +133,6 @@ export default defineComponent({
     truncateText(text: string, maxLength: number): string {
       if (!text || text.length <= maxLength) return text || "";
       return text.substring(0, maxLength) + "...";
-    },
-
-    formatDate(date: Date | null): string {
-      if (!date || date === null) return "-";
-      return new Date(date).toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
     },
 
     formatCategory(category: string): string {

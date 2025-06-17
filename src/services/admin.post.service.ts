@@ -11,18 +11,18 @@ interface PostsResponse {
   };
 }
 
-interface Report {
+/* interface Report {
   reporterName: string;
   reportedAt: Date;
   reason: string;
   description: string;
-}
+} */
 
-interface AdminPost extends Post {
+/* interface AdminPost extends Post {
   reportCount?: number;
   reports?: Report[];
   views: number;
-}
+} */
 
 class AdminPostService {
   /**
@@ -60,7 +60,9 @@ class AdminPostService {
   /**
    * Holt einen einzelnen Post mit Details
    */
-  async getPostById(postId: string): Promise<AdminPost> {
+
+  // von AdminPost zu Post geändert, subtypes sind haluziniert
+  async getPostById(postId: string): Promise<Post> {
     try {
       const response = await api.get(`/article/getPostById/${postId}`);
       return response.data.data;

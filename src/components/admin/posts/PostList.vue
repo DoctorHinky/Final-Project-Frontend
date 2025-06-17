@@ -38,31 +38,18 @@
     </template>
 
     <!-- Post Detail Modal -->
-    <PostDetailModal v-if="showPostDetail" :postId="selectedPostId" @close="closePostDetail" />
+    <PostDetailModal v-if="showPostDetail" :postId="selectedPostId ?? ''" @close="closePostDetail" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
 import adminPostService from "@/services/admin.post.service";
 import PostListHeader from "./PostListHeader.vue";
 import PostListTable from "./PostListTable.vue";
 import PostListPagination from "./PostListPagination.vue";
 import PostDetailModal from "./PostDetailModal.vue";
-
-interface Post {
-  id: string;
-  title: string;
-  quickDescription: string;
-  image?: string;
-  author?: { username: string };
-  category: string;
-  publishedAt: Date | null;
-  published: boolean;
-  isDeleted?: boolean;
-  views?: number;
-}
+import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
 
 export default defineComponent({
   name: "PostList",
@@ -73,7 +60,6 @@ export default defineComponent({
     PostDetailModal,
   },
   setup() {
-    const router = useRouter();
     const posts = ref<Post[]>([]);
     const isLoading = ref(true);
     const error = ref("");
@@ -174,7 +160,7 @@ export default defineComponent({
     };
 
     // Post wiederherstellen
-    const restorePost = async (post: Post) => {
+    /* const restorePost = async (post: Post) => {
       try {
         await adminPostService.restorePost(post.id);
         post.isDeleted = false;
@@ -183,7 +169,7 @@ export default defineComponent({
         alert(err.response?.data?.message || "Fehler beim Wiederherstellen");
         loadPosts();
       }
-    };
+    }; */
 
     // Post anzeigen
     const viewPost = (postId: string) => {
@@ -205,8 +191,8 @@ export default defineComponent({
     });
 
     // Debounced search
-    let searchTimeout: NodeJS.Timeout;
-    watch(searchQuery, (newVal) => {
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    watch(searchQuery, () => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {
         currentPage.value = 1;
