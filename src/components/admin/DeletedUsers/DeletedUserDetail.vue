@@ -17,7 +17,18 @@
             <h3>{{ getUserDisplayName(user) }}</h3>
             <div class="user-badges">
               <span class="status-badge deleted">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="inline mr-1"
+                >
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
@@ -27,7 +38,18 @@
                 {{ getReasonText(user.deleteReason) }}
               </span>
               <span v-if="user.verified" class="status-badge verified">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="inline mr-1"
+                >
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
                 Verifiziert
@@ -40,7 +62,18 @@
         <!-- Deletion Info Section -->
         <div class="section">
           <h4>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-2"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M12 16v-4"></path>
               <path d="M12 8h.01"></path>
@@ -58,7 +91,7 @@
             </div>
             <div class="field">
               <label>Gelöscht von</label>
-              <div class="field-value">{{ user.deletedByUser?.username || user.deletedBy || 'System' }}</div>
+              <div class="field-value">{{ user.deletedByUser?.username || user.deletedBy || "System" }}</div>
             </div>
             <div class="field">
               <label>Rolle</label>
@@ -80,7 +113,18 @@
         <!-- User Stats Section -->
         <div class="section">
           <h4>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-2"
+            >
               <path d="M3 3v18h18"></path>
               <path d="M18 17V9"></path>
               <path d="M13 17V5"></path>
@@ -91,7 +135,17 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -103,42 +157,72 @@
                 <p>Tage registriert</p>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <div class="stat-icon articles">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="8" r="4"></circle>
                 </svg>
               </div>
               <div class="stat-content">
-                <h5>{{ user.username || 'N/A' }}</h5>
+                <h5>{{ user.username || "N/A" }}</h5>
                 <p>Benutzername</p>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <div class="stat-icon comments">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
               </div>
               <div class="stat-content">
-                <h5>{{ formatDate(user.createdAt || '') }}</h5>
+                <h5>{{ formatDate(user.createdAt || "") }}</h5>
                 <p>Registriert am</p>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <div class="stat-icon written">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <circle cx="12" cy="12" r="10"></circle>
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
               </div>
               <div class="stat-content">
-                <h5>{{ user.deactivated ? 'Ja' : 'Nein' }}</h5>
+                <h5>{{ user.deactivated ? "Ja" : "Nein" }}</h5>
                 <p>War deaktiviert</p>
               </div>
             </div>
@@ -148,7 +232,18 @@
         <!-- Danger Zone -->
         <div class="section danger-zone">
           <h4>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-2"
+            >
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
               <line x1="12" y1="9" x2="12" y2="13"></line>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -157,7 +252,18 @@
           </h4>
           <div class="danger-actions">
             <button class="restore-btn" @click="restoreUser">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline mr-1"
+              >
                 <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
                 <path d="M21 3v5h-5"></path>
                 <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -166,7 +272,18 @@
               Benutzer wiederherstellen
             </button>
             <button class="danger-btn" @click="permanentDeleteUser">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline mr-1"
+              >
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -182,115 +299,103 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-
-interface DeletedUser {
-  id: string;
-  username?: string;
-  firstname?: string;
-  lastname?: string;
-  email: string;
-  role: string;
-  isDeleted: boolean;
-  deletedAt: string;
-  deletedBy: string;
-  deleteReason?: string;
-  deletedByUser?: {
-    username: string;
-  };
-  profilePicture?: string;
-  createdAt?: string;
-  verified?: boolean;
-  deactivated?: boolean;
-}
+import { defineComponent, type PropType } from "vue";
+import type { DeletedUser } from "@/types";
 
 export default defineComponent({
-  name: 'DeletedUserDetail',
+  name: "DeletedUserDetail",
   props: {
     user: {
       type: Object as PropType<DeletedUser>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['close', 'restore', 'permanent-delete'],
+  emits: ["close", "restore", "permanent-delete"],
   setup(props, { emit }) {
     function getUserInitials(user: DeletedUser): string {
-      const firstname = user.firstname || '';
-      const lastname = user.lastname || '';
-      
+      const firstname = user.firstname || "";
+      const lastname = user.lastname || "";
+
       if (firstname && lastname) {
         return (firstname[0] + lastname[0]).toUpperCase();
       } else if (user.username) {
         return user.username.substring(0, 2).toUpperCase();
       }
-      return '??';
+      return "??";
     }
 
     function getUserDisplayName(user: DeletedUser): string {
       if (user.firstname && user.lastname) {
         return `${user.firstname} ${user.lastname}`;
       }
-      return user.username || 'Gelöschter Benutzer';
+      return user.username || "Gelöschter Benutzer";
     }
 
     function getReasonText(reason?: string): string {
       if (!reason) return "Kein Grund angegeben";
-      
+
       // Mapping von Backend-Gründen zu Anzeige-Text
       const reasonMap: Record<string, string> = {
         "No reason given": "Kein Grund angegeben",
-        "VIOLATION": "Regelverstoß",
-        "SELF_DELETION": "Eigene Löschung",
-        "ADMIN_DELETION": "Admin-Löschung",
-        "INACTIVITY": "Inaktivität",
+        VIOLATION: "Regelverstoß",
+        SELF_DELETION: "Eigene Löschung",
+        ADMIN_DELETION: "Admin-Löschung",
+        INACTIVITY: "Inaktivität",
       };
-      
+
       return reasonMap[reason] || reason;
     }
 
     function getReasonClass(reason?: string): string {
       if (!reason) return "other";
-      
+
       if (reason.includes("Regel") || reason.includes("VIOLATION")) return "violation";
       if (reason.includes("Eigene") || reason.includes("SELF")) return "self-deletion";
       if (reason.includes("Admin") || reason.includes("ADMIN")) return "admin-deletion";
       if (reason.includes("Inaktiv") || reason.includes("INACTIVITY")) return "inactivity";
-      
+
       return "other";
     }
 
-    function formatDate(date: string): string {
+    function formatDate(date: string | Date): string {
       if (!date) return "Unbekannt";
-      
-      return new Date(date).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+
+      const d = typeof date === "string" ? new Date(date) : date;
+      return d.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     }
 
     function calculateRegisteredDays(user: DeletedUser): number {
       if (!user.createdAt || !user.deletedAt) return 0;
-      
+
       const created = new Date(user.createdAt);
       const deleted = new Date(user.deletedAt);
       const diffTime = Math.abs(deleted.getTime() - created.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       return diffDays;
     }
 
     const restoreUser = () => {
       if (confirm(`Möchten Sie den Benutzer "${getUserDisplayName(props.user)}" wirklich wiederherstellen?`)) {
-        emit('restore', props.user);
+        emit("restore", props.user);
       }
     };
 
     const permanentDeleteUser = () => {
-      if (confirm(`ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!\n\nMöchten Sie den Benutzer "${getUserDisplayName(props.user)}" wirklich ENDGÜLTIG löschen?`)) {
-        emit('permanent-delete', props.user);
+      if (
+        confirm(
+          `ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!\n\nMöchten Sie den Benutzer "${getUserDisplayName(
+            props.user
+          )}" wirklich ENDGÜLTIG löschen?`
+        )
+      ) {
+        emit("permanent-delete", props.user);
       }
     };
 
@@ -303,19 +408,19 @@ export default defineComponent({
       calculateRegisteredDays,
       getRoleLabel: (role: string) => {
         const roleMap: Record<string, string> = {
-          'ADMIN': 'Admin',
-          'MODERATOR': 'Moderator',
-          'AUTHOR': 'Autor',
-          'ADULT': 'Erwachsener',
-          'CHILD': 'Kind',
-          'USER': 'Benutzer'
+          ADMIN: "Admin",
+          MODERATOR: "Moderator",
+          AUTHOR: "Autor",
+          ADULT: "Erwachsener",
+          CHILD: "Kind",
+          USER: "Benutzer",
         };
         return roleMap[role] || role;
       },
       restoreUser,
-      permanentDeleteUser
+      permanentDeleteUser,
     };
-  }
+  },
 });
 </script>
 

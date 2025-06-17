@@ -10,13 +10,18 @@
 
     <div class="view-tabs">
       <div class="tab-list">
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'list' }"
-          @click="activeTab = 'list'"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="tab-button" :class="{ active: activeTab === 'list' }" @click="activeTab = 'list'">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="8" y1="6" x2="21" y2="6"></line>
             <line x1="8" y1="12" x2="21" y2="12"></line>
             <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -26,13 +31,18 @@
           </svg>
           Gelöschte Benutzer
         </button>
-        <button
-          class="tab-button"
-          :class="{ active: activeTab === 'search' }"
-          @click="activeTab = 'search'"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="tab-button" :class="{ active: activeTab === 'search' }" @click="activeTab = 'search'">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -43,8 +53,8 @@
 
     <div class="view-content">
       <keep-alive>
-        <component 
-          :is="currentTabComponent" 
+        <component
+          :is="currentTabComponent"
           @user-selected="handleUserSelected"
           @user-restored="handleUserRestored"
           @user-permanently-deleted="handleUserPermanentlyDeleted"
@@ -66,74 +76,55 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
-import DeletedUsersList from './DeletedUsersList.vue';
-import DeletedUsersSearch from './DeletedUsersSearch.vue';
-import DeletedUserDetail from './DeletedUserDetail.vue';
-import userService, { type DeletedUser } from '@/services/user.service';
-
-interface DeletedUser {
-  id: string;
-  username?: string;
-  firstname?: string;
-  lastname?: string;
-  email: string;
-  role: string;
-  isDeleted: boolean;
-  deletedAt: string;
-  deletedBy: string;
-  deleteReason?: string;
-  deletedByUser?: {
-    username: string;
-  };
-  profilePicture?: string;
-  createdAt?: string;
-  verified?: boolean;
-  deactivated?: boolean;
-}
+import { defineComponent, ref, computed, onUnmounted } from "vue";
+import DeletedUsersList from "./DeletedUsersList.vue";
+import DeletedUsersSearch from "./DeletedUsersSearch.vue";
+import DeletedUserDetail from "./DeletedUserDetail.vue";
+import userService from "@/services/user.service";
+import type { DeletedUser } from "@/types";
 
 export default defineComponent({
-  name: 'DeletedUsers',
+  name: "DeletedUsers",
   components: {
     DeletedUsersList,
     DeletedUsersSearch,
-    DeletedUserDetail
+    DeletedUserDetail,
   },
   setup() {
-    const activeTab = ref('list');
+    const activeTab = ref("list");
     const selectedUser = ref<DeletedUser | null>(null);
 
     const currentTabComponent = computed(() => {
       switch (activeTab.value) {
-        case 'search':
-          return 'DeletedUsersSearch';
+        case "search":
+          return "DeletedUsersSearch";
         default:
-          return 'DeletedUsersList';
+          return "DeletedUsersList";
       }
     });
 
     const handleUserSelected = (user: DeletedUser) => {
       selectedUser.value = user;
       // Body overflow verhindern wenn Modal offen
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     };
 
     const closeUserDetail = () => {
       selectedUser.value = null;
       // Body overflow wiederherstellen
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
 
     const handleUserRestored = async (user: DeletedUser) => {
       try {
         // API Call zum Wiederherstellen
         await userService.restoreUser(user.id);
-        console.log('Benutzer wiederhergestellt:', user);
+        console.log("Benutzer wiederhergestellt:", user);
         closeUserDetail();
         // Hier könnte man die Liste aktualisieren
       } catch (error) {
-        console.error('Fehler beim Wiederherstellen:', error);
-        alert('Fehler beim Wiederherstellen des Benutzers');
+        console.error("Fehler beim Wiederherstellen:", error);
+        alert("Fehler beim Wiederherstellen des Benutzers");
       }
     };
 
@@ -141,18 +132,18 @@ export default defineComponent({
       try {
         // API Call zum endgültigen Löschen
         await userService.deleteUserForever(user.id);
-        console.log('Benutzer endgültig gelöscht:', user);
+        console.log("Benutzer endgültig gelöscht:", user);
         closeUserDetail();
         // Hier könnte man die Liste aktualisieren
       } catch (error) {
-        console.error('Fehler beim endgültigen Löschen:', error);
-        alert('Fehler beim endgültigen Löschen des Benutzers');
+        console.error("Fehler beim endgültigen Löschen:", error);
+        alert("Fehler beim endgültigen Löschen des Benutzers");
       }
     };
 
     // Cleanup bei Component Unmount
     onUnmounted(() => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     });
 
     return {
@@ -162,9 +153,9 @@ export default defineComponent({
       handleUserSelected,
       closeUserDetail,
       handleUserRestored,
-      handleUserPermanentlyDeleted
+      handleUserPermanentlyDeleted,
     };
-  }
+  },
 });
 </script>
 
@@ -258,7 +249,7 @@ export default defineComponent({
     .tab-list {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      
+
       &::-webkit-scrollbar {
         display: none;
       }

@@ -48,11 +48,13 @@
               </svg>
             </div>
             <div class="select-options" v-if="isDropdownOpen">
-              <div class="select-option" 
-                   v-for="option in filterOptions" 
-                   :key="option.value"
-                   :class="{ selected: statusFilter === option.value }"
-                   @click="selectFilter(option.value)">
+              <div
+                class="select-option"
+                v-for="option in filterOptions"
+                :key="option.value"
+                :class="{ selected: statusFilter === option.value }"
+                @click="selectFilter(option.value as ApplicationStatus | 'ALL')"
+              >
                 {{ option.label }}
               </div>
             </div>
@@ -74,14 +76,9 @@
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Suche nach E-Mail, Telefon..."
-            class="search-input"
-          />
+          <input type="text" v-model="searchQuery" placeholder="Suche nach E-Mail, Telefon..." class="search-input" />
         </div>
-        <button 
+        <button
           class="refresh-button"
           @click="loadApplications"
           :disabled="isLoading"
@@ -163,9 +160,7 @@
             <td class="col-applicant">
               <div class="applicant-cell">
                 <div class="applicant-avatar">
-                  <span v-if="!application.user?.profilePicture">{{
-                    getApplicantInitials(application)
-                  }}</span>
+                  <span v-if="!application.user?.profilePicture">{{ getApplicantInitials(application) }}</span>
                   <img
                     v-else
                     :src="application.user.profilePicture"
@@ -174,17 +169,16 @@
                 </div>
                 <div class="applicant-info">
                   <span class="applicant-name">{{ getApplicantName(application) }}</span>
-                  <span class="applicant-username" v-if="application.user?.username">@{{ application.user.username }}</span>
+                  <span class="applicant-username" v-if="application.user?.username"
+                    >@{{ application.user.username }}</span
+                  >
                 </div>
               </div>
             </td>
             <td class="col-email">{{ application.email }}</td>
             <td class="col-phone">{{ application.phone }}</td>
             <td class="col-status">
-              <span
-                class="status-badge"
-                :class="applicationService.getStatusClass(application.status)"
-              >
+              <span class="status-badge" :class="applicationService.getStatusClass(application.status)">
                 {{ applicationService.getStatusLabel(application.status) }}
               </span>
             </td>
@@ -241,11 +235,7 @@
     </div>
 
     <div class="pagination-container" v-if="totalPages > 1">
-      <button
-        class="pagination-button"
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
+      <button class="pagination-button" :disabled="currentPage === 1" @click="currentPage--">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -261,15 +251,9 @@
         </svg>
       </button>
 
-      <span class="page-info"
-        >Seite {{ currentPage }} von {{ totalPages }}</span
-      >
+      <span class="page-info">Seite {{ currentPage }} von {{ totalPages }}</span>
 
-      <button
-        class="pagination-button"
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
+      <button class="pagination-button" :disabled="currentPage === totalPages" @click="currentPage++">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -295,11 +279,11 @@ import applicationService, { type Application, type ApplicationStatus } from "@/
 export default defineComponent({
   name: "ApplicationList",
   emits: ["application-selected"],
-  setup(props, { emit }) {
+  setup(_props, { emit }) {
     const applications = ref<Application[]>([]);
     const isLoading = ref(true);
     const searchQuery = ref("");
-    const statusFilter = ref<ApplicationStatus | 'ALL'>("ALL");
+    const statusFilter = ref<ApplicationStatus | "ALL">("ALL");
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const isDropdownOpen = ref(false);
@@ -315,8 +299,8 @@ export default defineComponent({
       { value: "CANCELED", label: "Storniert" },
     ];
 
-    function getFilterLabel(value: ApplicationStatus | 'ALL'): string {
-      const option = filterOptions.find(opt => opt.value === value);
+    function getFilterLabel(value: ApplicationStatus | "ALL"): string {
+      const option = filterOptions.find((opt) => opt.value === value);
       return option ? option.label : "Alle Status";
     }
 
@@ -324,7 +308,7 @@ export default defineComponent({
       isDropdownOpen.value = !isDropdownOpen.value;
     }
 
-    function selectFilter(value: ApplicationStatus | 'ALL') {
+    function selectFilter(value: ApplicationStatus | "ALL") {
       statusFilter.value = value;
       isDropdownOpen.value = false;
       resetPagination();
@@ -333,25 +317,25 @@ export default defineComponent({
     // Klick außerhalb des Dropdowns schließt es
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement;
-      if (!target.closest('.custom-select')) {
+      if (!target.closest(".custom-select")) {
         isDropdownOpen.value = false;
       }
     }
 
     onMounted(() => {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
       loadApplications();
     });
 
     onUnmounted(() => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     });
 
     // Bewerbungen laden
     const loadApplications = async () => {
       isLoading.value = true;
       try {
-        const allApplications = await applicationService.getAllApplications('ALL');
+        const allApplications = await applicationService.getAllApplications("ALL");
         applications.value = allApplications;
         totalApplicationsCount.value = allApplications.length;
       } catch (error) {
@@ -381,17 +365,18 @@ export default defineComponent({
 
       // Status-Filter
       if (statusFilter.value !== "ALL") {
-        result = result.filter(app => app.status === statusFilter.value);
+        result = result.filter((app) => app.status === statusFilter.value);
       }
 
       // Suchfilter
       if (searchQuery.value.trim() !== "") {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(app =>
-          app.email.toLowerCase().includes(query) ||
-          app.phone.toLowerCase().includes(query) ||
-          app.id.toLowerCase().includes(query) ||
-          getApplicantName(app).toLowerCase().includes(query)
+        result = result.filter(
+          (app) =>
+            app.email.toLowerCase().includes(query) ||
+            app.phone.toLowerCase().includes(query) ||
+            app.id.toLowerCase().includes(query) ||
+            getApplicantName(app).toLowerCase().includes(query)
         );
       }
 
@@ -423,20 +408,20 @@ export default defineComponent({
     // Bewerber-Name ermitteln
     const getApplicantName = (application: Application): string => {
       if (application.user) {
-        const firstName = application.user.firstname || '';
-        const lastName = application.user.lastname || '';
+        const firstName = application.user.firstname || "";
+        const lastName = application.user.lastname || "";
         if (firstName || lastName) {
           return `${firstName} ${lastName}`.trim();
         }
-        return application.user.username || 'Unbekannt';
+        return application.user.username || "Unbekannt";
       }
-      return 'Benutzer gelöscht';
+      return "Benutzer gelöscht";
     };
 
     // Bewerber-Initialen generieren
     const getApplicantInitials = (application: Application): string => {
       const name = getApplicantName(application);
-      if (name === 'Benutzer gelöscht' || name === 'Unbekannt') {
+      if (name === "Benutzer gelöscht" || name === "Unbekannt") {
         return "??";
       }
 
@@ -451,15 +436,15 @@ export default defineComponent({
     // Datum formatieren
     const formatDate = (dateString: string): string => {
       try {
-        return new Date(dateString).toLocaleDateString('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+        return new Date(dateString).toLocaleDateString("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         });
       } catch (error) {
-        return 'Ungültiges Datum';
+        return "Ungültiges Datum";
       }
     };
 
@@ -489,6 +474,7 @@ export default defineComponent({
   },
 });
 </script>
+props
 
 <style lang="scss" scoped>
 .application-list-container {
