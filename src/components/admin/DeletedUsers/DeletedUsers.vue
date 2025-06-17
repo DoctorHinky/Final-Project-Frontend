@@ -55,6 +55,7 @@
       <keep-alive>
         <component
           :is="currentTabComponent"
+          :key="refreshKey"
           @user-selected="handleUserSelected"
           @user-restored="handleUserRestored"
           @user-permanently-deleted="handleUserPermanentlyDeleted"
@@ -93,6 +94,7 @@ export default defineComponent({
   setup() {
     const activeTab = ref("list");
     const selectedUser = ref<DeletedUser | null>(null);
+    const refreshKey = ref(0); // Key für Force-Refresh der Child-Components
 
     const currentTabComponent = computed(() => {
       switch (activeTab.value) {
@@ -115,13 +117,35 @@ export default defineComponent({
       document.body.style.overflow = "";
     };
 
-    const handleUserRestored = async (user: DeletedUser) => {
+    const refreshChildComponents = () => {
+      // Force refresh der Child-Components durch Key-Änderung
+      refreshKey.value += 1;
+    };
+
+    /* const handleUserRestored = async (user: DeletedUser) => {
       try {
         // API Call zum Wiederherstellen
         await userService.restoreUser(user.id);
         console.log("Benutzer wiederhergestellt:", user);
         closeUserDetail();
-        // Hier könnte man die Liste aktualisieren
+        await userService.getDeletedUsers(); // Liste aktualisieren
+      } catch (error) {
+        console.error("Fehler beim Wiederherstellen:", error);
+        alert("Fehler beim Wiederherstellen des Benutzers");
+      }
+    }; */
+
+    const handleUserRestored = async (user: DeletedUser) => {
+      try {
+        // API Call zum Wiederherstellen
+        await userService.restoreUser(user.id);
+        console.log("Benutzer wiederhergestellt:", user);
+
+        // Modal schließen
+        closeUserDetail();
+
+        // Child-Components refreshen
+        refreshChildComponents();
       } catch (error) {
         console.error("Fehler beim Wiederherstellen:", error);
         alert("Fehler beim Wiederherstellen des Benutzers");
@@ -130,11 +154,12 @@ export default defineComponent({
 
     const handleUserPermanentlyDeleted = async (user: DeletedUser) => {
       try {
-        // API Call zum endgültigen Löschen
         await userService.deleteUserForever(user.id);
         console.log("Benutzer endgültig gelöscht:", user);
         closeUserDetail();
-        // Hier könnte man die Liste aktualisieren
+
+        refreshChildComponents();
+        await userService.getDeletedUsers(); // Liste aktualisieren
       } catch (error) {
         console.error("Fehler beim endgültigen Löschen:", error);
         alert("Fehler beim endgültigen Löschen des Benutzers");
@@ -142,14 +167,13 @@ export default defineComponent({
     };
 
     // Cleanup bei Component Unmount
-    onUnmounted(() => {
-      document.body.style.overflow = "";
-    });
+    onUnmounted(() => (document.body.style.overflow = ""));
 
     return {
       activeTab,
       selectedUser,
       currentTabComponent,
+      refreshKey,
       handleUserSelected,
       closeUserDetail,
       handleUserRestored,

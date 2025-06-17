@@ -6,7 +6,7 @@
       <div class="filter-container">
         <select
           :value="status"
-          @change="$emit('update:status', $event.target? as HTMLSelectElement.value"
+          @change="$emit('update:status', ($event.target as HTMLSelectElement).value)"
           class="filter-select"
           :disabled="loading"
         >
@@ -19,7 +19,7 @@
         <input
           type="text"
           :value="search"
-          @input="$emit('update:search', $event.target? as HTMLInputElement.value"
+          @input="$emit('update:search', ($event.target as HTMLInputElement).value)"
           placeholder="Artikel suchen..."
           class="search-input"
           :disabled="loading"

@@ -1,5 +1,3 @@
-import { UserRoles } from "./UserRoles.types";
-
 export type User = {
   id: string;
   username: string;
@@ -17,8 +15,6 @@ export type User = {
   userFileId: string | null;
   parent1Id: string | null;
   parent2Id: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
   verified: boolean;
   isDeleted: boolean;
   deletedAt: Date | string | null;
@@ -30,7 +26,9 @@ export type User = {
   blockedForApplication: boolean;
   moderatedBy: null | string;
   moderatedAt: null | Date | string;
-  author: {
-    username: string | null;
-  };
+
+  createdAt: string | Date;
+  updatedAt: string | Date;
 };
+
+export type UserRoles = "ADMIN" | "AUTHOR" | "USER" | "MODERATOR";

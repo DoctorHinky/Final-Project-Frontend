@@ -1,5 +1,5 @@
 import api from "./axiosInstance";
-import type { User } from "@/services/user.types";
+import type { User } from "@/types/dtos";
 
 // Erweiterte Types für gelöschte User
 export interface DeletedUser extends User {
@@ -28,7 +28,7 @@ class UserService {
   /**
    * Ändert den Deaktivierungsstatus eines Benutzers.
    */
-  async toggleUserDeactivation(userId: string, deactivate: boolean): Promise<void> {
+  async toggleUserDeactivation(deactivate: boolean): Promise<void> {
     if (deactivate) {
       await api.patch("/user/deactivateMyAccount");
     } else {
@@ -61,8 +61,8 @@ class UserService {
    * Aktualisiert Benutzerdaten (Admin/Moderator).
    */
   async updateUser(userId: string, data: Partial<User>): Promise<void> {
-    await api.patch(`/user/updateUser/${userId}`, data, { 
-      headers: { "Content-Type": "application/json" } 
+    await api.patch(`/user/updateUser/${userId}`, data, {
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -81,11 +81,7 @@ class UserService {
    * Stellt einen zuvor gelöschten Benutzer wieder her.
    */
   async restoreUser(userId: string): Promise<void> {
-    await api.patch(
-      `/user/restoreUser/${userId}`, 
-      {}, 
-      { headers: { "Content-Type": "application/json" } }
-    );
+    await api.patch(`/user/restoreUser/${userId}`, {}, { headers: { "Content-Type": "application/json" } });
   }
 
   /**
@@ -93,7 +89,7 @@ class UserService {
    */
   async deleteUserForever(userId: string): Promise<void> {
     await api.delete(`/user/deleteUserForever/${userId}`, {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
   }
 

@@ -87,7 +87,7 @@
             </div>
             <div class="field">
               <label>Gelöscht am</label>
-              <div class="field-value">{{ formatDate(user.deletedAt) }}</div>
+              <div class="field-value">{{ formatDate(user.deletedAt, "Unbekannt") }}</div>
             </div>
             <div class="field">
               <label>Gelöscht von</label>
@@ -300,6 +300,8 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
+import { formatDate } from "@/utils/helperFunctions";
+import { getReasonText, getReasonClass, getUserInitials } from "./deletedUsers.helper";
 import type { DeletedUser } from "@/types";
 
 export default defineComponent({
@@ -312,62 +314,11 @@ export default defineComponent({
   },
   emits: ["close", "restore", "permanent-delete"],
   setup(props, { emit }) {
-    function getUserInitials(user: DeletedUser): string {
-      const firstname = user.firstname || "";
-      const lastname = user.lastname || "";
-
-      if (firstname && lastname) {
-        return (firstname[0] + lastname[0]).toUpperCase();
-      } else if (user.username) {
-        return user.username.substring(0, 2).toUpperCase();
-      }
-      return "??";
-    }
-
     function getUserDisplayName(user: DeletedUser): string {
       if (user.firstname && user.lastname) {
         return `${user.firstname} ${user.lastname}`;
       }
       return user.username || "Gelöschter Benutzer";
-    }
-
-    function getReasonText(reason?: string): string {
-      if (!reason) return "Kein Grund angegeben";
-
-      // Mapping von Backend-Gründen zu Anzeige-Text
-      const reasonMap: Record<string, string> = {
-        "No reason given": "Kein Grund angegeben",
-        VIOLATION: "Regelverstoß",
-        SELF_DELETION: "Eigene Löschung",
-        ADMIN_DELETION: "Admin-Löschung",
-        INACTIVITY: "Inaktivität",
-      };
-
-      return reasonMap[reason] || reason;
-    }
-
-    function getReasonClass(reason?: string): string {
-      if (!reason) return "other";
-
-      if (reason.includes("Regel") || reason.includes("VIOLATION")) return "violation";
-      if (reason.includes("Eigene") || reason.includes("SELF")) return "self-deletion";
-      if (reason.includes("Admin") || reason.includes("ADMIN")) return "admin-deletion";
-      if (reason.includes("Inaktiv") || reason.includes("INACTIVITY")) return "inactivity";
-
-      return "other";
-    }
-
-    function formatDate(date: string | Date): string {
-      if (!date) return "Unbekannt";
-
-      const d = typeof date === "string" ? new Date(date) : date;
-      return d.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
     }
 
     function calculateRegisteredDays(user: DeletedUser): number {
@@ -433,6 +384,7 @@ export default defineComponent({
   position: relative;
   background-color: transparent;
   min-height: auto;
+  overflow-x: auto;
 }
 
 .modal-overlay {

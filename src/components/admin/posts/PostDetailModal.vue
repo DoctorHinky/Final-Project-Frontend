@@ -79,7 +79,7 @@ import { defineComponent, ref, onMounted, computed } from "vue";
 import adminPostService from "@/services/admin.post.service";
 import { authService } from "@/services/auth.service";
 import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
-import { formatDate } from "@/composables/helperFunctions";
+import { formatDate } from "@/utils/helperFunctions";
 
 export default defineComponent({
   name: "PostDetailModal",

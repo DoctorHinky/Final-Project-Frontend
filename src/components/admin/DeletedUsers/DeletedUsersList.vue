@@ -92,7 +92,7 @@
                 {{ getReasonText(user.deleteReason) }}
               </span>
             </td>
-            <td>{{ formatDate(user.deletedAt) }}</td>
+            <td>{{ formatDate(user.deletedAt, "Unbekannt") }}</td>
             <td>{{ user.deletedByUser?.username || "System" }}</td>
             <td>
               <div class="action-buttons">
@@ -179,7 +179,9 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from "vue";
 import userService from "@/services/user.service";
+import { formatDate } from "@/utils/helperFunctions";
 import type { DeletedUser } from "@/types";
+import { getReasonText, getReasonClass, getUserInitials } from "./deletedUsers.helper";
 
 export default defineComponent({
   name: "DeletedUsersList",
@@ -189,19 +191,6 @@ export default defineComponent({
     const isLoading = ref(true);
     const currentPage = ref(1);
     const itemsPerPage = 10;
-
-    // Benutzer-Initialen generieren
-    const getUserInitials = (user: DeletedUser): string => {
-      const firstname = user.firstname || "";
-      const lastname = user.lastname || "";
-
-      if (firstname && lastname) {
-        return (firstname[0] + lastname[0]).toUpperCase();
-      } else if (user.username) {
-        return user.username.substring(0, 2).toUpperCase();
-      }
-      return "??";
-    };
 
     // Anzeigename generieren
     const getUserDisplayName = (user: DeletedUser): string => {
@@ -224,52 +213,6 @@ export default defineComponent({
       return roleMap[role || ""] || role || "Unbekannt";
     };
 
-    // Löschgrund formatieren
-    const getReasonText = (reason?: string): string => {
-      if (!reason) return "Kein Grund";
-
-      const reasonMap: Record<string, string> = {
-        "No reason given": "Kein Grund angegeben",
-        VIOLATION: "Regelverstoß",
-        SELF_DELETION: "Eigene Löschung",
-        ADMIN_DELETION: "Admin-Löschung",
-        INACTIVITY: "Inaktivität",
-      };
-
-      return reasonMap[reason] || reason;
-    };
-
-    // CSS-Klasse für Löschgrund
-    const getReasonClass = (reason?: string): string => {
-      if (!reason) return "other";
-
-      if (reason.includes("Regel") || reason.includes("VIOLATION")) return "violation";
-      if (reason.includes("Eigene") || reason.includes("SELF")) return "self-deletion";
-      if (reason.includes("Admin") || reason.includes("ADMIN")) return "admin-deletion";
-      if (reason.includes("Inaktiv") || reason.includes("INACTIVITY")) return "inactivity";
-
-      return "other";
-    };
-
-    // Datum formatieren
-    const formatDate = (date?: string | Date): string => {
-      if (!date) return "Unbekannt";
-      if (typeof date === "string") {
-        return new Date(date).toLocaleDateString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      } else if (date instanceof Date) {
-        return date.toLocaleDateString("de-DE", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      }
-      return "Unbekannt";
-    };
-
     // Paginierte Benutzer
     const paginatedUsers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
@@ -283,18 +226,15 @@ export default defineComponent({
     });
 
     // Benutzer auswählen
-    const selectUser = (user: DeletedUser) => {
-      emit("user-selected", user);
-    };
+    const selectUser = (user: DeletedUser) => emit("user-selected", user);
 
     // Benutzer wiederherstellen
     const handleRestore = async (user: DeletedUser) => {
       if (confirm(`Möchten Sie den Benutzer "${getUserDisplayName(user)}" wirklich wiederherstellen?`)) {
         try {
           await userService.restoreUser(user.id);
-          // User aus Liste entfernen
-          deletedUsers.value = deletedUsers.value.filter((u) => u.id !== user.id);
           emit("user-restored", user);
+          // Liste wird durch parent component refresh aktualisiert
         } catch (error) {
           console.error("Fehler beim Wiederherstellen:", error);
           alert("Fehler beim Wiederherstellen des Benutzers");
@@ -315,9 +255,7 @@ export default defineComponent({
       }
     };
 
-    onMounted(() => {
-      loadDeletedUsers();
-    });
+    onMounted(() => loadDeletedUsers());
 
     return {
       deletedUsers,

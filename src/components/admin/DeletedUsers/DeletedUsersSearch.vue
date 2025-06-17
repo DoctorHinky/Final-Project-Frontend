@@ -267,8 +267,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from "vue";
-import type { DeletedUser, DeletionReason, SearchCriteria } from "@/types";
-import { formatDate } from "@/composables/helperFunctions";
+import type { DeletedUser, SearchCriteria } from "@/types";
+import { getReasonText, getReasonClass } from "./deletedUsers.helper";
+import { formatDate } from "@/utils/helperFunctions";
+import userService from "@/services/user.service";
 export default defineComponent({
   name: "DeletedUsersSearch",
   emits: ["user-selected", "user-restored"],
@@ -289,7 +291,7 @@ export default defineComponent({
     });
 
     // Dummy-Daten für die Demonstration
-    const allDeletedUsers: DeletedUser[] = [
+    /*     const allDeletedUsers: DeletedUser[] = [
       {
         id: "del_001",
         username: "Max Mustermann",
@@ -322,43 +324,7 @@ export default defineComponent({
         role: "",
         isDeleted: false,
       },
-    ];
-
-    function getReasonText(reason: DeletionReason | string | undefined): string {
-      if (typeof reason === "string") return reason;
-      if (!reason) return "Unbekannt";
-      switch (reason) {
-        case "VIOLATION":
-          return "Regelverstoß";
-        case "SELF_DELETION":
-          return "Eigene Löschung";
-        case "ADMIN_DELETION":
-          return "Admin-Löschung";
-        case "INACTIVITY":
-          return "Inaktivität";
-        case "OTHER":
-          return "Sonstige";
-        default:
-          return "Unbekannt";
-      }
-    }
-
-    function getReasonClass(reason: DeletionReason | string | undefined): string {
-      if (typeof reason === "string") return reason;
-      if (!reason) return "other";
-      switch (reason) {
-        case "VIOLATION":
-          return "violation";
-        case "SELF_DELETION":
-          return "self-deletion";
-        case "ADMIN_DELETION":
-          return "admin-deletion";
-        case "INACTIVITY":
-          return "inactivity";
-        default:
-          return "other";
-      }
-    }
+    ]; */
 
     const resetSearch = () => {
       searchCriteria.name = "";
@@ -373,57 +339,49 @@ export default defineComponent({
       searchResults.value = [];
     };
 
-    const performSearch = () => {
+    const performSearch = async () => {
       isLoading.value = true;
       hasSearched.value = true;
 
       // Simuliere Netzwerkverzögerung
-      setTimeout(() => {
-        let results = [...allDeletedUsers];
+      let results = [...(await userService.getDeletedUsers())]; // Hier sollte der echte API-Aufruf stehen
 
-        // Filter anwenden
-        if (searchCriteria.name) {
-          results = results.filter((user) => user.username.toLowerCase().includes(searchCriteria.name.toLowerCase()));
-        }
+      // Filter anwenden
+      if (searchCriteria.name) {
+        results = results.filter((user) => user.username.toLowerCase().includes(searchCriteria.name.toLowerCase()));
+      }
 
-        if (searchCriteria.email) {
-          results = results.filter((user) => user.email.toLowerCase().includes(searchCriteria.email.toLowerCase()));
-        }
+      if (searchCriteria.email) {
+        results = results.filter((user) => user.email.toLowerCase().includes(searchCriteria.email.toLowerCase()));
+      }
 
-        if (searchCriteria.id) {
-          results = results.filter((user) => user.id.toLowerCase().includes(searchCriteria.id.toLowerCase()));
-        }
+      if (searchCriteria.id) {
+        results = results.filter((user) => user.id.toLowerCase().includes(searchCriteria.id.toLowerCase()));
+      }
 
-        if (searchCriteria.deletedBy) {
-          results = results.filter((user) =>
-            user.deletedBy.toLowerCase().includes(searchCriteria.deletedBy.toLowerCase())
-          );
-        }
+      if (searchCriteria.deletedBy) {
+        results = results.filter((user) =>
+          user.deletedBy.toLowerCase().includes(searchCriteria.deletedBy.toLowerCase())
+        );
+      }
 
-        if (searchCriteria.reason) {
-          results = results.filter((user) => user.deleteReason === searchCriteria.reason);
-        }
+      if (searchCriteria.reason) {
+        results = results.filter((user) => user.deleteReason === searchCriteria.reason);
+      }
 
-        if (searchCriteria.dateFrom) {
-          const fromDate = new Date(searchCriteria.dateFrom);
-          results = results.filter((user) => new Date(user.deletedAt) >= fromDate);
-        }
+      if (searchCriteria.dateFrom) {
+        const fromDate = new Date(searchCriteria.dateFrom);
+        results = results.filter((user) => new Date(user.deletedAt) >= fromDate);
+      }
 
-        if (searchCriteria.dateTo) {
-          const toDate = new Date(searchCriteria.dateTo);
-          toDate.setHours(23, 59, 59);
-          results = results.filter((user) => new Date(user.deletedAt) <= toDate);
-        }
+      if (searchCriteria.dateTo) {
+        const toDate = new Date(searchCriteria.dateTo);
+        toDate.setHours(23, 59, 59);
+        results = results.filter((user) => new Date(user.deletedAt) <= toDate);
+      }
 
-        if (searchCriteria.hasNotes === "yes") {
-          results = results.filter((user) => user.additionalInfo);
-        } else if (searchCriteria.hasNotes === "no") {
-          results = results.filter((user) => !user.additionalInfo);
-        }
-
-        searchResults.value = results;
-        isLoading.value = false;
-      }, 800);
+      searchResults.value = results;
+      isLoading.value = false;
     };
 
     const viewUserDetails = (user: DeletedUser) => {

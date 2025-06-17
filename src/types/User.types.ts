@@ -1,21 +1,9 @@
-export interface DeletedUser {
-  id: string;
-  username: string;
-  firstname?: string;
-  lastname?: string;
-  email: string;
-  role: string;
-  isDeleted: boolean;
-  deletedAt: Date | string;
-  deletedBy: string;
-  deleteReason?: DeletionReason | string;
+import type { User } from "./dtos";
+
+export interface DeletedUser extends User {
   deletedByUser?: {
     username: string;
   };
-  profilePicture?: string;
-  createdAt?: Date | string;
-  verified?: boolean;
-  deactivated?: boolean;
   additionalInfo?: string;
 }
 

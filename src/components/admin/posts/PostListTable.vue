@@ -37,7 +37,7 @@
           <td class="col-category">
             <span class="post-category">{{ formatCategory(post.category) }}</span>
           </td>
-          <td class="col-date">{{ formatDate(post.publishedAt) }}</td>
+          <td class="col-date">{{ formatDate(post.publishedAt, "-") }}</td>
           <td class="col-status">
             <span class="status-badge" :class="getStatusClass(post)">
               {{ getStatusText(post) }}
@@ -108,7 +108,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
 import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
-import { formatDate } from "@/composables/helperFunctions";
+import { formatDate } from "@/utils/helperFunctions";
 
 export default defineComponent({
   name: "PostListTable",

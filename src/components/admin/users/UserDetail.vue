@@ -14,18 +14,31 @@
       <!-- Header -->
       <div class="user-header">
         <div class="user-avatar" :class="{ admin: user.role === 'ADMIN' }">
-          <span>{{ userInitials }}</span>
+          <span v-if="!user.profilePicture">{{ userInitials }}</span>
+          <img v-else :src="user.profilePicture" :alt="`Avatar von ${user.username}`" />
         </div>
 
         <div class="user-main-info">
           <div class="editable-name">
-            <input v-if="editing.name" v-model="editData.firstname" @keyup.enter="saveField('name')"
-              @keyup.esc="cancelEdit('name')" placeholder="Vorname" class="edit-input">
-            <h3 v-else @click="startEdit('name')">{{ user.firstname || 'Vorname' }}</h3>
+            <input
+              v-if="editing.name"
+              v-model="editData.firstname"
+              @keyup.enter="saveField('name')"
+              @keyup.esc="cancelEdit('name')"
+              placeholder="Vorname"
+              class="edit-input"
+            />
+            <h3 v-else @click="startEdit('name')">{{ user.firstname || "Vorname" }}</h3>
 
-            <input v-if="editing.name" v-model="editData.lastname" @keyup.enter="saveField('name')"
-              @keyup.esc="cancelEdit('name')" placeholder="Nachname" class="edit-input">
-            <h3 v-else @click="startEdit('name')">{{ user.lastname || 'Nachname' }}</h3>
+            <input
+              v-if="editing.name"
+              v-model="editData.lastname"
+              @keyup.enter="saveField('name')"
+              @keyup.esc="cancelEdit('name')"
+              placeholder="Nachname"
+              class="edit-input"
+            />
+            <h3 v-else @click="startEdit('name')">{{ user.lastname || "Nachname" }}</h3>
           </div>
 
           <div class="user-badges">
@@ -36,22 +49,57 @@
               <option value="AUTHOR">Author</option>
             </select>
             <span v-else class="type-badge" :class="roleBadgeClass" @click="startEdit('role')">
-              {{ user.role || 'USER' }}
+              {{ user.role || "USER" }}
             </span>
 
             <span class="status-badge" :class="user.verified ? 'active' : 'inactive'" @click="toggleVerified">
-              <svg v-if="user.verified" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <svg
+                v-if="user.verified"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline mr-1"
+              >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline mr-1"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
-              {{ user.verified ? 'Verifiziert' : 'Nicht verifiziert' }}
+              {{ user.verified ? "Verifiziert" : "Nicht verifiziert" }}
             </span>
 
             <span v-if="user.isDeleted" class="status-badge deleted">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline mr-1"
+              >
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
@@ -65,7 +113,18 @@
         <!-- Quick Actions -->
         <div class="quick-actions">
           <button @click="resetChanges" :disabled="!hasChanges" class="reset-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-1"
+            >
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
               <path d="M21 3v5h-5"></path>
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -79,7 +138,18 @@
       <!-- Kontakt Section -->
       <div class="section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-2"
+          >
             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
           </svg>
@@ -88,26 +158,43 @@
         <div class="field-group">
           <div class="field">
             <label>E-Mail</label>
-            <input v-if="editing.email" v-model="editData.email" @blur="saveField('email')"
-              @keyup.enter="saveField('email')" type="email" class="field-input">
+            <input
+              v-if="editing.email"
+              v-model="editData.email"
+              @blur="saveField('email')"
+              @keyup.enter="saveField('email')"
+              type="email"
+              class="field-input"
+            />
             <div v-else class="field-value" @click="startEdit('email')">
-              {{ user.email || 'Keine E-Mail' }}
+              {{ user.email || "Keine E-Mail" }}
             </div>
           </div>
 
           <div class="field">
             <label>Telefon</label>
-            <input v-if="editing.phone" v-model="editData.phone" @blur="saveField('phone')"
-              @keyup.enter="saveField('phone')" type="tel" class="field-input">
+            <input
+              v-if="editing.phone"
+              v-model="editData.phone"
+              @blur="saveField('phone')"
+              @keyup.enter="saveField('phone')"
+              type="tel"
+              class="field-input"
+            />
             <div v-else class="field-value" @click="startEdit('phone')">
-              {{ user.phone || 'Nicht angegeben' }}
+              {{ user.phone || "Nicht angegeben" }}
             </div>
           </div>
 
           <div class="field">
             <label>Geburtsdatum</label>
-            <input v-if="editing.birthdate" v-model="editData.birthdate" @blur="saveField('birthdate')" type="date"
-              class="field-input">
+            <input
+              v-if="editing.birthdate"
+              v-model="editData.birthdate"
+              @blur="saveField('birthdate')"
+              type="date"
+              class="field-input"
+            />
             <div v-else class="field-value" @click="startEdit('birthdate')">
               {{ formattedBirthdate }}
             </div>
@@ -118,7 +205,18 @@
       <!-- Profil Section -->
       <div class="section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-2"
+          >
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="8" r="4"></circle>
           </svg>
@@ -127,11 +225,16 @@
         <div class="field-group">
           <div class="field full-width">
             <label>Kurzbeschreibung</label>
-            <textarea v-if="editing.shortDescription" v-model="editData.shortDescription"
-              @blur="saveField('shortDescription')" rows="2" class="field-input">
+            <textarea
+              v-if="editing.shortDescription"
+              v-model="editData.shortDescription"
+              @blur="saveField('shortDescription')"
+              rows="2"
+              class="field-input"
+            >
             </textarea>
             <div v-else class="field-value text-area" @click="startEdit('shortDescription')">
-              {{ user.shortDescription || 'Keine Beschreibung' }}
+              {{ user.shortDescription || "Keine Beschreibung" }}
             </div>
           </div>
 
@@ -140,7 +243,7 @@
             <textarea v-if="editing.bio" v-model="editData.bio" @blur="saveField('bio')" rows="4" class="field-input">
             </textarea>
             <div v-else class="field-value text-area" @click="startEdit('bio')">
-              {{ user.bio || 'Keine Biografie' }}
+              {{ user.bio || "Keine Biografie" }}
             </div>
           </div>
         </div>
@@ -149,7 +252,18 @@
       <!-- Berechtigungen Section -->
       <div class="section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-2"
+          >
             <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
@@ -181,10 +295,23 @@
       <!-- System Info Section -->
       <div class="section system-info">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-2"
+          >
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M12 1v6m0 6v6m11-11h-6m-6 0H1"></path>
-            <path d="m20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            <path
+              d="m20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+            ></path>
           </svg>
           Systeminformationen
         </h4>
@@ -215,7 +342,18 @@
       <!-- Danger Zone -->
       <div class="section danger-zone">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-2"
+          >
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -224,14 +362,36 @@
         </h4>
         <div class="danger-actions">
           <button v-if="!user.isDeleted" @click="deleteUser" class="danger-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-1"
+            >
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
             Benutzer löschen
           </button>
           <button v-else @click="restoreUser" class="restore-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-1"
+            >
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
               <path d="M21 3v5h-5"></path>
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -240,14 +400,40 @@
             Benutzer wiederherstellen
           </button>
           <button @click="resetPassword" class="warning-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
-              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-1"
+            >
+              <path
+                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
+              ></path>
             </svg>
             Passwort zurücksetzen
           </button>
           <button v-if="user.role !== 'ADMIN'" @click="makeAdmin" class="warning-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="inline mr-1"
+            >
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+              ></polygon>
             </svg>
             Zum Admin machen
           </button>
@@ -257,7 +443,18 @@
       <!-- Save Button am Ende -->
       <div class="save-section">
         <button @click="saveAllChanges" :disabled="!hasChanges" class="save-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="inline mr-1"
+          >
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           Alle Änderungen speichern
@@ -268,16 +465,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
-import userService from '@/services/user.service';
-import axiosInstance from '@/services/axiosInstance';
+import { ref, reactive, computed, onMounted } from "vue";
+import userService from "@/services/user.service";
+import axiosInstance from "@/services/axiosInstance";
 
 // Props
 const props = defineProps({
-  userId: {
-    type: String,
-    required: true
-  }
+  userId: { type: String, required: true },
 });
 
 // State
@@ -294,62 +488,62 @@ const hasChanges = computed(() => {
 });
 
 const userInitials = computed(() => {
-  if (!user.value) return '??';
-  const f = user.value.firstname || '';
-  const l = user.value.lastname || '';
-  if (!f && !l) return 'U';
-  return ((f[0] || '') + (l[0] || '')).toUpperCase();
+  if (!user.value) return "??";
+  const f = user.value.firstname || "";
+  const l = user.value.lastname || "";
+  if (!f && !l) return "U";
+  return ((f[0] || "") + (l[0] || "")).toUpperCase();
 });
 
 const roleBadgeClass = computed(() => {
-  if (!user.value) return '';
-  const role = (user.value.role || 'user').toLowerCase();
+  if (!user.value) return "";
+  const role = (user.value.role || "user").toLowerCase();
   return role;
 });
 
 const formattedBirthdate = computed(() => {
-  if (!user.value || !user.value.birthdate) return 'Nicht angegeben';
+  if (!user.value || !user.value.birthdate) return "Nicht angegeben";
   return formatDate(user.value.birthdate);
 });
 
 const formattedCreatedAt = computed(() => {
-  if (!user.value || !user.value.createdAt) return 'Unbekannt';
+  if (!user.value || !user.value.createdAt) return "Unbekannt";
   return formatDateTime(user.value.createdAt);
 });
 
 const formattedUpdatedAt = computed(() => {
-  if (!user.value || !user.value.updatedAt) return 'Unbekannt';
+  if (!user.value || !user.value.updatedAt) return "Unbekannt";
   return formatDateTime(user.value.updatedAt);
 });
 
 // Methods
 const formatDate = (date) => {
-  if (!date) return 'Nicht angegeben';
+  if (!date) return "Nicht angegeben";
   try {
-    return new Date(date).toLocaleDateString('de-DE');
+    return new Date(date).toLocaleDateString("de-DE");
   } catch (e) {
-    return 'Ungültiges Datum';
+    return "Ungültiges Datum";
   }
 };
 
 const formatDateTime = (date) => {
-  if (!date) return 'Nicht angegeben';
+  if (!date) return "Nicht angegeben";
   try {
-    return new Date(date).toLocaleString('de-DE');
+    return new Date(date).toLocaleString("de-DE");
   } catch (e) {
-    return 'Ungültiges Datum';
+    return "Ungültiges Datum";
   }
 };
 
 const startEdit = (field) => {
   editing[field] = true;
-  if (field === 'name') {
-    editData.firstname = user.value.firstname || '';
-    editData.lastname = user.value.lastname || '';
-  } else if (field === 'birthdate' && user.value[field]) {
-    editData[field] = new Date(user.value[field]).toISOString().split('T')[0];
+  if (field === "name") {
+    editData.firstname = user.value.firstname || "";
+    editData.lastname = user.value.lastname || "";
+  } else if (field === "birthdate" && user.value[field]) {
+    editData[field] = new Date(user.value[field]).toISOString().split("T")[0];
   } else {
-    editData[field] = user.value[field] || '';
+    editData[field] = user.value[field] || "";
   }
 };
 
@@ -359,7 +553,7 @@ const cancelEdit = (field) => {
 };
 
 const saveField = (field) => {
-  if (field === 'name') {
+  if (field === "name") {
     user.value.firstname = editData.firstname;
     user.value.lastname = editData.lastname;
   } else {
@@ -372,7 +566,7 @@ const toggleField = (field) => {
   user.value[field] = !user.value[field];
 };
 
-const toggleVerified = () => toggleField('verified');
+const toggleVerified = () => toggleField("verified");
 
 const saveAllChanges = async () => {
   try {
@@ -383,73 +577,64 @@ const saveAllChanges = async () => {
       }
     }
 
-    const response = await axiosInstance.patch(
-      `/user/updateUser/${props.userId}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true,
-      }
-    );
+    const response = await axiosInstance.patch(`/user/updateUser/${props.userId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
 
     originalUser.value = { ...user.value };
-    alert('✅ Änderungen gespeichert!');
   } catch (err) {
-    alert('❌ Fehler beim Speichern! Check die Konsole.');
-    console.error('Fehler beim Speichern:', err.response?.data || err.message);
+    alert("❌ Fehler beim Speichern! Check die Konsole.");
+    console.error("Fehler beim Speichern:", err.response?.data || err.message);
   }
 };
 
 const resetChanges = () => {
   user.value = { ...originalUser.value };
-  Object.keys(editing).forEach(key => editing[key] = false);
+  Object.keys(editing).forEach((key) => (editing[key] = false));
 };
 
 const deleteUser = async () => {
-  const reason = prompt('Löschgrund eingeben:');
+  const reason = prompt("Löschgrund eingeben:");
   if (!reason) return;
 
   if (confirm(`Wirklich löschen? Grund: ${reason}`)) {
     try {
       await userService.deleteUser(props.userId, reason);
       await loadUser();
-      alert('✅ Benutzer gelöscht!');
     } catch (err) {
-      alert('❌ Fehler beim Löschen!');
+      alert("❌ Fehler beim Löschen!");
       console.error(err);
     }
   }
 };
 
 const restoreUser = async () => {
-  if (confirm('Benutzer wiederherstellen?')) {
+  if (confirm("Benutzer wiederherstellen?")) {
     try {
       await userService.restoreUser(props.userId);
       await loadUser();
-      alert('✅ Benutzer wiederhergestellt!');
     } catch (err) {
-      alert('❌ Fehler beim Wiederherstellen!');
+      alert("❌ Fehler beim Wiederherstellen!");
       console.error(err);
     }
   }
 };
 
 const resetPassword = async () => {
-  if (confirm('Passwort wirklich zurücksetzen? Der Benutzer erhält eine E-Mail.')) {
-    alert('🔑 Passwort-Reset E-Mail wurde gesendet!');
+  if (confirm("Passwort wirklich zurücksetzen? Der Benutzer erhält eine E-Mail.")) {
+    alert("🔑 Passwort-Reset E-Mail wurde gesendet!");
   }
 };
 
 const makeAdmin = async () => {
-  if (confirm('Diesen Benutzer wirklich zum Admin machen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
+  if (confirm("Diesen Benutzer wirklich zum Admin machen? Diese Aktion kann nicht rückgängig gemacht werden!")) {
     try {
-      user.value.role = 'ADMIN';
+      user.value.role = "ADMIN";
       await saveAllChanges();
-      alert('👑 Benutzer ist jetzt Admin!');
+      alert("👑 Benutzer ist jetzt Admin!");
     } catch (err) {
-      alert('❌ Fehler beim Admin-Upgrade!');
+      alert("❌ Fehler beim Admin-Upgrade!");
       console.error(err);
     }
   }
@@ -462,7 +647,7 @@ const loadUser = async () => {
     user.value = res;
     originalUser.value = { ...res };
   } catch (err) {
-    console.error('Fehler beim Laden:', err);
+    console.error("Fehler beim Laden:", err);
     user.value = null;
   } finally {
     isLoading.value = false;
@@ -470,11 +655,8 @@ const loadUser = async () => {
 };
 
 // Lifecycle
-onMounted(() => {
-  loadUser();
-});
+onMounted(() => loadUser());
 </script>
-
 
 <style scoped>
 /* Z-Index Fix für Modal/Dialog */
@@ -545,6 +727,13 @@ onMounted(() => {
   font-weight: bold;
   color: white;
   flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 }
 
 .user-avatar.admin {
@@ -795,7 +984,7 @@ textarea.field-input {
 }
 
 .toggle::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
