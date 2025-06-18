@@ -14,7 +14,7 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" aria-label="Chat schließen">
-          <XMarkIcon class="close-icon" />
+          <XMarkIcon class="icon-size" />
         </button>
       </header>
 
@@ -28,7 +28,7 @@
         <div v-else class="messages-list">
           <!-- Empty state -->
           <div v-if="messages.length === 0" class="empty-chat">
-            <div class="empty-chat-icon">💬</div>
+            <ChatBubbleLeftRightIcon class="empty-chat-icon" />
             <p>Noch keine Nachrichten vorhanden.</p>
             <p>Schreibe die erste Nachricht!</p>
           </div>
@@ -50,13 +50,14 @@
                 <em>Diese Nachricht wurde gelöscht</em>
               </p>
               
-              <!-- Normal message -->
-              <p v-else>{{ message.content }}</p>
+              <!-- Normal message mit Rich-Text -->
+              <div v-else v-html="parseMessageContent(message.content)" class="message-text"></div>
               
               <!-- Attachment (if any) -->
               <div v-if="message.attachmentUrl" class="message-attachment">
                 <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
-                  📎 Datei anhang
+                  <PaperClipIcon class="attachment-icon" />
+                  Datei anhang
                 </a>
               </div>
               
@@ -65,7 +66,7 @@
           </div>
           
           <!-- Own Typing Indicator -->
-          <div v-if="isUserTyping && newMessage.trim()" class="typing-indicator own-typing">
+          <div v-if="isUserTyping && editorContent.trim()" class="typing-indicator own-typing">
             <div class="typing-dots">
               <span></span>
               <span></span>
@@ -74,7 +75,7 @@
             <span class="typing-text">Du schreibst...</span>
           </div>
           
-          <!-- Friend Typing Indicator (nur wenn echte WebSocket-Verbindung) -->
+          <!-- Friend Typing Indicator -->
           <div v-if="isTyping" class="typing-indicator">
             <div class="typing-dots">
               <span></span>
@@ -86,34 +87,106 @@
         </div>
       </div>
 
-      <form class="message-form" @submit.prevent="sendMessage">
-        <div class="message-input-wrapper">
-          <input 
-            type="text" 
-            class="message-input"
-            placeholder="Nachricht schreiben..."
-            v-model="newMessage"
-            @input="handleTyping"
-            @keyup.enter="sendMessage"
-            :disabled="isSending"
-            ref="messageInput"
-          />
+      <!-- Rich Text Editor -->
+      <div class="message-editor">
+        <!-- Formatting Toolbar -->
+        <div class="formatting-toolbar">
           <button 
-            type="submit" 
-            class="send-button"
-            :disabled="!newMessage.trim() || isSending"
+            type="button"
+            @click="toggleFormat('bold')"
+            :class="['format-button', { active: activeFormats.bold }]"
+            title="Fett (Strg+B)"
           >
-            <PaperAirplaneIcon class="send-icon" />
+            <strong>B</strong>
+          </button>
+          
+          <button 
+            type="button"
+            @click="toggleFormat('italic')"
+            :class="['format-button', { active: activeFormats.italic }]"
+            title="Kursiv (Strg+I)"
+          >
+            <em>I</em>
+          </button>
+          
+          <button 
+            type="button"
+            @click="toggleFormat('underline')"
+            :class="['format-button', { active: activeFormats.underline }]"
+            title="Unterstreichen (Strg+U)"
+          >
+            <u>U</u>
+          </button>
+          
+          <div class="toolbar-separator"></div>
+          
+          <div class="emoji-picker-container">
+            <button 
+              type="button"
+              @click="toggleEmojiPicker"
+              class="format-button emoji-button"
+              title="Emoji einfügen"
+            >
+              <FaceSmileIcon class="icon-size" />
+            </button>
+            
+            <!-- Emoji Picker -->
+            <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
+              <div class="emoji-grid">
+                <button
+                  v-for="emoji in availableEmojis"
+                  :key="emoji"
+                  @click="insertEmoji(emoji)"
+                  class="emoji-item"
+                  type="button"
+                >
+                  {{ emoji }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rich Text Input -->
+        <div class="message-input-wrapper">
+          <div 
+            ref="messageEditor"
+            class="message-input"
+            contenteditable="true"
+            @input="handleInput"
+            @keyup="handleInput"
+            @keydown="handleKeyDown"
+            @paste="handlePaste"
+            @focus="updateActiveFormats"
+            @click="updateActiveFormats"
+            @blur="handleInput"
+            :data-placeholder="'Nachricht schreiben...'"
+          ></div>
+          
+          <button 
+            type="button"
+            @click.prevent="sendMessage"
+            class="send-button"
+            :disabled="!canSendMessage"
+            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`"
+          >
+            <PaperAirplaneIcon class="icon-size" />
           </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/vue/24/outline';
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue';
+import { 
+  XMarkIcon, 
+  PaperAirplaneIcon, 
+  PaperClipIcon,
+  FaceSmileIcon,
+  ChatBubbleLeftRightIcon
+} from '@heroicons/vue/24/outline';
 import chatService, { type ChatMessage } from '@/services/chat.service';
 import { authService } from '@/services/auth.service';
 
@@ -121,7 +194,10 @@ export default defineComponent({
   name: 'ChatModal',
   components: {
     XMarkIcon,
-    PaperAirplaneIcon
+    PaperAirplaneIcon,
+    PaperClipIcon,
+    FaceSmileIcon,
+    ChatBubbleLeftRightIcon
   },
   props: {
     isVisible: {
@@ -143,28 +219,44 @@ export default defineComponent({
   },
   emits: ['update:isVisible', 'send-message'],
   setup(props, { emit }) {
-    const newMessage = ref('');
+    // State
     const messages = ref<ChatMessage[]>([]);
     const isSending = ref(false);
     const isTyping = ref(false);
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
-    const messageInput = ref<HTMLInputElement>();
+    const messageEditor = ref<HTMLDivElement>();
     const currentConversationId = ref<string>('');
     const currentUserId = ref<string>('');
-    const isUserTyping = ref(false); // Eigener Typing-Status
+    const isUserTyping = ref(false);
+    const showEmojiPicker = ref(false);
+    const editorContent = ref(''); // Neue reaktive Variable für Content
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Debug logging
-    watch(() => props.isVisible, (visible) => {
-      console.log('ChatModal: isVisible changed to:', visible);
+    // Active formats tracking
+    const activeFormats = ref({
+      bold: false,
+      italic: false,
+      underline: false
     });
 
-    watch(() => props.friendId, (friendId) => {
-      console.log('ChatModal: friendId changed to:', friendId);
+    // 50 verschiedene Emojis
+    const availableEmojis = [
+      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
+      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛',
+      '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶',
+      '🙄', '😏', '😣', '😥', '😮', '🤐', '😯', '😪', '😫', '😴',
+      '😌', '😓', '😔', '😕', '🙃', '🤑', '😲', '😢', '😭', '😤'
+    ];
+
+    // Computed
+    const hasContent = computed(() => {
+      return editorContent.value.trim().length > 0;
     });
 
-    // Lade aktuelle User-ID
+    const canSendMessage = computed(() => hasContent.value && !isSending.value);
+
+    // Methods
     const loadCurrentUser = () => {
       try {
         const userData = authService.getUserData();
@@ -176,37 +268,15 @@ export default defineComponent({
       }
     };
 
-    // Nachrichten und Conversation laden
     const loadMessages = async () => {
-      if (!props.friendId) {
-        console.warn('ChatModal: No friendId provided');
-        return;
-      }
+      if (!props.friendId) return;
       
       isLoading.value = true;
-      console.log('ChatModal: Loading messages for friendId:', props.friendId);
       
       try {
         const conversation = await chatService.createOrGetConversation(props.friendId.toString());
         currentConversationId.value = conversation.id;
-        
-        // Nachrichten umkehren, damit die neuesten unten stehen
         messages.value = [...(conversation.messages || [])].reverse();
-        
-        // 🔍 DEBUG: Prüfe was vom Backend kommt
-        console.log('ChatModal: Raw conversation from backend:', conversation);
-        conversation.messages?.forEach((msg, index) => {
-          console.log(`ChatModal: Message ${index + 1}:`, {
-            id: msg.id,
-            content: msg.content,
-            contentLength: msg.content?.length || 0,
-            looksEncrypted: msg.content?.length > 50 && !msg.content?.includes(' '),
-            messageType: msg.messageType,
-            senderId: msg.senderId
-          });
-        });
-        
-        console.log('ChatModal: Loaded', messages.value.length, 'messages');
         scrollToBottom();
       } catch (error) {
         console.error('Fehler beim Laden der Nachrichten:', error);
@@ -233,6 +303,14 @@ export default defineComponent({
       return chatService.isOwnMessage(message, currentUserId.value);
     };
 
+    const parseMessageContent = (content: string | null): string => {
+      if (!content) return '';
+      // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
+      let parsed = chatService.parseMessageContent(content);
+      parsed = parsed.replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>');
+      return parsed;
+    };
+
     const scrollToBottom = () => {
       nextTick(() => {
         if (chatContainer.value) {
@@ -241,46 +319,187 @@ export default defineComponent({
       });
     };
 
-    const handleTyping = () => {
-      // Zeige "Du schreibst..." wenn User tippt
+    // Rich Text Editor Functions
+    const updateActiveFormats = () => {
+      activeFormats.value.bold = document.queryCommandState('bold');
+      activeFormats.value.italic = document.queryCommandState('italic');
+      activeFormats.value.underline = document.queryCommandState('underline');
+    };
+
+    const toggleFormat = (format: 'bold' | 'italic' | 'underline') => {
+      messageEditor.value?.focus();
+      
+      // Stelle sicher, dass eine Selection existiert
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        document.execCommand(format, false);
+        updateActiveFormats();
+        
+        // Update content after formatting
+        nextTick(() => {
+          handleInput();
+        });
+      }
+    };
+
+    const insertEmoji = (emoji: string) => {
+      messageEditor.value?.focus();
+      
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(emoji);
+        range.insertNode(textNode);
+        
+        // Cursor nach dem Emoji positionieren
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      
+      showEmojiPicker.value = false;
+      
+      // Update content manually
+      nextTick(() => {
+        handleInput();
+      });
+    };
+
+    const toggleEmojiPicker = () => {
+      showEmojiPicker.value = !showEmojiPicker.value;
+    };
+
+    const handleInput = () => {
+      // Update editor content
+      if (messageEditor.value) {
+        // Get text content and clean it
+        let text = messageEditor.value.textContent || '';
+        
+        // Also check innerHTML for cases where only formatting tags exist
+        const html = messageEditor.value.innerHTML || '';
+        
+        // If there's only a <br> tag or empty formatting tags, consider it empty
+        if (html === '<br>' || html.match(/^<[^>]+><\/[^>]+>$/)) {
+          text = '';
+        }
+        
+        editorContent.value = text;
+        
+        console.log('Input changed:', {
+          text,
+          html,
+          editorContent: editorContent.value,
+          hasContent: hasContent.value,
+          canSendMessage: canSendMessage.value
+        });
+      }
+      
+      // Update active formats
+      updateActiveFormats();
+      
+      // Typing indicator
       isUserTyping.value = true;
       
-      // Reset Timer
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
       
-      // Nach 2 Sekunden ohne tippen, verstecke Indicator
       typingTimeout = setTimeout(() => {
         isUserTyping.value = false;
       }, 2000);
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Strg+B für Fett
+      if (event.ctrlKey && event.key === 'b') {
+        event.preventDefault();
+        toggleFormat('bold');
+      }
+      
+      // Strg+I für Kursiv
+      if (event.ctrlKey && event.key === 'i') {
+        event.preventDefault();
+        toggleFormat('italic');
+      }
+      
+      // Strg+U für Unterstreichen
+      if (event.ctrlKey && event.key === 'u') {
+        event.preventDefault();
+        toggleFormat('underline');
+      }
+      
+      // Enter zum Senden (Shift+Enter für neue Zeile)
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    };
+
+    const handlePaste = (event: ClipboardEvent) => {
+      event.preventDefault();
+      const text = event.clipboardData?.getData('text/plain') || '';
+      document.execCommand('insertText', false, text);
+      
+      // Update content after paste
+      nextTick(() => {
+        handleInput();
+      });
+    };
+
     const sendMessage = async () => {
-      const messageText = newMessage.value.trim();
-      if (!messageText || isSending.value || !currentConversationId.value) return;
+      // Debug-Logs
+      console.log('SendMessage called:', {
+        canSendMessage: canSendMessage.value,
+        hasContent: hasContent.value,
+        isSending: isSending.value,
+        editorContent: editorContent.value,
+        currentConversationId: currentConversationId.value,
+        textContent: messageEditor.value?.textContent,
+        innerHTML: messageEditor.value?.innerHTML
+      });
+
+      if (!canSendMessage.value || !currentConversationId.value) {
+        console.log('SendMessage aborted - conditions not met');
+        return;
+      }
+
+      // Hole Text und HTML-Inhalt
+      const messageText = messageEditor.value?.textContent?.trim() || '';
+      let htmlContent = messageEditor.value?.innerHTML || '';
+      
+      // Prüfe nochmal ob wirklich Inhalt vorhanden ist
+      if (!messageText && !htmlContent.replace(/<[^>]*>/g, '').trim()) {
+        console.log('SendMessage aborted - no content');
+        return;
+      }
 
       isSending.value = true;
-      isUserTyping.value = false; // Stoppe eigenen Typing-Indicator
+      isUserTyping.value = false;
       
-      // Clear typing timeout
       if (typingTimeout) {
         clearTimeout(typingTimeout);
         typingTimeout = null;
       }
-      
-      console.log('ChatModal: Sending message:', messageText);
 
       try {
+        console.log('Sending message with content:', htmlContent);
+        
+        // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
+        htmlContent = htmlContent.replace(/<i>/g, '<em>').replace(/<\/i>/g, '</em>');
+        
         // Sende Nachricht über Chat-Service
-        const response = await chatService.sendMessage(currentConversationId.value, messageText);
+        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        
+        console.log('Message sent successfully:', response);
         
         // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
           id: response.message.id || Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
-          content: messageText,
+          content: htmlContent,
           messageType: 'TEXT',
           attachmentUrl: null,
           isRead: true,
@@ -289,7 +508,14 @@ export default defineComponent({
         };
 
         messages.value.push(localMessage);
-        newMessage.value = '';
+        
+        // Clear editor
+        if (messageEditor.value) {
+          messageEditor.value.innerHTML = '';
+          editorContent.value = '';
+          updateActiveFormats();
+        }
+        
         scrollToBottom();
 
         // Emit message to parent
@@ -298,45 +524,98 @@ export default defineComponent({
           message: messageText
         });
 
-        console.log('ChatModal: Message sent successfully');
-
       } catch (error) {
         console.error('Fehler beim Senden der Nachricht:', error);
-        // TODO: Toast-Benachrichtigung für Fehler anzeigen
       } finally {
         isSending.value = false;
       }
     };
 
     const closeModal = () => {
-      console.log('ChatModal: Closing modal');
+      showEmojiPicker.value = false;
       emit('update:isVisible', false);
     };
 
-    const focusInput = () => {
+    const focusEditor = () => {
       nextTick(() => {
-        if (messageInput.value) {
-          messageInput.value.focus();
+        if (messageEditor.value) {
+          messageEditor.value.focus();
+          // Setze Cursor ans Ende
+          const range = document.createRange();
+          const selection = window.getSelection();
+          if (selection) {
+            range.selectNodeContents(messageEditor.value);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+          
+          // Initial content check
+          handleInput();
         }
       });
     };
 
+    // Click outside emoji picker
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showEmojiPicker.value && !target.closest('.emoji-picker-container')) {
+        showEmojiPicker.value = false;
+      }
+    };
+
+    // Selection change handler für Format-Updates
+    const handleSelectionChange = () => {
+      if (messageEditor.value && document.activeElement === messageEditor.value) {
+        updateActiveFormats();
+      }
+    };
+
+    // Debug helper
+    const debugSendButton = () => {
+      console.log('Debug Send Button:', {
+        canSendMessage: canSendMessage.value,
+        hasContent: hasContent.value,
+        isSending: isSending.value,
+        editorContent: editorContent.value,
+        editorHTML: messageEditor.value?.innerHTML,
+        editorText: messageEditor.value?.textContent,
+        conversationId: currentConversationId.value
+      });
+    };
+
+    // Watcher für editorContent
+    watch(editorContent, (newValue) => {
+      console.log('Editor content changed:', newValue, 'Can send:', canSendMessage.value);
+    });
+
     // Watchers
     watch(() => props.isVisible, (visible) => {
-      console.log('ChatModal: isVisible watcher triggered:', visible);
       if (visible) {
         loadCurrentUser();
         loadMessages();
-        focusInput();
+        focusEditor();
+        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('selectionchange', handleSelectionChange);
       } else {
-        // Reset state when modal closes
+        // Reset state
         messages.value = [];
         currentConversationId.value = '';
-        newMessage.value = '';
+        editorContent.value = '';
+        if (messageEditor.value) {
+          messageEditor.value.innerHTML = '';
+        }
         isTyping.value = false;
         isUserTyping.value = false;
+        showEmojiPicker.value = false;
+        activeFormats.value = {
+          bold: false,
+          italic: false,
+          underline: false
+        };
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('selectionchange', handleSelectionChange);
         
-        // Clear typing timeout
         if (typingTimeout) {
           clearTimeout(typingTimeout);
           typingTimeout = null;
@@ -346,48 +625,67 @@ export default defineComponent({
 
     watch(() => props.friendId, () => {
       if (props.isVisible && props.friendId) {
-        console.log('ChatModal: friendId changed, reloading messages');
         loadMessages();
       }
     });
 
     // Keyboard shortcuts
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && props.isVisible) {
         closeModal();
       }
     };
 
     onMounted(() => {
-      console.log('ChatModal: Component mounted');
-      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('keydown', handleGlobalKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('selectionchange', handleSelectionChange);
       
-      // Cleanup typing timeout
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
     });
 
     return {
-      newMessage,
+      // State
       messages,
       isSending,
       isTyping,
       isLoading,
       isUserTyping,
+      showEmojiPicker,
+      availableEmojis,
+      activeFormats,
+      editorContent,
+      
+      // Refs
       chatContainer,
-      messageInput,
+      messageEditor,
+      
+      // Computed
+      hasContent,
+      canSendMessage,
+      
+      // Methods
       getInitials,
       formatTime,
       isOwnMessage,
-      handleTyping,
+      parseMessageContent,
+      toggleFormat,
+      insertEmoji,
+      toggleEmojiPicker,
+      handleInput,
+      handleKeyDown,
+      handlePaste,
       sendMessage,
-      closeModal
+      closeModal,
+      updateActiveFormats,
+      debugSendButton
     };
   }
 });
@@ -399,6 +697,13 @@ export default defineComponent({
 @use '@/style/base/mixins' as mixins;
 @use '@/style/base/animations' as animations;
 
+// Einheitliche Icon-Größe
+.icon-size {
+  width: 20px !important;
+  height: 20px !important;
+  position: absolute;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -409,14 +714,14 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1050; // Höher als Sidebar (950)
+  z-index: 1050;
   padding: map.get(vars.$spacing, m);
-  background-color: rgba(0, 0, 0, 0.5); // Dunkler Hintergrund für bessere Sichtbarkeit
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   height: 80vh;
   max-height: 700px;
   display: flex;
@@ -549,10 +854,38 @@ export default defineComponent({
         }
       }
     }
+  }
 
-    .close-icon {
-      width: 20px;
-      height: 20px;
+  .debug-info {
+    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+    font-size: map.get(map.get(vars.$fonts, sizes), xs);
+    
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, secondary-bg);
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+    
+    button {
+      margin-top: map.get(vars.$spacing, xs);
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
+      border: 1px solid;
+      cursor: pointer;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          border-color: mixins.theme-color($theme, border-light);
+          color: mixins.theme-color($theme, text-primary);
+          
+          &:hover {
+            background-color: mixins.theme-color($theme, hover-color);
+          }
+        }
+      }
     }
   }
 }
@@ -605,9 +938,16 @@ export default defineComponent({
     text-align: center;
 
     .empty-chat-icon {
-      font-size: 48px;
+      width: 48px;
+      height: 48px;
       margin-bottom: map.get(vars.$spacing, m);
       opacity: 0.6;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
     }
 
     p {
@@ -688,11 +1028,26 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         position: relative;
 
-        p {
+        .message-text {
           margin: 0 0 map.get(vars.$spacing, xs) 0;
           line-height: 1.4;
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           word-wrap: break-word;
+          
+          // Styles für Rich-Text
+          :deep(b),
+          :deep(strong) {
+            font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          }
+          
+          :deep(i),
+          :deep(em) {
+            font-style: italic;
+          }
+          
+          :deep(u) {
+            text-decoration: underline;
+          }
         }
 
         .message-attachment {
@@ -717,6 +1072,11 @@ export default defineComponent({
                   background-color: rgba(255, 255, 255, 0.2);
                 }
               }
+            }
+
+            .attachment-icon {
+              width: 16px;
+              height: 16px;
             }
           }
         }
@@ -797,8 +1157,8 @@ export default defineComponent({
   }
 }
 
-.message-form {
-  padding: map.get(vars.$spacing, l);
+// Rich Text Editor
+.message-editor {
   border-top: 1px solid;
 
   @each $theme in ('light', 'dark') {
@@ -808,16 +1168,126 @@ export default defineComponent({
     }
   }
 
+  .formatting-toolbar {
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, xs);
+    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+
+    .format-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: transparent;
+          color: mixins.theme-color($theme, text-secondary);
+
+          &:hover {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            color: mixins.theme-color($theme, text-primary);
+          }
+
+          &.active {
+            background-color: mixins.theme-color($theme, accent-teal);
+            color: white;
+          }
+        }
+      }
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      margin: 0 map.get(vars.$spacing, xs);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, border-light);
+        }
+      }
+    }
+
+    .emoji-picker-container {
+      position: relative;
+
+      .emoji-picker {
+        position: absolute;
+        bottom: calc(100% + #{map.get(vars.$spacing, s)});
+        left: 50%;
+        transform: translateX(-50%);
+        width: 320px;
+        max-height: 280px;
+        overflow-y: auto;
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        @include animations.fade-in(0.2s);
+        z-index: 100;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, card-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+            @include mixins.shadow('medium', $theme);
+          }
+        }
+
+        .emoji-grid {
+          display: grid;
+          grid-template-columns: repeat(10, 1fr);
+          gap: map.get(vars.$spacing, xxs);
+          padding: map.get(vars.$spacing, s);
+
+          .emoji-item {
+            width: 28px;
+            height: 28px;
+            font-size: 25px !important;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            transition: all 0.2s ease;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                &:hover {
+                  background-color: mixins.theme-color($theme, secondary-bg);
+                  transform: scale(1.2);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   .message-input-wrapper {
     display: flex;
     gap: map.get(vars.$spacing, s);
-    align-items: center;
+    align-items: flex-end;
+    padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, xl);
 
     .message-input {
       flex: 1;
+      min-height: 44px;
+      max-height: 120px;
+      overflow-y: auto;
       padding: map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      outline: none;
+      line-height: 1.5;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
@@ -825,16 +1295,32 @@ export default defineComponent({
           transition: all 0.4s ease-out;
 
           &:focus {
-            outline: none;
             border-color: mixins.theme-color($theme, accent-teal);
             box-shadow: 0 0 0 3px rgba(mixins.theme-color($theme, accent-teal), 0.1);
           }
 
-          &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+          &:empty:not(:focus):before {
+            content: attr(data-placeholder);
+            color: mixins.theme-color($theme, text-muted);
+            pointer-events: none;
+            position: absolute;
           }
         }
+      }
+      
+      // Rich-Text Styles
+      :deep(b),
+      :deep(strong) {
+        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      }
+      
+      :deep(i),
+      :deep(em) {
+        font-style: italic;
+      }
+      
+      :deep(u) {
+        text-decoration: underline;
       }
     }
 
@@ -865,11 +1351,6 @@ export default defineComponent({
             transform: none;
           }
         }
-      }
-
-      .send-icon {
-        width: 20px;
-        height: 20px;
       }
     }
   }
@@ -910,8 +1391,26 @@ export default defineComponent({
     padding: map.get(vars.$spacing, s);
   }
 
-  .message-form {
-    padding: map.get(vars.$spacing, m);
+  .message-editor {
+    .formatting-toolbar {
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+    }
+
+    .message-input-wrapper {
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+    }
+  }
+
+  .formatting-toolbar {
+    .emoji-picker-container {
+      .emoji-picker {
+        left: -10px;
+        right: 10px;
+        width: calc(100vw - 40px);
+        max-width: 320px;
+        transform: none;
+      }
+    }
   }
 }
 </style>

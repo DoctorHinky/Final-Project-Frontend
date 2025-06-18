@@ -77,18 +77,18 @@ class FriendService {
 
   /**
    * Holt alle gesendeten Freundschaftsanfragen des aktuellen Users
-   * Hinweis: Endpoint müsste im Backend implementiert werden
-   * Verwende die requestsOfUser Logik für eigene Anfragen
+   * HINWEIS: Backend-Endpoint fehlt für normale User - verwende Workaround
    */
   async getMySentRequests(): Promise<SentRequestResponse[]> {
     try {
-      // Verwende den User-Service um eigene ID zu bekommen
-      const userResponse = await api.get("/user/getMe");
-      const userId = userResponse.data.id;
+      // TODO: Backend sollte einen Endpoint /friends/mySentRequests implementieren
+      // Temporärer Workaround: Leeres Array zurückgeben
+      console.warn("Endpoint für gesendete Anfragen für normale User fehlt im Backend");
+      return [];
       
-      // Hole alle Anfragen des Users
-      const response = await api.get(`/friends/requestsOfUser/${userId}`);
-      return response.data;
+      // Wenn Backend-Endpoint implementiert ist:
+      // const response = await api.get('/friends/mySentRequests');
+      // return response.data;
     } catch (error) {
       console.error("Fehler beim Laden gesendeter Anfragen:", error);
       return [];
@@ -269,6 +269,18 @@ class FriendService {
         });
       }, 1000);
     });
+  }
+
+  /**
+   * Holt die Anzahl ungelesener Nachrichten für alle Freunde
+   */
+  async getTotalUnreadMessagesCount(): Promise<number> {
+    try {
+      return await chatService.getTotalUnreadCount();
+    } catch (error) {
+      console.error("Fehler beim Laden der ungelesenen Nachrichten:", error);
+      return 0;
+    }
   }
 
   // ===========================

@@ -37,6 +37,7 @@ export interface ConversationPreview {
     createdAt: string;
   } | null;
   updatedAt: string;
+  unreadCount?: number;
 }
 
 export interface SendMessageResponse {
@@ -95,7 +96,35 @@ class ChatService {
   }
 
   /**
-   * Sendet eine Textnachricht
+   * Holt die Anzahl ungelesener Nachrichten für eine Conversation
+   */
+  async getUnreadMessageCount(conversationId: string): Promise<number> {
+    try {
+      const conversation = await this.getConversation(conversationId);
+      // Zähle ungelesene Nachrichten
+      const unreadCount = conversation.messages.filter(msg => !msg.isRead).length;
+      return unreadCount;
+    } catch (error) {
+      console.error('Fehler beim Zählen ungelesener Nachrichten:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Holt die Gesamtzahl ungelesener Nachrichten über alle Conversations
+   */
+  async getTotalUnreadCount(): Promise<number> {
+    try {
+      const conversations = await this.getAllConversations();
+      return conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
+    } catch (error) {
+      console.error('Fehler beim Zählen aller ungelesenen Nachrichten:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Sendet eine Textnachricht (unterstützt jetzt auch formatiertes HTML)
    * POST /chat/send/:chatId
    */
   async sendMessage(conversationId: string, message: string): Promise<SendMessageResponse> {
@@ -241,6 +270,50 @@ class ChatService {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  /**
+   * Hilfsfunktion: Bereinigt HTML-Inhalt für sicheres Rendering
+   */
+  sanitizeHtml(html: string): string {
+    // Erlaubte Tags für Rich-Text
+    const allowedTags = ['b', 'u', 'i', 'strong', 'em'];
+    
+    // Einfache Bereinigung - in Produktion sollte eine Library wie DOMPurify verwendet werden
+    let cleaned = html;
+    
+    // Entferne alle nicht erlaubten Tags
+    cleaned = cleaned.replace(/<(?!\/?(?:b|u|i|strong|em)(?=>|\s.*>))\/?.*?>/gi, '');
+    
+    // Entferne gefährliche Attribute
+    cleaned = cleaned.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+    cleaned = cleaned.replace(/\s*style\s*=\s*["'][^"']*["']/gi, '');
+    
+    return cleaned;
+  }
+
+  /**
+   * Hilfsfunktion: Konvertiert Text mit Emojis und Formatierung zu HTML
+   */
+  parseMessageContent(content: string): string {
+    // Sanitize zuerst
+    let parsed = this.sanitizeHtml(content);
+    
+    // Konvertiere Line Breaks zu <br>
+    parsed = parsed.replace(/\n/g, '<br>');
+    
+    return parsed;
+  }
+
+  /**
+   * Hilfsfunktion: Extrahiert reinen Text aus HTML (für Vorschau)
+   */
+  extractTextFromHtml(html: string): string {
+    // Einfache Implementierung - in Produktion sollte eine DOM-Parser Library verwendet werden
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .trim();
   }
 }
 

@@ -181,17 +181,11 @@ export default defineComponent({
       );
     });
 
-    // Ungelesene Nachrichten laden
+    // Ungelesene Nachrichten laden - KORRIGIERTE VERSION
     const loadUnreadMessagesCount = async () => {
       try {
-        const conversations = await chatService.getAllConversations();
-        let totalUnread = 0;
-        
-        for (const conv of conversations) {
-          const unreadCount = await chatService.getUnreadMessageCount(conv.id);
-          totalUnread += unreadCount;
-        }
-        
+        // Verwende die getTotalUnreadMessagesCount Methode vom friendService
+        const totalUnread = await friendService.getTotalUnreadMessagesCount();
         unreadMessagesCount.value = totalUnread;
         
         // Event für MemberSidebar senden
