@@ -20,6 +20,7 @@ import Friends from "@/pages/member/dashboard/Friends.vue";
 import Notifications from "@/pages/member/dashboard/Notifications.vue";
 import Settings from "@/pages/member/dashboard/Settings.vue";
 import Library from "@/pages/member/dashboard/Library.vue"; // Bibliothek-Komponente
+import Support from "@/pages/member/dashboard/Support.vue"; // Support-Komponente
 import ArticleEditor from "@/components/pages/DashboardPages/CreateArticle"; // Neue Artikel-Editor Komponente
 
 // Services
@@ -37,6 +38,7 @@ export default defineComponent({
     Notifications,
     Settings,
     Library,
+    Support,
     ArticleEditor,
   },
   props: {
@@ -67,6 +69,7 @@ export default defineComponent({
         notifications: Notifications,
         settings: Settings,
         library: Library,
+        support: Support,
       };
 
       // Nur für Autoren verfügbar
@@ -105,6 +108,8 @@ export default defineComponent({
           return "Einstellungen";
         case "library":
           return "Bibliothek";
+        case "support":
+          return "Support";
         default:
           return "Dashboard";
       }

@@ -8,11 +8,7 @@
         <p class="header-subtitle">Hier finden Sie alle Ihre Support-Anfragen und deren Status</p>
       </div>
       <button class="btn-new-ticket" @click="showCreateModal = true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <PlusIcon class="w-5 h-5 Icons" />
         Neues Ticket
       </button>
     </div>
@@ -20,46 +16,31 @@
     <!-- Quick Stats -->
     <div class="quick-stats">
       <div class="stat-card">
-        <div class="stat-icon open">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
+        <div class="stat-icon">
+          <ExclamationCircleIcon class="w-5 h-5" />
         </div>
-        <div class="stat-content">
-          <div class="stat-number">{{ openTicketsCount }}</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ openTicketsCount }}</div>
           <div class="stat-label">Offen</div>
         </div>
       </div>
       
       <div class="stat-card">
-        <div class="stat-icon progress">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
+        <div class="stat-icon">
+          <ClockIcon class="w-5 h-5 Icons" />
         </div>
-        <div class="stat-content">
-          <div class="stat-number">{{ inProgressTicketsCount }}</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ inProgressTicketsCount }}</div>
           <div class="stat-label">In Bearbeitung</div>
         </div>
       </div>
       
       <div class="stat-card">
-        <div class="stat-icon total">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 5v2"></path>
-            <path d="M15 11v2"></path>
-            <path d="M15 17v2"></path>
-            <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"></path>
-          </svg>
+        <div class="stat-icon">
+          <TicketIcon class="w-5 h-5 Icons" />
         </div>
-        <div class="stat-content">
-          <div class="stat-number">{{ totalTicketsCount }}</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ totalTicketsCount }}</div>
           <div class="stat-label">Gesamt</div>
         </div>
       </div>
@@ -69,37 +50,46 @@
     <div class="tickets-filter">
       <div class="filter-item">
         <label for="status-filter">Status:</label>
-        <select id="status-filter" v-model="statusFilter" @change="applyFilters">
-          <option value="">Alle</option>
-          <option value="OPEN">Offen</option>
-          <option value="IN_PROGRESS">In Bearbeitung</option>
-          <option value="WAITING">Wartend</option>
-          <option value="RESOLVED">Gelöst</option>
-          <option value="CLOSED">Geschlossen</option>
-        </select>
+        <div class="custom-select">
+          <select id="status-filter" v-model="statusFilter" @change="applyFilters">
+            <option value="">Alle</option>
+            <option value="OPEN">Offen</option>
+            <option value="IN_PROGRESS">In Bearbeitung</option>
+            <option value="WAITING">Wartend</option>
+            <option value="RESOLVED">Gelöst</option>
+            <option value="CLOSED">Geschlossen</option>
+          </select>
+          <ChevronDownIcon class="select-icon" />
+        </div>
       </div>
       
       <div class="filter-item">
         <label for="category-filter">Kategorie:</label>
-        <select id="category-filter" v-model="categoryFilter" @change="applyFilters">
-          <option value="">Alle</option>
-          <option value="ACCOUNT">Konto & Anmeldung</option>
-          <option value="TECHNICAL">Technisches Problem</option>
-          <option value="WEBSITE_BUG">Website-Fehler</option>
-          <option value="REPORT">Inhalte melden</option>
-          <option value="OTHER">Sonstiges</option>
-        </select>
+        <div class="custom-select">
+          <select id="category-filter" v-model="categoryFilter" @change="applyFilters">
+            <option value="">Alle</option>
+            <option value="ACCOUNT">Konto & Anmeldung</option>
+            <option value="TECHNICAL">Technisches Problem</option>
+            <option value="WEBSITE_BUG">Website-Fehler</option>
+            <option value="REPORT">Inhalte melden</option>
+            <option value="OTHER">Sonstiges</option>
+          </select>
+          <ChevronDownIcon class="select-icon" />
+        </div>
       </div>
       
       <div class="filter-item search">
         <label for="search-filter">Suche:</label>
-        <input 
-          type="text" 
-          id="search-filter" 
-          v-model="searchQuery" 
-          @input="debounceSearch"
-          placeholder="Ticket-Titel durchsuchen..."
-        >
+        <div class="search-wrapper">
+          <MagnifyingGlassIcon class="search-icon w-5 h-5 Icons" />
+          <input 
+            type="text" 
+            id="search-filter" 
+            v-model="searchQuery" 
+            @input="debounceSearch"
+            placeholder="Ticket-Titel durchsuchen..."
+          >
+        </div>
       </div>
     </div>
 
@@ -112,12 +102,7 @@
     <!-- Empty State -->
     <div v-else-if="filteredTickets.length === 0 && !isLoading" class="empty-state">
       <div class="empty-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          <path d="M8 10h8"></path>
-          <path d="M8 14h6"></path>
-        </svg>
+        <ChatBubbleLeftRightIcon class="w-16 h-16" />
       </div>
       <h3>{{ searchQuery || statusFilter || categoryFilter ? 'Keine Tickets gefunden' : 'Noch keine Support-Tickets' }}</h3>
       <p>
@@ -165,10 +150,7 @@
           <div class="ticket-id">ID: {{ ticket.id }}</div>
           <div class="ticket-indicators">
             <div v-if="ticket.messageCount && ticket.messageCount > 0" class="message-count" title="Nachrichten">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
+              <ChatBubbleLeftRightIcon class="w-4 h-4 Icons" />
               {{ ticket.messageCount }}
             </div>
             <div v-if="ticket.hasUnreadMessages" class="unread-indicator" title="Ungelesene Nachrichten">
@@ -181,14 +163,14 @@
 
     <!-- Create Ticket Modal -->
     <UserTicketModal 
-      :isOpen="showCreateModal" 
+      :is-open="showCreateModal" 
       @close="showCreateModal = false"
       @ticket-created="handleTicketCreated"
     />
 
     <!-- Ticket Detail Modal -->
     <UserTicketDetailModal
-      :isOpen="!!selectedTicketForDetail"
+      :is-open="!!selectedTicketForDetail"
       :ticket="selectedTicketForDetail"
       @close="selectedTicketForDetail = null"
       @ticket-updated="handleTicketUpdated"
@@ -198,13 +180,29 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from 'vue';
-import { ticketService, type UserTicket, TicketStatus, TicketCategory } from '@/services/ticket.service';
+import { 
+  PlusIcon,
+  ExclamationCircleIcon,
+  ClockIcon,
+  TicketIcon,
+  MagnifyingGlassIcon,
+  ChatBubbleLeftRightIcon,
+  ChevronDownIcon
+} from '@heroicons/vue/24/outline';
+import { memberTicketService, type UserTicket, TicketStatus, TicketCategory } from '@/services/member.ticket.service';
 import UserTicketModal from './UserTicketModal.vue';
 import UserTicketDetailModal from './UserTicketDetailModal.vue';
 
 export default defineComponent({
   name: 'UserTicketOverview',
   components: {
+    PlusIcon,
+    ExclamationCircleIcon,
+    ClockIcon,
+    TicketIcon,
+    MagnifyingGlassIcon,
+    ChatBubbleLeftRightIcon,
+    ChevronDownIcon,
     UserTicketModal,
     UserTicketDetailModal
   },
@@ -265,7 +263,7 @@ export default defineComponent({
     const loadTickets = async () => {
       isLoading.value = true;
       try {
-        tickets.value = await ticketService.getMyTickets();
+        tickets.value = await memberTicketService.getMyTickets();
       } catch (error) {
         console.error('Fehler beim Laden der Tickets:', error);
       } finally {
@@ -290,7 +288,7 @@ export default defineComponent({
     const selectTicket = async (ticket: UserTicket) => {
       try {
         // Vollständiges Ticket laden
-        const fullTicket = await ticketService.getUserTicketById(ticket.id);
+        const fullTicket = await memberTicketService.getUserTicketById(ticket.id);
         if (fullTicket) {
           selectedTicketForDetail.value = fullTicket;
         }
@@ -311,11 +309,11 @@ export default defineComponent({
     
     // Formatierungsfunktionen
     const formatStatus = (status: TicketStatus) => {
-      return ticketService.formatStatus(status);
+      return memberTicketService.formatStatus(status);
     };
     
     const formatCategory = (category: TicketCategory) => {
-      return ticketService.formatCategory(category);
+      return memberTicketService.formatCategory(category);
     };
     
     const formatDate = (dateString: string) => {
@@ -436,12 +434,30 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
     border: none;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+      opacity: 0;
+      filter: blur(8px);
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+      &::before {
+        opacity: 0.5;
+      }
     }
   }
 }
@@ -469,7 +485,7 @@ export default defineComponent({
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 15px rgba(74, 210, 149, 0.1);
     }
 
     .stat-icon {
@@ -479,25 +495,17 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-
-      &.open {
-        background-color: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-      }
-
-      &.progress {
-        background-color: rgba(168, 85, 247, 0.1);
-        color: #a855f7;
-      }
-
-      &.total {
-        background-color: rgba(107, 114, 128, 0.1);
-        color: #6b7280;
-      }
+      background: linear-gradient(135deg, rgba(74, 210, 149, 0.1) 0%, rgba(53, 204, 208, 0.1) 100%);
+      color: #4ad295;
+      transition: all 0.2s;
     }
 
-    .stat-content {
-      .stat-number {
+    &:hover .stat-icon {
+      box-shadow: 0 0 15px rgba(74, 210, 149, 0.2);
+    }
+
+    .stat-info {
+      .stat-value {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 4px;
@@ -546,6 +554,27 @@ export default defineComponent({
     &.search {
       flex: 1;
       min-width: 200px;
+
+      .search-wrapper {
+        position: relative;
+
+        .search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
+            }
+          }
+        }
+
+        input {
+          padding-left: 40px;
+        }
+      }
     }
 
     label {
@@ -559,7 +588,59 @@ export default defineComponent({
       }
     }
 
-    select,
+    // Custom Select Styling
+    .custom-select {
+      position: relative;
+
+      select {
+        width: 100%;
+        padding: 8px 36px 8px 12px;
+        border-radius: 6px;
+        border: 1px solid;
+        font-size: 0.875rem;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, primary-bg);
+            border-color: mixins.theme-color($theme, border-medium);
+            color: mixins.theme-color($theme, text-primary);
+
+            &:focus {
+              outline: none;
+              border-color: #4ad295;
+              box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
+            }
+
+            option {
+              background-color: mixins.theme-color($theme, primary-bg);
+              color: mixins.theme-color($theme, text-primary);
+              padding: 8px;
+            }
+          }
+        }
+      }
+
+      .select-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
+          }
+        }
+      }
+    }
+
     input {
       padding: 8px 12px;
       border-radius: 6px;
@@ -574,7 +655,8 @@ export default defineComponent({
 
           &:focus {
             outline: none;
-            border-color: #4facfe;
+            border-color: #4ad295;
+            box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
           }
 
           &::placeholder {
@@ -596,11 +678,12 @@ export default defineComponent({
   .spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid rgba(79, 172, 254, 0.1);
-    border-left: 4px solid #4facfe;
+    border: 4px solid rgba(74, 210, 149, 0.1);
+    border-left: 4px solid #4ad295;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
+    filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
   }
 
   p {
@@ -624,6 +707,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-tertiary);
+        filter: drop-shadow(0 0 8px rgba(74, 210, 149, 0.2));
       }
     }
   }
@@ -659,13 +743,31 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     border: none;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
     transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+      opacity: 0;
+      filter: blur(8px);
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+      &::before {
+        opacity: 0.5;
+      }
     }
   }
 }
@@ -686,8 +788,9 @@ export default defineComponent({
         border: 1px solid mixins.theme-color($theme, border-light);
 
         &:hover {
-          border-color: #4facfe;
-          box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1);
+          border-color: #4ad295;
+          box-shadow: 0 4px 12px rgba(74, 210, 149, 0.1), 0 0 20px rgba(74, 210, 149, 0.1);
+          transform: translateY(-2px);
         }
       }
     }
@@ -717,31 +820,9 @@ export default defineComponent({
         font-size: 0.75rem;
         font-weight: 600;
         white-space: nowrap;
-
-        &.status-open {
-          background-color: rgba(59, 130, 246, 0.1);
-          color: #3b82f6;
-        }
-
-        &.status-progress {
-          background-color: rgba(168, 85, 247, 0.1);
-          color: #a855f7;
-        }
-
-        &.status-waiting {
-          background-color: rgba(245, 158, 11, 0.1);
-          color: #f59e0b;
-        }
-
-        &.status-resolved {
-          background-color: rgba(34, 197, 94, 0.1);
-          color: #22c55e;
-        }
-
-        &.status-closed {
-          background-color: rgba(107, 114, 128, 0.1);
-          color: #6b7280;
-        }
+        background-color: rgba(74, 210, 149, 0.1);
+        color: #4ad295;
+        box-shadow: 0 0 8px rgba(74, 210, 149, 0.15);
       }
     }
 
@@ -825,8 +906,9 @@ export default defineComponent({
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #ef4444;
+            background-color: #4ad295;
             animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
           }
         }
       }
@@ -842,9 +924,11 @@ export default defineComponent({
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
+    box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
   }
   50% {
     opacity: .5;
+    box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
   }
 }
 
@@ -888,5 +972,9 @@ export default defineComponent({
       grid-template-columns: 1fr;
     }
   }
+}
+
+.Icons{
+  width: 30px;
 }
 </style>

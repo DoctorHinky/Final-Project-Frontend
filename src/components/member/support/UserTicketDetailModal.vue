@@ -7,13 +7,7 @@
       <div class="modal-header">
         <div class="header-content">
           <div class="header-icon" :class="getStatusIconClass(ticket.status)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 5v2"></path>
-              <path d="M15 11v2"></path>
-              <path d="M15 17v2"></path>
-              <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"></path>
-            </svg>
+            <TicketIcon class="w-6 h-6" />
           </div>
           <div>
             <h3>{{ ticket.title }}</h3>
@@ -21,11 +15,7 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" :disabled="isSubmitting">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+          <XMarkIcon class="w-5 h-5 Icons" />
         </button>
       </div>
 
@@ -75,15 +65,8 @@
             >
               <div class="message-avatar">
                 <div class="avatar-circle" :class="{ 'staff': message.isStaff }">
-                  <svg v-if="message.isStaff" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
+                  <StarIcon v-if="message.isStaff" class="w-4 h-4 Icons" />
+                  <UserIcon v-else class="w-4 h-4 Icons" />
                 </div>
               </div>
               <div class="message-content">
@@ -120,17 +103,11 @@
                 :disabled="!canSendReply || isSubmitting"
               >
                 <span v-if="isSubmitting" class="loading">
-                  <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-dasharray="16 16"></circle>
-                  </svg>
+                  <div class="spinner"></div>
                   Wird gesendet...
                 </span>
                 <span v-else>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
+                  <PaperAirplaneIcon class="w-4 h-4 Icons" />
                   Senden
                 </span>
               </button>
@@ -141,12 +118,7 @@
         <!-- Ticket Actions -->
         <div class="ticket-actions">
           <div class="action-info">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
+            <ExclamationCircleIcon class="w-4 h-4 Icons" />
             <span v-if="ticket.status === 'CLOSED'">
               Dieses Ticket ist geschlossen. Sie können es nicht mehr bearbeiten.
             </span>
@@ -165,11 +137,7 @@
               @click="confirmCloseTicket"
               :disabled="isSubmitting"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <XMarkIcon class="w-4 h-4 Icons" />
               Ticket schließen
             </button>
           </div>
@@ -198,9 +166,25 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { memberTicketService, type FullTicket, TicketStatus, TicketCategory } from '@/services/member.ticket.service';
+import {
+  TicketIcon,
+  XMarkIcon,
+  ExclamationCircleIcon,
+  StarIcon,
+  UserIcon,
+  PaperAirplaneIcon
+} from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'UserTicketDetailModal',
+  components: {
+    TicketIcon,
+    XMarkIcon,
+    ExclamationCircleIcon,
+    StarIcon,
+    UserIcon,
+    PaperAirplaneIcon
+  },
   props: {
     isOpen: {
       type: Boolean,
@@ -252,7 +236,6 @@ export default defineComponent({
         emit('ticket-updated');
       } catch (error) {
         console.error('Fehler beim Senden der Nachricht:', error);
-        // Hier könnte eine Toast-Notification gezeigt werden
       } finally {
         isSubmitting.value = false;
       }
@@ -439,25 +422,26 @@ export default defineComponent({
       justify-content: center;
       color: white;
       flex-shrink: 0;
+      position: relative;
 
-      &.icon-open {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      }
-
-      &.icon-progress {
-        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-      }
-
-      &.icon-waiting {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      }
-
-      &.icon-resolved {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      }
-
+      &.icon-open,
+      &.icon-progress,
+      &.icon-waiting,
+      &.icon-resolved,
       &.icon-closed {
-        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+        box-shadow: 0 0 20px rgba(74, 210, 149, 0.25);
+        
+        &::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+          opacity: 0.4;
+          filter: blur(8px);
+          z-index: -1;
+        }
       }
     }
 
@@ -561,31 +545,8 @@ export default defineComponent({
         border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 600;
-
-        &.status-open {
-          background-color: rgba(59, 130, 246, 0.1);
-          color: #3b82f6;
-        }
-
-        &.status-progress {
-          background-color: rgba(168, 85, 247, 0.1);
-          color: #a855f7;
-        }
-
-        &.status-waiting {
-          background-color: rgba(245, 158, 11, 0.1);
-          color: #f59e0b;
-        }
-
-        &.status-resolved {
-          background-color: rgba(34, 197, 94, 0.1);
-          color: #22c55e;
-        }
-
-        &.status-closed {
-          background-color: rgba(107, 114, 128, 0.1);
-          color: #6b7280;
-        }
+        background-color: rgba(74, 210, 149, 0.1);
+        color: #4ad295;
       }
     }
   }
@@ -660,7 +621,8 @@ export default defineComponent({
           color: white;
 
           &.staff {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+            box-shadow: 0 0 15px rgba(74, 210, 149, 0.3);
           }
 
           &:not(.staff) {
@@ -702,7 +664,7 @@ export default defineComponent({
               border-radius: 4px;
               font-size: 0.625rem;
               font-weight: 700;
-              background-color: #f59e0b;
+              background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
               color: white;
             }
           }
@@ -736,8 +698,12 @@ export default defineComponent({
 
       &.is-staff {
         .message-content .message-body {
-          background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
-          border-color: rgba(245, 158, 11, 0.2);
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background: linear-gradient(135deg, rgba(74, 210, 149, 0.05) 0%, rgba(53, 204, 208, 0.05) 100%);
+              border-color: rgba(74, 210, 149, 0.2);
+            }
+          }
         }
       }
     }
@@ -778,7 +744,8 @@ export default defineComponent({
 
           &:focus {
             outline: none;
-            border-color: #4facfe;
+            border-color: #4ad295;
+            box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
           }
 
           &:disabled {
@@ -819,12 +786,30 @@ export default defineComponent({
         cursor: pointer;
         transition: all 0.2s;
         border: none;
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
         color: white;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+          opacity: 0;
+          filter: blur(8px);
+          transition: opacity 0.3s;
+          z-index: -1;
+        }
 
         &:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+          box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+          &::before {
+            opacity: 0.5;
+          }
         }
 
         &:disabled {
@@ -840,6 +825,11 @@ export default defineComponent({
         }
 
         .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-left-color: white;
+          border-radius: 50%;
           animation: spin 1s linear infinite;
         }
       }
@@ -887,19 +877,26 @@ export default defineComponent({
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
-      border: none;
+      border: 1px solid;
 
       &.close-ticket {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: transparent;
+            border-color: mixins.theme-color($theme, border-medium);
+            color: mixins.theme-color($theme, text-secondary);
 
-        &:hover:not(:disabled) {
-          background-color: rgba(239, 68, 68, 0.2);
-        }
+            &:hover:not(:disabled) {
+              background-color: mixins.theme-color($theme, hover-color);
+              color: mixins.theme-color($theme, text-primary);
+              box-shadow: 0 0 10px rgba(74, 210, 149, 0.1);
+            }
 
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
         }
       }
     }
@@ -1002,11 +999,30 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.2s;
       border: none;
-      background-color: #ef4444;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
       color: white;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+        opacity: 0;
+        filter: blur(8px);
+        transition: opacity 0.3s;
+        z-index: -1;
+      }
 
       &:hover {
-        background-color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+        &::before {
+          opacity: 0.5;
+        }
       }
     }
   }
@@ -1086,5 +1102,9 @@ export default defineComponent({
       justify-content: center;
     }
   }
+}
+
+.Icons{
+  width: 30px !important;
 }
 </style>
