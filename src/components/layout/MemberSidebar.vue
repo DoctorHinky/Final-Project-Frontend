@@ -44,62 +44,98 @@
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
 
-    <!-- Sidebar-Navigation -->
-    <nav class="sidebar-nav">
-      <div
-        v-for="(item, index) in menuItems"
-        :key="index"
-        class="nav-item"
-        :class="{ active: activeMenu === item.id }"
-        @click="selectMenuItem(item.id)"
-      >
-        <span class="nav-icon">
-          <component :is="item.icon" class="h-6 w-6" />
-        </span>
-        <span class="nav-text">{{ item.text }}</span>
-        
-        <!-- Badge für ungelesene Nachrichten bei Freunde -->
-        <span
-          v-if="item.id === 'friends' && unreadMessagesCount > 0"
-          class="nav-badge messages-badge"
-          :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
+    <!-- Sidebar-Navigation mit Drag & Drop -->
+    <nav class="sidebar-nav" ref="navContainer">
+      <transition-group name="nav-item-move" tag="div" class="nav-items-container">
+        <div
+          v-for="(item, index) in sortedMenuItems"
+          :key="item.id"
+          :data-item-id="item.id"
+          class="nav-item"
+          :class="{ 
+            active: activeMenu === item.id,
+            dragging: draggedItem === item.id,
+            'drag-over': dragOverIndex === index
+          }"
+          draggable="true"
+          @click="selectMenuItem(item.id)"
+          @dragstart="handleDragStart($event, item.id, index)"
+          @dragend="handleDragEnd"
+          @dragover="handleDragOver($event, index)"
+          @dragleave="handleDragLeave"
+          @drop="handleDrop($event, index)"
         >
-          {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
-        </span>
-        
-        <!-- Badge für ungelesene Benachrichtigungen -->
-        <span
-          v-if="item.id === 'notifications' && notificationCount > 0"
-          class="nav-badge notifications-badge"
-          :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`"
-        >
-          {{ notificationCount > 99 ? "99+" : notificationCount }}
-        </span>
-      </div>
+          <!-- Drag Handle -->
+          <span class="drag-handle" @click.stop>
+            <Bars3Icon class="h-4 w-4" />
+          </span>
+          
+          <span class="nav-icon">
+            <component :is="item.icon" class="h-6 w-6" />
+          </span>
+          <span class="nav-text">{{ item.text }}</span>
+          
+          <!-- Badge für ungelesene Nachrichten bei Freunde -->
+          <span
+            v-if="item.id === 'friends' && unreadMessagesCount > 0"
+            class="nav-badge"
+            :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
+          >
+            {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
+          </span>
+          
+          <!-- Badge für ungelesene Benachrichtigungen -->
+          <span
+            v-if="item.id === 'notifications' && notificationCount > 0"
+            class="nav-badge"
+            :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`"
+          >
+            {{ notificationCount > 99 ? "99+" : notificationCount }}
+          </span>
+        </div>
+
+        <!-- Drop-Indikator Linie -->
+        <div
+          v-if="showDropIndicator"
+          class="drop-indicator"
+          :style="dropIndicatorStyle"
+        ></div>
+      </transition-group>
     </nav>
 
-    <!-- Support-Bereich (separiert) -->
+    <!-- Support-Bereich mit Reset-Button -->
     <div class="support-section">
       <div class="support-divider"></div>
-      <div 
-        class="support-item"
-        :class="{ active: activeMenu === 'support' }"
-        @click="selectMenuItem('support')"
-      >
-        <span class="support-icon">
-          <LifebuoyIcon class="h-5 w-5" />
-        </span>
-        <span class="support-text">Support</span>
-        <span v-if="openTicketsCount > 0" class="support-badge">
-          {{ openTicketsCount }}
-        </span>
+      <div class="support-container">
+        <div 
+          class="support-item"
+          :class="{ active: activeMenu === 'support' }"
+          @click="selectMenuItem('support')"
+        >
+          <span class="support-icon">
+            <LifebuoyIcon class="h-5 w-5" />
+          </span>
+          <span class="support-text">Support</span>
+          <span v-if="openTicketsCount > 0" class="support-badge">
+            {{ openTicketsCount }}
+          </span>
+        </div>
+        
+        <!-- Reset Button -->
+        <button 
+          class="reset-button"
+          @click="resetMenuOrder"
+          title="Menüreihenfolge zurücksetzen"
+        >
+          <ArrowPathIcon class="h-4 w-4 Icons" />
+        </button>
       </div>
     </div>
   </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -109,6 +145,8 @@ import {
   DocumentTextIcon,
   PencilIcon,
   LifebuoyIcon,
+  Bars3Icon,
+  ArrowPathIcon,
 } from "@heroicons/vue/24/outline";
 import { userService } from "@/services/userMD.services";
 import { notificationService } from "@/services/notification.service";
@@ -123,6 +161,16 @@ interface TokenPayload {
   role?: string;
 }
 
+// Interface für Menu Items
+interface MenuItem {
+  id: string;
+  text: string;
+  icon: any;
+}
+
+// Storage Key für die Menüreihenfolge
+const MENU_ORDER_STORAGE_KEY = 'member-sidebar-menu-order';
+
 export default defineComponent({
   name: "MemberSidebar",
   components: {
@@ -134,6 +182,8 @@ export default defineComponent({
     DocumentTextIcon,
     PencilIcon,
     LifebuoyIcon,
+    Bars3Icon,
+    ArrowPathIcon,
   },
   props: {
     isOpen: {
@@ -156,9 +206,16 @@ export default defineComponent({
     const fallbackImageUrl = "/src/assets/images/AvatarIcon1.webp";
     const unreadMessagesCount = ref(0);
     const openTicketsCount = ref(0);
-    
-    // 🔔 NEUE NOTIFICATION STATE
     const notificationCount = ref(0);
+    
+    // Drag & Drop State
+    const draggedItem = ref<string | null>(null);
+    const draggedIndex = ref<number | null>(null);
+    const dragOverIndex = ref<number | null>(null);
+    const showDropIndicator = ref(false);
+    const dropIndicatorStyle = ref({});
+    const navContainer = ref<HTMLElement | null>(null);
+    const menuOrder = ref<string[]>([]);
 
     // Computed Properties
     const userProfileImage = computed(() => {
@@ -172,25 +229,52 @@ export default defineComponent({
       return userData.value?.profilePicture && userData.value.profilePicture !== fallbackImageUrl;
     });
 
-    // Menüelemente als Computed-Property (OHNE Support)
-    const menuItems = computed(() => {
-      const baseItems = [
+    // Basis-Menüelemente
+    const baseMenuItems = computed(() => {
+      const items: MenuItem[] = [
         { id: "overview", text: "Übersicht", icon: ChartBarIcon },
         { id: "my-articles", text: "Meine Artikel", icon: DocumentTextIcon },
       ];
 
       // Menüpunkt für Artikel-Erstellung nur für Authors und Admins hinzufügen
       if (canCreateArticles.value) {
-        baseItems.push({ id: "create-article", text: "Artikel erstellen", icon: PencilIcon });
+        items.push({ id: "create-article", text: "Artikel erstellen", icon: PencilIcon });
       }
 
       return [
-        ...baseItems,
+        ...items,
         { id: "library", text: "Bibliothek", icon: BookOpenIcon },
         { id: "friends", text: "Freunde", icon: UserGroupIcon },
         { id: "notifications", text: "Benachrichtigungen", icon: BellIcon },
         { id: "settings", text: "Einstellungen", icon: Cog6ToothIcon },
       ];
+    });
+
+    // Sortierte Menüelemente basierend auf gespeicherter Reihenfolge
+    const sortedMenuItems = computed(() => {
+      if (menuOrder.value.length === 0) {
+        return baseMenuItems.value;
+      }
+
+      // Sortiere basierend auf der gespeicherten Reihenfolge
+      const sorted: MenuItem[] = [];
+      
+      // Füge Items in der gespeicherten Reihenfolge hinzu
+      menuOrder.value.forEach(id => {
+        const item = baseMenuItems.value.find(i => i.id === id);
+        if (item) {
+          sorted.push(item);
+        }
+      });
+
+      // Füge neue Items hinzu, die noch nicht in der gespeicherten Reihenfolge sind
+      baseMenuItems.value.forEach(item => {
+        if (!sorted.find(i => i.id === item.id)) {
+          sorted.push(item);
+        }
+      });
+
+      return sorted;
     });
 
     // Methods
@@ -283,7 +367,151 @@ export default defineComponent({
       }, 100);
     };
 
-    // 🔔 NOTIFICATION FUNCTIONS
+    // Drag & Drop Handler
+    const handleDragStart = (event: DragEvent, itemId: string, index: number) => {
+      draggedItem.value = itemId;
+      draggedIndex.value = index;
+      
+      // Visuelles Feedback
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/html', ''); // Für Firefox
+      }
+      
+      // Füge Dragging-Klasse nach kurzer Verzögerung hinzu
+      setTimeout(() => {
+        const element = event.target as HTMLElement;
+        element.classList.add('dragging');
+      }, 0);
+    };
+
+    const handleDragEnd = (event: DragEvent) => {
+      // Cleanup
+      draggedItem.value = null;
+      draggedIndex.value = null;
+      dragOverIndex.value = null;
+      showDropIndicator.value = false;
+      
+      // Entferne Dragging-Klasse
+      const element = event.target as HTMLElement;
+      element.classList.remove('dragging');
+    };
+
+    const handleDragOver = (event: DragEvent, index: number) => {
+      event.preventDefault();
+      
+      if (draggedIndex.value === null || draggedIndex.value === index) {
+        return;
+      }
+      
+      // Zeige Drop-Indikator
+      showDropIndicator.value = true;
+      dragOverIndex.value = index;
+      
+      // Berechne Position für Drop-Indikator
+      if (navContainer.value) {
+        const items = navContainer.value.querySelectorAll('.nav-item');
+        const targetItem = items[index] as HTMLElement;
+        
+        if (targetItem) {
+          const rect = targetItem.getBoundingClientRect();
+          const containerRect = navContainer.value.getBoundingClientRect();
+          
+          // Position relativ zum Container
+          const relativeTop = rect.top - containerRect.top;
+          
+          // Entscheide ob oben oder unten basierend auf Mausposition
+          const mouseY = event.clientY - rect.top;
+          const itemHeight = rect.height;
+          
+          if (mouseY < itemHeight / 2) {
+            // Oberhalb des Items
+            dropIndicatorStyle.value = {
+              top: `${relativeTop - 2}px`,
+              opacity: 1
+            };
+          } else {
+            // Unterhalb des Items
+            dropIndicatorStyle.value = {
+              top: `${relativeTop + itemHeight - 2}px`,
+              opacity: 1
+            };
+          }
+        }
+      }
+    };
+
+    const handleDragLeave = () => {
+      // Verzögere das Ausblenden um Flackern zu vermeiden
+      setTimeout(() => {
+        if (dragOverIndex.value !== null) {
+          showDropIndicator.value = false;
+          dragOverIndex.value = null;
+        }
+      }, 50);
+    };
+
+    const handleDrop = (event: DragEvent, dropIndex: number) => {
+      event.preventDefault();
+      
+      if (draggedIndex.value === null || draggedIndex.value === dropIndex) {
+        return;
+      }
+      
+      // Erstelle neue Reihenfolge
+      const items = [...sortedMenuItems.value];
+      const draggedItem = items[draggedIndex.value];
+      
+      // Entferne das gezogene Element
+      items.splice(draggedIndex.value, 1);
+      
+      // Füge es an der neuen Position ein
+      const insertIndex = dropIndex > draggedIndex.value ? dropIndex - 1 : dropIndex;
+      items.splice(insertIndex, 0, draggedItem);
+      
+      // Speichere neue Reihenfolge
+      menuOrder.value = items.map(item => item.id);
+      saveMenuOrder();
+      
+      // Cleanup
+      showDropIndicator.value = false;
+      dragOverIndex.value = null;
+    };
+
+    // Menüreihenfolge speichern
+    const saveMenuOrder = () => {
+      localStorage.setItem(MENU_ORDER_STORAGE_KEY, JSON.stringify(menuOrder.value));
+    };
+
+    // Menüreihenfolge laden
+    const loadMenuOrder = () => {
+      const saved = localStorage.getItem(MENU_ORDER_STORAGE_KEY);
+      if (saved) {
+        try {
+          menuOrder.value = JSON.parse(saved);
+        } catch (error) {
+          console.error("Fehler beim Laden der Menüreihenfolge:", error);
+          menuOrder.value = [];
+        }
+      }
+    };
+
+    // Menüreihenfolge zurücksetzen
+    const resetMenuOrder = () => {
+      menuOrder.value = [];
+      localStorage.removeItem(MENU_ORDER_STORAGE_KEY);
+      
+      // Visuelles Feedback
+      const resetBtn = document.querySelector('.reset-button') as HTMLElement;
+      if (resetBtn) {
+        resetBtn.classList.add('reset-active');
+        setTimeout(() => {
+          resetBtn.classList.remove('reset-active');
+        }, 600);
+      }
+    };
+
+    // NOTIFICATION FUNCTIONS
     const updateNotificationCount = (count: number) => {
       notificationCount.value = count;
     };
@@ -309,7 +537,7 @@ export default defineComponent({
       }
     };
 
-    // 🔔 NOTIFICATION POLLING SETUP
+    // NOTIFICATION POLLING SETUP
     const setupNotificationPolling = () => {
       try {
         // Listener für Notification-Updates registrieren
@@ -339,6 +567,7 @@ export default defineComponent({
     onMounted(() => {
       loadUserData();
       loadOpenTickets();
+      loadMenuOrder();
 
       // Event-Listener für ungelesene Nachrichten registrieren
       if (typeof window !== "undefined") {
@@ -346,7 +575,7 @@ export default defineComponent({
         window.addEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
 
-      // 🔔 Notification-System starten
+      // Notification-System starten
       setupNotificationPolling();
     });
 
@@ -357,7 +586,7 @@ export default defineComponent({
         window.removeEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
 
-      // 🔔 Notification-System bereinigen
+      // Notification-System bereinigen
       cleanupNotificationPolling();
     });
 
@@ -383,7 +612,7 @@ export default defineComponent({
 
     return {
       // State
-      menuItems,
+      sortedMenuItems,
       canCreateArticles,
       userName,
       userRole,
@@ -392,14 +621,29 @@ export default defineComponent({
       isCustomProfileImage,
       isImageLoaded,
       unreadMessagesCount,
-      notificationCount, // 🔔 NEUE NOTIFICATION COUNT
+      notificationCount,
       openTicketsCount,
+      
+      // Drag & Drop State
+      draggedItem,
+      dragOverIndex,
+      showDropIndicator,
+      dropIndicatorStyle,
+      navContainer,
 
       // Methods
       selectMenuItem,
       handleImageError,
       loadUserData,
       goToProfileSettings,
+      resetMenuOrder,
+      
+      // Drag & Drop Methods
+      handleDragStart,
+      handleDragEnd,
+      handleDragOver,
+      handleDragLeave,
+      handleDrop,
     };
   },
 });
@@ -411,6 +655,13 @@ export default defineComponent({
 @use "@/style/base/mixins" as mixins;
 @use "@/style/base/animations" as animations;
 
+.Icons{
+  width: 20px;
+  height: 20px;
+  color: mixins.theme-color("light", text-secondary);
+  position: absolute;
+}
+
 .member-sidebar {
   position: fixed;
   top: 70px;
@@ -418,33 +669,39 @@ export default defineComponent({
   width: 300px;
   height: 100vh;
   z-index: 950;
-  transition: left 0.3s ease;
+  transition: left 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
   display: flex;
   flex-direction: column;
   padding-top: 70px;
   user-select: none;
+  // Liquid glass effect
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.15);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.15);
+  border-right: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 0 32px 32px 0;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, card-bg);
-      border-right: 1px solid mixins.theme-color($theme, border-medium);
-      transition: all 0.4s ease-out;
+      background: if($theme == "light", rgba(255,255,255,0.22), rgba(30,34,40,0.22));
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      border-right: 1.5px solid rgba(255,255,255,0.22);
+      transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
   }
 
   &.open {
     left: 0;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.22);
     padding-top: 2rem;
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    background-color: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(32px) saturate(200%) brightness(1.18);
+    -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.18);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        background-color: if($theme == "light", rgba(255, 255, 255, 0.65), rgba(30, 30, 30, 0.45));
-        box-shadow: 5px 0 15px rgba(mixins.theme-color($theme, shadow-color), 0.1);
-        transition: all 0.4s ease-out;
+        box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.22);
+        transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
   }
@@ -454,12 +711,16 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: map.get(vars.$spacing, m);
-    border-bottom: 1px solid;
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        border-color: mixins.theme-color($theme, border-light);
-        transition: all 0.4s ease-out;
+        border-color: rgba(255,255,255,0.18);
+        background: if($theme == "light", rgba(255,255,255,0.10), rgba(30,34,40,0.10));
+        transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
 
@@ -468,13 +729,13 @@ export default defineComponent({
       margin-right: map.get(vars.$spacing, s);
       flex-shrink: 0;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
 
       &:hover {
         transform: scale(1.05);
 
         .account-logo {
-          filter: brightness(0.8);
+          filter: brightness(0.8) drop-shadow(0 2px 8px rgba(31,38,135,0.10));
         }
 
         .profile-edit-overlay {
@@ -487,12 +748,13 @@ export default defineComponent({
         height: 50px;
         border-radius: 50%;
         object-fit: cover;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        border: 2px solid rgba(255,255,255,0.22);
+        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            border-color: mixins.theme-color($theme, border-light);
+            border-color: rgba(255,255,255,0.22);
           }
         }
       }
@@ -507,14 +769,16 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: rgba(0, 0, 0, 0.6);
+        background: rgba(255,255,255,0.22);
+        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
         opacity: 0;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         pointer-events: none;
 
         .edit-icon {
           font-size: 16px;
-          color: white;
+          color: #fff;
+          text-shadow: 0 1px 4px rgba(31,38,135,0.18);
         }
       }
 
@@ -529,23 +793,13 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         pointer-events: none;
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, secondary-bg);
-            border: 2px solid mixins.theme-color($theme, border-light);
-          }
-        }
+        background: rgba(255,255,255,0.18);
+        border: 2px solid rgba(255,255,255,0.22);
 
         .placeholder-icon {
           width: 24px;
           height: 24px;
-
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-tertiary);
-            }
-          }
+          color: rgba(31,38,135,0.22);
         }
       }
 
@@ -555,20 +809,15 @@ export default defineComponent({
         right: -2px;
         width: 18px;
         height: 18px;
-        background: linear-gradient(135deg, #ffd700, #ffa500);
+        background: linear-gradient(135deg, #ffd700, #ffa500, #fffbe6 80%);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 10px;
-        border: 2px solid;
+        border: 2px solid rgba(255,255,255,0.22);
         animation: twinkle 2s ease-in-out infinite;
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            border-color: mixins.theme-color($theme, card-bg);
-          }
-        }
+        box-shadow: 0 2px 8px 0 rgba(255,215,0,0.18);
       }
     }
 
@@ -583,11 +832,13 @@ export default defineComponent({
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: #222;
+        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
-            transition: all 0.4s ease-out;
+            color: if($theme == "light", #222, #fff);
+            transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
           }
         }
       }
@@ -599,10 +850,13 @@ export default defineComponent({
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: #444;
+        opacity: 0.8;
+        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
+            color: if($theme == "light", #444, #e0e0e0);
           }
         }
       }
@@ -613,12 +867,8 @@ export default defineComponent({
         margin-top: 1px;
         opacity: 0.8;
         font-style: italic;
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, accent-teal);
-          }
-        }
+        color: #00bfae;
+        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
       }
     }
 
@@ -628,21 +878,22 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      background: none;
+      background: rgba(255,255,255,0.12);
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       border-radius: 6px;
       flex-shrink: 0;
+      color: #222;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary);
+          color: if($theme == "light", #222, #fff);
 
           &:hover {
-            color: mixins.theme-color($theme, text-primary);
-            background-color: mixins.theme-color($theme, hover-color);
+            color: #fff;
+            background: rgba(31,38,135,0.18);
           }
         }
       }
@@ -655,54 +906,102 @@ export default defineComponent({
     padding: map.get(vars.$spacing, m);
     display: flex;
     flex-direction: column;
-    gap: map.get(vars.$spacing, s);
     overflow-y: auto;
     user-select: none;
+    position: relative;
+
+    .nav-items-container {
+      display: flex;
+      flex-direction: column;
+      gap: map.get(vars.$spacing, s);
+      position: relative;
+    }
 
     .nav-item {
       display: flex;
       align-items: center;
       padding: map.get(vars.$spacing, m);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      border-radius: 18px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       position: relative;
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 1px 4px 0 rgba(31,38,135,0.06);
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary);
-          transition: all 0.4s ease-out;
+          color: if($theme == "light", #222, #e0e0e0);
 
-          &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
-            color: mixins.theme-color($theme, text-primary);
-            transform: translateX(3px);
+          &:hover:not(.dragging) {
+            background: rgba(255,255,255,0.18);
+            color: #222;
+            transform: translateX(3px) scale(1.03);
+            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
           }
 
-          &.active {
-            background: mixins.theme-gradient($theme, primary);
-            color: white;
-            transform: translateX(5px);
+          &.active:not(.dragging) {
+            background: linear-gradient(135deg, #e0e7ff 0%, #b2fefa 100%);
+            color: #222;
+            transform: translateX(5px) scale(1.04);
+            box-shadow: 0 4px 16px 0 rgba(31,38,135,0.12);
           }
         }
       }
 
+      // Drag & Drop Styles
+      &.dragging {
+        opacity: 0.5;
+        cursor: grabbing !important;
+        transform: scale(0.95);
+
+        * {
+          pointer-events: none;
+        }
+      }
+
+      &:not(.dragging) {
+        cursor: grab;
+
+        &:active {
+          cursor: grabbing;
+        }
+      }
+
+      .drag-handle {
+        position: absolute;
+        left: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+        cursor: grab;
+        padding: 4px;
+        color: #b0b8d0;
+      }
+
+      &:hover .drag-handle {
+        opacity: 0.6;
+      }
+
       .nav-icon {
         margin-right: map.get(vars.$spacing, m);
+        margin-left: map.get(vars.$spacing, s);
         font-size: 1.2rem;
         display: flex;
         align-items: center;
         justify-content: center;
         width: 24px;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        filter: drop-shadow(0 1px 4px rgba(31,38,135,0.08));
       }
 
       .nav-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         flex: 1;
       }
 
+      // Einheitlich rote Badges
       .nav-badge {
         display: inline-flex;
         align-items: center;
@@ -715,34 +1014,61 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         line-height: 1;
         margin-left: auto;
+        background: linear-gradient(135deg, #ff4757 0%, #ffb199 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.18);
         @include animations.fade-in(0.3s);
         animation: nav-badge-pulse 3s infinite;
-
-        &.messages-badge {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: #2ed573;
-              color: white;
-              box-shadow: 0 2px 4px rgba(46, 213, 115, 0.3);
-              transition: all 0.4s ease-out;
-            }
-          }
-        }
-
-        &.notifications-badge {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: #ff6b6b;
-              color: white;
-              box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
-              transition: all 0.4s ease-out;
-            }
-          }
-        }
+        border: 1.5px solid rgba(255,255,255,0.22);
       }
 
-      &:hover .nav-icon {
+      &:hover:not(.dragging) .nav-icon {
         transform: scale(1.1);
+      }
+    }
+
+    // Drop Indikator
+    .drop-indicator {
+      position: absolute;
+      left: map.get(vars.$spacing, s);
+      right: map.get(vars.$spacing, s);
+      height: 3px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        #3b82f6 20%, 
+        #3b82f6 80%, 
+        transparent 100%
+      );
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+      pointer-events: none;
+      z-index: 10;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 6px 8px 6px 0;
+        border-color: transparent #3b82f6 transparent transparent;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        right: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 6px 0 6px 8px;
+        border-color: transparent transparent transparent #3b82f6;
       }
     }
   }
@@ -757,38 +1083,44 @@ export default defineComponent({
     .support-divider {
       height: 1px;
       margin-bottom: map.get(vars.$spacing, m);
+      background: rgba(255,255,255,0.18);
+    }
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, border-light);
-        }
-      }
+    .support-container {
+      display: flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, xs);
     }
 
     .support-item {
       display: flex;
       align-items: center;
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      border-radius: 18px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       position: relative;
-      font-size: map.get(map.get(vars.$fonts, sizes), small); // Kleiner als normale Nav-Items
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      flex: 1;
+      background: rgba(255,255,255,0.10);
+      color: #444;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-tertiary);
+          color: if($theme == "light", #444, #e0e0e0);
 
           &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
-            color: mixins.theme-color($theme, text-secondary);
-            transform: translateX(2px);
+            background: rgba(255,255,255,0.18);
+            color: #222;
+            transform: translateX(2px) scale(1.03);
+            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
           }
 
           &.active {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            transform: translateX(3px);
+            color: #222;
+            transform: translateX(3px) scale(1.04);
+            box-shadow: 0 4px 16px 0 rgba(31,38,135,0.12);
           }
         }
       }
@@ -798,14 +1130,15 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 20px; // Kleiner als normale Icons
+        width: 20px;
         opacity: 0.8;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        filter: drop-shadow(0 1px 4px rgba(31,38,135,0.08));
       }
 
       .support-text {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         flex: 1;
       }
 
@@ -821,14 +1154,48 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         line-height: 1;
         margin-left: auto;
-        background-color: #4facfe;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
         @include animations.fade-in(0.3s);
+        border: 1.5px solid rgba(255,255,255,0.22);
+        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
       }
 
       &:hover .support-icon {
         opacity: 1;
         transform: scale(1.05);
+      }
+    }
+
+    // Reset Button
+    .reset-button {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: rgba(255,255,255,0.12);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      flex-shrink: 0;
+      color: #888;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: if($theme == "light", #888, #e0e0e0);
+
+          &:hover {
+            color: #222;
+            background: rgba(31,38,135,0.12);
+            transform: rotate(-45deg) scale(1.08);
+          }
+        }
+      }
+
+      &.reset-active {
+        animation: reset-spin 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
   }
@@ -849,6 +1216,11 @@ export default defineComponent({
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
     animation: WackelpuddingHop 1.5s ease-in-out forwards;
   }
+}
+
+// Transition für Nav Items
+.nav-item-move-move {
+  transition: transform 0.3s ease;
 }
 
 // Animations
@@ -914,6 +1286,15 @@ export default defineComponent({
   }
 }
 
+@keyframes reset-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
 // Medienquery für große Bildschirme
 @media (min-width: 1024px) {
   .member-sidebar {
@@ -925,6 +1306,4 @@ export default defineComponent({
     }
   }
 }
-
-
 </style>
