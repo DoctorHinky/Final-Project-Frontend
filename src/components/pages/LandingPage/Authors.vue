@@ -183,78 +183,6 @@ const TwitterIcon = {
 // Realistic dummy authors with CORRECT Hero Icons
 const authors = [
   {
-    id: 1,
-    name: "Dr. Maria Schneider",
-    role: "Pädagogische Psychologin",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b632?w=400&h=400&fit=crop&crop=face",
-    bio: "Spezialistin für frühkindliche Entwicklung und innovative Lernmethoden.",
-    extendedBio:
-      "Mit über 15 Jahren Erfahrung in der Kinderpsychologie entwickelt Dr. Schneider revolutionäre Ansätze für das Lernen im digitalen Zeitalter.",
-    specialties: [
-      { name: "Neuroplastizität", icon: AcademicCapIcon },
-      { name: "ADHS-Therapie", icon: HeartIcon },
-      { name: "Digitales Lernen", icon: ComputerDesktopIcon },
-    ],
-    iconComponents: [AcademicCapIcon, DocumentTextIcon, BoltIcon],
-    articlesCount: 127,
-    rating: 4.9,
-    yearsExperience: 15,
-    followersCount: "12K",
-    socialLinks: [
-      { platform: "linkedin", iconComponent: LinkedInIcon },
-      { platform: "twitter", iconComponent: TwitterIcon },
-      { platform: "research", iconComponent: BeakerIcon },
-    ],
-  },
-  {
-    id: 2,
-    name: "Prof. Ahmed Hassan",
-    role: "Kultur- & Sprachwissenschaftler",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-    bio: "Forscher für multikulturelle Bildung und Spracherwerb bei Kindern.",
-    extendedBio:
-      "Professor Hassan verbindet traditionelle Weisheit mit modernen pädagogischen Ansätzen und schafft Brücken zwischen den Kulturen.",
-    specialties: [
-      { name: "Mehrsprachigkeit", icon: LanguageIcon },
-      { name: "Kulturpädagogik", icon: GlobeAltIcon },
-      { name: "Integration", icon: HandRaisedIcon },
-    ],
-    iconComponents: [GlobeAltIcon, LanguageIcon, HandRaisedIcon],
-    articlesCount: 89,
-    rating: 4.8,
-    yearsExperience: 12,
-    followersCount: "8.5K",
-    socialLinks: [
-      { platform: "academia", iconComponent: AcademicCapIcon },
-      { platform: "youtube", iconComponent: FaceSmileIcon },
-      { platform: "podcast", iconComponent: MagnifyingGlassIcon },
-    ],
-  },
-  {
-    id: 3,
-    name: "Lisa Chen",
-    role: "Kreativpädagogin & Künstlerin",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-    bio: "Entwickelt kunstbasierte Lernprogramme für kreative Problemlösung.",
-    extendedBio:
-      "Lisa verbindet ihre Leidenschaft für Kunst mit evidenzbasierter Pädagogik und schafft einzigartige Lernerfahrungen für Kinder aller Altersgruppen.",
-    specialties: [
-      { name: "Kunsttherapie", icon: PaintBrushIcon },
-      { name: "Design Thinking", icon: SparklesIcon },
-      { name: "Kreativitätsförderung", icon: HeartIcon },
-    ],
-    iconComponents: [PaintBrushIcon, SparklesIcon, HeartIcon],
-    articlesCount: 156,
-    rating: 4.9,
-    yearsExperience: 8,
-    followersCount: "15K",
-    socialLinks: [
-      { platform: "instagram", iconComponent: PaintBrushIcon },
-      { platform: "behance", iconComponent: SparklesIcon },
-      { platform: "tiktok", iconComponent: FaceSmileIcon },
-    ],
-  },
-  {
     id: 4,
     name: "Dr. Thomas Müller",
     role: "Technologie & Bildung",
@@ -1135,14 +1063,6 @@ export default defineComponent({
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
-          }
-        }
-
-        @for $i from 1 through 6 {
-          &:nth-child(#{$i}) {
-            top: #{random(80) + 10}%;
-            left: #{random(80) + 10}%;
-            animation-delay: #{$i * 0.3}s;
           }
         }
       }

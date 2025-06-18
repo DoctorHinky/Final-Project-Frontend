@@ -6,13 +6,13 @@
 
     <!-- Erfolgsmeldung -->
     <div v-if="saveSuccess" class="alert alert-success">
-      <span class="alert-icon">✓</span>
+      <CheckCircleIcon class="alert-icon" />
       <span>Deine Profileinstellungen wurden erfolgreich gespeichert!</span>
     </div>
 
     <!-- Fehlermeldung -->
     <div v-if="saveError" class="alert alert-error">
-      <span class="alert-icon">⚠️</span>
+      <ExclamationTriangleIcon class="alert-icon" />
       <span>{{ errorMessage }}</span>
     </div>
 
@@ -45,7 +45,7 @@
 
           <button type="button" class="change-avatar-btn" title="Profilbild ändern" @click.stop="triggerFileInput">
             <span v-if="isUploading" class="loading-spinner avatar-spinner"></span>
-            <span v-else>📷</span>
+            <CameraIcon v-else class="camera-icon" />
           </button>
 
           <div v-if="isDragging" class="drop-overlay">
@@ -61,7 +61,7 @@
         <div class="form-group">
           <label for="first-name" class="readonly-label">
             <span>Vorname</span>
-            <span class="lock-icon" title="Nicht editierbar">🔒</span>
+            <LockClosedIcon class="lock-icon" title="Nicht editierbar" />
           </label>
           <div class="input-container readonly">
             <input type="text" id="first-name" v-model="profileForm.firstname" disabled class="readonly-field" />
@@ -71,7 +71,7 @@
         <div class="form-group">
           <label for="last-name" class="readonly-label">
             <span>Nachname</span>
-            <span class="lock-icon" title="Nicht editierbar">🔒</span>
+            <LockClosedIcon class="lock-icon" title="Nicht editierbar" />
           </label>
           <div class="input-container readonly">
             <input type="text" id="last-name" v-model="profileForm.lastname" disabled class="readonly-field" />
@@ -173,11 +173,13 @@
 
       <div class="form-actions">
         <button type="button" class="cancel-button" @click="resetProfileForm">
-          <span class="button-icon">↩️</span> Zurücksetzen
+          <ArrowUturnLeftIcon class="button-icon" />
+          Zurücksetzen
         </button>
         <button type="submit" class="save-button" :disabled="isSaving || isUploading">
           <span v-if="isSaving" class="loading-spinner"></span>
-          <span v-else class="button-icon">💾</span> Speichern
+          <CloudArrowUpIcon v-else class="button-icon" />
+          Speichern
         </button>
       </div>
     </form>
@@ -186,6 +188,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted } from "vue";
+import {
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  CameraIcon,
+  LockClosedIcon,
+  ArrowUturnLeftIcon,
+  CloudArrowUpIcon,
+} from "@heroicons/vue/24/outline";
 import { cloudinaryUpload, cloudinaryDelete } from "@/services/cloudinaryService";
 import api from "@/services/axiosInstance";
 
@@ -203,6 +213,14 @@ interface ProfileForm {
 
 export default defineComponent({
   name: "ProfileSettings",
+  components: {
+    CheckCircleIcon,
+    ExclamationTriangleIcon,
+    CameraIcon,
+    LockClosedIcon,
+    ArrowUturnLeftIcon,
+    CloudArrowUpIcon,
+  },
   props: {
     showSuccess: {
       type: Boolean,
@@ -604,13 +622,19 @@ export default defineComponent({
   align-items: center;
 
   .alert-icon {
+    width: 20px;
+    height: 20px;
     margin-right: map.get(vars.$spacing, m);
-    font-size: 1.2rem;
+    flex-shrink: 0;
   }
 
   &.alert-success {
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
+
+    .alert-icon {
+      color: #2ecc71;
+    }
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -623,6 +647,10 @@ export default defineComponent({
   &.alert-error {
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
+
+    .alert-icon {
+      color: #e74c3c;
+    }
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -670,9 +698,16 @@ export default defineComponent({
         gap: 8px;
 
         .lock-icon {
-          font-size: 12px;
+          width: 14px;
+          height: 14px;
           opacity: 0.7;
           cursor: help;
+
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-tertiary);
+            }
+          }
         }
       }
     }
@@ -864,6 +899,11 @@ export default defineComponent({
           }
         }
 
+        .camera-icon {
+          width: 18px;
+          height: 18px;
+        }
+
         .avatar-spinner {
           width: 14px;
           height: 14px;
@@ -926,7 +966,10 @@ export default defineComponent({
     }
 
     .button-icon {
+      width: 16px;
+      height: 16px;
       margin-right: map.get(vars.$spacing, xxs);
+      flex-shrink: 0;
     }
 
     .cancel-button,
@@ -961,6 +1004,10 @@ export default defineComponent({
           &:hover:not(:disabled) {
             background-color: mixins.theme-color($theme, hover-color);
           }
+
+          .button-icon {
+            color: mixins.theme-color($theme, text-secondary);
+          }
         }
       }
     }
@@ -975,6 +1022,10 @@ export default defineComponent({
           &:hover:not(:disabled) {
             transform: translateY(-3px);
             @include mixins.shadow("medium", $theme);
+          }
+
+          .button-icon {
+            color: white;
           }
         }
       }

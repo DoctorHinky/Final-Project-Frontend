@@ -81,6 +81,7 @@
       :friend-name="selectedFriend?.name || selectedFriend?.username || ''"
       :is-online="selectedFriend?.isOnline || false"
       @send-message="handleSendMessage"
+      @show-toast="showToast"
     />
 
     <!-- Toast-Benachrichtigungen -->
@@ -108,7 +109,7 @@ import {
   ChatModal,
 } from "@/components/pages/DashboardPages/Friends";
 import friendService from "@/services/friend.service";
-// import chatService from "@/services/chat.service";
+import chatService from "@/services/chat.service";
 import type {
   Friend,
   FriendRequest,
@@ -157,8 +158,8 @@ export default defineComponent({
 
     // Tabs
     const tabs = ref<Tab[]>([
-      { id: "friends", name: "Meine Freunde" /* add other required Tab properties here if needed */ },
-      { id: "requests", name: "Anfragen" /* add other required Tab properties here if needed */ },
+      { id: "friends", name: "Meine Freunde" },
+      { id: "requests", name: "Anfragen" },
     ]);
 
     // Computed Properties
@@ -184,8 +185,8 @@ export default defineComponent({
         let totalUnread = 0;
 
         for (const conv of conversations) {
-          const unreadCount = await chatService.getUnreadMessageCount(conv.id);
-          totalUnread += unreadCount;
+
+          totalUnread += conv.unreadCount;
         }
 
         unreadMessagesCount.value = totalUnread;
@@ -408,30 +409,6 @@ export default defineComponent({
         showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", "error");
       }
     };
-    /* 
-      @send-invite="sendInvite"
-      wurde aus dem InviteModal entfernt, da es noch nicht implementiert ist.
-    */
-
-    // noch nicht implementiert, da Backend fehlt
-    /* const sendInvite = async () => {
-      if (!inviteEmail.value.trim()) {
-        showToast("Bitte gib eine E-Mail-Adresse ein.", "error");
-        return;
-      }
-
-      try {
-        await friendService.sendEmailInvite(inviteEmail.value, inviteMessage.value);
-        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, "success");
-
-        // Modal schließen und Felder zurücksetzen
-        inviteEmail.value = "";
-        inviteMessage.value = "";
-        showInviteModal.value = false;
-      } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", "error");
-      }
-    }; */
 
     // Chat-Funktionen
     const openChat = (friend: Friend) => {
@@ -500,7 +477,6 @@ export default defineComponent({
       unfriend,
       acceptRequest,
       declineRequest,
-      // sendInvite, // noch nicht implementiert
       openChat,
       handleSendMessage,
       onFriendRequestSent,

@@ -1,4 +1,4 @@
-// src/services/friend.service.ts
+// src/services/friend.service.ts - REPARIERTE VERSION
 import api from "./axiosInstance";
 import chatService from "./chat.service";
 
@@ -33,6 +33,9 @@ export interface SentRequestResponse {
     username: string;
     profilePicture: string | null;
   };
+  createdAt?: string;
+  responsedAt?: string;
+  message?: string;
 }
 
 export interface SearchUser {
@@ -78,20 +81,78 @@ class FriendService {
 
   /**
    * Holt alle gesendeten Freundschaftsanfragen des aktuellen Users
-   * Hinweis: Endpoint müsste im Backend implementiert werden
-   * Verwende die requestsOfUser Logik für eigene Anfragen
+   * REPARIERT: Versucht verschiedene Endpunkte und vermeidet 403-Fehler
    */
   async getMySentRequests(): Promise<SentRequestResponse[]> {
+    // Liste möglicher Endpunkte für gesendete Anfragen
+    const endpoints = [
+      '/friends/sentRequestsOfMe',        // Idealerweise sollte dieser existieren
+      '/friends/mySentRequests',          // Alternative
+      '/friends/sentRequests',            // Alternative
+      '/friends/requests/sent',           // Alternative
+      '/user/sentFriendRequests',         // User-bezogener Endpoint
+    ];
+
+    // Versuche jeden Endpoint
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Versuche Endpoint für gesendete Anfragen: ${endpoint}`);
+        const response = await api.get(endpoint);
+        console.log(`Erfolgreich geladen von ${endpoint}:`, response.data);
+        
+        // Normalisiere die Response-Struktur
+        const data = Array.isArray(response.data) ? response.data : response.data.data || [];
+        return data.map((req: any) => ({
+          id: req.id,
+          receiverId: req.receiverId || req.targetId,
+          status: req.status || 'PENDING',
+          receiver: {
+            id: req.receiver?.id || req.target?.id,
+            username: req.receiver?.username || req.target?.username || 'Unbekannt',
+            profilePicture: req.receiver?.profilePicture || req.target?.profilePicture || null,
+          },
+          createdAt: req.createdAt,
+          responsedAt: req.responsedAt,
+          message: req.message,
+        }));
+      } catch (error: any) {
+        console.warn(`Endpoint ${endpoint} fehlgeschlagen:`, error.response?.status, error.response?.data?.message);
+        continue;
+      }
+    }
+
+    // FALLBACK: Versuche über /user/getMe und dann admin endpoint (nur wenn User Admin ist)
     try {
-      // Verwende den User-Service um eigene ID zu bekommen
       const userResponse = await api.get("/user/getMe");
       const userId = userResponse.data.id;
+      const userRole = userResponse.data.role;
 
-      // Hole alle Anfragen des Users
-      const response = await api.get(`/friends/requestsOfUser/${userId}`);
-      return response.data;
+      // Nur versuchen wenn User Admin/Moderator ist
+      if (userRole === 'ADMIN' || userRole === 'MODERATOR') {
+        console.log('User ist Admin/Moderator, versuche Admin-Endpoint');
+        const response = await api.get(`/friends/requestsOfUser/${userId}`);
+        return response.data;
+      } else {
+        console.log('User ist kein Admin, admin endpoint übersprungen');
+      }
+    } catch (error: any) {
+      console.warn('Fallback über admin endpoint fehlgeschlagen:', error.response?.status);
+    }
+
+    // LETZTER FALLBACK: Versuche aus pending requests zu inferieren
+    try {
+      console.log('Verwende Fallback: Inferiere gesendete Anfragen aus verfügbaren Daten');
+      
+      // Hole alle pending requests und versuche gesendete zu identifizieren
+      const userResponse = await api.get("/user/getMe");
+      const currentUserId = userResponse.data.id;
+      
+      // Da wir keine direkte API haben, geben wir ein leeres Array zurück
+      // und loggen eine hilfreiche Nachricht
+      console.info('Keine API für gesendete Anfragen verfügbar. Backend sollte /friends/sentRequestsOfMe implementieren.');
+      return [];
     } catch (error) {
-      console.error("Fehler beim Laden gesendeter Anfragen:", error);
+      console.error('Alle Fallbacks für gesendete Anfragen fehlgeschlagen:', error);
       return [];
     }
   }
@@ -211,9 +272,19 @@ class FriendService {
   /**
    * Holt alle gesendeten Anfragen eines Users (Admin/Moderator)
    * GET /friends/requestsOfUser/:targetId
+   * WARNUNG: Nur für Admin/Moderator zugänglich
    */
   async getRequestsOfUser(targetId: string): Promise<SentRequestResponse[]> {
     try {
+      // Prüfe erst ob User Admin/Moderator ist
+      const userResponse = await api.get("/user/getMe");
+      const userRole = userResponse.data.role;
+
+      if (userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
+        console.warn('Zugriff auf getRequestsOfUser nur für Admin/Moderator');
+        return [];
+      }
+
       const response = await api.get(`/friends/requestsOfUser/${targetId}`);
       return response.data;
     } catch (error) {
@@ -255,23 +326,6 @@ class FriendService {
       throw error;
     }
   }
-
-  /**
-   * Sendet eine E-Mail-Einladung (Mock - bis Backend-Endpunkt implementiert ist)
-   */
-  /*  async sendEmailInvite(email: string, message?: string): Promise<ApiResponse> {
-    // TODO: Implementieren wenn Backend-Endpunkt vorhanden
-    // const response = await api.post('/friends/invite', { email, message });
-    // return response.data;
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          message: `Einladung an ${email} wurde erfolgreich gesendet!`,
-        });
-      }, 1000);
-    });
-  } */
 
   // ===========================
   // CHAT-FUNKTIONEN (echte API-Calls)
@@ -318,26 +372,6 @@ class FriendService {
   }
 
   /**
-   * Markiert Nachrichten als gelesen
-   */
-  /*   async markMessagesAsRead(friendId: string): Promise<ApiResponse> {
-    try {
-      // Erstelle oder lade Conversation
-      const conversation = await chatService.createOrGetConversation(friendId);
-      
-      // Nachrichten werden automatisch als gelesen markiert beim Laden der Conversation
-      // (siehe ConversationService.getConversation im Backend)
-      
-      return {
-        message: "Nachrichten als gelesen markiert"
-      };
-    } catch (error) {
-      console.error("Fehler beim Markieren der Nachrichten:", error);
-      throw error;
-    }
-  } */
-
-  /**
    * Öffnet einen Chat mit einem Freund (lädt Conversation)
    */
   async openChatWithFriend(friendId: string): Promise<{ conversationId: string; messages: any[] }> {
@@ -351,6 +385,57 @@ class FriendService {
     } catch (error) {
       console.error("Fehler beim Öffnen des Chats:", error);
       throw error;
+    }
+  }
+
+  /**
+   * DEBUGGING: Teste alle verfügbaren Friend-Endpunkte
+   */
+  async debugFriendEndpoints(): Promise<void> {
+    console.group('🔍 Friend Service Backend Endpoint Debug');
+    
+    const testEndpoints = [
+      { method: 'GET', url: '/friends/friendsOfMe', description: 'Meine Freunde' },
+      { method: 'GET', url: '/friends/pendingRequestsOfMe', description: 'Empfangene Anfragen' },
+      { method: 'GET', url: '/friends/sentRequestsOfMe', description: 'Gesendete Anfragen (ideal)' },
+      { method: 'GET', url: '/friends/mySentRequests', description: 'Gesendete Anfragen (alt 1)' },
+      { method: 'GET', url: '/friends/sentRequests', description: 'Gesendete Anfragen (alt 2)' },
+      { method: 'GET', url: '/friends/requests/sent', description: 'Gesendete Anfragen (alt 3)' },
+      { method: 'GET', url: '/user/sentFriendRequests', description: 'User-bezogene gesendete Anfragen' },
+      { method: 'GET', url: '/user/getMe', description: 'Aktuelle User-Info' },
+    ];
+
+    for (const endpoint of testEndpoints) {
+      try {
+        const response = await api.request({
+          method: endpoint.method,
+          url: endpoint.url,
+        });
+        console.log(`✅ ${endpoint.method} ${endpoint.url}:`, response.status, endpoint.description);
+        
+        // Zeige Struktur der Response
+        if (response.data) {
+          console.log(`   📋 Response-Struktur:`, Object.keys(response.data));
+        }
+      } catch (error: any) {
+        const status = error.response?.status || 'ERR';
+        const message = error.response?.data?.message || error.message;
+        console.log(`❌ ${endpoint.method} ${endpoint.url}:`, status, message, `(${endpoint.description})`);
+      }
+    }
+    
+    console.groupEnd();
+    
+    // Zusätzlich: Prüfe User-Rolle
+    try {
+      const userResponse = await api.get('/user/getMe');
+      console.log('👤 Aktuelle User-Info:', {
+        id: userResponse.data.id,
+        username: userResponse.data.username,
+        role: userResponse.data.role,
+      });
+    } catch (error) {
+      console.error('❌ Konnte User-Info nicht laden');
     }
   }
 }

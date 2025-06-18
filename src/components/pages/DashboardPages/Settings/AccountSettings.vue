@@ -6,12 +6,12 @@
 
     <!-- Alert Messages -->
     <div v-if="saveSuccess" class="alert alert-success">
-      <span class="alert-icon">✓</span>
+      <CheckCircleIcon class="alert-icon" />
       <span>{{ successMessage }}</span>
     </div>
 
     <div v-if="saveError" class="alert alert-error">
-      <span class="alert-icon">⚠️</span>
+      <ExclamationTriangleIcon class="alert-icon" />
       <span>{{ errorMessage }}</span>
     </div>
 
@@ -36,37 +36,8 @@
               @click="showPasswords.current = !showPasswords.current"
               :disabled="isChangingPassword"
             >
-              <svg
-                v-if="!showPasswords.current"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              </svg>
+              <EyeIcon v-if="!showPasswords.current" class="icon" />
+              <EyeSlashIcon v-else class="icon" />
             </button>
           </div>
           <span v-if="passwordErrors.currentPassword" class="help-text error-text">
@@ -103,37 +74,8 @@
               @click="showPasswords.new = !showPasswords.new"
               :disabled="isChangingPassword"
             >
-              <svg
-                v-if="!showPasswords.new"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              </svg>
+              <EyeIcon v-if="!showPasswords.new" class="icon" />
+              <EyeSlashIcon v-else class="icon" />
             </button>
           </div>
           <span v-if="passwordErrors.newPassword" class="help-text error-text">
@@ -162,37 +104,8 @@
               @click="showPasswords.confirm = !showPasswords.confirm"
               :disabled="isChangingPassword || !canSubmitPassword"
             >
-              <svg
-                v-if="!showPasswords.confirm"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              </svg>
+              <EyeIcon v-if="!showPasswords.confirm" class="icon" />
+              <EyeSlashIcon v-else class="icon" />
             </button>
           </div>
           <span class="help-text error-text" v-if="!passwordsMatch && passwordForm.confirmPassword">
@@ -226,7 +139,7 @@
       <!-- Deactivation Form -->
       <div v-if="showDeactivateConfirm && !isAccountDeactivated" class="deactivate-confirm-form">
         <div class="warning-box">
-          <span class="warning-icon">⚠️</span>
+          <ExclamationTriangleIcon class="warning-icon" />
           <p>Dein Konto wird deaktiviert. Deine Daten bleiben erhalten, sind aber für andere nicht mehr sichtbar.</p>
         </div>
 
@@ -248,37 +161,8 @@
                 @click="showPasswords.deactivate = !showPasswords.deactivate"
                 :disabled="isDeactivating"
               >
-                <svg
-                  v-if="!showPasswords.deactivate"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                  />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                  />
-                </svg>
+                <EyeIcon v-if="!showPasswords.deactivate" class="icon" />
+                <EyeSlashIcon v-else class="icon" />
               </button>
             </div>
             <span v-if="deactivateErrors.password" class="help-text error-text">
@@ -301,7 +185,7 @@
       <!-- Reactivation Form -->
       <div v-if="showReactivateConfirm && isAccountDeactivated" class="reactivate-confirm-form">
         <div class="success-box">
-          <span class="success-icon">✓</span>
+          <CheckCircleIcon class="success-icon" />
           <p>Dein Konto wird wieder aktiviert. Alle deine Inhalte werden wieder sichtbar.</p>
         </div>
 
@@ -323,37 +207,8 @@
                 @click="showPasswords.reactivate = !showPasswords.reactivate"
                 :disabled="isReactivating"
               >
-                <svg
-                  v-if="!showPasswords.reactivate"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                  />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                  />
-                </svg>
+                <EyeIcon v-if="!showPasswords.reactivate" class="icon" />
+                <EyeSlashIcon v-else class="icon" />
               </button>
             </div>
             <span v-if="reactivateErrors.password" class="help-text error-text">
@@ -403,12 +258,12 @@
 
       <div v-if="showDeleteConfirm" class="delete-confirm-form">
         <div class="warning-box">
-          <span class="warning-icon">⚠️</span>
+          <ExclamationTriangleIcon class="warning-icon" />
           <p>Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden.</p>
         </div>
 
         <div class="legal-info-box">
-          <span class="info-icon">ℹ️</span>
+          <InformationCircleIcon class="info-icon" />
           <div class="info-content">
             <strong>Rechtlicher Hinweis:</strong>
             <p>
@@ -454,37 +309,8 @@
                 @click="showPasswords.delete = !showPasswords.delete"
                 :disabled="isDeletingAccount"
               >
-                <svg
-                  v-if="!showPasswords.delete"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                  />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="icon"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                  />
-                </svg>
+                <EyeIcon v-if="!showPasswords.delete" class="icon" />
+                <EyeSlashIcon v-else class="icon" />
               </button>
             </div>
             <span v-if="deleteErrors.password" class="help-text error-text">
@@ -522,6 +348,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from "@heroicons/vue/24/outline";
 import api from "@/services/axiosInstance";
 import { authService } from "@/services/auth.service";
 import { useRouter } from "vue-router";
@@ -529,6 +362,13 @@ import type { ReactivateForm, DeactivateForm, PasswordForm, DeleteForm } from ".
 
 export default defineComponent({
   name: "AccountSettings",
+  components: {
+    EyeIcon,
+    EyeSlashIcon,
+    CheckCircleIcon,
+    ExclamationTriangleIcon,
+    InformationCircleIcon,
+  },
   props: {
     showSuccess: Boolean,
     showError: Boolean,
@@ -1023,18 +863,28 @@ export default defineComponent({
   animation: slideInDown 0.3s ease-out;
 
   .alert-icon {
+    width: 20px;
+    height: 20px;
     margin-right: map.get(vars.$spacing, m);
-    font-size: 1.2rem;
+    flex-shrink: 0;
   }
 
   &.alert-success {
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
+
+    .alert-icon {
+      color: #2ecc71;
+    }
   }
 
   &.alert-error {
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
+
+    .alert-icon {
+      color: #e74c3c;
+    }
   }
 
   @each $theme in ("light", "dark") {
@@ -1101,9 +951,11 @@ export default defineComponent({
       border: 1px solid rgba(255, 190, 61, 0.3);
 
       .warning-icon {
-        font-size: 1.5rem;
+        width: 24px;
+        height: 24px;
         margin-right: map.get(vars.$spacing, m);
         color: #ffbe3d;
+        flex-shrink: 0;
       }
 
       p {
@@ -1113,11 +965,34 @@ export default defineComponent({
       }
     }
 
+    .success-box {
+      display: flex;
+      align-items: center;
+      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
+      margin-bottom: map.get(vars.$spacing, xl);
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      background-color: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+
+      .success-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: map.get(vars.$spacing, m);
+        color: #2ecc71;
+        flex-shrink: 0;
+      }
+
+      p {
+        margin: 0;
+        color: #2ecc71;
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      }
+    }
+
     .deactivate-confirm-form,
     .reactivate-confirm-form {
       animation: fadeIn 0.3s ease-out;
 
-      // Passwort-Input Styling für Deaktivierung/Reaktivierung
       .input-container {
         width: 50%;
         margin: 0;
@@ -1207,45 +1082,13 @@ export default defineComponent({
             cursor: not-allowed;
           }
 
-          svg {
+          .icon {
             width: 20px;
             height: 20px;
             display: block;
           }
         }
       }
-    }
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        border-left: 4px solid #ffbe3d;
-        transition: all 0.4s ease-out;
-      }
-    }
-
-    .warning-box {
-      display: flex;
-      align-items: center;
-      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
-      margin-bottom: map.get(vars.$spacing, xl);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-      background-color: rgba(255, 190, 61, 0.1);
-      border: 1px solid rgba(255, 190, 61, 0.3);
-
-      .warning-icon {
-        font-size: 1.5rem;
-        margin-right: map.get(vars.$spacing, m);
-        color: #ffbe3d;
-      }
-
-      p {
-        margin: 0;
-        color: #cc9a00;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      }
-    }
-
-    .reactivate-confirm-form {
-      animation: fadeIn 0.3s ease-out;
     }
 
     .reactivation-info {
@@ -1262,28 +1105,6 @@ export default defineComponent({
           color: #ffbe3d;
           border: 1px solid rgba(255, 190, 61, 0.3);
         }
-      }
-    }
-
-    .success-box {
-      display: flex;
-      align-items: center;
-      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
-      margin-bottom: map.get(vars.$spacing, xl);
-      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-      background-color: rgba(46, 204, 113, 0.1);
-      border: 1px solid rgba(46, 204, 113, 0.3);
-
-      .success-icon {
-        font-size: 1.5rem;
-        margin-right: map.get(vars.$spacing, m);
-        color: #2ecc71;
-      }
-
-      p {
-        margin: 0;
-        color: #2ecc71;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
       }
     }
   }
@@ -1306,9 +1127,11 @@ export default defineComponent({
       border: 1px solid rgba(255, 107, 107, 0.3);
 
       .warning-icon {
-        font-size: 1.5rem;
+        width: 24px;
+        height: 24px;
         margin-right: map.get(vars.$spacing, m);
         color: #ff6b6b;
+        flex-shrink: 0;
       }
 
       p {
@@ -1321,7 +1144,6 @@ export default defineComponent({
     .delete-confirm-form {
       animation: fadeIn 0.3s ease-out;
 
-      // Passwort-Input Styling für Löschung
       .input-container {
         width: 50%;
         position: relative;
@@ -1410,7 +1232,7 @@ export default defineComponent({
             cursor: not-allowed;
           }
 
-          svg {
+          .icon {
             width: 20px;
             height: 20px;
             display: block;
@@ -1428,7 +1250,8 @@ export default defineComponent({
         border: 1px solid rgba(52, 152, 219, 0.2);
 
         .info-icon {
-          font-size: 1.2rem;
+          width: 20px;
+          height: 20px;
           margin-right: map.get(vars.$spacing, m);
           color: #3498db;
           flex-shrink: 0;
@@ -1635,7 +1458,7 @@ export default defineComponent({
         border: none;
         background: transparent;
         padding: map.get(vars.$spacing, m);
-        padding-right: 50px; // Platz für Toggle-Button
+        padding-right: 50px;
         border-radius: map.get(map.get(vars.$layout, border-radius), medium);
         font-family: inherit;
 
@@ -1675,7 +1498,6 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
-        color: #888;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -1932,27 +1754,6 @@ export default defineComponent({
     animation: spin 1s linear infinite;
   }
 }
-.warning-button {
-  padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
-  border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-  font-weight: map.get(map.get(vars.$fonts, weights), medium);
-  cursor: pointer;
-  border: none;
-  background-color: #ffbe3d;
-  color: white;
-  transition: all 0.3s ease;
-
-  &:hover:not(:disabled) {
-    background-color: color.adjust(#ffbe3d, $lightness: -10%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 190, 61, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
 
 // Danger button
 .danger-button {
@@ -1964,6 +1765,8 @@ export default defineComponent({
   background-color: #ff6b6b;
   color: white;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
 
   &:hover:not(:disabled) {
     background-color: color.adjust(#ff6b6b, $lightness: -10%);
@@ -1974,6 +1777,17 @@ export default defineComponent({
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: map.get(vars.$spacing, xs);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
   }
 }
 

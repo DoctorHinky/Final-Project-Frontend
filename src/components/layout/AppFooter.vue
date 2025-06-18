@@ -22,7 +22,6 @@
             <li><a href="#" @click.prevent="scrollToSection('content')">Über uns</a></li>
             <li><a href="#" @click.prevent="scrollToSection('community')">Community</a></li>
             <li><router-link to="/contact">Kontakt</router-link></li>
-            <li><router-link to="/blog">Blog</router-link></li>
           </ul>
         </div>
 

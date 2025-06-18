@@ -1,4 +1,4 @@
-<!-- src/components/member/dashboard/Notifications.vue -->
+<!-- src/components/pages/DashboardPages/Notifications.vue -->
 <template>
   <div class="notifications-dashboard">
     <div class="page-header">
@@ -6,31 +6,40 @@
       <p>Bleibe über wichtige Aktivitäten und Neuigkeiten informiert</p>
     </div>
 
-    <!-- Statistik-Karten -->
-    <notification-stats :unread-count="unreadCount" :total-count="totalCount" />
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Benachrichtigungen werden geladen...</p>
+    </div>
 
-    <!-- Filter-Optionen -->
-    <notification-filters
-      :filters="filters"
-      :active-filter="activeFilter"
-      :has-unread="hasUnread"
-      :has-notifications="hasNotifications"
-      @update:active-filter="activeFilter = $event"
-      @mark-all-read="markAllAsRead"
-      @clear-all="clearAllNotifications"
-    />
+    <!-- Main Content -->
+    <template v-else>
+      <!-- Statistik-Karten -->
+      <notification-stats :unread-count="unreadCount" :total-count="totalCount" />
 
-    <!-- Benachrichtigungsliste oder Leerer Zustand -->
-    <notifications-list
-      v-if="filteredNotifications.length > 0"
-      :notifications="filteredNotifications"
-      @mark-read="markAsRead"
-      @delete="deleteNotification"
-    />
-    <empty-state v-else :active-filter="activeFilter" @update:active-filter="activeFilter = $event" />
+      <!-- Filter-Optionen -->
+      <notification-filters
+        :filters="filters"
+        :active-filter="activeFilter"
+        :has-unread="hasUnread"
+        :has-notifications="hasNotifications"
+        @update:active-filter="activeFilter = $event"
+        @mark-all-read="markAllAsRead"
+        @clear-all="clearAllNotifications"
+      />
+
+      <!-- Benachrichtigungsliste oder Leerer Zustand -->
+      <notifications-list
+        v-if="filteredNotifications.length > 0"
+        :notifications="filteredNotifications"
+        @mark-read="markAsRead"
+        @delete="deleteNotification"
+      />
+      <empty-state v-else :active-filter="activeFilter" @update:active-filter="activeFilter = $event" />
+    </template>
 
     <!-- Einstellungen-Link -->
-    <div class="notification-settings">
+    <div class="notification-settings" v-if="!isLoading">
       <button @click="showSettings = true" class="settings-button">
         <span class="settings-icon">⚙️</span>
         Benachrichtigungseinstellungen anpassen
@@ -54,11 +63,23 @@
       @confirm="confirmAction"
       @cancel="cancelAction"
     />
+
+    <!-- Error Toast -->
+    <div v-if="errorMessage" class="error-toast" @click="errorMessage = ''">
+      <span class="error-icon">❌</span>
+      <span class="error-text">{{ errorMessage }}</span>
+    </div>
+
+    <!-- Success Toast -->
+    <div v-if="successMessage" class="success-toast" @click="successMessage = ''">
+      <span class="success-icon">✅</span>
+      <span class="success-text">{{ successMessage }}</span>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 
 // Import der modularen Komponenten
 import {
@@ -69,7 +90,16 @@ import {
   SettingsModal,
   ConfirmDialog,
 } from "@/components/pages/DashboardPages/Notifications";
-import type { Notification, NotificationSetting } from "@/types/Notification.types";
+
+// 🔔 API Service Import
+import { notificationService } from "@/services/notification.service";
+import type { 
+  NotificationDisplay,
+  NotificationSetting,
+  NotificationFilter,
+  NotificationType,
+  NotificationTypeMap
+} from "@/types/dtos/Notification.types";
 
 export default defineComponent({
   name: "NotificationsDashboard",
@@ -82,7 +112,10 @@ export default defineComponent({
     ConfirmDialog,
   },
   setup() {
-    // Status
+    // 🔔 STATE MANAGEMENT
+    const isLoading = ref(true);
+    const errorMessage = ref("");
+    const successMessage = ref("");
     const activeFilter = ref("all");
     const showSettings = ref(false);
     const showConfirmDialog = ref(false);
@@ -91,67 +124,18 @@ export default defineComponent({
     const confirmDialogAction = ref("");
     const pendingAction = ref<(() => void) | null>(null);
 
-    // Filter-Optionen
-    const filters = ref([
+    // 🔔 NOTIFICATION DATA
+    const notifications = ref<NotificationDisplay[]>([]);
+
+    // Filter-Optionen - initialisiert mit Typen aus dem Schema
+    const filters = ref<NotificationFilter[]>([
       { id: "all", name: "Alle", count: 0 },
       { id: "unread", name: "Ungelesen", count: 0 },
-      { id: "article", name: "Artikel", count: 0 },
-      { id: "comment", name: "Kommentare", count: 0 },
-      { id: "friend", name: "Freunde", count: 0 },
-      { id: "system", name: "System", count: 0 },
-    ]);
-
-    // Beispiel-Benachrichtigungen (später durch API-Daten ersetzen)
-    const notifications = ref<Notification[]>([
-      {
-        id: 1,
-        title: "Neue Artikelempfehlung",
-        message: 'Basierend auf deinen Interessen: "Digitale Medien im Kindesalter: Fluch oder Segen?"',
-        type: "article",
-        time: "Vor 10 Minuten",
-        read: false,
-        actionLink: "#",
-        actionText: "Artikel lesen",
-      },
-      {
-        id: 2,
-        title: "Freundschaftsanfrage",
-        message: "Thomas Schmidt möchte mit dir befreundet sein.",
-        type: "friend",
-        time: "Vor 1 Stunde",
-        read: false,
-        actionLink: "#",
-        actionText: "Anfrage ansehen",
-      },
-      {
-        id: 3,
-        title: "Kommentar auf deinen Artikel",
-        message: 'Lisa Becker hat auf deinen Artikel "Grenzen setzen ohne Konflikte" geantwortet.',
-        type: "comment",
-        time: "Gestern",
-        read: true,
-        actionLink: "#",
-        actionText: "Zum Kommentar",
-      },
-      {
-        id: 4,
-        title: "Willkommen bei Eltern & Kind!",
-        message:
-          "Wir freuen uns, dich in unserer Community zu begrüßen. Entdecke unsere vielfältigen Artikel und Ressourcen für Eltern.",
-        type: "system",
-        time: "Vor 2 Tagen",
-        read: true,
-      },
-      {
-        id: 5,
-        title: "Neuer Artikel verfügbar",
-        message: 'Der Artikel "Gesunde Ernährung für Kleinkinder" wurde gerade veröffentlicht.',
-        type: "article",
-        time: "Vor 3 Tagen",
-        read: true,
-        actionLink: "#",
-        actionText: "Artikel lesen",
-      },
+      { id: "FRIEND_REQUEST", name: "Freunde", count: 0 },
+      { id: "COMMENT", name: "Kommentare", count: 0 },
+      { id: "APPLICATION_STATUS_CHANGE", name: "Bewerbungen", count: 0 },
+      { id: "TICKET_UPDATE", name: "Tickets", count: 0 },
+      { id: "SYSTEM", name: "System", count: 0 },
     ]);
 
     // Benachrichtigungseinstellungen
@@ -169,9 +153,9 @@ export default defineComponent({
         enabled: false,
       },
       {
-        id: "article_recommendations",
-        name: "Artikelempfehlungen",
-        description: "Benachrichtigungen für personalisierte Artikelempfehlungen.",
+        id: "friend_requests",
+        name: "Freundschaftsanfragen",
+        description: "Benachrichtigungen für neue Freundschaftsanfragen.",
         enabled: true,
       },
       {
@@ -181,9 +165,9 @@ export default defineComponent({
         enabled: true,
       },
       {
-        id: "friend_requests",
-        name: "Freundschaftsanfragen",
-        description: "Benachrichtigungen für neue Freundschaftsanfragen.",
+        id: "application_updates",
+        name: "Bewerbungsupdates",
+        description: "Statusänderungen bei Autor-Bewerbungen.",
         enabled: true,
       },
       {
@@ -194,36 +178,13 @@ export default defineComponent({
       },
     ]);
 
-    // Filtere Benachrichtigungen basierend auf aktivem Filter
+    // 🔔 COMPUTED PROPERTIES
     const filteredNotifications = computed(() => {
-      if (activeFilter.value === "all") {
-        return notifications.value;
-      } else if (activeFilter.value === "unread") {
-        return notifications.value.filter((notification) => !notification.read);
-      } else {
-        return notifications.value.filter((notification) => notification.type === activeFilter.value);
-      }
+      return notificationService.filterByType(notifications.value, activeFilter.value);
     });
 
-    // Dynamisch aktualisierte Anzahlen für Filter
-    const updateFilterCounts = () => {
-      filters.value.forEach((filter) => {
-        if (filter.id === "all") {
-          filter.count = notifications.value.length;
-        } else if (filter.id === "unread") {
-          filter.count = notifications.value.filter((n) => !n.read).length;
-        } else {
-          filter.count = notifications.value.filter((n) => n.type === filter.id).length;
-        }
-      });
-    };
-
-    // Initialisiere Filter-Anzahlen
-    updateFilterCounts();
-
-    // Berechnete Werte für Status
     const unreadCount = computed(() => {
-      return notifications.value.filter((n) => !n.read).length;
+      return notifications.value.filter(n => !n.isRead).length;
     });
 
     const totalCount = computed(() => {
@@ -238,71 +199,146 @@ export default defineComponent({
       return totalCount.value > 0;
     });
 
-    // Benachrichtigung als gelesen markieren
-    const markAsRead = (id: number) => {
-      const notification = notifications.value.find((n) => n.id === id);
-      if (notification) {
-        notification.read = true;
+    // 🔔 UTILITY FUNCTIONS
+    const updateFilterCounts = () => {
+      const stats = notificationService.getNotificationStats(notifications.value);
+      
+      filters.value.forEach((filter) => {
+        if (filter.id === "all") {
+          filter.count = stats.total;
+        } else if (filter.id === "unread") {
+          filter.count = stats.unread;
+        } else {
+          filter.count = stats.byType[filter.id] || 0;
+        }
+      });
+    };
+
+    const showSuccess = (message: string) => {
+      successMessage.value = message;
+      setTimeout(() => {
+        successMessage.value = "";
+      }, 3000);
+    };
+
+    const showError = (message: string) => {
+      errorMessage.value = message;
+      setTimeout(() => {
+        errorMessage.value = "";
+      }, 5000);
+    };
+
+    // 🔔 API FUNCTIONS
+    const loadNotifications = async () => {
+      try {
+        isLoading.value = true;
+        notifications.value = await notificationService.getNotificationsCached();
         updateFilterCounts();
+      } catch (error) {
+        console.error("Fehler beim Laden der Benachrichtigungen:", error);
+        showError("Benachrichtigungen konnten nicht geladen werden.");
+      } finally {
+        isLoading.value = false;
       }
     };
 
-    // Alle Benachrichtigungen als gelesen markieren
+    const markAsRead = async (notificationId: string) => {
+      try {
+        await notificationService.markAsRead(notificationId);
+        
+        // Lokale Update
+        const notification = notifications.value.find(n => n.id === notificationId);
+        if (notification) {
+          notification.isRead = true;
+          updateFilterCounts();
+          showSuccess("Benachrichtigung wurde als gelesen markiert.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Markieren als gelesen:", error);
+        showError("Benachrichtigung konnte nicht als gelesen markiert werden.");
+      }
+    };
+
     const markAllAsRead = () => {
       confirmDialog(
         "Alle als gelesen markieren",
         "Möchtest du wirklich alle Benachrichtigungen als gelesen markieren?",
         "Alle markieren",
-        () => {
-          notifications.value.forEach((notification) => {
-            notification.read = true;
-          });
-          updateFilterCounts();
+        async () => {
+          try {
+            await notificationService.markAllAsRead();
+            
+            // Lokale Updates
+            notifications.value.forEach(notification => {
+              notification.isRead = true;
+            });
+            updateFilterCounts();
+            showSuccess("Alle Benachrichtigungen wurden als gelesen markiert.");
+          } catch (error) {
+            console.error("Fehler beim Markieren aller als gelesen:", error);
+            showError("Benachrichtigungen konnten nicht als gelesen markiert werden.");
+          }
         }
       );
     };
 
-    // Benachrichtigung löschen
-    const deleteNotification = (id: number) => {
-      const notification = notifications.value.find((n) => n.id === id);
+    const deleteNotification = (notificationId: string) => {
+      const notification = notifications.value.find(n => n.id === notificationId);
       if (notification) {
         confirmDialog(
           "Benachrichtigung löschen",
           `Möchtest du wirklich die Benachrichtigung "${notification.title}" löschen?`,
           "Löschen",
-          () => {
-            const index = notifications.value.findIndex((n) => n.id === id);
-            if (index !== -1) {
-              notifications.value.splice(index, 1);
-              updateFilterCounts();
+          async () => {
+            try {
+              await notificationService.deleteNotification(notificationId);
+              
+              // Lokale Entfernung
+              const index = notifications.value.findIndex(n => n.id === notificationId);
+              if (index !== -1) {
+                notifications.value.splice(index, 1);
+                updateFilterCounts();
+                showSuccess("Benachrichtigung wurde gelöscht.");
+              }
+            } catch (error) {
+              console.error("Fehler beim Löschen der Benachrichtigung:", error);
+              showError("Benachrichtigung konnte nicht gelöscht werden.");
             }
           }
         );
       }
     };
 
-    // Alle Benachrichtigungen löschen
     const clearAllNotifications = () => {
       confirmDialog(
         "Alle Benachrichtigungen löschen",
         "Möchtest du wirklich alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.",
         "Alle löschen",
-        () => {
-          notifications.value = [];
-          updateFilterCounts();
+        async () => {
+          try {
+            await notificationService.deleteAllNotifications();
+            
+            // Lokale Bereinigung
+            notifications.value = [];
+            updateFilterCounts();
+            showSuccess("Alle Benachrichtigungen wurden gelöscht.");
+          } catch (error) {
+            console.error("Fehler beim Löschen aller Benachrichtigungen:", error);
+            showError("Benachrichtigungen konnten nicht gelöscht werden.");
+          }
         }
       );
     };
 
-    // Einstellungen speichern
+    // 🔔 SETTINGS FUNCTIONS
     const saveSettings = (settings: NotificationSetting[]) => {
-      // Hier könntest du die Einstellungen an den Server senden
+      // Hier würden die Einstellungen an den Server gesendet
       notificationSettings.value = [...settings];
       showSettings.value = false;
-      alert("Einstellungen wurden gespeichert!");
+      showSuccess("Einstellungen wurden gespeichert!");
     };
 
-    // Bestätigungsdialog anzeigen
+    // 🔔 DIALOG FUNCTIONS
     const confirmDialog = (title: string, message: string, actionText: string, action: () => void) => {
       confirmDialogTitle.value = title;
       confirmDialogMessage.value = message;
@@ -311,7 +347,6 @@ export default defineComponent({
       showConfirmDialog.value = true;
     };
 
-    // Aktion bestätigen
     const confirmAction = () => {
       if (pendingAction.value) {
         pendingAction.value();
@@ -320,13 +355,50 @@ export default defineComponent({
       showConfirmDialog.value = false;
     };
 
-    // Aktion abbrechen
     const cancelAction = () => {
       pendingAction.value = null;
       showConfirmDialog.value = false;
     };
 
+    // 🔔 LIFECYCLE HOOKS
+    onMounted(async () => {
+      console.log("🔔 Notifications Dashboard initialisiert");
+      await loadNotifications();
+    });
+
+    onUnmounted(() => {
+      console.log("🔔 Notifications Dashboard bereinigt");
+    });
+
+    // 🔔 REACTIVE UPDATES
+    // Watch für Filter-Änderungen
+    watch(activeFilter, () => {
+      console.log(`Filter geändert zu: ${activeFilter.value}`);
+    });
+
+    // Event-Listener für Echtzeit-Updates
+    const handleNotificationUpdate = () => {
+      console.log("🔔 Echtzeit-Update empfangen, lade Benachrichtigungen neu");
+      loadNotifications();
+    };
+
+    onMounted(() => {
+      if (typeof window !== "undefined") {
+        window.addEventListener("notification-count-updated", handleNotificationUpdate);
+      }
+    });
+
+    onUnmounted(() => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("notification-count-updated", handleNotificationUpdate);
+      }
+    });
+
     return {
+      // State
+      isLoading,
+      errorMessage,
+      successMessage,
       activeFilter,
       filters,
       notifications,
@@ -341,6 +413,8 @@ export default defineComponent({
       confirmDialogTitle,
       confirmDialogMessage,
       confirmDialogAction,
+
+      // Methods
       markAsRead,
       markAllAsRead,
       deleteNotification,
@@ -348,6 +422,7 @@ export default defineComponent({
       saveSettings,
       confirmAction,
       cancelAction,
+      loadNotifications, // Für manuelle Aktualisierung
     };
   },
 });
@@ -408,6 +483,40 @@ export default defineComponent({
     }
   }
 
+  // 🔔 LOADING STATE
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: map.get(vars.$spacing, xxl);
+    text-align: center;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid transparent;
+      border-radius: 50%;
+      margin-bottom: map.get(vars.$spacing, m);
+      animation: spin 1s linear infinite;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border-top-color: mixins.theme-color($theme, accent-teal);
+          border-right-color: mixins.theme-color($theme, accent-green);
+        }
+      }
+    }
+
+    p {
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
   // Einstellungen-Link
   .notification-settings {
     margin-top: map.get(vars.$spacing, xl);
@@ -457,5 +566,50 @@ export default defineComponent({
       }
     }
   }
+
+  // 🔔 TOAST NOTIFICATIONS
+  .error-toast,
+  .success-toast {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, s);
+    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    cursor: pointer;
+    z-index: 1000;
+    @include animations.fade-in(0.3s);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 576px) {
+      right: 10px;
+      left: 10px;
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+    }
+  }
+
+  .error-toast {
+    background-color: #ff6b6b;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+
+  .success-toast {
+    background-color: #2ed573;
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
+  }
+}
+
+// 🔔 ANIMATIONS
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

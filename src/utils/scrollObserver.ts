@@ -1,16 +1,17 @@
-// IntersectionObserver für Scroll-Animationen
+// Scroll-Animationen mit IntersectionObserver
 
 export function setupScrollObserver() {
-  // IntersectionObserver für Scroll-Animationen
+  // mxXx: Verzögerung für das Hinzufügen der Klasse
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
+        setTimeout(() => { // mxXx: Verzögerung hinzugefügt
+          entry.target.classList.add('visible');
+        }, 150); // mxXx: 150ms Verzögerung
       }
     });
   }, { threshold: 0.1 });
-  
-  // Alle Sektionen beobachten
+
   const sections = document.querySelectorAll('.section');
   sections.forEach(section => {
     observer.observe(section);
@@ -19,9 +20,8 @@ export function setupScrollObserver() {
   return observer;
 }
 
-// Diese Funktion kann nach jedem Routenwechsel aufgerufen werden
+// Nach Routenwechsel aufrufen
 export function resetScrollObserver() {
-  // Kleine Verzögerung, um sicherzustellen, dass das DOM aktualisiert wurde
   setTimeout(() => {
     setupScrollObserver();
   }, 100);

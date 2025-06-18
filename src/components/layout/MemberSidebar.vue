@@ -57,13 +57,23 @@
           <component :is="item.icon" class="h-6 w-6" />
         </span>
         <span class="nav-text">{{ item.text }}</span>
+        
         <!-- Badge für ungelesene Nachrichten bei Freunde -->
         <span
           v-if="item.id === 'friends' && unreadMessagesCount > 0"
-          class="nav-badge"
+          class="nav-badge messages-badge"
           :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
         >
           {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
+        </span>
+        
+        <!-- Badge für ungelesene Benachrichtigungen -->
+        <span
+          v-if="item.id === 'notifications' && notificationCount > 0"
+          class="nav-badge notifications-badge"
+          :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`"
+        >
+          {{ notificationCount > 99 ? "99+" : notificationCount }}
         </span>
       </div>
     </nav>
@@ -112,6 +122,7 @@ import {
   PencilIcon,
 } from "@heroicons/vue/24/outline";
 import { userService } from "@/services/userMD.services";
+import { notificationService } from "@/services/notification.service";
 import UserTicketModal from "@/components/member/support/UserTicketModal.vue";
 import type { User } from "@/types/dtos/User.types";
 
@@ -156,6 +167,9 @@ export default defineComponent({
     const fallbackImageUrl = "/src/assets/images/AvatarIcon1.webp";
     const showSupportModal = ref(false);
     const unreadMessagesCount = ref(0);
+    
+    // 🔔 NEUE NOTIFICATION STATE
+    const notificationCount = ref(0);
 
     // Computed Properties
     const userProfileImage = computed(() => {
@@ -297,9 +311,49 @@ export default defineComponent({
       closeSupportModal();
     };
 
+    // 🔔 NOTIFICATION FUNCTIONS
+    const updateNotificationCount = (count: number) => {
+      notificationCount.value = count;
+      console.log(`📱 Notification Badge Update: ${count} ungelesene Benachrichtigungen`);
+    };
+
+    const handleNotificationCountUpdate = (event: CustomEvent) => {
+      const count = event.detail.count || 0;
+      updateNotificationCount(count);
+    };
+
     // Event-Listener für ungelesene Nachrichten
     const handleUnreadMessagesUpdate = (event: CustomEvent) => {
       unreadMessagesCount.value = event.detail.count || 0;
+    };
+
+    // 🔔 NOTIFICATION POLLING SETUP
+    const setupNotificationPolling = () => {
+      try {
+        // Listener für Notification-Updates registrieren
+        notificationService.addCountListener(updateNotificationCount);
+        
+        // Polling starten (alle 30 Sekunden)
+        notificationService.startPolling();
+        
+        console.log("🔔 Notification-System initialisiert");
+      } catch (error) {
+        console.error("Fehler beim Setup des Notification-Systems:", error);
+      }
+    };
+
+    const cleanupNotificationPolling = () => {
+      try {
+        // Listener entfernen
+        notificationService.removeCountListener(updateNotificationCount);
+        
+        // Polling stoppen
+        notificationService.stopPolling();
+        
+        console.log("🔔 Notification-System bereinigt");
+      } catch (error) {
+        console.error("Fehler beim Cleanup des Notification-Systems:", error);
+      }
     };
 
     // Lifecycle hooks
@@ -309,14 +363,22 @@ export default defineComponent({
       // Event-Listener für ungelesene Nachrichten registrieren
       if (typeof window !== "undefined") {
         window.addEventListener("unread-messages-updated", handleUnreadMessagesUpdate as EventListener);
+        window.addEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
+
+      // 🔔 Notification-System starten
+      setupNotificationPolling();
     });
 
     onUnmounted(() => {
       // Event-Listener entfernen
       if (typeof window !== "undefined") {
         window.removeEventListener("unread-messages-updated", handleUnreadMessagesUpdate as EventListener);
+        window.removeEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
+
+      // 🔔 Notification-System bereinigen
+      cleanupNotificationPolling();
     });
 
     // Watch für Updates der Benutzerdaten (z.B. nach Profilbild-Upload)
@@ -351,6 +413,7 @@ export default defineComponent({
       isImageLoaded,
       showSupportModal,
       unreadMessagesCount,
+      notificationCount, // 🔔 NEUE NOTIFICATION COUNT
 
       // Methods
       selectMenuItem,
@@ -680,12 +743,26 @@ export default defineComponent({
         @include animations.fade-in(0.3s);
         animation: nav-badge-pulse 3s infinite;
 
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background-color: #2ed573; // Grün für Nachrichten
-            color: white;
-            box-shadow: 0 2px 4px rgba(46, 213, 115, 0.3);
-            transition: all 0.4s ease-out;
+        // 🔔 BADGE STYLING FÜR VERSCHIEDENE TYPEN
+        &.messages-badge {
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              background-color: #2ed573; // Grün für Nachrichten
+              color: white;
+              box-shadow: 0 2px 4px rgba(46, 213, 115, 0.3);
+              transition: all 0.4s ease-out;
+            }
+          }
+        }
+
+        &.notifications-badge {
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              background-color: #ff6b6b; // Rot für Benachrichtigungen
+              color: white;
+              box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+              transition: all 0.4s ease-out;
+            }
           }
         }
       }
