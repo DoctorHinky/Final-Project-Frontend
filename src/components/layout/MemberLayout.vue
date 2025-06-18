@@ -151,9 +151,7 @@ export default defineComponent({
     };
 
     // Theme umschalten
-    const toggleTheme = () => {
-      themeService.toggleTheme();
-    };
+    const toggleTheme = () => themeService.toggleTheme();
 
     // Abmelden
     const handleLogout = () => {

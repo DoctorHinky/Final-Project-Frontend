@@ -4,18 +4,12 @@
     <div v-for="article in articles" :key="article.id" class="article-list-item" @click="openArticle(article)">
       <!-- Artikel-Bild -->
       <div class="list-item-image">
-        <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" />
+        <img v-if="article.image" :src="article.image" :alt="article.title" />
         <div v-else class="image-placeholder">
           <span class="placeholder-icon">📚</span>
         </div>
-        <!-- Schwierigkeitsgrad-Badge -->
-        <div class="difficulty-badge" :class="article.difficulty || 'medium'">
-          {{ getDifficultyShort(article.difficulty) }}
-        </div>
         <!-- Zertifizierter Autor Badge -->
-        <div v-if="article.isCertifiedAuthor" class="certified-badge">
-          ✓
-        </div>
+        <div v-if="article.isCertifiedAuthor" class="certified-badge">✓</div>
       </div>
 
       <div class="list-item-main">
@@ -23,18 +17,13 @@
         <div class="article-meta">
           <span class="meta-category">{{ article.category }}</span>
           <span class="meta-separator">•</span>
-          <span class="meta-author">{{ article.author }}</span>
+          <span class="meta-author">{{ article.author?.username || "unbekannt" }}</span>
           <span class="meta-separator">•</span>
-          <span class="meta-date">{{ article.date }}</span>
-          <span class="meta-separator">•</span>
-          <span class="meta-readtime">
-            <span class="read-time-icon">⏱</span>
-            {{ article.readTime || '10 min' }}
-          </span>
+          <span class="meta-date">{{ article.publishedAt }}</span>
         </div>
 
         <h3 class="article-title">{{ article.title }}</h3>
-        <p class="article-preview">{{ article.preview }}</p>
+        <p class="article-preview">{{ article.quickDescription }}</p>
 
         <!-- Tags -->
         <div class="article-tags">
@@ -45,71 +34,46 @@
       </div>
 
       <div class="list-item-actions">
-        <button class="action-button read" @click.stop="openArticle(article)">
-          Lesen
-        </button>
-        <button class="action-button bookmark" :class="{ active: article.bookmarked }"
-          @click.stop="toggleBookmark(article)">
-          {{ article.bookmarked ? '★' : '☆' }}
-        </button>
+        <button class="action-button read" @click.stop="openArticle(article)">Lesen</button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
-
-interface LibraryArticle {
-  id: string;
-  title: string;
-  preview: string;
-  category: string;
-  author: string;
-  date: string;
-  tags: string[];
-  readTime?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  bookmarked?: boolean;
-  featured?: boolean;
-  popularity?: number;
-  coverImage?: string;
-  isCertifiedAuthor: boolean;
-  createdAt: string;
-}
+import { defineComponent, type PropType } from "vue";
+import type { LibraryArticle } from "@/types/dtos";
 
 export default defineComponent({
-  name: 'ArticlesList',
+  name: "ArticlesList",
   props: {
     articles: {
       type: Array as PropType<LibraryArticle[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['open-article', 'toggle-bookmark', 'add-tag'],
+  emits: ["open-article", "toggle-bookmark", "add-tag"],
   setup(_, { emit }) {
     const openArticle = (article: LibraryArticle) => {
-      emit('open-article', article);
+      emit("open-article", article);
     };
 
     const toggleBookmark = (article: LibraryArticle) => {
-      emit('toggle-bookmark', article);
+      emit("toggle-bookmark", article);
     };
 
-    const addTag = (tag: string) => {
-      emit('add-tag', tag);
-    };
+    const addTag = (tag: string) => emit("add-tag", tag);
 
     const getDifficultyShort = (difficulty?: string) => {
       switch (difficulty) {
-        case 'easy':
-          return 'E';
-        case 'medium':
-          return 'M';
-        case 'hard':
-          return 'F';
+        case "easy":
+          return "E";
+        case "medium":
+          return "M";
+        case "hard":
+          return "F";
         default:
-          return 'M';
+          return "M";
       }
     };
 
@@ -117,16 +81,16 @@ export default defineComponent({
       openArticle,
       toggleBookmark,
       addTag,
-      getDifficultyShort
+      getDifficultyShort,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .list-view {
   display: flex;
@@ -151,7 +115,7 @@ export default defineComponent({
       flex-direction: column;
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -159,8 +123,7 @@ export default defineComponent({
 
         &:hover {
           transform: translateY(-4px);
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
-                      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
           border-color: transparent;
 
           .list-item-image img {
@@ -203,11 +166,13 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background: linear-gradient(135deg, 
-              mixins.theme-color($theme, primary) 0%, 
-              mixins.theme-color($theme, accent-teal) 100%);
+            background: linear-gradient(
+              135deg,
+              mixins.theme-color($theme, primary) 0%,
+              mixins.theme-color($theme, accent-teal) 100%
+            );
           }
         }
 
@@ -291,7 +256,7 @@ export default defineComponent({
           text-transform: uppercase;
           letter-spacing: 0.05em;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, primary);
             }
@@ -299,7 +264,7 @@ export default defineComponent({
         }
 
         .meta-author {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -307,7 +272,7 @@ export default defineComponent({
         }
 
         .meta-date {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
@@ -319,7 +284,7 @@ export default defineComponent({
           align-items: center;
           gap: 3px;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
@@ -332,7 +297,7 @@ export default defineComponent({
         }
 
         .meta-separator {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
               opacity: 0.5;
@@ -351,7 +316,7 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -373,7 +338,7 @@ export default defineComponent({
           margin-bottom: map.get(vars.$spacing, s);
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -393,7 +358,7 @@ export default defineComponent({
           transition: all 0.2s;
           cursor: pointer;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
@@ -450,7 +415,7 @@ export default defineComponent({
         &.read {
           min-width: 100px;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
@@ -471,7 +436,7 @@ export default defineComponent({
             flex: 0 0 50px;
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);

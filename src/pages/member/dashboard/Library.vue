@@ -39,7 +39,7 @@
         <div class="error-icon">⚠️</div>
         <h3>Fehler beim Laden</h3>
         <p>{{ error }}</p>
-        <button @click="loadArticles" class="retry-button">Erneut versuchen</button>
+        <button @click="loadArticles()" class="retry-button">Erneut versuchen</button>
       </div>
 
       <!-- Artikel-Anzeige -->
@@ -98,7 +98,7 @@
 
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader :article="selectedArticleForReader" @close="closeArticleReader" />
+      <article-reader :articleId="selectedArticleId || ''" @close="closeArticleReader" />
     </div>
   </div>
 </template>
@@ -115,27 +115,7 @@ import {
 } from "@/components/pages/DashboardPages/Library";
 import { postService, type PostPreviewItem } from "@/services/post.service";
 import { historyService } from "@/services/history.service";
-import type { BaseArticleItem } from "@/types/BaseArticle.types";
-import type { PostCategory } from "@/types/dtos/Post.Category.types";
-
-// Konvertierte Artikel-Interface für Frontend-Kompatibilität
-export interface LibraryArticle {
-  id: string;
-  title: string;
-  preview: string;
-  category: string;
-  author: string;
-  date: string;
-  tags: string[];
-  readTime?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  bookmarked?: boolean;
-  featured?: boolean;
-  popularity?: number;
-  coverImage?: string;
-  isCertifiedAuthor: boolean;
-  createdAt: string;
-}
+import type { LibraryArticle } from "@/types/dtos";
 
 export default defineComponent({
   name: "LibraryDashboard",
@@ -169,6 +149,7 @@ export default defineComponent({
     // ArticleReader State
     const articleReaderMode = ref(false);
     const selectedArticle = ref<PostPreviewItem | null>(null);
+    const selectedArticleId = ref<string | null>(null);
 
     // Beliebte Themen (später eventuell vom Backend)
     const popularTopics = [
@@ -198,20 +179,20 @@ export default defineComponent({
       return {
         id: item.id,
         title: item.title,
-        preview: item.quickDescription,
+        quickDescription: item.quickDescription,
         category: item.category,
-        author: item.author,
-        date: formatDate(item.createdAt),
+        author: {
+          id: item.author.id,
+          username: item.author.username,
+          profilePicture: item.author.profilePicture,
+        },
+        publishedAt: formatDate(item.createdAt),
         tags: item.tags,
-        coverImage: item.image || undefined,
+        image: item.image,
         isCertifiedAuthor: item.isCertifiedAuthor,
         createdAt: item.createdAt,
         // Geschätzte Werte
         readTime: estimateReadTime(item.quickDescription),
-        difficulty: "medium",
-        bookmarked: false,
-        featured: false,
-        popularity: Math.floor(Math.random() * 200),
       };
     };
 
@@ -259,9 +240,9 @@ export default defineComponent({
         result = result.filter(
           (article) =>
             article.title.toLowerCase().includes(query) ||
-            article.preview.toLowerCase().includes(query) ||
+            article.quickDescription.toLowerCase().includes(query) ||
             article.category.toLowerCase().includes(query) ||
-            article.author.toLowerCase().includes(query) ||
+            article.author.username.toLowerCase().includes(query) ||
             article.tags.some((tag) => tag.toLowerCase().includes(query))
         );
       }
@@ -299,8 +280,6 @@ export default defineComponent({
           return sorted.sort((a, b) => a.title.localeCompare(b.title));
         case "title-desc":
           return sorted.sort((a, b) => b.title.localeCompare(a.title));
-        case "popular":
-          return sorted.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
         default:
           return sorted;
       }
@@ -341,6 +320,8 @@ export default defineComponent({
         if (!originalArticle) return;
 
         selectedArticle.value = originalArticle;
+        selectedArticleId.value = article.id;
+
         articleReaderMode.value = true;
 
         // Artikel als gelesen markieren
@@ -358,21 +339,6 @@ export default defineComponent({
     };
 
     // Artikel für ArticleReader konvertieren (BaseArticleItem-kompatibel)
-    const selectedArticleForReader = computed((): BaseArticleItem | null => {
-      if (!selectedArticle.value) return null;
-
-      return {
-        id: selectedArticle.value.id,
-        title: selectedArticle.value.title,
-        quickDescription: selectedArticle.value.quickDescription,
-        createdAt: selectedArticle.value.createdAt,
-        image: selectedArticle.value.image,
-        author: selectedArticle.value.author,
-        category: selectedArticle.value.category as PostCategory,
-        tags: selectedArticle.value.tags,
-        isCertifiedAuthor: selectedArticle.value.isCertifiedAuthor,
-      };
-    });
 
     // Filter und Suche
     const applyFilters = () => {
@@ -394,13 +360,9 @@ export default defineComponent({
       }
     };
 
-    const removeTag = (index: number) => {
-      selectedTags.value.splice(index, 1);
-    };
+    const removeTag = (index: number) => selectedTags.value.splice(index, 1);
 
-    const clearTags = () => {
-      selectedTags.value = [];
-    };
+    const clearTags = () => (selectedTags.value = []);
 
     const resetFilters = () => {
       searchQuery.value = "";
@@ -415,8 +377,7 @@ export default defineComponent({
     };
 
     // Dummy Bookmark-Funktion (später implementieren)
-    const toggleBookmark = (article: LibraryArticle) => {
-      console.log("Bookmark toggled for:", article.title);
+    const toggleBookmark = (_article: LibraryArticle) => {
       // TODO: Backend-Integration für Bookmarks
     };
 
@@ -446,8 +407,7 @@ export default defineComponent({
 
       // ArticleReader
       articleReaderMode,
-      selectedArticleForReader,
-
+      selectedArticleId,
       // Functions
       loadArticles,
       loadPage,

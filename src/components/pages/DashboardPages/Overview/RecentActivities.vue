@@ -9,18 +9,15 @@
         </h3>
         <div class="header-subtitle">Setze deine Lernreise fort</div>
       </div>
-      <button 
-        @click="$emit('view-all')" 
-        class="view-all-btn"
-      >
+      <button @click="$emit('view-all')" class="view-all-btn">
         Alle anzeigen
         <ChevronRightIcon class="arrow-icon" />
       </button>
     </div>
 
     <div v-if="articles.length > 0" class="articles-list">
-      <article 
-        v-for="article in articles" 
+      <article
+        v-for="article in articles"
         :key="article.id"
         class="article-card"
         @click="$emit('open-article', article)"
@@ -52,16 +49,14 @@
 
           <div class="progress-section">
             <div class="progress-info">
-              <span class="chapter-info">
-                Kapitel {{ article.currentChapter }} von {{ article.totalChapters }}
-              </span>
+              <span class="chapter-info"> Kapitel {{ article.currentChapter }} von {{ article.totalChapters }} </span>
               <span :class="['difficulty', `difficulty-${getDifficultyClass(article.difficulty)}`]">
                 {{ article.difficulty }}
               </span>
             </div>
-            
+
             <div class="progress-bar">
-              <div 
+              <div
                 class="progress-fill"
                 :style="{ width: getProgressWidth(article.currentChapter, article.totalChapters) }"
                 :class="{ 'almost-complete': isAlmostComplete(article.currentChapter, article.totalChapters) }"
@@ -87,29 +82,24 @@
       </div>
       <h3>Keine kürzlich gelesenen Artikel</h3>
       <p>Entdecke spannende Artikel und beginne deine Lernreise!</p>
-      <button 
-        @click="$emit('discover')" 
-        class="discover-btn"
-      >
-        Artikel entdecken
-      </button>
+      <button @click="$emit('discover')" class="discover-btn">Artikel entdecken</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import { 
-  BookOpenIcon, 
-  ChevronRightIcon, 
-  FolderIcon, 
-  UserIcon, 
-  ClockIcon, 
-  ArrowRightIcon 
-} from '@heroicons/vue/24/outline';
+import { defineComponent, type PropType } from "vue";
+import {
+  BookOpenIcon,
+  ChevronRightIcon,
+  FolderIcon,
+  UserIcon,
+  ClockIcon,
+  ArrowRightIcon,
+} from "@heroicons/vue/24/outline";
 
 interface Article {
-  id: number;
+  id: string;
   title: string;
   preview?: string;
   category?: string;
@@ -120,64 +110,64 @@ interface Article {
   totalChapters?: number;
   lastRead?: string;
   readingTime?: string;
-  difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
+  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
 }
 
 export default defineComponent({
-  name: 'RecentActivities',
+  name: "RecentActivities",
   components: {
     BookOpenIcon,
     ChevronRightIcon,
     FolderIcon,
     UserIcon,
     ClockIcon,
-    ArrowRightIcon
+    ArrowRightIcon,
   },
   props: {
     articles: {
       type: Array as PropType<Article[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['view-all', 'discover', 'open-article'],
-  
+  emits: ["view-all", "discover", "open-article"],
+
   methods: {
     getStatusLabel(status?: string): string {
       const labels: Record<string, string> = {
-        'in-progress': 'In Bearbeitung',
-        'just-started': 'Gerade begonnen',
-        'almost-done': 'Fast fertig'
+        "in-progress": "In Bearbeitung",
+        "just-started": "Gerade begonnen",
+        "almost-done": "Fast fertig",
       };
-      return labels[status || ''] || 'Neu';
+      return labels[status || ""] || "Neu";
     },
-    
+
     getProgressWidth(current?: number, total?: number): string {
-      if (!current || !total) return '0%';
+      if (!current || !total) return "0%";
       const percentage = (current / total) * 100;
       return `${Math.min(percentage, 100)}%`;
     },
-    
+
     isAlmostComplete(current?: number, total?: number): boolean {
       if (!current || !total) return false;
-      return (current / total) >= 0.8;
+      return current / total >= 0.8;
     },
-    
+
     getDifficultyClass(difficulty?: string): string {
       const classes: Record<string, string> = {
-        'Einfach': 'easy',
-        'Mittel': 'medium',
-        'Fortgeschritten': 'advanced'
+        Einfach: "easy",
+        Mittel: "medium",
+        Fortgeschritten: "advanced",
       };
-      return classes[difficulty || ''] || 'medium';
-    }
-  }
+      return classes[difficulty || ""] || "medium";
+    },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Container-Styles
 .section-container {
@@ -185,12 +175,11 @@ export default defineComponent({
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   }
 
@@ -200,13 +189,13 @@ export default defineComponent({
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: map.get(vars.$spacing, xl);
-    
+
     .header-content {
       display: flex;
       flex-direction: column;
       gap: map.get(vars.$spacing, xs);
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
@@ -215,53 +204,53 @@ export default defineComponent({
       align-items: center;
       gap: map.get(vars.$spacing, s);
       position: relative;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
-      
+
       .icon {
         width: 28px;
         height: 28px;
         flex-shrink: 0;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, primary);
           }
         }
       }
-      
+
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         width: 50px;
         height: 4px;
         bottom: -10px;
         left: 0;
         border-radius: 2px;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
           }
         }
       }
     }
-    
+
     .header-subtitle {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       margin-top: map.get(vars.$spacing, s);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-    
+
     .view-all-btn {
       display: flex;
       align-items: center;
@@ -273,21 +262,21 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       transition: all 0.3s ease;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, primary);
-          
+
           &:hover {
             color: mixins.theme-color($theme, primary-hover);
-            
+
             .arrow-icon {
               transform: translateX(3px);
             }
           }
         }
       }
-      
+
       .arrow-icon {
         width: 16px;
         height: 16px;
@@ -305,7 +294,7 @@ export default defineComponent({
     flex-direction: column;
     gap: map.get(vars.$spacing, m);
   }
-  
+
   // Article Card
   .article-card {
     border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -316,46 +305,46 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     gap: map.get(vars.$spacing, l);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        
+
         &:hover {
           transform: translateX(8px);
           border-color: mixins.theme-color($theme, primary);
           box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-          
+
           .continue-reading .arrow-icon {
             transform: translateX(5px);
           }
-          
+
           .article-title {
             color: mixins.theme-color($theme, primary);
           }
-          
+
           .progress-fill::after {
             opacity: 1;
           }
         }
       }
     }
-    
+
     .article-content {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: map.get(vars.$spacing, m);
     }
-    
+
     // Article Header
     .article-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: map.get(vars.$spacing, m);
-      
+
       .status-badge {
         padding: 4px 12px;
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -363,34 +352,34 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-bg);
             color: mixins.theme-color($theme, text-secondary);
           }
         }
-        
+
         &.status-in-progress {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, warning-bg);
               color: mixins.theme-color($theme, warning);
             }
           }
         }
-        
+
         &.status-just-started {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, info-bg);
               color: mixins.theme-color($theme, info);
             }
           }
         }
-        
+
         &.status-almost-done {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, success-bg);
               color: mixins.theme-color($theme, success);
@@ -398,18 +387,18 @@ export default defineComponent({
           }
         }
       }
-      
+
       .last-read {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
         }
       }
     }
-    
+
     // Article Title
     .article-title {
       font-size: map.get(map.get(vars.$fonts, sizes), large);
@@ -417,32 +406,32 @@ export default defineComponent({
       margin: 0;
       transition: color 0.3s ease;
       line-height: 1.3;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     // Article Meta
     .article-meta {
       display: flex;
       flex-wrap: wrap;
       gap: map.get(vars.$spacing, l);
-      
+
       > span {
         display: flex;
         align-items: center;
         gap: map.get(vars.$spacing, xs);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
-        
+
         .meta-icon {
           width: 16px;
           height: 16px;
@@ -451,55 +440,55 @@ export default defineComponent({
         }
       }
     }
-    
+
     // Progress Section
     .progress-section {
       display: flex;
       flex-direction: column;
       gap: map.get(vars.$spacing, s);
-      
+
       .progress-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        
+
         .chapter-info {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
           }
         }
-        
+
         .difficulty {
           padding: 3px 10px;
           border-radius: map.get(map.get(vars.$layout, border-radius), pill);
           font-size: map.get(map.get(vars.$fonts, sizes), tiny);
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          
+
           &.difficulty-easy {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, success-bg);
                 color: mixins.theme-color($theme, success);
               }
             }
           }
-          
+
           &.difficulty-medium {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, warning-bg);
                 color: mixins.theme-color($theme, warning);
               }
             }
           }
-          
+
           &.difficulty-advanced {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, error-bg);
                 color: mixins.theme-color($theme, error);
@@ -508,40 +497,40 @@ export default defineComponent({
           }
         }
       }
-      
+
       .progress-bar {
         position: relative;
         height: 8px;
         border-radius: map.get(map.get(vars.$layout, border-radius), full);
         overflow: hidden;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, text-tertiary), 0.15);
           }
         }
       }
-      
+
       .progress-fill {
         position: relative;
         height: 100%;
         border-radius: map.get(map.get(vars.$layout, border-radius), full);
         transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
           }
         }
-        
+
         &.almost-complete {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, success);
             }
           }
         }
-        
+
         // Animated glow effect
         .progress-glow {
           position: absolute;
@@ -549,18 +538,13 @@ export default defineComponent({
           right: 0;
           width: 30px;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.6),
-            transparent
-          );
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
           transform: translateX(0);
           animation: shimmer 2s infinite;
         }
       }
     }
-    
+
     // Article Action
     .article-action {
       .continue-reading {
@@ -569,19 +553,19 @@ export default defineComponent({
         gap: map.get(vars.$spacing, xs);
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
-        
+
         .arrow-icon {
           width: 20px;
           height: 20px;
           transition: transform 0.3s ease;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, primary);
             }
@@ -590,7 +574,7 @@ export default defineComponent({
       }
     }
   }
-  
+
   // Empty State
   .empty-state {
     text-align: center;
@@ -599,48 +583,48 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, m);
     padding: map.get(vars.$spacing, xxl) map.get(vars.$spacing, xl);
-    
+
     .empty-icon {
       width: 64px;
       height: 64px;
       opacity: 0.3;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
         }
       }
-      
+
       svg {
         width: 100%;
         height: 100%;
       }
     }
-    
+
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin: 0;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
       }
     }
-    
+
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       margin: 0;
       max-width: 300px;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
       }
     }
-    
+
     .discover-btn {
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
@@ -650,12 +634,12 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       margin-top: map.get(vars.$spacing, m);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
-          
+
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
@@ -682,17 +666,17 @@ export default defineComponent({
     .section-header {
       flex-direction: column;
       gap: map.get(vars.$spacing, m);
-      
+
       .view-all-btn {
         align-self: flex-start;
       }
     }
-    
+
     .article-card {
       flex-direction: column;
       align-items: flex-start;
       padding: map.get(vars.$spacing, m);
-      
+
       .article-action {
         align-self: flex-end;
       }
@@ -704,7 +688,7 @@ export default defineComponent({
   .recent-activities {
     .article-meta {
       gap: map.get(vars.$spacing, m);
-      
+
       > span {
         font-size: map.get(map.get(vars.$fonts, sizes), tiny);
       }

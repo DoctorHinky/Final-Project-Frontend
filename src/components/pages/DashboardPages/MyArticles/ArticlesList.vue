@@ -12,41 +12,41 @@
     <div :class="['articles-container', viewMode]">
       <!-- Grid-Ansicht -->
       <div v-if="viewMode === 'grid'" class="grid-view">
-        <div v-for="article in filteredArticles" :key="article.id" class="article-card"
-          @click="openArticleReader(article)">
-          
+        <div
+          v-for="article in filteredArticles"
+          :key="article.id"
+          class="article-card"
+          @click="openArticleReader(article)"
+        >
           <!-- Lösch-Kreuz oben rechts -->
-          <button 
-            class="remove-article" 
+          <button
+            class="remove-article"
             @click.stop="removeArticle(article.id)"
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
             <XMarkIcon class="remove-icon" />
           </button>
-          
+
           <!-- Status-Badge -->
           <div class="status-badge" :class="article.status">
-            {{ article.status === 'completed' ? 'Abgeschlossen' : 'Gelesen' }}
+            {{ article.status === "completed" ? "Abgeschlossen" : "Gelesen" }}
           </div>
-          
+
           <!-- Artikel-Bild -->
           <div class="article-image">
             <!-- Loading-State oder kein Bild -->
-            <div 
-              v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
-              class="image-loading"
-            >
+            <div v-if="loadingImages.has(article.id) || !getImageUrl(article)" class="image-loading">
               <div class="loading-spinner"></div>
               <span class="loading-text">
-                {{ loadingImages.has(article.id) ? 'Lade Bild...' : 'Kein Bild verfügbar' }}
+                {{ loadingImages.has(article.id) ? "Lade Bild..." : "Kein Bild verfügbar" }}
               </span>
             </div>
-            
+
             <!-- Hauptbild -->
-            <img 
+            <img
               v-else
-              :src="getImageUrl(article) ?? undefined" 
+              :src="getImageUrl(article) ?? undefined"
               :alt="article.title"
               @error="handleImageError($event, article.id)"
               @load="handleImageLoad($event, article.id)"
@@ -60,14 +60,14 @@
             <div class="article-meta">
               <span class="meta-category">{{ article.category }}</span>
               <span class="meta-separator">•</span>
-              <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
+              <span class="meta-author">{{ article.author || "Unbekannt" }}</span>
               <span class="meta-separator">•</span>
               <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
             </div>
 
             <!-- Titel -->
             <h3 class="card-title">{{ article.title }}</h3>
-            
+
             <!-- Beschreibung -->
             <p class="card-preview">{{ article.quickDescription }}</p>
 
@@ -85,12 +85,7 @@
 
             <!-- Tags -->
             <div class="card-tags" v-if="article.tags && article.tags.length > 0">
-              <span 
-                v-for="(tag, idx) in article.tags" 
-                :key="idx" 
-                class="card-tag"
-                @click.stop="addFilterTag(tag)"
-              >
+              <span v-for="(tag, idx) in article.tags" :key="idx" class="card-tag" @click.stop="addFilterTag(tag)">
                 {{ tag }}
               </span>
             </div>
@@ -108,38 +103,38 @@
 
       <!-- Listen-Ansicht -->
       <div v-else-if="viewMode === 'list'" class="list-view">
-        <div v-for="article in filteredArticles" :key="article.id" class="article-list-item"
-          @click="openArticleReader(article)">
-          
+        <div
+          v-for="article in filteredArticles"
+          :key="article.id"
+          class="article-list-item"
+          @click="openArticleReader(article)"
+        >
           <!-- Lösch-Kreuz oben rechts -->
-          <button 
-            class="remove-article" 
+          <button
+            class="remove-article"
             @click.stop="removeArticle(article.id)"
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
             <XMarkIcon class="remove-icon" />
           </button>
-          
+
           <!-- Status-Badge -->
           <div class="status-badge" :class="article.status">
-            {{ article.status === 'completed' ? 'Abgeschlossen' : 'Gelesen' }}
+            {{ article.status === "completed" ? "Abgeschlossen" : "Gelesen" }}
           </div>
-          
+
           <!-- Artikel-Bild in Listenansicht -->
           <div class="list-item-image">
             <!-- Loading-State oder kein Bild -->
-            <div 
-              v-if="loadingImages.has(article.id) || !getImageUrl(article)" 
-              class="image-loading"
-            >
+            <div v-if="loadingImages.has(article.id) || !getImageUrl(article)" class="image-loading">
               <div class="loading-spinner"></div>
             </div>
-            
+
             <!-- Hauptbild -->
-            <img 
+            <img
               v-else
-              :src="getImageUrl(article)" 
+              :src="getImageUrl(article)"
               :alt="article.title"
               @error="handleImageError($event, article.id)"
               @load="handleImageLoad($event, article.id)"
@@ -147,17 +142,17 @@
               decoding="async"
             />
           </div>
-          
+
           <div class="list-item-main">
             <!-- Meta-Informationen -->
             <div class="article-meta">
               <span class="meta-category">{{ article.category }}</span>
               <span class="meta-separator">•</span>
-              <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
+              <span class="meta-author">{{ article.author || "Unbekannt" }}</span>
               <span class="meta-separator">•</span>
               <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
             </div>
-            
+
             <h3 class="card-title">{{ article.title }}</h3>
             <p class="card-preview">{{ article.quickDescription }}</p>
 
@@ -187,73 +182,56 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType, ref, onMounted, watch } from 'vue';
-import { 
-  EyeIcon, 
-  CheckCircleIcon, 
-  BookOpenIcon, 
-  XMarkIcon 
-} from '@heroicons/vue/24/outline';
-import ViewOptions from './ViewOptions.vue';
-import type { MyArticleItem } from '@/types/MyArticles.types';
-import { postService } from '@/services/post.service';
+import { defineComponent, onMounted, type PropType, ref } from "vue";
+import { EyeIcon, CheckCircleIcon, BookOpenIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import ViewOptions from "./ViewOptions.vue";
+import type { MyArticleItem } from "@/types/MyArticles.types";
+import { postService } from "@/services/post.service";
 
 export default defineComponent({
-  name: 'ArticlesList',
+  name: "ArticlesList",
   components: {
     ViewOptions,
     EyeIcon,
     CheckCircleIcon,
     BookOpenIcon,
-    XMarkIcon
+    XMarkIcon,
   },
   props: {
     filteredArticles: {
       type: Array as PropType<MyArticleItem[]>,
-      required: true
+      required: true,
     },
     sortOption: {
       type: String,
-      required: true
+      required: true,
     },
     viewMode: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: [
-    'update:sortOption', 
-    'update:viewMode', 
-    'open-article', 
-    'remove-article',
-    'add-filter-tag'
-  ],
+  emits: ["update:sortOption", "update:viewMode", "open-article", "remove-article", "add-filter-tag"],
   setup(props, { emit }) {
     // State für Error-Tracking
     const imageErrors = ref(new Set<string>());
-    
+
     // Cache für geladene Artikel-Bilder
     const articleImages = ref(new Map<string, string | null>());
     const loadingImages = ref(new Set<string>());
-    
-    const openArticleReader = (article: MyArticleItem) => {
-      emit('open-article', article);
-    };
 
-    const removeArticle = (articleId: string) => {
-      emit('remove-article', articleId);
-    };
+    const openArticleReader = (article: MyArticleItem) => emit("open-article", article);
 
-    const addFilterTag = (tag: string) => {
-      emit('add-filter-tag', tag);
-    };
+    const removeArticle = (articleId: string) => emit("remove-article", articleId);
+
+    const addFilterTag = (tag: string) => emit("add-filter-tag", tag);
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     };
 
@@ -278,9 +256,8 @@ export default defineComponent({
 
         // In Cache speichern
         articleImages.value.set(postId, imageUrl);
-        
+
         return imageUrl;
-        
       } catch (error) {
         console.warn(`❌ Fehler beim Laden des Bildes für Post ${postId}:`, error);
         articleImages.value.set(postId, null); // Fehler cachen
@@ -295,7 +272,7 @@ export default defineComponent({
       const postId = article.id;
 
       // 1. Prüfe ob echtes Bild vom Backend verfügbar
-      if (article.image && article.image.trim() !== '') {
+      if (article.image && article.image.trim() !== "") {
         return article.image;
       }
 
@@ -325,40 +302,38 @@ export default defineComponent({
     const preloadArticleImages = async () => {
       if (!props.filteredArticles || props.filteredArticles.length === 0) return;
 
-      
       // Parallel alle Bilder laden (max 5 gleichzeitig)
       const batchSize = 5;
       for (let i = 0; i < props.filteredArticles.length; i += batchSize) {
         const batch = props.filteredArticles.slice(i, i + batchSize);
-        await Promise.allSettled(
-          batch.map(article => loadArticleImage(article.id))
-        );
+        await Promise.allSettled(batch.map((article) => loadArticleImage(article.id)));
       }
-      
     };
 
     // VERBESSERT: Einfacheres Error-Handling
     const handleImageError = (event: Event, articleId: string) => {
       const img = event.target as HTMLImageElement;
-      
+
       console.warn(`Fehler beim Laden des Bildes für Artikel ${articleId}:`, {
         src: img.src,
-        articleId: articleId
+        articleId: articleId,
       });
-      
+
       // Markiere diesen Artikel als fehlerhaft
       imageErrors.value.add(articleId);
-      
+
       // Setze im Cache auf null um Loading-State zu zeigen
       articleImages.value.set(articleId, null);
     };
 
+    onMounted(() => {
+      console.log("🔍 ArticlesList props:", props);
+    });
     // Bild erfolgreich geladen
     const handleImageLoad = (_: Event, articleId: string) => {
       // Entferne Error-Status falls vorhanden
       imageErrors.value.delete(articleId);
     };
-
 
     return {
       openArticleReader,
@@ -372,16 +347,16 @@ export default defineComponent({
       articleImages, // Für Debugging
       loadingImages, // Für Loading-States
       loadArticleImage,
-      preloadArticleImages
+      preloadArticleImages,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 // Artikelliste
 .article-list {
@@ -432,17 +407,15 @@ export default defineComponent({
       flex-direction: column;
       overflow: hidden;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
           &:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
-                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             border-color: transparent;
 
             .article-image img {
@@ -469,7 +442,7 @@ export default defineComponent({
         backdrop-filter: blur(10px);
 
         &.reading {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: rgba(59, 130, 246, 0.9);
               color: white;
@@ -478,7 +451,7 @@ export default defineComponent({
         }
 
         &.completed {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: rgba(74, 210, 149, 0.9);
               color: white;
@@ -503,11 +476,11 @@ export default defineComponent({
         z-index: 10;
         transition: all 0.2s ease-in-out;
         backdrop-filter: blur(10px);
-        
+
         // Standard-Zustand: unsichtbar
         opacity: 0;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(0, 0, 0, 0.3);
             color: white;
@@ -518,7 +491,7 @@ export default defineComponent({
             }
           }
         }
-        
+
         // Focus für Accessibility
         &:focus {
           opacity: 1;
@@ -569,7 +542,7 @@ export default defineComponent({
           justify-content: center;
           z-index: 1;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
@@ -584,7 +557,7 @@ export default defineComponent({
             animation: spin 1s linear infinite;
             margin-bottom: 12px;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 border-top-color: mixins.theme-color($theme, primary);
                 border-right-color: mixins.theme-color($theme, primary);
@@ -631,7 +604,7 @@ export default defineComponent({
           text-transform: uppercase;
           letter-spacing: 0.05em;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, primary);
             }
@@ -639,7 +612,7 @@ export default defineComponent({
         }
 
         .meta-author {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -647,7 +620,7 @@ export default defineComponent({
         }
 
         .meta-date {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
@@ -655,7 +628,7 @@ export default defineComponent({
         }
 
         .meta-separator {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
               opacity: 0.5;
@@ -675,7 +648,7 @@ export default defineComponent({
           margin-bottom: map.get(vars.$spacing, s);
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -699,7 +672,7 @@ export default defineComponent({
           line-clamp: 2;
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -724,7 +697,7 @@ export default defineComponent({
           align-items: center;
           gap: map.get(vars.$spacing, xs);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -742,7 +715,7 @@ export default defineComponent({
           align-items: center;
           gap: map.get(vars.$spacing, xs);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -770,7 +743,7 @@ export default defineComponent({
           transition: all 0.2s;
           cursor: pointer;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-secondary);
@@ -817,13 +790,13 @@ export default defineComponent({
             position: relative;
             overflow: hidden;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;
 
                 &::before {
-                  content: '';
+                  content: "";
                   position: absolute;
                   top: 50%;
                   left: 50%;
@@ -876,7 +849,7 @@ export default defineComponent({
         flex-direction: column;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -884,8 +857,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
-                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border-color: transparent;
 
             .remove-article {
@@ -907,7 +879,7 @@ export default defineComponent({
         z-index: 5;
 
         &.reading {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: rgba(59, 130, 246, 0.1);
               color: #3b82f6;
@@ -917,7 +889,7 @@ export default defineComponent({
         }
 
         &.completed {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: rgba(74, 210, 149, 0.1);
               color: #4ad295;
@@ -942,10 +914,10 @@ export default defineComponent({
         justify-content: center;
         z-index: 10;
         transition: all 0.2s ease-in-out;
-        
+
         opacity: 0;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(0, 0, 0, 0.3);
             color: white;
@@ -956,7 +928,7 @@ export default defineComponent({
             }
           }
         }
-        
+
         &:focus {
           opacity: 1;
           outline: 2px solid #007bff;
@@ -1017,7 +989,7 @@ export default defineComponent({
           justify-content: center;
           z-index: 1;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
             }
@@ -1030,7 +1002,7 @@ export default defineComponent({
             border-radius: 50%;
             animation: spin 1s linear infinite;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 border-top-color: mixins.theme-color($theme, primary);
                 border-right-color: mixins.theme-color($theme, primary);
@@ -1063,7 +1035,7 @@ export default defineComponent({
             text-transform: uppercase;
             letter-spacing: 0.05em;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, primary);
               }
@@ -1071,7 +1043,7 @@ export default defineComponent({
           }
 
           .meta-author {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -1079,7 +1051,7 @@ export default defineComponent({
           }
 
           .meta-date {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
               }
@@ -1087,7 +1059,7 @@ export default defineComponent({
           }
 
           .meta-separator {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
                 opacity: 0.5;
@@ -1106,7 +1078,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), medium);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -1128,7 +1100,7 @@ export default defineComponent({
             margin-bottom: map.get(vars.$spacing, s);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -1151,7 +1123,7 @@ export default defineComponent({
             align-items: center;
             gap: map.get(vars.$spacing, xs);
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -1169,7 +1141,7 @@ export default defineComponent({
             align-items: center;
             gap: map.get(vars.$spacing, xs);
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, accent-green);
               }
@@ -1224,7 +1196,7 @@ export default defineComponent({
           &.read {
             min-width: 120px;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;
@@ -1248,7 +1220,11 @@ export default defineComponent({
 
 // Animationen
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

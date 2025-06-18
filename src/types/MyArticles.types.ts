@@ -1,6 +1,6 @@
 // src/types/MyArticles.types.ts
-import type { PostCategory } from './dtos/Post.Category.types';
-import type { BaseArticleItem } from './BaseArticle.types';
+import type { PostCategory } from "./dtos/Post.Category.types";
+import type { BaseArticleItem } from "./BaseArticle.types";
 
 /**
  * Erweiterte History-Response vom Backend
@@ -15,15 +15,15 @@ export interface ExtendedHistoryItem {
   postTitle: string;
   postQuickDescription: string;
   postAuthor: string;
-  
+
   // Erweiterte Post-Daten (für Bild-Support)
-  postImage?: string | null;          // Cloudinary-URL
-  postPublicIdImage?: string | null;  // Cloudinary Public ID
-  postTags?: string[];                // Post-Tags
-  postCategory?: PostCategory;        // Post-Kategorie
-  postIsCertifiedAuthor?: boolean;    // Zertifizierter Autor
-  postCreatedAt?: string;             // Original-Erstellungsdatum
-  postPopularityScore?: number;       // Popularitätsscore
+  postImage?: string | null; // Cloudinary-URL
+  postPublicIdImage?: string | null; // Cloudinary Public ID
+  postTags?: string[]; // Post-Tags
+  postCategory?: PostCategory; // Post-Kategorie
+  postIsCertifiedAuthor?: boolean; // Zertifizierter Autor
+  postCreatedAt?: string; // Original-Erstellungsdatum
+  postPopularityScore?: number; // Popularitätsscore
 }
 
 /**
@@ -32,28 +32,31 @@ export interface ExtendedHistoryItem {
  */
 export interface MyArticleItem extends BaseArticleItem {
   // History-Daten (required für MyArticles)
-  historyId: string;
   readAt: string;
   solvedAt: string | null;
- 
+
   // Post-Daten (required overrides von BaseArticleItem)
   id: string;
   title: string;
   quickDescription: string;
   image: string | null;
-  author: string | null;
+  author: {
+    id?: string | null;
+    username: string;
+    profilePicture?: string | null;
+  };
   category: PostCategory;
   tags: string[];
   createdAt: string;
   isCertifiedAuthor: boolean;
- 
+
   // Computed Felder für UI (required für MyArticles)
   lastRead: string; // formatiertes Datum für Anzeige
-  status: 'reading' | 'completed'; // basierend auf solvedAt
-  
+  status: "reading" | "completed"; // basierend auf solvedAt
+
   // Erweiterte Felder (optional)
-  publicIdImage?: string | null;     // Cloudinary Public ID für Optimierung
-  popularityScore?: number;          // Popularitätsscore
+  publicIdImage?: string | null; // Cloudinary Public ID für Optimierung
+  popularityScore: number; // Popularitätsscore
 }
 
 /**
@@ -80,24 +83,24 @@ export interface ArticleCounts {
 export interface MyArticleFilters {
   searchQuery: string;
   filterTags: string[];
-  sortOption: 'date-desc' | 'date-asc' | 'title-asc' | 'title-desc';
-  viewMode: 'grid' | 'list';
+  sortOption: "date-desc" | "date-asc" | "title-asc" | "title-desc";
+  viewMode: "grid" | "list";
 }
 
 /**
  * Sort-Optionen für Artikel
  */
-export type SortOption = 'date-desc' | 'date-asc' | 'title-asc' | 'title-desc';
+export type SortOption = "date-desc" | "date-asc" | "title-asc" | "title-desc";
 
 /**
  * View-Modi für Artikel-Anzeige
  */
-export type ViewMode = 'grid' | 'list';
+export type ViewMode = "grid" | "list";
 
 /**
  * Artikel-Status
  */
-export type ArticleStatus = 'reading' | 'completed';
+export type ArticleStatus = "reading" | "completed";
 
 /**
  * Response für MyArticles mit Pagination
@@ -145,16 +148,16 @@ export interface ConversionOptions {
  * Event-Handler-Typen für MyArticles-Komponenten
  */
 export interface MyArticlesEvents {
-  'open-article': (article: MyArticleItem) => void;
-  'remove-article': (articleId: string) => void;
-  'add-filter-tag': (tag: string) => void;
-  'update:sort-option': (option: SortOption) => void;
-  'update:view-mode': (mode: ViewMode) => void;
-  'filter-articles': () => void;
-  'remove-filter-tag': (index: number) => void;
-  'clear-filters': () => void;
-  'update:search-query': (query: string) => void;
-  'update:active-tab': (tabId: string) => void;
+  "open-article": (article: MyArticleItem) => void;
+  "remove-article": (articleId: string) => void;
+  "add-filter-tag": (tag: string) => void;
+  "update:sort-option": (option: SortOption) => void;
+  "update:view-mode": (mode: ViewMode) => void;
+  "filter-articles": () => void;
+  "remove-filter-tag": (index: number) => void;
+  "clear-filters": () => void;
+  "update:search-query": (query: string) => void;
+  "update:active-tab": (tabId: string) => void;
 }
 
 /**
@@ -170,7 +173,7 @@ export interface LoadingStates {
  * Error-Types für MyArticles
  */
 export interface MyArticlesError {
-  type: 'loading' | 'removing' | 'opening' | 'network';
+  type: "loading" | "removing" | "opening" | "network";
   message: string;
   articleId?: string;
   timestamp: Date;
@@ -192,38 +195,38 @@ export interface SearchFilterConfig {
  */
 export const MyArticlesDefaults = {
   itemsPerPage: 10,
-  defaultSort: 'date-desc' as SortOption,
-  defaultView: 'grid' as ViewMode,
+  defaultSort: "date-desc" as SortOption,
+  defaultView: "grid" as ViewMode,
   searchDebounce: 300,
   minSearchLength: 2,
-  defaultTab: 'all',
+  defaultTab: "all",
   fallbackImage: null,
-  optimizeImages: true
+  optimizeImages: true,
 } as const;
 
 /**
  * Utility-Type für partielle MyArticleItem-Updates
  */
-export type MyArticleItemUpdate = Partial<Pick<MyArticleItem, 
-  'status' | 'lastRead' | 'tags' | 'image'
->>;
+export type MyArticleItemUpdate = Partial<Pick<MyArticleItem, "status" | "lastRead" | "tags" | "image">>;
 
 /**
  * Type Guards für MyArticles
  */
 export const isMyArticleItem = (obj: any): obj is MyArticleItem => {
-  return obj && 
-    typeof obj.id === 'string' &&
-    typeof obj.title === 'string' &&
-    typeof obj.historyId === 'string' &&
-    typeof obj.readAt === 'string' &&
-    (obj.status === 'reading' || obj.status === 'completed');
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    typeof obj.title === "string" &&
+    typeof obj.historyId === "string" &&
+    typeof obj.readAt === "string" &&
+    (obj.status === "reading" || obj.status === "completed")
+  );
 };
 
 export const isValidSortOption = (option: string): option is SortOption => {
-  return ['date-desc', 'date-asc', 'title-asc', 'title-desc'].includes(option);
+  return ["date-desc", "date-asc", "title-asc", "title-desc"].includes(option);
 };
 
 export const isValidViewMode = (mode: string): mode is ViewMode => {
-  return ['grid', 'list'].includes(mode);
+  return ["grid", "list"].includes(mode);
 };

@@ -20,49 +20,49 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
-  name: 'SearchSection',
+  name: "SearchSection",
   props: {
     searchQuery: {
       type: String,
-      required: true
+      required: true,
     },
     filterTags: {
       type: Array as PropType<string[]>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:searchQuery', 'update:filterTags', 'filter-articles', 'remove-filter-tag', 'clear-filters'],
-  setup(props, { emit }) {
+  emits: ["update:searchQuery", "update:filterTags", "filter-articles", "remove-filter-tag", "clear-filters"],
+  setup(_props, { emit }) {
     const onSearchInput = (event: Event) => {
       const target = event.target as HTMLInputElement;
-      emit('update:searchQuery', target.value);
-      emit('filter-articles');
+      emit("update:searchQuery", target.value);
+      emit("filter-articles");
     };
 
     const removeFilterTag = (index: number) => {
-      emit('remove-filter-tag', index);
+      emit("remove-filter-tag", index);
     };
 
     const clearFilters = () => {
-      emit('clear-filters');
+      emit("clear-filters");
     };
 
     return {
       onSearchInput,
       removeFilterTag,
-      clearFilters
+      clearFilters,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 // Suchleiste
 .search-section {
@@ -79,7 +79,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           @include mixins.form-element($theme);
         }
@@ -96,7 +96,7 @@ export default defineComponent({
       cursor: pointer;
       font-size: 1.2rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -114,7 +114,7 @@ export default defineComponent({
     .filter-label {
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -135,7 +135,7 @@ export default defineComponent({
         align-items: center;
         gap: 6px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-teal);
             color: white;
@@ -158,7 +158,7 @@ export default defineComponent({
       cursor: pointer;
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, accent-teal);
 

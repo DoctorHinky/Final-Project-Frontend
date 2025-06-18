@@ -69,7 +69,8 @@
             <h1>{{ fullArticle.title }}</h1>
             <div class="article-meta">
               <span class="article-author">
-                <UserIcon class="h-4 w-4" />
+                <img v-if="fullArticle.author?.profilePicture" :src="fullArticle.author?.profilePicture" alt="" />
+                <UserIcon v-else class="h-4 w-4" />
                 Von {{ fullArticle.author?.username || "Unbekannt" }}
               </span>
               <span class="article-date">
@@ -294,7 +295,7 @@
               <h3>{{ currentQuestion.question }}</h3>
 
               <!-- Hinweis für Multiple-Choice -->
-              <div v-if="currentQuestion.answers.filter((a) => a.isCorrect).length > 1" class="quiz-hint">
+              <div v-if="currentQuestion.answers.filter((a: any) => a.isCorrect).length > 1" class="quiz-hint">
                 <LightBulbIcon class="h-5 w-5" />
                 Mehrere Antworten können richtig sein
               </div>
@@ -333,8 +334,8 @@
                     Richtige Antwort(en):
                     {{
                       currentQuestion.answers
-                        .filter((answer) => answer.isCorrect)
-                        .map((answer) => answer.answer)
+                        .filter((answer: any) => answer.isCorrect)
+                        .map((answer: any) => answer.answer)
                         .join(", ")
                     }}
                   </span>
@@ -426,7 +427,6 @@
 import { defineComponent, ref, computed, onMounted, watch, type PropType } from "vue";
 import { historyService } from "@/services/history.service";
 import axiosInstance from "@/services/axiosInstance";
-import type { MyArticleItem } from "@/types/MyArticles.types";
 import type { Comment, Article as FullArticle } from "@/types/dtos";
 import { formatDate } from "@/utils/helperFunctions";
 
@@ -489,8 +489,8 @@ export default defineComponent({
     TrophyIcon,
   },
   props: {
-    article: {
-      type: Object as PropType<MyArticleItem>,
+    articleId: {
+      type: String as PropType<string>,
       required: true,
     },
   },
@@ -543,9 +543,7 @@ export default defineComponent({
       showAlert.value = true;
     };
 
-    const closeAlert = () => {
-      showAlert.value = false;
-    };
+    const closeAlert = () => (showAlert.value = false);
 
     // Computed Properties
     const currentChapterContent = computed(() => {
@@ -583,24 +581,22 @@ export default defineComponent({
     };
 
     // Helper für Option-Letters
-    const getOptionLetter = (index: number) => {
-      return ["A", "B", "C", "D"][index];
-    };
+    const getOptionLetter = (index: number) => ["A", "B", "C", "D"][index];
 
     // Helper für Quiz-Status
     const hasSelectedOptions = computed(() => selectedOptions.value.size > 0);
 
     // Helper: Vollständigen Artikel laden
     const loadFullArticle = async () => {
-      if (!props.article?.id) return;
+      if (!props.articleId) return;
 
       loadingArticle.value = true;
       articleError.value = null;
 
       try {
-        const response = await axiosInstance.get(`/article/getPostById/${props.article.id}`);
+        const response = await axiosInstance.get(`/article/getPostById/${props.articleId}`);
         fullArticle.value = response.data.data;
-
+        console.log("Full article loaded:", fullArticle.value);
         // Artikel als gelesen markieren (falls noch nicht geschehen)
         await markAsRead();
       } catch (error) {
@@ -613,10 +609,10 @@ export default defineComponent({
 
     // Helper: Artikel als gelesen markieren
     const markAsRead = async () => {
-      if (!props.article?.id) return;
+      if (!props.articleId) return;
 
       try {
-        await historyService.markAsRead(props.article.id);
+        await historyService.markAsRead(props.articleId);
       } catch (error) {
         // Fehler beim Markieren als gelesen ignorieren (nicht kritisch)
         console.warn("Could not mark article as read:", error);
@@ -680,12 +676,12 @@ export default defineComponent({
 
       // Alle richtigen Antworten finden
       const correctAnswerIndices = currentQuestion.value.answers
-        .map((answer, index) => (answer.isCorrect ? index : -1))
-        .filter((index) => index !== -1);
+        .map((answer: any, index: any) => (answer.isCorrect ? index : -1))
+        .filter((index: any) => index !== -1);
 
       // Prüfen ob alle richtigen Antworten ausgewählt und keine falschen ausgewählt wurden
       const selectedArray = Array.from(selectedOptions.value);
-      const allCorrectSelected = correctAnswerIndices.every((index) => selectedOptions.value.has(index));
+      const allCorrectSelected = correctAnswerIndices.every((index: any) => selectedOptions.value.has(index));
       const noIncorrectSelected = selectedArray.every(
         (index) => currentQuestion.value?.answers[index]?.isCorrect || false
       );
@@ -728,9 +724,7 @@ export default defineComponent({
       correctAnswers.value = 0;
     };
 
-    const backToArticle = () => {
-      showQuiz.value = false;
-    };
+    const backToArticle = () => (showQuiz.value = false);
 
     // Artikel teilen
     const shareArticle = () => {
@@ -759,12 +753,12 @@ export default defineComponent({
 
     // Kommentar-Funktionen
     const loadComments = async () => {
-      if (!props.article?.id) return;
+      if (!props.articleId) return;
 
       loadingComments.value = true;
       try {
         const response = await axiosInstance.get(
-          `/comment/getAllComments/${props.article.id}?page=${commentsPage.value}&limit=10`
+          `/comment/getAllComments/${props.articleId}?page=${commentsPage.value}&limit=10`
         );
         comments.value = response.data.comments;
         totalComments.value = response.data.meta.total;
@@ -776,10 +770,10 @@ export default defineComponent({
     };
 
     const submitComment = async () => {
-      if (!newComment.value.trim() || !props.article?.id) return;
+      if (!newComment.value.trim() || !props.articleId) return;
 
       try {
-        await axiosInstance.post(`/comment/commentOnPost/${props.article.id}`, {
+        await axiosInstance.post(`/comment/commentOnPost/${props.articleId}`, {
           content: newComment.value,
         });
         newComment.value = "";
@@ -817,11 +811,11 @@ export default defineComponent({
 
     // Rating-Funktionen
     const loadRating = async () => {
-      if (!props.article?.id) return;
+      if (!props.articleId) return;
 
       try {
         // Angepasste Backend-Route: /rating/rating/:postId
-        const response = await axiosInstance.get(`/rating/rating/${props.article.id}`);
+        const response = await axiosInstance.get(`/rating/rating/${props.articleId}`);
         likes.value = response.data.likes;
         dislikes.value = response.data.dislikes;
         userRating.value = response.data.userRating ?? null;
@@ -830,11 +824,11 @@ export default defineComponent({
       }
     };
     const likeArticle = async () => {
-      if (!props.article?.id || loadingRating.value) return;
+      if (!props.articleId || loadingRating.value) return;
 
       loadingRating.value = true;
       try {
-        await axiosInstance.post(`/rating/like/${props.article.id}`);
+        await axiosInstance.post(`/rating/like/${props.articleId}`);
         userRating.value = userRating.value === 1 ? null : 1; // Toggle like
         await loadRating(); // Rating neu laden
       } catch (error) {
@@ -845,11 +839,11 @@ export default defineComponent({
     };
 
     const dislikeArticle = async () => {
-      if (!props.article?.id || loadingRating.value) return;
+      if (!props.articleId || loadingRating.value) return;
 
       loadingRating.value = true;
       try {
-        await axiosInstance.post(`/rating/dislike/${props.article.id}`);
+        await axiosInstance.post(`/rating/dislike/${props.articleId}`);
         userRating.value = userRating.value === -1 ? null : -1; // Toggle dislike
         await loadRating(); // Rating neu laden
       } catch (error) {
@@ -868,7 +862,7 @@ export default defineComponent({
 
     // Bei Artikel-Wechsel neu laden
     watch(
-      () => props.article?.id,
+      () => props.articleId,
       (newId) => {
         if (newId) {
           // Quiz-State zurücksetzen
@@ -1549,6 +1543,13 @@ export default defineComponent({
           display: flex;
           align-items: center;
           gap: 0.5rem;
+
+          img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
         }
       }
 
