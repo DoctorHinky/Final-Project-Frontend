@@ -25,6 +25,7 @@
 ./src/assets/images
 ./src/assets/images/Logo.png
 ./src/assets/images/LogoTab.png
+./src/assets/images/Support.jpg
 ./src/components
 ./src/components/admin
 ./src/components/admin/application
@@ -66,6 +67,14 @@
 ./src/components/member
 ./src/components/member/article
 ./src/components/member/article/ArticleReader.vue
+./src/components/member/support
+./src/components/member/support/index.ts
+./src/components/member/support/SupportFAQ.vue
+./src/components/member/support/SupportGuides.vue
+./src/components/member/support/SupportHub.vue
+./src/components/member/support/UserTicketDetailModal.vue
+./src/components/member/support/UserTicketModal.vue
+./src/components/member/support/UserTicketOverview.vue
 ./src/components/pages
 ./src/components/pages/DashboardPages
 ./src/components/pages/DashboardPages/CreateArticle
@@ -167,6 +176,7 @@
 ./src/pages/member/dashboard/Notifications.vue
 ./src/pages/member/dashboard/Overview.vue
 ./src/pages/member/dashboard/Settings.vue
+./src/pages/member/dashboard/Support.vue
 ./src/pages/NotFound.vue
 ./src/pages/PrivacyPolicyPage.vue
 ./src/pages/TermsOfService.vue
@@ -184,6 +194,8 @@
 ./src/services/comment.service.ts
 ./src/services/friend.service.ts
 ./src/services/history.service.ts
+./src/services/member.ticket.service.ts
+./src/services/notification.service.ts
 ./src/services/overview.service.ts
 ./src/services/post.service.ts
 ./src/services/theme.service.ts
@@ -207,6 +219,7 @@
 ./src/types/dtos/Article.types.d.ts
 ./src/types/dtos/Chapter.types.ts
 ./src/types/dtos/index.ts
+./src/types/dtos/Notification.types.ts
 ./src/types/dtos/Post.Category.types.ts
 ./src/types/dtos/Quiz.Answers.types.ts
 ./src/types/dtos/Quiz.Question.types.ts

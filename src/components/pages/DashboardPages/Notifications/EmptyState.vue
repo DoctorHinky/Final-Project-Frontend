@@ -1,7 +1,9 @@
 <!-- src/components/pages/DashboardPages/Notifications/EmptyState.vue -->
 <template>
   <div class="empty-state">
-    <div class="empty-icon">🔔</div>
+    <div class="empty-icon">
+      <BellIcon class="hero-icon-large" />
+    </div>
     <h3>Keine Benachrichtigungen</h3>
     <p v-if="activeFilter !== 'all'">
       Es gibt keine Benachrichtigungen in dieser Kategorie.
@@ -13,9 +15,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { BellIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'EmptyState',
+  components: {
+    BellIcon
+  },
   props: {
     activeFilter: {
       type: String,
@@ -52,6 +58,23 @@ export default defineComponent({
     @media (max-width: 576px) {
       font-size: 3rem;
       margin-bottom: map.get(vars.$spacing, m);
+    }
+
+    .hero-icon-large {
+      width: 80px;
+      height: 80px;
+      stroke-width: 1;
+
+      @media (max-width: 576px) {
+        width: 60px;
+        height: 60px;
+      }
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+        }
+      }
     }
   }
 

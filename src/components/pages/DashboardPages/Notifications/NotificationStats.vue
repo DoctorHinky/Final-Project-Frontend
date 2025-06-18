@@ -2,7 +2,9 @@
 <template>
   <div class="notification-stats">
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: rgba(74, 210, 149, 0.2)">🔔</div>
+      <div class="stat-icon">
+        <BellAlertIcon class="hero-icon-stat" />
+      </div>
       <div class="stat-info">
         <h3>{{ unreadCount }}</h3>
         <p>Ungelesen</p>
@@ -10,7 +12,9 @@
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon" style="background-color: rgba(53, 204, 208, 0.2)">📊</div>
+      <div class="stat-icon">
+        <ChartBarIcon class="hero-icon-stat" />
+      </div>
       <div class="stat-info">
         <h3>{{ totalCount }}</h3>
         <p>Gesamt</p>
@@ -21,9 +25,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { BellAlertIcon, ChartBarIcon } from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'NotificationStats',
+  components: {
+    BellAlertIcon,
+    ChartBarIcon
+  },
   props: {
     unreadCount: {
       type: Number,
@@ -86,13 +95,60 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       margin-right: map.get(vars.$spacing, m);
-      font-size: 1.5rem;
 
       @media (max-width: 576px) {
         width: 40px;
         height: 40px;
-        font-size: 1.2rem;
         margin-right: map.get(vars.$spacing, s);
+      }
+
+      &:first-child .hero-icon-stat {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-green);
+          }
+        }
+      }
+
+      .hero-icon-stat {
+        width: 30px;
+        height: 30px;
+        stroke-width: 1.5;
+
+        @media (max-width: 576px) {
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, secondary-bg);
+        }
+      }
+    }
+
+    &:first-child .stat-icon {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
+        }
+      }
+    }
+
+    &:last-child .stat-icon {
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: rgba(mixins.theme-color($theme, accent-teal), 0.15);
+        }
+      }
+
+      .hero-icon-stat {
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+          }
+        }
       }
     }
 

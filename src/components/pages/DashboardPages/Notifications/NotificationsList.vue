@@ -3,31 +3,33 @@
   <div v-if="notifications.length > 0" class="notifications-list">
     <transition-group name="notification">
       <div v-for="notification in notifications" :key="notification.id" class="notification-item"
-        :class="{ unread: !notification.read }">
-        <div class="notification-icon" :class="notification.type">
-          <span v-if="notification.type === 'article'">📚</span>
-          <span v-else-if="notification.type === 'comment'">💬</span>
-          <span v-else-if="notification.type === 'friend'">👥</span>
-          <span v-else-if="notification.type === 'system'">ℹ️</span>
-          <span v-else>🔔</span>
+        :class="{ unread: !notification.isRead }">
+        <div class="notification-icon" :class="notification.type" :style="{ backgroundColor: getIconBgColor(notification.type) }">
+          <component 
+            :is="getIconComponent(notification.iconName)"
+            class="hero-icon-notification"
+            :style="{ color: notification.iconColor }"
+          />
         </div>
         <div class="notification-content">
           <div class="notification-header">
             <h3>{{ notification.title }}</h3>
             <span class="notification-time">{{ notification.time }}</span>
           </div>
-          <p class="notification-message">{{ notification.message }}</p>
+          <p class="notification-message">{{ notification.content }}</p>
           <div v-if="notification.actionLink" class="notification-action">
-            <a :href="notification.actionLink">{{ notification.actionText || 'Ansehen' }}</a>
+            <router-link :to="notification.actionLink" class="action-link">
+              {{ notification.actionText || 'Ansehen' }}
+            </router-link>
           </div>
         </div>
         <div class="notification-actions">
-          <button v-if="!notification.read" class="action-button mark-read" @click.stop="$emit('mark-read', notification.id)"
+          <button v-if="!notification.isRead" class="action-button mark-read" @click.stop="$emit('mark-read', notification.id)"
             title="Als gelesen markieren">
-            ✓
+            <CheckIcon class="hero-icon-action" />
           </button>
           <button class="action-button delete" @click.stop="$emit('delete', notification.id)" title="Löschen">
-            ×
+            <XMarkIcon class="hero-icon-action" />
           </button>
         </div>
       </div>
@@ -37,27 +39,63 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: 'article' | 'comment' | 'friend' | 'system';
-  time: string;
-  read: boolean;
-  actionLink?: string;
-  actionText?: string;
-}
+import { 
+  UserGroupIcon,
+  UserPlusIcon,
+  ChatBubbleLeftRightIcon,
+  EnvelopeIcon,
+  ClipboardDocumentCheckIcon,
+  TicketIcon,
+  InformationCircleIcon,
+  BellIcon,
+  CheckIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline';
+import { NotificationTypeMap } from '@/types/dtos/Notification.types';
+import type { NotificationDisplay } from '@/types/dtos/Notification.types';
 
 export default defineComponent({
   name: 'NotificationsList',
+  components: {
+    UserGroupIcon,
+    UserPlusIcon,
+    ChatBubbleLeftRightIcon,
+    EnvelopeIcon,
+    ClipboardDocumentCheckIcon,
+    TicketIcon,
+    InformationCircleIcon,
+    BellIcon,
+    CheckIcon,
+    XMarkIcon
+  },
   props: {
     notifications: {
-      type: Array as PropType<Notification[]>,
+      type: Array as PropType<NotificationDisplay[]>,
       required: true
     }
   },
-  emits: ['mark-read', 'delete']
+  emits: ['mark-read', 'delete'],
+  methods: {
+    getIconComponent(iconName: string | undefined) {
+      // Map Icon-Namen zu Komponenten
+      const iconMap: Record<string, any> = {
+        'UserGroupIcon': UserGroupIcon,
+        'UserPlusIcon': UserPlusIcon,
+        'ChatBubbleLeftRightIcon': ChatBubbleLeftRightIcon,
+        'EnvelopeIcon': EnvelopeIcon,
+        'ClipboardDocumentCheckIcon': ClipboardDocumentCheckIcon,
+        'TicketIcon': TicketIcon,
+        'InformationCircleIcon': InformationCircleIcon,
+        'BellIcon': BellIcon
+      };
+      
+      return iconMap[iconName || 'BellIcon'] || BellIcon;
+    },
+    getIconBgColor(type: string) {
+      const typeInfo = NotificationTypeMap[type as keyof typeof NotificationTypeMap];
+      return typeInfo?.bgColor || 'rgba(133, 193, 233, 0.15)';
+    }
+  }
 });
 </script>
 
@@ -104,7 +142,6 @@ export default defineComponent({
 
         &.unread {
           border-left: 4px solid mixins.theme-color($theme, accent-green);
-
           background-color: rgba(mixins.theme-color($theme, accent-green), 0.05);
 
           @media (max-width: 576px) {
@@ -126,52 +163,27 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
       flex-shrink: 0;
+      transition: all 0.4s ease-out;
 
       @media (max-width: 768px) {
         width: 40px;
         height: 40px;
-        font-size: 1.2rem;
       }
 
       @media (max-width: 576px) {
         margin-bottom: map.get(vars.$spacing, s);
       }
 
-      &.article {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-green), 0.15);
-            transition: all 0.4s ease-out;
-          }
-        }
-      }
+      // Hero Icon Styling
+      .hero-icon-notification {
+        width: 30px;
+        height: 30px;
+        stroke-width: 1.5;
 
-      &.comment {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.15);
-            transition: all 0.4s ease-out;
-          }
-        }
-      }
-
-      &.friend {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-lime), 0.15);
-            transition: all 0.4s ease-out;
-          }
-        }
-      }
-
-      &.system {
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-yellow), 0.15);
-            transition: all 0.4s ease-out;
-          }
+        @media (max-width: 768px) {
+          width: 24px;
+          height: 24px;
         }
       }
     }
@@ -242,7 +254,7 @@ export default defineComponent({
       }
 
       .notification-action {
-        a {
+        .action-link {
           display: inline-flex;
           align-items: center;
           padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
@@ -283,20 +295,32 @@ export default defineComponent({
       }
 
       .action-button {
-        width: 30px;
-        height: 30px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         border: none;
         cursor: pointer;
-        font-size: 1rem;
+        transition: all 0.3s ease;
 
         @media (max-width: 768px) {
-          width: 26px;
-          height: 26px;
-          font-size: 0.9rem;
+          width: 32px;
+          height: 32px;
+        }
+
+        // Hero Icon Styling für Action Buttons
+        .hero-icon-action {
+          width: 16px;
+          height: 16px;
+          stroke-width: 2;
+          position: absolute;
+
+          @media (max-width: 768px) {
+            width: 18px;
+            height: 18px;
+          }
         }
 
         &.mark-read {

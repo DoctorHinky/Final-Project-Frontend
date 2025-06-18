@@ -6,8 +6,6 @@ import {
 } from '@/types/dtos/Notification.types';
 import type { 
   Notification, 
-  NotificationCountResponse,
-  NotificationsResponse,
   NotificationDisplay
 } from '@/types/dtos/Notification.types';
 
@@ -31,25 +29,31 @@ class NotificationService {
   async getNotificationCount(): Promise<number> {
     try {
       const response = await api.get<number>('/notification/count');
+      // Backend gibt direkt die Zahl zurück
       return response.data;
     } catch (error) {
       console.error('Fehler beim Abrufen der Benachrichtigungsanzahl:', error);
-      throw error;
+      // Bei Fehler 0 zurückgeben statt zu werfen (für bessere UX)
+      return 0;
     }
   }
 
   /**
-   * Alle Benachrichtigungen abrufen
+   * Alle Benachrichtigungen abrufen (ungelesen und gelesen)
    */
   async getNotifications(): Promise<NotificationDisplay[]> {
     try {
       const response = await api.get<Notification[]>('/notification');
       
+      // Backend gibt direkt ein Array zurück
+      const notifications = response.data || [];
+      
       // Convert to Display-Notifications mit formatierten Zeiten und Titeln
-      return response.data.map(convertToDisplayNotification);
+      return notifications.map(convertToDisplayNotification);
     } catch (error) {
       console.error('Fehler beim Abrufen der Benachrichtigungen:', error);
-      throw error;
+      // Bei Fehler leeres Array zurückgeben statt zu werfen (für bessere UX)
+      return [];
     }
   }
 
@@ -59,6 +63,9 @@ class NotificationService {
   async markAsRead(notificationId: string): Promise<void> {
     try {
       await api.patch(`/notification/read/${notificationId}`);
+      
+      // Cache invalidieren
+      this.invalidateCache();
       
       // Trigger update für Badge-Counter
       this.notifyListeners();
@@ -75,6 +82,9 @@ class NotificationService {
     try {
       await api.patch('/notification/read-all');
       
+      // Cache invalidieren
+      this.invalidateCache();
+      
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
@@ -89,6 +99,9 @@ class NotificationService {
   async deleteNotification(notificationId: string): Promise<void> {
     try {
       await api.delete(`/notification/${notificationId}`);
+      
+      // Cache invalidieren
+      this.invalidateCache();
       
       // Trigger update für Badge-Counter
       this.notifyListeners();
@@ -105,6 +118,9 @@ class NotificationService {
     try {
       await api.delete('/notification/all');
       
+      // Cache invalidieren
+      this.invalidateCache();
+      
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
@@ -117,6 +133,9 @@ class NotificationService {
    * Polling für Live-Updates starten (alle 30 Sekunden)
    */
   startPolling(): void {
+    // Vorheriges Polling stoppen falls vorhanden
+    this.stopPolling();
+
     // Sofortiger erster Aufruf
     this.notifyListeners();
 
@@ -193,6 +212,7 @@ class NotificationService {
   cleanup(): void {
     this.stopPolling();
     this.listeners = [];
+    this.invalidateCache();
   }
 
   /**
@@ -241,6 +261,7 @@ class NotificationService {
   filterByType(notifications: NotificationDisplay[], type: string): NotificationDisplay[] {
     if (type === 'all') return notifications;
     if (type === 'unread') return notifications.filter(n => !n.isRead);
+    // Für Kategorien: Zeige ALLE Nachrichten dieser Kategorie (gelesen und ungelesen)
     return notifications.filter(n => n.type === type);
   }
 
@@ -283,6 +304,7 @@ class NotificationService {
       console.log('Statistiken nach Typ:', stats.byType);
       console.log('Polling aktiv:', !!this.pollingInterval);
       console.log('Registrierte Listener:', this.listeners.length);
+      console.log('Cache aktiv:', this.notificationCache.size > 0);
       
     } catch (error) {
       console.error('Debug-Fehler:', error);

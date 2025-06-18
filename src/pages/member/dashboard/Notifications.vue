@@ -39,7 +39,7 @@
     <!-- Einstellungen-Link -->
     <div class="notification-settings">
       <button @click="showSettings = true" class="settings-button">
-        <span class="settings-icon">⚙️</span>
+        <Cog6ToothIcon class="settings-icon hero-icon" />
         Benachrichtigungseinstellungen anpassen
       </button>
     </div>
@@ -61,11 +61,19 @@
       @confirm="confirmAction" 
       @cancel="cancelAction" 
     />
+
+    <!-- Loading Spinner -->
+    <Transition name="fade">
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
+import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 
 // Import der modularen Komponenten
 import { 
@@ -77,23 +85,9 @@ import {
   ConfirmDialog 
 } from '@/components/pages/DashboardPages/Notifications';
 
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: 'article' | 'comment' | 'friend' | 'system';
-  time: string;
-  read: boolean;
-  actionLink?: string;
-  actionText?: string;
-}
-
-interface NotificationSetting {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-}
+// Services und Types
+import { notificationService } from '@/services/notification.service';
+import type { NotificationDisplay, NotificationSetting, NotificationFilter } from '@/types/dtos/Notification.types';
 
 export default defineComponent({
   name: 'NotificationsDashboard',
@@ -103,7 +97,8 @@ export default defineComponent({
     NotificationsList,
     EmptyState,
     SettingsModal,
-    ConfirmDialog
+    ConfirmDialog,
+    Cog6ToothIcon
   },
   setup() {
     // Status
@@ -114,70 +109,24 @@ export default defineComponent({
     const confirmDialogMessage = ref('');
     const confirmDialogAction = ref('');
     const pendingAction = ref<(() => void) | null>(null);
+    const isLoading = ref(false);
+
+    // Notifications from Backend
+    const notifications = ref<NotificationDisplay[]>([]);
 
     // Filter-Optionen
-    const filters = ref([
+    const filters = ref<NotificationFilter[]>([
       { id: 'all', name: 'Alle', count: 0 },
       { id: 'unread', name: 'Ungelesen', count: 0 },
-      { id: 'article', name: 'Artikel', count: 0 },
-      { id: 'comment', name: 'Kommentare', count: 0 },
-      { id: 'friend', name: 'Freunde', count: 0 },
-      { id: 'system', name: 'System', count: 0 }
+      { id: 'FRIEND_REQUEST', name: 'Freundschaftsanfragen', count: 0 },
+      { id: 'COMMENT', name: 'Kommentare', count: 0 },
+      { id: 'NEW_MESSAGE', name: 'Nachrichten', count: 0 },
+      { id: 'APPLICATION_STATUS_CHANGE', name: 'Bewerbungen', count: 0 },
+      { id: 'TICKET_UPDATE', name: 'Tickets', count: 0 },
+      { id: 'SYSTEM', name: 'System', count: 0 }
     ]);
 
-    // Beispiel-Benachrichtigungen (später durch API-Daten ersetzen)
-    const notifications = ref<Notification[]>([
-      {
-        id: 1,
-        title: 'Neue Artikelempfehlung',
-        message: 'Basierend auf deinen Interessen: "Digitale Medien im Kindesalter: Fluch oder Segen?"',
-        type: 'article',
-        time: 'Vor 10 Minuten',
-        read: false,
-        actionLink: '#',
-        actionText: 'Artikel lesen'
-      },
-      {
-        id: 2,
-        title: 'Freundschaftsanfrage',
-        message: 'Thomas Schmidt möchte mit dir befreundet sein.',
-        type: 'friend',
-        time: 'Vor 1 Stunde',
-        read: false,
-        actionLink: '#',
-        actionText: 'Anfrage ansehen'
-      },
-      {
-        id: 3,
-        title: 'Kommentar auf deinen Artikel',
-        message: 'Lisa Becker hat auf deinen Artikel "Grenzen setzen ohne Konflikte" geantwortet.',
-        type: 'comment',
-        time: 'Gestern',
-        read: true,
-        actionLink: '#',
-        actionText: 'Zum Kommentar'
-      },
-      {
-        id: 4,
-        title: 'Willkommen bei Eltern & Kind!',
-        message: 'Wir freuen uns, dich in unserer Community zu begrüßen. Entdecke unsere vielfältigen Artikel und Ressourcen für Eltern.',
-        type: 'system',
-        time: 'Vor 2 Tagen',
-        read: true
-      },
-      {
-        id: 5,
-        title: 'Neuer Artikel verfügbar',
-        message: 'Der Artikel "Gesunde Ernährung für Kleinkinder" wurde gerade veröffentlicht.',
-        type: 'article',
-        time: 'Vor 3 Tagen',
-        read: true,
-        actionLink: '#',
-        actionText: 'Artikel lesen'
-      }
-    ]);
-
-    // Benachrichtigungseinstellungen
+    // Benachrichtigungseinstellungen (später von Backend laden)
     const notificationSettings = ref<NotificationSetting[]>([
       {
         id: 'email_notifications',
@@ -192,9 +141,9 @@ export default defineComponent({
         enabled: false
       },
       {
-        id: 'article_recommendations',
-        name: 'Artikelempfehlungen',
-        description: 'Benachrichtigungen für personalisierte Artikelempfehlungen.',
+        id: 'friend_requests',
+        name: 'Freundschaftsanfragen',
+        description: 'Benachrichtigungen für neue Freundschaftsanfragen.',
         enabled: true
       },
       {
@@ -204,9 +153,21 @@ export default defineComponent({
         enabled: true
       },
       {
-        id: 'friend_requests',
-        name: 'Freundschaftsanfragen',
-        description: 'Benachrichtigungen für neue Freundschaftsanfragen.',
+        id: 'new_messages',
+        name: 'Neue Nachrichten',
+        description: 'Benachrichtigungen für neue Direktnachrichten.',
+        enabled: true
+      },
+      {
+        id: 'application_updates',
+        name: 'Bewerbungsupdates',
+        description: 'Statusänderungen deiner Bewerbungen.',
+        enabled: true
+      },
+      {
+        id: 'ticket_updates',
+        name: 'Ticket-Updates',
+        description: 'Benachrichtigungen über Support-Tickets.',
         enabled: true
       },
       {
@@ -217,36 +178,46 @@ export default defineComponent({
       }
     ]);
 
+    // Benachrichtigungen vom Backend laden
+    const loadNotifications = async (showLoader = true) => {
+      if (showLoader) {
+        isLoading.value = true;
+      }
+      try {
+        notifications.value = await notificationService.getNotifications();
+        updateFilterCounts();
+      } catch (error) {
+        console.error('Fehler beim Laden der Benachrichtigungen:', error);
+      } finally {
+        if (showLoader) {
+          isLoading.value = false;
+        }
+      }
+    };
+
     // Filtere Benachrichtigungen basierend auf aktivem Filter
     const filteredNotifications = computed(() => {
-      if (activeFilter.value === 'all') {
-        return notifications.value;
-      } else if (activeFilter.value === 'unread') {
-        return notifications.value.filter(notification => !notification.read);
-      } else {
-        return notifications.value.filter(notification => notification.type === activeFilter.value);
-      }
+      return notificationService.filterByType(notifications.value, activeFilter.value);
     });
 
     // Dynamisch aktualisierte Anzahlen für Filter
     const updateFilterCounts = () => {
+      const stats = notificationService.getNotificationStats(notifications.value);
+      
       filters.value.forEach(filter => {
         if (filter.id === 'all') {
-          filter.count = notifications.value.length;
+          filter.count = stats.total;
         } else if (filter.id === 'unread') {
-          filter.count = notifications.value.filter(n => !n.read).length;
+          filter.count = stats.unread;
         } else {
-          filter.count = notifications.value.filter(n => n.type === filter.id).length;
+          filter.count = stats.byType[filter.id] || 0;
         }
       });
     };
 
-    // Initialisiere Filter-Anzahlen
-    updateFilterCounts();
-
     // Berechnete Werte für Status
     const unreadCount = computed(() => {
-      return notifications.value.filter(n => !n.read).length;
+      return notifications.value.filter(n => !n.isRead).length;
     });
 
     const totalCount = computed(() => {
@@ -262,11 +233,19 @@ export default defineComponent({
     });
 
     // Benachrichtigung als gelesen markieren
-    const markAsRead = (id: number) => {
-      const notification = notifications.value.find(n => n.id === id);
-      if (notification) {
-        notification.read = true;
-        updateFilterCounts();
+    const markAsRead = async (id: string) => {
+      try {
+        await notificationService.markAsRead(id);
+        // UI optimistisch aktualisieren
+        const notification = notifications.value.find(n => n.id === id);
+        if (notification) {
+          notification.isRead = true;
+          updateFilterCounts();
+        }
+      } catch (error) {
+        console.error('Fehler beim Markieren als gelesen:', error);
+        // Bei Fehler neu laden
+        await loadNotifications();
       }
     };
 
@@ -274,30 +253,46 @@ export default defineComponent({
     const markAllAsRead = () => {
       confirmDialog(
         'Alle als gelesen markieren',
-        'Möchtest du wirklich alle Benachrichtigungen als gelesen markieren?',
-        'Alle markieren',
-        () => {
-          notifications.value.forEach(notification => {
-            notification.read = true;
-          });
-          updateFilterCounts();
+        'Möchtest du wirklich alle Benachrichtigungen als gelesen markieren? Die Benachrichtigungen bleiben erhalten und können weiterhin in den Kategorien eingesehen werden.',
+        'Als gelesen markieren',
+        async () => {
+          try {
+            await notificationService.markAllAsRead();
+            // UI optimistisch aktualisieren
+            notifications.value.forEach(notification => {
+              notification.isRead = true;
+            });
+            updateFilterCounts();
+          } catch (error) {
+            console.error('Fehler beim Markieren aller als gelesen:', error);
+            // Bei Fehler neu laden mit Loading
+            await loadNotifications(true);
+          }
         }
       );
     };
 
     // Benachrichtigung löschen
-    const deleteNotification = (id: number) => {
+    const deleteNotification = (id: string) => {
       const notification = notifications.value.find(n => n.id === id);
       if (notification) {
         confirmDialog(
           'Benachrichtigung löschen',
           `Möchtest du wirklich die Benachrichtigung "${notification.title}" löschen?`,
           'Löschen',
-          () => {
-            const index = notifications.value.findIndex(n => n.id === id);
-            if (index !== -1) {
-              notifications.value.splice(index, 1);
-              updateFilterCounts();
+          async () => {
+            try {
+              await notificationService.deleteNotification(id);
+              // UI optimistisch aktualisieren
+              const index = notifications.value.findIndex(n => n.id === id);
+              if (index !== -1) {
+                notifications.value.splice(index, 1);
+                updateFilterCounts();
+              }
+            } catch (error) {
+              console.error('Fehler beim Löschen der Benachrichtigung:', error);
+              // Bei Fehler neu laden mit Loading
+              await loadNotifications(true);
             }
           }
         );
@@ -307,22 +302,30 @@ export default defineComponent({
     // Alle Benachrichtigungen löschen
     const clearAllNotifications = () => {
       confirmDialog(
-        'Alle Benachrichtigungen löschen',
-        'Möchtest du wirklich alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.',
-        'Alle löschen',
-        () => {
-          notifications.value = [];
-          updateFilterCounts();
+        'Alle Benachrichtigungen entfernen',
+        'Möchtest du wirklich ALLE Benachrichtigungen endgültig löschen? Dies kann nicht rückgängig gemacht werden und die Benachrichtigungen sind dann auch aus allen Kategorien verschwunden.',
+        'Alle endgültig löschen',
+        async () => {
+          try {
+            await notificationService.deleteAllNotifications();
+            // UI optimistisch aktualisieren
+            notifications.value = [];
+            updateFilterCounts();
+          } catch (error) {
+            console.error('Fehler beim Löschen aller Benachrichtigungen:', error);
+            // Bei Fehler neu laden mit Loading
+            await loadNotifications(true);
+          }
         }
       );
     };
 
-    // Einstellungen speichern
+    // Einstellungen speichern (TODO: Backend-Integration)
     const saveSettings = (settings: NotificationSetting[]) => {
       // Hier könntest du die Einstellungen an den Server senden
       notificationSettings.value = [...settings];
       showSettings.value = false;
-      alert('Einstellungen wurden gespeichert!');
+      console.log('Einstellungen gespeichert:', settings);
     };
 
     // Bestätigungsdialog anzeigen
@@ -349,6 +352,26 @@ export default defineComponent({
       showConfirmDialog.value = false;
     };
 
+    // Event Handler für Notification Updates
+    const handleNotificationUpdate = () => {
+      // Beim Polling kein Loading-Spinner anzeigen
+      loadNotifications(false);
+    };
+
+    // Lifecycle
+    onMounted(() => {
+      // Initial laden mit Loading-Spinner
+      loadNotifications(true);
+
+      // Event Listener für Updates registrieren
+      window.addEventListener('notification-count-updated', handleNotificationUpdate);
+    });
+
+    onUnmounted(() => {
+      // Event Listener entfernen
+      window.removeEventListener('notification-count-updated', handleNotificationUpdate);
+    });
+
     return {
       activeFilter,
       filters,
@@ -364,6 +387,7 @@ export default defineComponent({
       confirmDialogTitle,
       confirmDialogMessage,
       confirmDialogAction,
+      isLoading,
       markAsRead,
       markAllAsRead,
       deleteNotification,
@@ -390,6 +414,7 @@ export default defineComponent({
   width: 100%;
   margin: 0 auto;
   padding: 0 map.get(vars.$spacing, m);
+  position: relative;
 
   @media (max-width: 768px) {
     padding: 0 map.get(vars.$spacing, s);
@@ -472,13 +497,71 @@ export default defineComponent({
       }
 
       .settings-icon {
-        font-size: 1.2rem;
+        &.hero-icon {
+          width: 24px;
+          height: 24px;
+          stroke-width: 1.5;
 
-        @media (max-width: 576px) {
-          font-size: 1rem;
+          @media (max-width: 576px) {
+            width: 20px;
+            height: 20px;
+          }
         }
       }
     }
   }
+
+  // Loading Overlay
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    pointer-events: none;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: if($theme == 'light', rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.8));
+      }
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+          border-top-color: mixins.theme-color($theme, accent-teal);
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Fade transition
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
