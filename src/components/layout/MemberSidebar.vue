@@ -113,15 +113,9 @@ import {
 } from "@heroicons/vue/24/outline";
 import { userService } from "@/services/userMD.services";
 import UserTicketModal from "@/components/member/support/UserTicketModal.vue";
-import type { User } from "@/types/dtos/User.types";
+import type { User, TokenPayload } from "@/types/dtos";
 
 // TypeScript Interface für Token-Payload
-interface TokenPayload {
-  userId?: string;
-  username?: string;
-  email?: string;
-  role?: string;
-}
 
 export default defineComponent({
   name: "MemberSidebar",
@@ -146,7 +140,7 @@ export default defineComponent({
     },
   },
   emits: ["select-menu", "close", "logout"],
-  setup(_, { emit }) {
+  setup(_props, { emit }) {
     // State
     const canCreateArticles = ref(false);
     const userName = ref("");
@@ -259,15 +253,10 @@ export default defineComponent({
       }
     };
 
-    const handleImageError = () => {
-      isImageLoaded.value = false;
-      console.warn("Profilbild konnte nicht geladen werden, verwende Fallback");
-    };
+    const handleImageError = () => (isImageLoaded.value = false);
 
     // Menüpunkt auswählen
-    const selectMenuItem = (itemId: string) => {
-      emit("select-menu", itemId);
-    };
+    const selectMenuItem = (itemId: string) => emit("select-menu", itemId);
 
     // Zu Profileinstellungen weiterleiten
     const goToProfileSettings = () => {
@@ -282,20 +271,12 @@ export default defineComponent({
 
     // Support Modal-Funktionen
     const openSupportModal = () => {
-      console.log("Support Modal wird geöffnet..."); // Debug
       showSupportModal.value = true;
-      console.log("showSupportModal.value:", showSupportModal.value); // Debug
     };
 
-    const closeSupportModal = () => {
-      console.log("Support Modal wird geschlossen..."); // Debug
-      showSupportModal.value = false;
-    };
+    const closeSupportModal = () => (showSupportModal.value = false);
 
-    const handleTicketCreated = () => {
-      console.log("Ticket wurde erfolgreich erstellt"); // Debug
-      closeSupportModal();
-    };
+    const handleTicketCreated = () => closeSupportModal();
 
     // Event-Listener für ungelesene Nachrichten
     const handleUnreadMessagesUpdate = (event: CustomEvent) => {
@@ -330,9 +311,7 @@ export default defineComponent({
     );
 
     // Event-Listener für Profilbild-Updates
-    const handleProfileUpdate = () => {
-      loadUserData();
-    };
+    const handleProfileUpdate = () => loadUserData();
 
     // Event-Listener registrieren (kann von außen getriggert werden)
     if (typeof window !== "undefined") {

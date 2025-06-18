@@ -31,7 +31,7 @@
 
         <div class="article-info">
           <h4 class="article-title">{{ article.title || "Ohne Titel" }}</h4>
-          <p class="article-date">Veröffentlicht: {{ formatDate(article.publishedAt || "") }}</p>
+          <p class="article-date">Veröffentlicht: {{ formatDate(article.publishedAt, "") }}</p>
           <p class="article-chapters">{{ article.chapters.length }} Kapitel</p>
         </div>
         <div class="article-actions">
@@ -58,17 +58,13 @@
               <ExclamationTriangleIcon class="icon-warning" />
             </div>
             <p class="modal-message">
-              Möchten Sie den Artikel <strong>"{{ selectedArticle?.title || 'Ohne Titel' }}"</strong> wirklich löschen?
+              Möchten Sie den Artikel <strong>"{{ selectedArticle?.title || "Ohne Titel" }}"</strong> wirklich löschen?
             </p>
-            <p class="modal-submessage">
-              Diese Aktion kann nicht rückgängig gemacht werden.
-            </p>
+            <p class="modal-submessage">Diese Aktion kann nicht rückgängig gemacht werden.</p>
           </div>
 
           <div class="modal-actions">
-            <button @click="closeDeleteModal" class="modal-btn cancel">
-              Abbrechen
-            </button>
+            <button @click="closeDeleteModal" class="modal-btn cancel">Abbrechen</button>
             <button @click="confirmDelete" class="modal-btn delete">
               <TrashIcon class="icon-size" />
               Löschen
@@ -82,13 +78,14 @@
 
 <script lang="ts">
 import { defineComponent, type PropType, ref } from "vue";
+import { formatDate } from "@/utils/helperFunctions";
 import {
   ArrowPathIcon,
   DocumentIcon,
   EyeIcon,
   TrashIcon,
   XMarkIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 import type { Article } from "@/types/dtos";
 
@@ -119,17 +116,6 @@ export default defineComponent({
 
     const refreshArticles = () => {
       emit("refresh");
-    };
-
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(date);
     };
 
     const openDeleteModal = (article: Article) => {

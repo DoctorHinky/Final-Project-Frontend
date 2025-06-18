@@ -54,7 +54,7 @@ export default defineComponent({
     },
   },
   emits: ["accept-request", "decline-request", "show-invite-modal"],
-  setup(_, { emit }) {
+  setup(_props, { emit }) {
     const getInitials = (name: string) => {
       return name
         .split(" ")
@@ -63,17 +63,11 @@ export default defineComponent({
         .toUpperCase();
     };
 
-    const acceptRequest = (requestId: number) => {
-      emit("accept-request", requestId);
-    };
+    const acceptRequest = (requestId: string) => emit("accept-request", requestId);
 
-    const declineRequest = (requestId: number) => {
-      emit("decline-request", requestId);
-    };
+    const declineRequest = (requestId: string) => emit("decline-request", requestId);
 
-    const showInviteModal = () => {
-      emit("show-invite-modal");
-    };
+    const showInviteModal = () => emit("show-invite-modal");
 
     return {
       getInitials,

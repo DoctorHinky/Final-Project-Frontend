@@ -7,8 +7,17 @@
       <div class="modal-header">
         <div class="header-content">
           <div class="header-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               <path d="M8 10h8"></path>
               <path d="M8 14h6"></path>
@@ -20,8 +29,17 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" :disabled="isSubmitting">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -34,19 +52,17 @@
         <form @submit.prevent="submitTicket" class="ticket-form">
           <!-- Titel -->
           <div class="form-group">
-            <label for="ticket-title" class="form-label">
-              Betreff <span class="required">*</span>
-            </label>
-            <input 
-              type="text" 
-              id="ticket-title" 
-              v-model="formData.title" 
+            <label for="ticket-title" class="form-label"> Betreff <span class="required">*</span> </label>
+            <input
+              type="text"
+              id="ticket-title"
+              v-model="formData.title"
               class="form-input"
               placeholder="Beschreiben Sie Ihr Anliegen kurz"
               required
               :disabled="isSubmitting"
               maxlength="100"
-            >
+            />
             <div class="input-hint">{{ formData.title.length }}/100 Zeichen</div>
             <div v-if="errors.title" class="form-error">{{ errors.title }}</div>
           </div>
@@ -54,12 +70,7 @@
           <!-- Kategorie -->
           <div class="form-group">
             <label for="ticket-category" class="form-label">Kategorie</label>
-            <select 
-              id="ticket-category" 
-              v-model="formData.category" 
-              class="form-select"
-              :disabled="isSubmitting"
-            >
+            <select id="ticket-category" v-model="formData.category" class="form-select" :disabled="isSubmitting">
               <option value="ACCOUNT">Konto & Anmeldung</option>
               <option value="TECHNICAL">Technisches Problem</option>
               <option value="WEBSITE_BUG">Website-Fehler</option>
@@ -70,12 +81,10 @@
 
           <!-- Beschreibung -->
           <div class="form-group">
-            <label for="ticket-description" class="form-label">
-              Beschreibung <span class="required">*</span>
-            </label>
-            <textarea 
-              id="ticket-description" 
-              v-model="formData.description" 
+            <label for="ticket-description" class="form-label"> Beschreibung <span class="required">*</span> </label>
+            <textarea
+              id="ticket-description"
+              v-model="formData.description"
               class="form-textarea"
               placeholder="Beschreiben Sie Ihr Problem oder Ihre Anfrage so detailliert wie möglich..."
               rows="6"
@@ -89,47 +98,62 @@
 
           <!-- Datei-Upload -->
           <div class="form-group">
-            <label for="ticket-files" class="form-label">
-              Anhänge (optional)
-            </label>
-            <div class="file-upload-area" :class="{ 'drag-over': isDragOver }" 
-                 @drop="handleDrop" 
-                 @dragover.prevent="isDragOver = true"
-                 @dragleave="isDragOver = false">
-              <input 
-                type="file" 
-                id="ticket-files" 
-                multiple 
+            <label for="ticket-files" class="form-label"> Anhänge (optional) </label>
+            <div
+              class="file-upload-area"
+              :class="{ 'drag-over': isDragOver }"
+              @drop="handleDrop"
+              @dragover.prevent="isDragOver = true"
+              @dragleave="isDragOver = false"
+            >
+              <input
+                type="file"
+                id="ticket-files"
+                multiple
                 @change="handleFileSelect"
                 accept="image/*,.pdf,.doc,.docx,.txt"
                 class="file-input"
                 :disabled="isSubmitting"
-              >
+              />
               <div class="file-upload-content">
                 <div class="upload-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                   </svg>
                 </div>
-                <p class="upload-text">
-                  <strong>Dateien hier ablegen</strong> oder klicken zum Auswählen
-                </p>
-                <p class="upload-hint">
-                  Max. 5 Dateien, je 5MB (Bilder, PDF, Word, Text)
-                </p>
+                <p class="upload-text"><strong>Dateien hier ablegen</strong> oder klicken zum Auswählen</p>
+                <p class="upload-hint">Max. 5 Dateien, je 5MB (Bilder, PDF, Word, Text)</p>
               </div>
             </div>
-            
+
             <!-- Ausgewählte Dateien -->
             <div v-if="selectedFiles.length > 0" class="selected-files">
               <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
                 <div class="file-info">
                   <div class="file-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                     </svg>
@@ -139,15 +163,24 @@
                     <div class="file-size">{{ formatFileSize(file.size) }}</div>
                   </div>
                 </div>
-                <button 
-                  type="button" 
-                  class="remove-file" 
+                <button
+                  type="button"
+                  class="remove-file"
                   @click="removeFile(index)"
                   :disabled="isSubmitting"
                   title="Datei entfernen"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -158,19 +191,40 @@
 
           <!-- Submit Button -->
           <div class="form-actions">
-            <button type="button" class="btn-cancel" @click="closeModal" :disabled="isSubmitting">
-              Abbrechen
-            </button>
+            <button type="button" class="btn-cancel" @click="closeModal" :disabled="isSubmitting">Abbrechen</button>
             <button type="submit" class="btn-submit" :disabled="!canSubmit || isSubmitting">
               <span v-if="isSubmitting" class="loading">
-                <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-dasharray="16 16"></circle>
+                <svg
+                  class="spinner"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-dasharray="16 16"
+                  ></circle>
                 </svg>
                 Wird gesendet...
               </span>
               <span v-else>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
@@ -183,20 +237,28 @@
         <!-- Erfolgs-Meldung -->
         <div v-if="showSuccess" class="success-message">
           <div class="success-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
           </div>
           <h4>Ticket erfolgreich erstellt!</h4>
-          <p>Ihr Support-Ticket wurde erfolgreich übermittelt. Sie erhalten eine Bestätigung per E-Mail und unser Team wird sich baldmöglichst bei Ihnen melden.</p>
-          <div class="ticket-id" v-if="createdTicketId">
-            <strong>Ticket-ID:</strong> {{ createdTicketId }}
-          </div>
-          <button class="btn-close-success" @click="closeModal">
-            Schließen
-          </button>
+          <p>
+            Ihr Support-Ticket wurde erfolgreich übermittelt. Sie erhalten eine Bestätigung per E-Mail und unser Team
+            wird sich baldmöglichst bei Ihnen melden.
+          </p>
+          <div class="ticket-id" v-if="createdTicketId"><strong>Ticket-ID:</strong> {{ createdTicketId }}</div>
+          <button class="btn-close-success" @click="closeModal">Schließen</button>
         </div>
       </div>
     </div>
@@ -204,89 +266,91 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
-import { memberTicketService } from '@/services/member.ticket.service';
+import { defineComponent, ref, computed, watch } from "vue";
+import { memberTicketService } from "@/services/member.ticket.service";
 
 export default defineComponent({
-  name: 'UserTicketModal',
+  name: "UserTicketModal",
   props: {
     isOpen: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['close', 'ticket-created'],
+  emits: ["close", "ticket-created"],
   setup(props, { emit }) {
     // Form Data
     const formData = ref({
-      title: '',
-      description: '',
-      category: 'OTHER'
+      title: "",
+      description: "",
+      category: "OTHER",
     });
-    
+
     // File handling
     const selectedFiles = ref<File[]>([]);
     const isDragOver = ref(false);
-    
+
     // States
     const isSubmitting = ref(false);
     const showSuccess = ref(false);
-    const createdTicketId = ref('');
-    
+    const createdTicketId = ref("");
+
     // Validation
     const errors = ref({
-      title: '',
-      description: ''
+      title: "",
+      description: "",
     });
 
     // Computed
     const canSubmit = computed(() => {
-      return formData.value.title.trim().length >= 5 && 
-             formData.value.description.trim().length >= 10 &&
-             selectedFiles.value.length <= 5;
+      return (
+        formData.value.title.trim().length >= 5 &&
+        formData.value.description.trim().length >= 10 &&
+        selectedFiles.value.length <= 5
+      );
     });
 
     // Methods
     const resetForm = () => {
       formData.value = {
-        title: '',
-        description: '',
-        category: 'OTHER'
+        title: "",
+        description: "",
+        category: "OTHER",
       };
       selectedFiles.value = [];
-      errors.value = { title: '', description: '' };
+      errors.value = { title: "", description: "" };
       showSuccess.value = false;
-      createdTicketId.value = '';
+      createdTicketId.value = "";
       isSubmitting.value = false;
     };
 
     const closeModal = () => {
       if (!isSubmitting.value) {
         resetForm();
-        emit('close');
+        emit("close");
       }
     };
 
     const validateForm = () => {
       let isValid = true;
-      errors.value = { title: '', description: '' };
+      errors.value = { title: "", description: "" };
 
       // Titel validieren
       if (formData.value.title.trim().length < 5) {
-        errors.value.title = 'Der Betreff muss mindestens 5 Zeichen lang sein';
+        errors.value.title = "Der Betreff muss mindestens 5 Zeichen lang sein";
         isValid = false;
       }
 
       // Beschreibung validieren
       if (formData.value.description.trim().length < 10) {
-        errors.value.description = 'Die Beschreibung muss mindestens 10 Zeichen lang sein';
+        errors.value.description = "Die Beschreibung muss mindestens 10 Zeichen lang sein";
         isValid = false;
       }
 
       // Datei-Größe validieren
-      const oversizedFiles = selectedFiles.value.filter(file => file.size > 5 * 1024 * 1024);
+      const oversizedFiles = selectedFiles.value.filter((file) => file.size > 5 * 1024 * 1024);
       if (oversizedFiles.length > 0) {
-        errors.value.description = 'Einige Dateien sind größer als 5MB';
+        errors.value.description = "Einige Dateien sind größer als 5MB";
         isValid = false;
       }
 
@@ -301,24 +365,24 @@ export default defineComponent({
       try {
         // FormData für File-Upload vorbereiten
         const formDataToSend = new FormData();
-        formDataToSend.append('title', formData.value.title.trim());
-        formDataToSend.append('description', formData.value.description.trim());
-        formDataToSend.append('category', formData.value.category);
+        formDataToSend.append("title", formData.value.title.trim());
+        formDataToSend.append("description", formData.value.description.trim());
+        formDataToSend.append("category", formData.value.category);
 
         // Dateien hinzufügen
-        selectedFiles.value.forEach(file => {
-          formDataToSend.append('files', file);
+        selectedFiles.value.forEach((file) => {
+          formDataToSend.append("files", file);
         });
 
         const result = await memberTicketService.createTicket(formDataToSend);
-        
+
         if (result && result.ticketId) {
           createdTicketId.value = result.ticketId;
           showSuccess.value = true;
-          emit('ticket-created', result);
+          emit("ticket-created", result);
         }
       } catch (error) {
-        console.error('Fehler beim Erstellen des Tickets:', error);
+        console.error("Fehler beim Erstellen des Tickets:", error);
         // Hier könnte eine Toast-Notification gezeigt werden
       } finally {
         isSubmitting.value = false;
@@ -336,7 +400,7 @@ export default defineComponent({
     const handleDrop = (event: DragEvent) => {
       event.preventDefault();
       isDragOver.value = false;
-      
+
       if (event.dataTransfer?.files) {
         addFiles(Array.from(event.dataTransfer.files));
       }
@@ -344,10 +408,15 @@ export default defineComponent({
 
     const addFiles = (files: File[]) => {
       // Datei-Typen validieren
-      const allowedTypes = ['image/', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/'];
-      const validFiles = files.filter(file => 
-        allowedTypes.some(type => file.type.startsWith(type)) &&
-        file.size <= 5 * 1024 * 1024 // 5MB
+      const allowedTypes = [
+        "image/",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/",
+      ];
+      const validFiles = files.filter(
+        (file) => allowedTypes.some((type) => file.type.startsWith(type)) && file.size <= 5 * 1024 * 1024 // 5MB
       );
 
       // Maximale Anzahl Dateien überprüfen
@@ -357,24 +426,25 @@ export default defineComponent({
       selectedFiles.value.push(...filesToAdd);
     };
 
-    const removeFile = (index: number) => {
-      selectedFiles.value.splice(index, 1);
-    };
+    const removeFile = (index: number) => selectedFiles.value.splice(index, 1);
 
     const formatFileSize = (bytes: number) => {
-      if (bytes === 0) return '0 B';
+      if (bytes === 0) return "0 B";
       const k = 1024;
-      const sizes = ['B', 'KB', 'MB'];
+      const sizes = ["B", "KB", "MB"];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
     };
 
     // Modal zurücksetzen wenn geöffnet wird
-    watch(() => props.isOpen, (newValue) => {
-      if (newValue) {
-        resetForm();
+    watch(
+      () => props.isOpen,
+      (newValue) => {
+        if (newValue) {
+          resetForm();
+        }
       }
-    });
+    );
 
     return {
       formData,
@@ -390,16 +460,16 @@ export default defineComponent({
       handleFileSelect,
       handleDrop,
       removeFile,
-      formatFileSize
+      formatFileSize,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .modal-overlay {
   position: fixed;
@@ -427,7 +497,7 @@ export default defineComponent({
   flex-direction: column;
   animation: modal-appear 0.3s ease-out;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -442,7 +512,7 @@ export default defineComponent({
   align-items: flex-start;
   border-bottom: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       border-color: mixins.theme-color($theme, border-light);
@@ -471,7 +541,7 @@ export default defineComponent({
       font-size: 1.25rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -482,7 +552,7 @@ export default defineComponent({
       margin: 4px 0 0 0;
       font-size: 0.875rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -501,7 +571,7 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
         color: mixins.theme-color($theme, text-secondary);
@@ -537,7 +607,7 @@ export default defineComponent({
     font-weight: 500;
     font-size: 0.875rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -559,7 +629,7 @@ export default defineComponent({
     font-size: 0.875rem;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, primary-bg);
         border-color: mixins.theme-color($theme, border-medium);
@@ -593,7 +663,7 @@ export default defineComponent({
     margin-top: 4px;
     font-size: 0.75rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-tertiary);
       }
@@ -617,12 +687,13 @@ export default defineComponent({
   transition: all 0.2s;
   position: relative;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-medium);
       background-color: mixins.theme-color($theme, secondary-bg);
 
-      &:hover, &.drag-over {
+      &:hover,
+      &.drag-over {
         border-color: #4facfe;
         background-color: rgba(79, 172, 254, 0.05);
       }
@@ -642,7 +713,7 @@ export default defineComponent({
   .upload-icon {
     margin-bottom: 12px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -653,7 +724,7 @@ export default defineComponent({
     margin: 0 0 8px 0;
     font-size: 0.875rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -664,7 +735,7 @@ export default defineComponent({
     margin: 0;
     font-size: 0.75rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -674,7 +745,7 @@ export default defineComponent({
 
 .selected-files {
   margin-top: 12px;
-  
+
   .file-item {
     display: flex;
     align-items: center;
@@ -683,7 +754,7 @@ export default defineComponent({
     border-radius: 6px;
     margin-bottom: 8px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -700,7 +771,7 @@ export default defineComponent({
       gap: 8px;
 
       .file-icon {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -712,7 +783,7 @@ export default defineComponent({
           font-size: 0.875rem;
           font-weight: 500;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -722,7 +793,7 @@ export default defineComponent({
         .file-size {
           font-size: 0.75rem;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -742,7 +813,7 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.2s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
           color: mixins.theme-color($theme, text-secondary);
@@ -771,7 +842,7 @@ export default defineComponent({
   padding-top: 20px;
   border-top: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
     }
@@ -785,7 +856,7 @@ export default defineComponent({
     transition: all 0.2s;
     border: 1px solid;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
         border-color: mixins.theme-color($theme, border-medium);
@@ -855,7 +926,7 @@ export default defineComponent({
     font-size: 1.25rem;
     font-weight: 600;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -866,7 +937,7 @@ export default defineComponent({
     margin: 0 0 20px 0;
     line-height: 1.5;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -879,7 +950,7 @@ export default defineComponent({
     border-radius: 8px;
     font-family: monospace;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-primary);
@@ -916,8 +987,12 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

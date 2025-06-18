@@ -14,6 +14,9 @@ export type Article = {
   category: PostCategory;
   isCertifiedAuthor: false;
   authorId: string | null;
+  author: {
+    username: string;
+  };
   moderatorId: string | null;
   published: boolean;
   publishedAt: string | Date | null;

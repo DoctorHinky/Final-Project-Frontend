@@ -124,7 +124,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from "vue";
-import { TicketStatus, TicketCategory } from "@/services/ticket.service";
+import { TicketStatus, TicketCategory } from "@/types";
 
 export default defineComponent({
   name: "TicketFilter",

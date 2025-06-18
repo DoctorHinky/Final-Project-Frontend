@@ -8,8 +8,17 @@
         <p class="header-subtitle">Hier finden Sie alle Ihre Support-Anfragen und deren Status</p>
       </div>
       <button class="btn-new-ticket" @click="showCreateModal = true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -21,8 +30,17 @@
     <div class="quick-stats">
       <div class="stat-card">
         <div class="stat-icon open">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -33,11 +51,20 @@
           <div class="stat-label">Offen</div>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon progress">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
@@ -47,15 +74,26 @@
           <div class="stat-label">In Bearbeitung</div>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon total">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M15 5v2"></path>
             <path d="M15 11v2"></path>
             <path d="M15 17v2"></path>
-            <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"></path>
+            <path
+              d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"
+            ></path>
           </svg>
         </div>
         <div class="stat-content">
@@ -78,7 +116,7 @@
           <option value="CLOSED">Geschlossen</option>
         </select>
       </div>
-      
+
       <div class="filter-item">
         <label for="category-filter">Kategorie:</label>
         <select id="category-filter" v-model="categoryFilter" @change="applyFilters">
@@ -90,16 +128,16 @@
           <option value="OTHER">Sonstiges</option>
         </select>
       </div>
-      
+
       <div class="filter-item search">
         <label for="search-filter">Suche:</label>
-        <input 
-          type="text" 
-          id="search-filter" 
-          v-model="searchQuery" 
+        <input
+          type="text"
+          id="search-filter"
+          v-model="searchQuery"
           @input="debounceSearch"
           placeholder="Ticket-Titel durchsuchen..."
-        >
+        />
       </div>
     </div>
 
@@ -112,40 +150,51 @@
     <!-- Empty State -->
     <div v-else-if="filteredTickets.length === 0 && !isLoading" class="empty-state">
       <div class="empty-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           <path d="M8 10h8"></path>
           <path d="M8 14h6"></path>
         </svg>
       </div>
-      <h3>{{ searchQuery || statusFilter || categoryFilter ? 'Keine Tickets gefunden' : 'Noch keine Support-Tickets' }}</h3>
+      <h3>
+        {{ searchQuery || statusFilter || categoryFilter ? "Keine Tickets gefunden" : "Noch keine Support-Tickets" }}
+      </h3>
       <p>
-        {{ searchQuery || statusFilter || categoryFilter 
-           ? 'Versuchen Sie andere Suchkriterien oder Filter.' 
-           : 'Sie haben noch keine Support-Tickets erstellt. Erstellen Sie Ihr erstes Ticket, wenn Sie Hilfe benötigen.' 
+        {{
+          searchQuery || statusFilter || categoryFilter
+            ? "Versuchen Sie andere Suchkriterien oder Filter."
+            : "Sie haben noch keine Support-Tickets erstellt. Erstellen Sie Ihr erstes Ticket, wenn Sie Hilfe benötigen."
         }}
       </p>
-      <button v-if="!searchQuery && !statusFilter && !categoryFilter" class="btn-create-first" @click="showCreateModal = true">
+      <button
+        v-if="!searchQuery && !statusFilter && !categoryFilter"
+        class="btn-create-first"
+        @click="showCreateModal = true"
+      >
         Erstes Ticket erstellen
       </button>
     </div>
 
     <!-- Tickets List -->
     <div v-else class="tickets-list">
-      <div 
-        v-for="ticket in filteredTickets" 
-        :key="ticket.id" 
-        class="ticket-card"
-        @click="selectTicket(ticket)"
-      >
+      <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-card" @click="selectTicket(ticket)">
         <div class="ticket-header">
           <div class="ticket-title">{{ ticket.title }}</div>
           <div class="ticket-status" :class="getStatusClass(ticket.status)">
             {{ formatStatus(ticket.status) }}
           </div>
         </div>
-        
+
         <div class="ticket-meta">
           <div class="meta-item">
             <span class="meta-label">Kategorie:</span>
@@ -160,19 +209,25 @@
             <span class="meta-value">{{ formatDate(ticket.updatedAt) }}</span>
           </div>
         </div>
-        
+
         <div class="ticket-footer">
           <div class="ticket-id">ID: {{ ticket.id }}</div>
           <div class="ticket-indicators">
-            <div v-if="ticket.messageCount && ticket.messageCount > 0" class="message-count" title="Nachrichten">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div v-if="ticket._count.messages && ticket._count.messages > 0" class="message-count" title="Nachrichten">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
-              {{ ticket.messageCount }}
-            </div>
-            <div v-if="ticket.hasUnreadMessages" class="unread-indicator" title="Ungelesene Nachrichten">
-              <div class="unread-dot"></div>
+              {{ ticket._count.messages }}
             </div>
           </div>
         </div>
@@ -180,11 +235,7 @@
     </div>
 
     <!-- Create Ticket Modal -->
-    <UserTicketModal 
-      :isOpen="showCreateModal" 
-      @close="showCreateModal = false"
-      @ticket-created="handleTicketCreated"
-    />
+    <UserTicketModal :isOpen="showCreateModal" @close="showCreateModal = false" @ticket-created="handleTicketCreated" />
 
     <!-- Ticket Detail Modal -->
     <UserTicketDetailModal
@@ -197,16 +248,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import { ticketService, type UserTicket, TicketStatus, TicketCategory } from '@/services/ticket.service';
-import UserTicketModal from './UserTicketModal.vue';
-import UserTicketDetailModal from './UserTicketDetailModal.vue';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import { type Ticket as UserTicket, TicketStatus, TicketCategory } from "@/types";
+import ticketService from "@/services/ticket.service";
+import UserTicketModal from "./UserTicketModal.vue";
+import UserTicketDetailModal from "./UserTicketDetailModal.vue";
 
 export default defineComponent({
-  name: 'UserTicketOverview',
+  name: "UserTicketOverview",
   components: {
     UserTicketModal,
-    UserTicketDetailModal
+    UserTicketDetailModal,
   },
   setup() {
     // State
@@ -214,69 +266,68 @@ export default defineComponent({
     const isLoading = ref(false);
     const showCreateModal = ref(false);
     const selectedTicketForDetail = ref<any>(null);
-    
+
     // Filter
-    const statusFilter = ref('');
-    const categoryFilter = ref('');
-    const searchQuery = ref('');
-    
+    const statusFilter = ref("");
+    const categoryFilter = ref("");
+    const searchQuery = ref("");
+
     // Computed
     const filteredTickets = computed(() => {
       let result = [...tickets.value];
-      
+
       if (statusFilter.value) {
-        result = result.filter(ticket => ticket.status === statusFilter.value);
+        result = result.filter((ticket) => ticket.status === statusFilter.value);
       }
-      
+
       if (categoryFilter.value) {
-        result = result.filter(ticket => ticket.category === categoryFilter.value);
+        result = result.filter((ticket) => ticket.category === categoryFilter.value);
       }
-      
+
       if (searchQuery.value) {
         const search = searchQuery.value.toLowerCase();
-        result = result.filter(ticket => 
-          ticket.title.toLowerCase().includes(search) ||
-          ticket.id.toLowerCase().includes(search)
+        result = result.filter(
+          (ticket) => ticket.title.toLowerCase().includes(search) || ticket.id.toLowerCase().includes(search)
         );
       }
-      
+
       // Sortierung: Neueste zuerst, offene Tickets oben
       result.sort((a, b) => {
         // Offene Tickets haben Priorität
         if (a.status === TicketStatus.OPEN && b.status !== TicketStatus.OPEN) return -1;
         if (b.status === TicketStatus.OPEN && a.status !== TicketStatus.OPEN) return 1;
-        
+
         // Dann nach Aktualisierungsdatum
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       });
-      
+
       return result;
     });
-    
+
     const totalTicketsCount = computed(() => tickets.value.length);
-    const openTicketsCount = computed(() => 
-      tickets.value.filter(t => t.status === TicketStatus.OPEN).length
+    const openTicketsCount = computed(
+      () => tickets.value.filter((t: UserTicket) => t.status === TicketStatus.OPEN).length
     );
-    const inProgressTicketsCount = computed(() => 
-      tickets.value.filter(t => t.status === TicketStatus.IN_PROGRESS).length
+    const inProgressTicketsCount = computed(
+      () => tickets.value.filter((t: UserTicket) => t.status === TicketStatus.IN_PROGRESS).length
     );
-    
+
     // Methods
     const loadTickets = async () => {
       isLoading.value = true;
       try {
         tickets.value = await ticketService.getMyTickets();
       } catch (error) {
-        console.error('Fehler beim Laden der Tickets:', error);
+        console.error("Fehler beim Laden der Tickets:", error);
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     const applyFilters = () => {
       // Filter werden automatisch durch computed property angewendet
     };
-    
+
     let searchTimeout: ReturnType<typeof setTimeout> | null = null;
     const debounceSearch = () => {
       if (searchTimeout) {
@@ -286,75 +337,89 @@ export default defineComponent({
         // Suche wird automatisch durch computed property angewendet
       }, 300);
     };
-    
+
     const selectTicket = async (ticket: UserTicket) => {
       try {
         // Vollständiges Ticket laden
-        const fullTicket = await ticketService.getUserTicketById(ticket.id);
+        const fullTicket = await ticketService.getTicketById(ticket.id);
         if (fullTicket) {
           selectedTicketForDetail.value = fullTicket;
         }
       } catch (error) {
-        console.error('Fehler beim Laden des Ticket-Details:', error);
+        console.error("Fehler beim Laden des Ticket-Details:", error);
       }
     };
-    
+
     const handleTicketCreated = () => {
       showCreateModal.value = false;
       loadTickets(); // Tickets neu laden
     };
-    
+
     const handleTicketUpdated = () => {
       selectedTicketForDetail.value = null;
       loadTickets(); // Tickets neu laden
     };
-    
+
     // Formatierungsfunktionen
     const formatStatus = (status: TicketStatus) => {
-      return ticketService.formatStatus(status);
+      switch (status) {
+        case TicketStatus.OPEN:
+          return "Offen";
+        case TicketStatus.IN_PROGRESS:
+          return "In Bearbeitung";
+        case TicketStatus.CLOSED:
+          return "Geschlossen";
+        default:
+          return status;
+      }
     };
-    
+
     const formatCategory = (category: TicketCategory) => {
-      return ticketService.formatCategory(category);
+      switch (category) {
+        case "ACCOUNT":
+          return "Konto & Anmeldung";
+        case "TECHNICAL":
+          return "Technisches Problem";
+        case "WEBSITE_BUG":
+          return "Website-Fehler";
+        case "REPORT":
+          return "Inhalte melden";
+        case "OTHER":
+          return "Sonstiges";
+        default:
+          return category;
+      }
     };
-    
+
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();
       const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-      
+
       if (diffInHours < 24) {
-        return new Intl.RelativeTimeFormat('de-DE', { numeric: 'auto' }).format(
-          -Math.round(diffInHours), 'hour'
-        );
+        return new Intl.RelativeTimeFormat("de-DE", { numeric: "auto" }).format(-Math.round(diffInHours), "hour");
       } else if (diffInHours < 24 * 7) {
-        return new Intl.RelativeTimeFormat('de-DE', { numeric: 'auto' }).format(
-          -Math.round(diffInHours / 24), 'day'
-        );
+        return new Intl.RelativeTimeFormat("de-DE", { numeric: "auto" }).format(-Math.round(diffInHours / 24), "day");
       } else {
-        return new Intl.DateTimeFormat('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
+        return new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
         }).format(date);
       }
     };
-    
+
     const getStatusClass = (status: TicketStatus) => {
       return {
-        'status-open': status === TicketStatus.OPEN,
-        'status-progress': status === TicketStatus.IN_PROGRESS,
-        'status-waiting': status === TicketStatus.WAITING,
-        'status-resolved': status === TicketStatus.RESOLVED,
-        'status-closed': status === TicketStatus.CLOSED
+        "status-open": status === TicketStatus.OPEN,
+        "status-progress": status === TicketStatus.IN_PROGRESS,
+        "status-closed": status === TicketStatus.CLOSED,
       };
     };
-    
+
     // Lifecycle
-    onMounted(() => {
-      loadTickets();
-    });
-    
+    onMounted(() => loadTickets());
+
     return {
       tickets,
       isLoading,
@@ -376,16 +441,16 @@ export default defineComponent({
       formatStatus,
       formatCategory,
       formatDate,
-      getStatusClass
+      getStatusClass,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .user-ticket-overview {
   max-width: 1200px;
@@ -407,7 +472,7 @@ export default defineComponent({
       font-size: 1.75rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -418,7 +483,7 @@ export default defineComponent({
       margin: 0;
       font-size: 1rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -460,7 +525,7 @@ export default defineComponent({
     gap: 16px;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -502,7 +567,7 @@ export default defineComponent({
         font-weight: 700;
         margin-bottom: 4px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -512,7 +577,7 @@ export default defineComponent({
       .stat-label {
         font-size: 0.875rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -530,7 +595,7 @@ export default defineComponent({
   padding: 20px;
   border-radius: 12px;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -552,7 +617,7 @@ export default defineComponent({
       font-size: 0.875rem;
       font-weight: 500;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -566,7 +631,7 @@ export default defineComponent({
       border: 1px solid;
       font-size: 0.875rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, primary-bg);
           border-color: mixins.theme-color($theme, border-medium);
@@ -606,7 +671,7 @@ export default defineComponent({
   p {
     margin: 0;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -621,7 +686,7 @@ export default defineComponent({
   .empty-icon {
     margin-bottom: 20px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-tertiary);
       }
@@ -632,7 +697,7 @@ export default defineComponent({
     margin: 0 0 12px 0;
     font-size: 1.25rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -646,7 +711,7 @@ export default defineComponent({
     margin-right: auto;
     line-height: 1.5;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -680,7 +745,7 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -704,7 +769,7 @@ export default defineComponent({
         font-weight: 600;
         line-height: 1.4;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -759,7 +824,7 @@ export default defineComponent({
           font-size: 0.875rem;
           font-weight: 500;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -769,7 +834,7 @@ export default defineComponent({
         .meta-value {
           font-size: 0.875rem;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -785,7 +850,7 @@ export default defineComponent({
       padding-top: 12px;
       border-top: 1px solid;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
         }
@@ -795,7 +860,7 @@ export default defineComponent({
         font-size: 0.75rem;
         font-family: monospace;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -813,7 +878,7 @@ export default defineComponent({
           gap: 4px;
           font-size: 0.75rem;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -835,16 +900,21 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
