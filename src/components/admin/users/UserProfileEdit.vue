@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, type PropType } from "vue";
+import { defineComponent, ref, onMounted, type PropType, onUnmounted } from "vue";
 
 interface User {
   id: string;
@@ -145,6 +145,8 @@ export default defineComponent({
         expertise: user.expertise || "",
         authorBio: user.authorBio || "",
       };
+
+      window.addEventListener("keydown", handleKeyDown);
     });
 
     const saveUserProfile = () => {
@@ -172,6 +174,16 @@ export default defineComponent({
       // Emit das aktualisierte Benutzerobjekt
       emit("save", updatedUser);
     };
+    function handleKeyDown(event: KeyboardEvent) {
+      console.log("Key pressed:", event.key);
+
+      if (event.key === "Escape") {
+        emit("close");
+      }
+    }
+    onUnmounted(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+    });
 
     return {
       formData,

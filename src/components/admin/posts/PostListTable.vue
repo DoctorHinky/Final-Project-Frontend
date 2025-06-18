@@ -9,7 +9,6 @@
           <th class="col-category">Kategorie</th>
           <th class="col-date">Veröffentlicht</th>
           <th class="col-status">Status</th>
-          <th class="col-views">Aufrufe</th>
           <th class="col-actions">Aktionen</th>
         </tr>
       </thead>
@@ -29,9 +28,10 @@
           <td class="col-author">
             <div class="author-cell">
               <div class="author-avatar">
-                <span>{{ getAuthorInitials(post.author) }}</span>
+                <span v-if="!post.author?.profilePicture">{{ getAuthorInitials(post.author) }}</span>
+                <img v-else :src="post.author.profilePicture" :alt="`Avatar von ${post.author.username}`" />
               </div>
-              <span>{{ post.author || "Unbekannt" }}</span>
+              <span>{{ post.author?.username || "Unbekannt" }}</span>
             </div>
           </td>
           <td class="col-category">
@@ -120,7 +120,7 @@ export default defineComponent({
   },
   emits: ["view", "toggle-status"],
   methods: {
-    formatDate, // Importing the formatDate function from the composable
+    formatDate,
     getAuthorInitials(author?: { username: string }): string {
       if (!author?.username) return "??";
       const parts = author.username.split(" ");
@@ -260,6 +260,13 @@ export default defineComponent({
           font-weight: bold;
           color: white;
           font-size: 0.8rem;
+
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+          }
         }
       }
     }

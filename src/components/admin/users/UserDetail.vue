@@ -470,9 +470,7 @@ import userService from "@/services/user.service";
 import axiosInstance from "@/services/axiosInstance";
 
 // Props
-const props = defineProps({
-  userId: { type: String, required: true },
-});
+const props = defineProps({ userId: { type: String, required: true } });
 
 // State
 const user = ref(null);
