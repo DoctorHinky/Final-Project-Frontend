@@ -1,0 +1,330 @@
+// Datei: src/style/base/_scrollbar.scss
+// Globale Scrollbar-Styles mit Glow-Effekt passend zum Projekt-Theme
+@use 'sass:map';
+@use 'variables' as vars;
+@use 'mixins';
+
+// Mixin für wiederverwendbare Scrollbar-Styles mit Glow
+@mixin custom-scrollbar(
+  $width: 10px,
+  $track-bg: var(--scrollbar-track),
+  $thumb-bg: var(--scrollbar-thumb),
+  $thumb-hover-bg: var(--scrollbar-thumb-hover),
+  $glow-color: var(--scrollbar-glow),
+  $border-radius: 10px
+) {
+  // Webkit-basierte Browser (Chrome, Safari, Edge)
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track-bg;
+    border-radius: $border-radius;
+    border: 1px solid var(--scrollbar-track-border);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb-bg;
+    border-radius: $border-radius;
+    border: 1px solid var(--scrollbar-thumb-border);
+    transition: all map.get(vars.$transitions, default);
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      background: $thumb-hover-bg;
+      box-shadow: 0 0 10px 2px $glow-color,
+                  inset 0 0 8px rgba(255, 255, 255, 0.2);
+      border-color: var(--scrollbar-thumb-hover-border);
+      cursor: pointer;
+    }
+
+    &:active {
+      background: var(--scrollbar-thumb-active);
+      box-shadow: 0 0 15px 4px $glow-color,
+                  inset 0 0 10px rgba(255, 255, 255, 0.3);
+      cursor: grabbing !important;
+    }
+  }
+
+  // Firefox - Neue Syntax
+  scrollbar-width: thin;
+  scrollbar-color: $thumb-bg $track-bg;
+}
+
+// CSS Variablen für Light Theme
+:root,
+.theme-light {
+  // Track (Hintergrund)
+  --scrollbar-track: #{map.get(map.get(vars.$colors, light), secondary-bg)};
+  --scrollbar-track-border: #{map.get(map.get(vars.$colors, light), border-light)};
+  
+  // Thumb (Scrollbalken)
+  --scrollbar-thumb: #{map.get(map.get(vars.$colors, light), accent-green)};
+  --scrollbar-thumb-hover: #{map.get(map.get(vars.$colors, light), accent-teal)};
+  --scrollbar-thumb-active: #{map.get(map.get(vars.$colors, light), accent-lime)};
+  --scrollbar-thumb-border: #{map.get(map.get(vars.$colors, light), border-medium)};
+  --scrollbar-thumb-hover-border: #{map.get(map.get(vars.$colors, light), accent-teal)};
+  
+  // Glow
+  --scrollbar-glow: #{map.get(map.get(vars.$colors, light), glow-green)};
+}
+
+// CSS Variablen für Dark Theme
+.theme-dark,
+body.theme-dark,
+[data-theme="dark"] {
+  // Track (Hintergrund)
+  --scrollbar-track: #{map.get(map.get(vars.$colors, dark), secondary-bg)};
+  --scrollbar-track-border: #{map.get(map.get(vars.$colors, dark), border-light)};
+  
+  // Thumb (Scrollbalken)
+  --scrollbar-thumb: #{map.get(map.get(vars.$colors, dark), accent-green)};
+  --scrollbar-thumb-hover: #{map.get(map.get(vars.$colors, dark), accent-teal)};
+  --scrollbar-thumb-active: #{map.get(map.get(vars.$colors, dark), accent-lime)};
+  --scrollbar-thumb-border: transparent;
+  --scrollbar-thumb-hover-border: #{map.get(map.get(vars.$colors, dark), accent-teal)};
+  
+  // Glow
+  --scrollbar-glow: #{map.get(map.get(vars.$colors, dark), glow-teal)};
+}
+
+// Globale Scrollbar-Anwendung
+* {
+  @include custom-scrollbar();
+}
+
+// Globaler Cursor für alle Scrollbars
+*::-webkit-scrollbar-thumb {
+  cursor: pointer !important;
+  
+  &:active {
+    cursor: grabbing !important;
+  }
+}
+
+// Optionaler Grab-Cursor (offene Hand) für noch bessere UX
+// Hinweis: Der grab-Cursor wird nicht von allen Browsern unterstützt
+.enhanced-grab-cursor {
+  &::-webkit-scrollbar-thumb {
+    cursor: grab !important;
+    
+    &:hover {
+      cursor: grab !important;
+    }
+    
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+}
+
+// Spezielle Scrollbar für Member-Area mit stärkerem Glow
+.member-area {
+  @include custom-scrollbar(
+    $width: 12px,
+    $glow-color: map.get(map.get(vars.$colors, dark), glow-green)
+  );
+}
+
+// Dünnere Scrollbar für Sidebars
+.sidebar,
+.admin-sidebar,
+.member-sidebar {
+  @include custom-scrollbar(
+    $width: 8px,
+    $border-radius: 8px
+  );
+}
+
+// Scrollbar mit Gradient-Effekt für spezielle Container
+.gradient-scroll {
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      135deg,
+      var(--scrollbar-thumb),
+      var(--scrollbar-thumb-hover)
+    );
+    cursor: pointer;
+    
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        var(--scrollbar-thumb-hover),
+        var(--scrollbar-thumb-active)
+      );
+      cursor: pointer;
+    }
+    
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+}
+
+// Animierte Scrollbar mit Pulse-Effekt
+@keyframes scrollbar-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px 1px var(--scrollbar-glow);
+  }
+  50% {
+    box-shadow: 0 0 15px 3px var(--scrollbar-glow);
+  }
+}
+
+.animated-scroll {
+  &::-webkit-scrollbar-thumb {
+    animation: scrollbar-pulse 2s ease-in-out infinite;
+    cursor: pointer;
+    
+    &:hover {
+      cursor: pointer;
+    }
+    
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+}
+
+// Versteckte Scrollbar mit Hover-Effekt
+.scrollbar-on-hover {
+  &::-webkit-scrollbar {
+    width: 3px;
+    transition: width map.get(vars.$transitions, default);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    transition: all map.get(vars.$transitions, default);
+    cursor: pointer;
+  }
+  
+  &:hover {
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      cursor: pointer;
+      
+      &:active {
+        cursor: grabbing !important;
+      }
+    }
+  }
+}
+
+// Neon-Glow Scrollbar für besondere Bereiche
+.neon-scroll {
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    box-shadow: 0 0 5px var(--scrollbar-glow),
+                inset 0 0 5px var(--scrollbar-glow);
+    cursor: pointer;
+    
+    &:hover {
+      box-shadow: 0 0 10px var(--scrollbar-glow),
+                  0 0 20px var(--scrollbar-glow),
+                  inset 0 0 10px var(--scrollbar-glow);
+      cursor: pointer;
+    }
+    
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+}
+
+// Performance-Optimierung für lange Listen
+.optimized-scroll {
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+}
+
+// Horizontale Scrollbar
+.horizontal-scroll {
+  &::-webkit-scrollbar:horizontal {
+    height: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(
+      to right,
+      var(--scrollbar-thumb),
+      var(--scrollbar-thumb-hover)
+    );
+    cursor: pointer;
+    
+    &:hover {
+      cursor: pointer;
+    }
+    
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+}
+
+// Responsive Anpassungen
+@include mixins.responsive(tablet) {
+  * {
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+  }
+  
+  .member-area {
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+  }
+}
+
+@include mixins.responsive(mobile) {
+  * {
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+  }
+  
+  // Auf Mobilgeräten subtilere Glow-Effekte
+  :root {
+    --scrollbar-glow: #{map.get(map.get(vars.$colors, dark), glow-green)}33;
+  }
+}
+
+// Scrollbar komplett verstecken (für spezielle Anwendungsfälle)
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Artikel-Reader spezielle Scrollbar
+.article-reader {
+  @include custom-scrollbar(
+    $width: 10px,
+    $glow-color: map.get(map.get(vars.$colors, dark), glow-lime)
+  );
+}
+
+// Admin-Bereich spezielle Scrollbar
+.admin-layout {
+  @include custom-scrollbar(
+    $thumb-bg: map.get(map.get(vars.$colors, dark), accent-teal),
+    $thumb-hover-bg: map.get(map.get(vars.$colors, dark), accent-lime)
+  );
+}

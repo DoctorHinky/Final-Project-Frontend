@@ -39,7 +39,7 @@ export interface ConversationPreview {
     createdAt: string;
   } | null;
   updatedAt: string;
-  unreadCount: number;
+  unreadCount?: number;
 }
 
 export interface SendMessageResponse {
@@ -60,18 +60,18 @@ class ChatService {
    */
   async createOrGetConversation(targetUserId: string): Promise<Conversation> {
     try {
-      console.log('Creating/getting conversation with user:', targetUserId);
+      console.log("Creating/getting conversation with user:", targetUserId);
       const response = await api.post(`/conversation/create/${targetUserId}`);
-      console.log('Conversation response:', response.data);
+      console.log("Conversation response:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Fehler beim Erstellen/Laden der Conversation:", error);
-      
+
       // Spezifische Fehlerbehandlung
       if (error.response?.status === 400) {
-        const message = error.response?.data?.message || 'Bad Request';
-        if (message.includes('friends')) {
-          throw new Error('Du kannst nur mit Freunden chatten. Sendet zuerst eine Freundschaftsanfrage.');
+        const message = error.response?.data?.message || "Bad Request";
+        if (message.includes("friends")) {
+          throw new Error("Du kannst nur mit Freunden chatten. Sendet zuerst eine Freundschaftsanfrage.");
         }
       }
       throw error;
@@ -99,63 +99,91 @@ class ChatService {
    */
   async getAllConversations(): Promise<ConversationPreview[]> {
     try {
-      console.log('Loading conversation previews...');
-      
+      console.log("Loading conversation previews...");
+
       // Der Backend-Endpoint ist korrekt: GET /conversation/loadPreview
-      const response = await api.get('/conversation/loadPreview');
-      
-      console.log('Conversation previews loaded successfully:', response.data);
-      
+      const response = await api.get("/conversation/loadPreview");
+
+      console.log("Conversation previews loaded successfully:", response.data);
+
       // Backend gibt direkt das Array zurück
       return Array.isArray(response.data) ? response.data : [];
     } catch (error: any) {
-      console.error('Fehler beim Laden der Conversation-Previews:', error);
-      
+      console.error("Fehler beim Laden der Conversation-Previews:", error);
+
       // Detaillierte Fehlerbehandlung
       if (error.response?.status === 401) {
-        throw new Error('Nicht authentifiziert. Bitte melde dich erneut an.');
+        throw new Error("Nicht authentifiziert. Bitte melde dich erneut an.");
       } else if (error.response?.status === 400) {
-        console.error('400 Bad Request - Details:', error.response.data);
-        throw new Error('Fehlerhafte Anfrage beim Laden der Chats.');
+        console.error("400 Bad Request - Details:", error.response.data);
+        throw new Error("Fehlerhafte Anfrage beim Laden der Chats.");
       } else if (error.response?.status === 404) {
         // Keine Conversations vorhanden
         return [];
       }
-      
+
       throw error;
     }
   }
 
   /**
-   * Sendet eine Textnachricht
-   * POST /chat/send/:conversationId (mit FormData)
+   * Holt die Anzahl ungelesener Nachrichten für eine Conversation
+   */
+  async getUnreadMessageCount(conversationId: string): Promise<number> {
+    try {
+      const conversation = await this.getConversation(conversationId);
+      // Zähle ungelesene Nachrichten
+      const unreadCount = conversation.messages.filter((msg) => !msg.isRead).length;
+      return unreadCount;
+    } catch (error) {
+      console.error("Fehler beim Zählen ungelesener Nachrichten:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Holt die Gesamtzahl ungelesener Nachrichten über alle Conversations
+   */
+  async getTotalUnreadCount(): Promise<number> {
+    try {
+      const conversations = await this.getAllConversations();
+      return conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
+    } catch (error) {
+      console.error("Fehler beim Zählen aller ungelesenen Nachrichten:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Sendet eine Textnachricht (unterstützt jetzt auch formatiertes HTML)
+   * POST /chat/send/:chatId
    */
   async sendMessage(conversationId: string, message: string): Promise<SendMessageResponse> {
     try {
-      console.log('Sending message to conversation:', conversationId);
-      
+      console.log("Sending message to conversation:", conversationId);
+
       // Backend erwartet FormData
       const formData = new FormData();
-      formData.append('message', message.trim());
+      formData.append("message", message.trim());
 
       const response = await api.post(`/chat/send/${conversationId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      
-      console.log('Message sent successfully:', response.data);
+
+      console.log("Message sent successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Fehler beim Senden der Nachricht:", error);
-      
+
       if (error.response?.status === 404) {
-        throw new Error('Conversation nicht gefunden.');
+        throw new Error("Conversation nicht gefunden.");
       } else if (error.response?.status === 400) {
-        const message = error.response?.data?.message || 'Nachricht konnte nicht gesendet werden';
+        const message = error.response?.data?.message || "Nachricht konnte nicht gesendet werden";
         throw new Error(message);
       }
-      
+
       throw error;
     }
   }
@@ -166,25 +194,31 @@ class ChatService {
    */
   async sendMessageWithFile(conversationId: string, message: string, file: File): Promise<SendMessageResponse> {
     try {
-      console.log('Sending message with file:', file.name, 'to conversation:', conversationId);
-      
+      console.log("Sending message with file:", file.name, "to conversation:", conversationId);
+
       // Validiere Dateityp
       const allowedTypes = [
         // Bilder
-        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
         // PDFs
-        'application/pdf',
+        "application/pdf",
         // Dokumente
-        'application/msword', 
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         // Weitere...
-        'text/plain'
+        "text/plain",
       ];
-      
+
       if (!allowedTypes.includes(file.type)) {
-        throw new Error(`Dateityp ${file.type} ist nicht erlaubt. Erlaubte Typen: Bilder (JPG, PNG, GIF, WebP), PDF, Word-Dokumente, Text-Dateien.`);
+        throw new Error(
+          `Dateityp ${file.type} ist nicht erlaubt. Erlaubte Typen: Bilder (JPG, PNG, GIF, WebP), PDF, Word-Dokumente, Text-Dateien.`
+        );
       }
-      
+
       // Validiere Dateigröße (10MB Backend-Limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in Bytes
       if (file.size > maxSize) {
@@ -197,11 +231,11 @@ class ChatService {
       }
       formData.append("file", file);
 
-      console.log('FormData prepared:', {
-        message: message || '(kein Text)',
+      console.log("FormData prepared:", {
+        message: message || "(kein Text)",
         fileName: file.name,
         fileSize: `${(file.size / 1024).toFixed(1)}KB`,
-        fileType: file.type
+        fileType: file.type,
       });
 
       const response = await api.post(`/chat/send/${conversationId}`, formData, {
@@ -213,25 +247,25 @@ class ChatService {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             console.log(`Upload progress: ${progress}%`);
           }
-        }
+        },
       });
-      
-      console.log('Message with file sent successfully:', response.data);
+
+      console.log("Message with file sent successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Fehler beim Senden der Nachricht mit Datei:", error);
-      
-      if (error.message.includes('Dateityp') || error.message.includes('zu groß')) {
+
+      if (error.message.includes("Dateityp") || error.message.includes("zu groß")) {
         throw error; // Eigene Validierungsfehler weiterwerfen
       }
-      
+
       if (error.response?.status === 413) {
-        throw new Error('Datei ist zu groß. Maximum: 10MB.');
+        throw new Error("Datei ist zu groß. Maximum: 10MB.");
       } else if (error.response?.status === 400) {
-        const message = error.response?.data?.message || 'Datei konnte nicht hochgeladen werden';
+        const message = error.response?.data?.message || "Datei konnte nicht hochgeladen werden";
         throw new Error(message);
       }
-      
+
       throw error;
     }
   }
@@ -242,35 +276,35 @@ class ChatService {
    */
   async updateMessage(messageId: string, newContent: string): Promise<ChatMessage> {
     try {
-      console.log('Updating message:', messageId);
-      
+      console.log("Updating message:", messageId);
+
       // Backend erwartet FormData
       const formData = new FormData();
-      formData.append('message', newContent.trim());
+      formData.append("message", newContent.trim());
 
       const response = await api.patch(`/chat/update/${messageId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      
-      console.log('Message updated successfully:', response.data);
+
+      console.log("Message updated successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("Fehler beim Bearbeiten der Nachricht:", error);
-      
+
       if (error.response?.status === 404) {
-        throw new Error('Nachricht nicht gefunden oder du bist nicht der Absender.');
+        throw new Error("Nachricht nicht gefunden oder du bist nicht der Absender.");
       } else if (error.response?.status === 400) {
-        const message = error.response?.data?.message || 'Nachricht konnte nicht bearbeitet werden';
-        if (message.includes('5 minutes')) {
-          throw new Error('Nachrichten können nur innerhalb von 5 Minuten nach dem Senden bearbeitet werden.');
-        } else if (message.includes('deleted')) {
-          throw new Error('Gelöschte Nachrichten können nicht bearbeitet werden.');
+        const message = error.response?.data?.message || "Nachricht konnte nicht bearbeitet werden";
+        if (message.includes("5 minutes")) {
+          throw new Error("Nachrichten können nur innerhalb von 5 Minuten nach dem Senden bearbeitet werden.");
+        } else if (message.includes("deleted")) {
+          throw new Error("Gelöschte Nachrichten können nicht bearbeitet werden.");
         }
         throw new Error(message);
       }
-      
+
       throw error;
     }
   }
@@ -281,19 +315,19 @@ class ChatService {
    */
   async deleteMessage(messageId: string): Promise<void> {
     try {
-      console.log('Deleting message:', messageId);
+      console.log("Deleting message:", messageId);
       await api.delete(`/chat/${messageId}`);
-      console.log('Message deleted successfully');
+      console.log("Message deleted successfully");
     } catch (error: any) {
       console.error("Fehler beim Löschen der Nachricht:", error);
-      
+
       if (error.response?.status === 404) {
-        throw new Error('Nachricht nicht gefunden.');
+        throw new Error("Nachricht nicht gefunden.");
       } else if (error.response?.status === 400) {
-        const message = error.response?.data?.message || 'Nachricht konnte nicht gelöscht werden';
+        const message = error.response?.data?.message || "Nachricht konnte nicht gelöscht werden";
         throw new Error(message);
       }
-      
+
       throw error;
     }
   }
@@ -304,17 +338,17 @@ class ChatService {
    */
   async deleteConversation(conversationId: string): Promise<{ message: string }> {
     try {
-      console.log('Deleting conversation:', conversationId);
+      console.log("Deleting conversation:", conversationId);
       const response = await api.delete(`/conversation/${conversationId}`);
-      console.log('Conversation deleted successfully');
+      console.log("Conversation deleted successfully");
       return response.data;
     } catch (error: any) {
       console.error("Fehler beim Löschen der Conversation:", error);
-      
+
       if (error.response?.status === 404) {
-        throw new Error('Conversation nicht gefunden.');
+        throw new Error("Conversation nicht gefunden.");
       }
-      
+
       throw error;
     }
   }
@@ -328,27 +362,27 @@ class ChatService {
       if (conversationId) {
         // Ungelesene Nachrichten für eine spezifische Conversation
         const conversation = await this.getConversation(conversationId);
-        const unreadCount = conversation.messages?.filter(msg => !msg.isRead).length || 0;
+        const unreadCount = conversation.messages?.filter((msg) => !msg.isRead).length || 0;
         return unreadCount;
       } else {
         // Gesamte ungelesene Nachrichten (für Badge-Counter)
         const conversations = await this.getAllConversations();
-        
+
         // Da ConversationPreview keine isRead-Info hat, müssen wir jede Conversation laden
         // Für Performance nur die ersten 5 aktiven Conversations prüfen
         const activeConversations = conversations.slice(0, 5);
         let totalUnread = 0;
-        
+
         for (const preview of activeConversations) {
           try {
             const conversation = await this.getConversation(preview.id);
-            const unreadCount = conversation.messages?.filter(msg => !msg.isRead).length || 0;
+            const unreadCount = conversation.messages?.filter((msg) => !msg.isRead).length || 0;
             totalUnread += unreadCount;
           } catch (error) {
-            console.warn('Could not load conversation for unread count:', preview.id);
+            console.warn("Could not load conversation for unread count:", preview.id);
           }
         }
-        
+
         return totalUnread;
       }
     } catch (error) {
@@ -412,94 +446,47 @@ class ChatService {
   }
 
   /**
-   * Hilfsfunktion: Validiert Datei für Upload
+   * Hilfsfunktion: Bereinigt HTML-Inhalt für sicheres Rendering
    */
-  validateFile(file: File): { valid: boolean; error?: string } {
-    const allowedTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-      'application/pdf',
-      'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain'
-    ];
-    
-    if (!allowedTypes.includes(file.type)) {
-      return {
-        valid: false,
-        error: `Dateityp ${file.type} ist nicht erlaubt. Erlaubte Typen: Bilder, PDF, Word-Dokumente, Text-Dateien.`
-      };
-    }
-    
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      return {
-        valid: false,
-        error: `Datei ist zu groß (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum: 10MB.`
-      };
-    }
-    
-    return { valid: true };
+  sanitizeHtml(html: string): string {
+    // Erlaubte Tags für Rich-Text
+    const allowedTags = ["b", "u", "i", "strong", "em"];
+
+    // Einfache Bereinigung - in Produktion sollte eine Library wie DOMPurify verwendet werden
+    let cleaned = html;
+
+    // Entferne alle nicht erlaubten Tags
+    cleaned = cleaned.replace(/<(?!\/?(?:b|u|i|strong|em)(?=>|\s.*>))\/?.*?>/gi, "");
+
+    // Entferne gefährliche Attribute
+    cleaned = cleaned.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, "");
+    cleaned = cleaned.replace(/\s*style\s*=\s*["'][^"']*["']/gi, "");
+
+    return cleaned;
   }
 
   /**
-   * Hilfsfunktion: Formatiert Dateigröße
+   * Hilfsfunktion: Konvertiert Text mit Emojis und Formatierung zu HTML
    */
-  formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  parseMessageContent(content: string): string {
+    // Sanitize zuerst
+    let parsed = this.sanitizeHtml(content);
+
+    // Konvertiere Line Breaks zu <br>
+    parsed = parsed.replace(/\n/g, "<br>");
+
+    return parsed;
   }
 
   /**
-   * Hilfsfunktion: Erkennt Dateityp für Icon-Anzeige
+   * Hilfsfunktion: Extrahiert reinen Text aus HTML (für Vorschau)
    */
-  getFileTypeIcon(mimeType: string): string {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType === 'application/pdf') return '📄';
-    if (mimeType.includes('word')) return '📝';
-    if (mimeType === 'text/plain') return '📄';
-    return '📎';
-  }
-
-  /**
-   * DEBUGGING: Teste Backend-Verbindung
-   */
-  async debugBackendConnection(): Promise<void> {
-    console.group('🔍 Chat Service Backend Debug');
-    
-    const testEndpoints = [
-      { method: 'GET', url: '/conversation/loadPreview', description: 'Load conversation previews' },
-      { method: 'GET', url: '/user/getMe', description: 'Check authentication' },
-    ];
-
-    for (const endpoint of testEndpoints) {
-      try {
-        const response = await api.request({
-          method: endpoint.method,
-          url: endpoint.url,
-        });
-        console.log(`✅ ${endpoint.method} ${endpoint.url}:`, response.status, endpoint.description);
-        
-        if (endpoint.url === '/conversation/loadPreview') {
-          console.log('   📋 Response data type:', typeof response.data);
-          console.log('   📋 Response data length:', Array.isArray(response.data) ? response.data.length : 'not array');
-        }
-      } catch (error: any) {
-        const status = error.response?.status || 'ERR';
-        const message = error.response?.data?.message || error.message;
-        console.log(`❌ ${endpoint.method} ${endpoint.url}:`, status, message, `(${endpoint.description})`);
-        
-        if (error.response?.data) {
-          console.log('   🔍 Error details:', error.response.data);
-        }
-      }
-    }
-    
-    console.groupEnd();
+  extractTextFromHtml(html: string): string {
+    // Einfache Implementierung - in Produktion sollte eine DOM-Parser Library verwendet werden
+    return html
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]*>/g, "")
+      .trim();
   }
 }
 

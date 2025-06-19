@@ -4,13 +4,13 @@
  * Benachrichtigungstypen basierend auf dem Prisma Schema
  */
 export enum NotificationType {
-  FRIEND_REQUEST = 'FRIEND_REQUEST', // Freundschaftsanfrage
-  FRIENDSHIP_ACCEPTED = 'FRIENDSHIP_ACCEPTED', // Freundschaft angenommen
-  COMMENT = 'COMMENT', // Antwort auf Kommentar / Kommentar auf Post
-  NEW_MESSAGE = 'NEW_MESSAGE', // Neue Nachricht mit Freunden etc
-  APPLICATION_STATUS_CHANGE = 'APPLICATION_STATUS_CHANGE', // Statusänderung der Bewerbung
-  TICKET_UPDATE = 'TICKET_UPDATE', // Status, neue Nachricht im Ticket
-  SYSTEM = 'SYSTEM' // Alles was Admins machen etc
+  FRIEND_REQUEST = "FRIEND_REQUEST", // Freundschaftsanfrage
+  FRIENDSHIP_ACCEPTED = "FRIENDSHIP_ACCEPTED", // Freundschaft angenommen
+  COMMENT = "COMMENT", // Antwort auf Kommentar / Kommentar auf Post
+  NEW_MESSAGE = "NEW_MESSAGE", // Neue Nachricht mit Freunden etc
+  APPLICATION_STATUS_CHANGE = "APPLICATION_STATUS_CHANGE", // Statusänderung der Bewerbung
+  TICKET_UPDATE = "TICKET_UPDATE", // Status, neue Nachricht im Ticket
+  SYSTEM = "SYSTEM", // Alles was Admins machen etc
 }
 
 /**
@@ -33,7 +33,8 @@ export interface NotificationDisplay extends Notification {
   time?: string; // Formatierte Zeit (z.B. "Vor 10 Minuten")
   actionLink?: string; // Link für "Ansehen"-Button
   actionText?: string; // Text für Action-Button
-  icon?: string; // Emoji für Icon-Darstellung
+  iconName?: string; // Hero Icon Name für Icon-Darstellung
+  iconColor?: string; // Farbe für das Icon
 }
 
 /**
@@ -56,7 +57,8 @@ export interface NotificationSetting {
 }
 
 /**
- * API Response Types
+ * API Response Types - NICHT MEHR VERWENDET (Backend gibt direkt Arrays/Zahlen zurück)
+ * Behalten für mögliche zukünftige Erweiterungen
  */
 export interface NotificationCountResponse {
   count: number;
@@ -78,44 +80,59 @@ export interface CreateNotificationRequest {
 }
 
 /**
- * Filter-Mapping für UI
+ * Filter-Mapping für UI mit Hero Icons
  */
-export const NotificationTypeMap: Record<NotificationType, { name: string; icon: string; color: string }> = {
+export const NotificationTypeMap: Record<
+  NotificationType,
+  {
+    name: string;
+    iconName: string;
+    color: string;
+    bgColor: string;
+  }
+> = {
   [NotificationType.FRIEND_REQUEST]: {
-    name: 'Freundschaftsanfrage',
-    icon: '👥',
-    color: '#4AD695'
+    name: "Freundschaftsanfrage",
+    iconName: "UserGroupIcon",
+    color: "#4AD695",
+    bgColor: "rgba(74, 214, 149, 0.15)",
   },
   [NotificationType.FRIENDSHIP_ACCEPTED]: {
-    name: 'Freundschaft angenommen',
-    icon: '🤝',
-    color: '#4AD695'
+    name: "Freundschaft angenommen",
+    iconName: "UserPlusIcon",
+    color: "#4AD695",
+    bgColor: "rgba(74, 214, 149, 0.15)",
   },
   [NotificationType.COMMENT]: {
-    name: 'Kommentar',
-    icon: '💬',
-    color: '#35CCD0'
+    name: "Kommentar",
+    iconName: "ChatBubbleLeftRightIcon",
+    color: "#35CCD0",
+    bgColor: "rgba(53, 204, 208, 0.15)",
   },
   [NotificationType.NEW_MESSAGE]: {
-    name: 'Neue Nachricht',
-    icon: '✉️',
-    color: '#35CCD0'
+    name: "Neue Nachricht",
+    iconName: "EnvelopeIcon",
+    color: "#35CCD0",
+    bgColor: "rgba(53, 204, 208, 0.15)",
   },
   [NotificationType.APPLICATION_STATUS_CHANGE]: {
-    name: 'Bewerbungsstatus',
-    icon: '📋',
-    color: '#F7DC6F'
+    name: "Bewerbungsstatus",
+    iconName: "ClipboardDocumentCheckIcon",
+    color: "#F7DC6F",
+    bgColor: "rgba(247, 220, 111, 0.15)",
   },
   [NotificationType.TICKET_UPDATE]: {
-    name: 'Ticket-Update',
-    icon: '🎫',
-    color: '#F7DC6F'
+    name: "Ticket-Update",
+    iconName: "TicketIcon",
+    color: "#F7DC6F",
+    bgColor: "rgba(247, 220, 111, 0.15)",
   },
   [NotificationType.SYSTEM]: {
-    name: 'System',
-    icon: 'ℹ️',
-    color: '#85C1E9'
-  }
+    name: "System",
+    iconName: "InformationCircleIcon",
+    color: "#85C1E9",
+    bgColor: "rgba(133, 193, 233, 0.15)",
+  },
 };
 
 /**
@@ -129,47 +146,52 @@ export const formatNotificationTime = (createdAt: string): string => {
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffMinutes < 1) return 'Gerade eben';
-  if (diffMinutes < 60) return `Vor ${diffMinutes} Minute${diffMinutes === 1 ? '' : 'n'}`;
-  if (diffHours < 24) return `Vor ${diffHours} Stunde${diffHours === 1 ? '' : 'n'}`;
-  if (diffDays < 7) return `Vor ${diffDays} Tag${diffDays === 1 ? '' : 'en'}`;
-  
-  return created.toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
+  if (diffMinutes < 1) return "Gerade eben";
+  if (diffMinutes < 60) return `Vor ${diffMinutes} Minute${diffMinutes === 1 ? "" : "n"}`;
+  if (diffHours < 24) return `Vor ${diffHours} Stunde${diffHours === 1 ? "" : "n"}`;
+  if (diffDays < 7) return `Vor ${diffDays} Tag${diffDays === 1 ? "" : "en"}`;
+
+  return created.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 };
 
 export const generateNotificationTitle = (type: NotificationType): string => {
   const typeInfo = NotificationTypeMap[type];
-  return typeInfo?.name || 'Benachrichtigung';
+  return typeInfo?.name || "Benachrichtigung";
 };
 
 export const convertToDisplayNotification = (notification: Notification): NotificationDisplay => {
   const typeInfo = NotificationTypeMap[notification.type];
-  
+
   return {
     ...notification,
     title: generateNotificationTitle(notification.type),
     time: formatNotificationTime(notification.createdAt),
-    icon: typeInfo?.icon || '🔔',
+    iconName: typeInfo?.iconName || "BellIcon",
+    iconColor: typeInfo?.color || "#85C1E9",
     // Action-Links können basierend auf dem Typ generiert werden
     actionLink: generateActionLink(notification),
-    actionText: generateActionText(notification.type)
+    actionText: generateActionText(notification.type),
   };
 };
 
 const generateActionLink = (notification: Notification): string | undefined => {
   switch (notification.type) {
     case NotificationType.FRIEND_REQUEST:
-      return '/member/dashboard?tab=friends';
+      return "/member/dashboard?tab=friends";
+    case NotificationType.FRIENDSHIP_ACCEPTED:
+      return "/member/dashboard?tab=friends";
     case NotificationType.COMMENT:
-      return '/member/dashboard?tab=my-articles';
+      return "/member/dashboard?tab=my-articles";
     case NotificationType.APPLICATION_STATUS_CHANGE:
-      return '/member/dashboard?tab=overview';
+      return "/member/dashboard?tab=overview";
     case NotificationType.TICKET_UPDATE:
-      return '/member/dashboard?tab=settings';
+      return "/member/dashboard?tab=support";
+    case NotificationType.NEW_MESSAGE:
+      return "/member/dashboard?tab=friends";
     default:
       return undefined;
   }
@@ -178,16 +200,18 @@ const generateActionLink = (notification: Notification): string | undefined => {
 const generateActionText = (type: NotificationType): string | undefined => {
   switch (type) {
     case NotificationType.FRIEND_REQUEST:
-      return 'Anfrage ansehen';
+      return "Anfrage ansehen";
+    case NotificationType.FRIENDSHIP_ACCEPTED:
+      return "Freunde anzeigen";
     case NotificationType.COMMENT:
-      return 'Zum Kommentar';
+      return "Zum Kommentar";
     case NotificationType.APPLICATION_STATUS_CHANGE:
-      return 'Status ansehen';
+      return "Status ansehen";
     case NotificationType.TICKET_UPDATE:
-      return 'Ticket öffnen';
+      return "Ticket öffnen";
     case NotificationType.NEW_MESSAGE:
-      return 'Nachricht lesen';
+      return "Nachricht lesen";
     default:
-      return 'Ansehen';
+      return "Ansehen";
   }
 };

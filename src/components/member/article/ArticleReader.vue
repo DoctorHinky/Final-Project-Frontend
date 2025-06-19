@@ -25,7 +25,7 @@
     <div class="reader-navbar">
       <div class="navbar-left">
         <button class="back-button" @click="$emit('close')">
-          <ArrowLeftIcon class="h-5 w-5" />
+          <ArrowLeftIcon class="h-5 w-5 Icons" />
           Zurück
         </button>
       </div>
@@ -69,11 +69,11 @@
             <h1>{{ fullArticle.title }}</h1>
             <div class="article-meta">
               <span class="article-author">
-                <UserIcon class="h-4 w-4" />
+                <UserIcon class="h-4 w-4 Icons" />
                 Von {{ fullArticle.author?.username || 'Unbekannt' }}
               </span>
               <span class="article-date">
-                <CalendarDaysIcon class="h-4 w-4" />
+                <CalendarDaysIcon class="h-4 w-4 Icons" />
                 {{ formatDate(fullArticle.createdAt) }}
               </span>
             </div>
@@ -88,14 +88,14 @@
               </div>
               <div class="chapter-controls">
                 <button class="chapter-button prev" :disabled="currentChapter === 1" @click="prevChapter">
-                  <ChevronLeftIcon class="h-4 w-4" />
+                  <ChevronLeftIcon class="h-4 w-4 Icons" />
                   Zurück
                 </button>
                 <div class="chapter-info">Kapitel {{ currentChapter }} von {{ fullArticle.chapters.length }}</div>
                 <button class="chapter-button next" :disabled="currentChapter === fullArticle.chapters.length"
                   @click="nextChapter">
                   Weiter
-                  <ChevronRightIcon class="h-4 w-4" />
+                  <ChevronRightIcon class="h-4 w-4 Icons" />
                 </button>
               </div>
             </div>
@@ -133,12 +133,12 @@
                 <div class="rating-buttons">
                   <button class="rating-button like" :class="{ active: userRating === 1 }" :disabled="loadingRating"
                     @click="likeArticle">
-                    <HandThumbUpIcon class="h-5 w-5 iconDislikeLike" />
+                    <HandThumbUpIcon class="h-5 w-5 iconDislikeLike Icons" />
                     {{ likes }}
                   </button>
                   <button class="rating-button dislike" :class="{ active: userRating === -1 }" :disabled="loadingRating"
                     @click="dislikeArticle">
-                    <HandThumbDownIcon class="h-5 w-5 iconDislikeLike" />
+                    <HandThumbDownIcon class="h-5 w-5 iconDislikeLike Icons" />
                     {{ dislikes }}
                   </button>
                 </div>
@@ -146,7 +146,7 @@
 
               <button v-if="fullArticle.quiz && fullArticle.quiz.questions && fullArticle.quiz.questions.length > 0"
                 class="start-quiz-button" @click="showQuiz = true">
-                <AcademicCapIcon class="h-5 w-5" />
+                <AcademicCapIcon class="h-5 w-5 Icons" />
                 Quiz starten
               </button>
             </div>
@@ -167,7 +167,7 @@
                 class="comment-input"></textarea>
               <div class="comment-actions">
                 <button @click="submitComment" :disabled="!newComment.trim()" class="submit-comment-button">
-                  <PaperAirplaneIcon class="h-4 w-4" />
+                  <PaperAirplaneIcon class="h-4 w-4 Icons" />
                   Kommentar senden
                 </button>
               </div>
@@ -183,7 +183,7 @@
               <div v-for="comment in comments" :key="comment.id" class="comment">
                 <div class="comment-header">
                   <span class="comment-author">
-                    <UserCircleIcon class="h-5 w-5" />
+                    <UserCircleIcon class="h-5 w-5 Icons" />
                     {{ comment.user.username }}
                   </span>
                   <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
@@ -191,7 +191,7 @@
                 <div class="comment-content">{{ comment.content }}</div>
                 <div class="comment-actions">
                   <button @click="startReply(comment.id)" class="reply-button" v-if="replyingTo !== comment.id">
-                    <ArrowUturnLeftIcon class="h-4 w-4" />
+                    <ArrowUturnLeftIcon class="h-4 w-4 Icons" />
                     Antworten
                   </button>
                 </div>
@@ -203,11 +203,11 @@
                   <div class="reply-actions">
                     <button @click="submitReply(comment.id)" :disabled="!replyContent.trim()"
                       class="submit-reply-button">
-                      <PaperAirplaneIcon class="h-4 w-4" />
+                      <PaperAirplaneIcon class="h-4 w-4 Icons" />
                       Antworten
                     </button>
                     <button @click="cancelReply" class="cancel-reply-button">
-                      <XMarkIcon class="h-4 w-4" />
+                      <XMarkIcon class="h-4 w-4 Icons" />
                       Abbrechen
                     </button>
                   </div>
@@ -218,7 +218,7 @@
                   <div v-for="reply in comment.replies" :key="reply.id" class="reply">
                     <div class="comment-header">
                       <span class="comment-author">
-                        <UserCircleIcon class="h-4 w-4" />
+                        <UserCircleIcon class="h-4 w-4 Icons" />
                         {{ reply.user.username }}
                       </span>
                       <span class="comment-date">{{ formatDate(reply.createdAt) }}</span>
@@ -262,7 +262,7 @@
 
               <!-- Hinweis für Multiple-Choice -->
               <div v-if="currentQuestion.answers.filter(a => a.isCorrect).length > 1" class="quiz-hint">
-                <LightBulbIcon class="h-5 w-5" />
+                <LightBulbIcon class="h-5 w-5 Icons" />
                 Mehrere Antworten können richtig sein
               </div>
 
@@ -270,9 +270,9 @@
                 <div v-for="(answer, index) in currentQuestion.answers" :key="answer.id" class="quiz-option"
                   :class="getOptionClasses(index, answer)" @click="selectOption(index)">
                   <div class="option-marker">
-                    <CheckIcon v-if="showFeedback && answer.isCorrect" class="h-5 w-5" />
+                    <CheckIcon v-if="showFeedback && answer.isCorrect" class="h-5 w-5 Icons" />
                     <XMarkIcon v-else-if="showFeedback && selectedOptions.has(index) && !answer.isCorrect"
-                      class="h-5 w-5" />
+                      class="h-5 w-5 Icons" />
                     <span v-else>{{ getOptionLetter(index) }}</span>
                   </div>
                   <div class="option-text">{{ answer.answer }}</div>
@@ -305,24 +305,24 @@
             <div class="quiz-controls">
               <button v-if="!quizCompleted && !showFeedback" class="check-answer-button" :disabled="!hasSelectedOptions"
                 @click="checkAnswer">
-                <MagnifyingGlassIcon class="h-4 w-4" />
+                <MagnifyingGlassIcon class="h-4 w-4 Icons" />
                 Antwort prüfen
               </button>
 
               <button v-if="showFeedback && !quizCompleted && hasNextQuestion" class="next-question-button"
                 @click="nextQuestion">
                 Nächste Frage
-                <ChevronRightIcon class="h-4 w-4" />
+                <ChevronRightIcon class="h-4 w-4 Icons" />
               </button>
 
               <button v-if="showFeedback && !quizCompleted && !hasNextQuestion" class="finish-quiz-button"
                 @click="finishQuiz">
-                <FlagIcon class="h-4 w-4" />
+                <FlagIcon class="h-4 w-4 Icons" />
                 Quiz abschließen
               </button>
 
               <button v-if="quizCompleted" class="restart-button" @click="restartQuiz">
-                <ArrowPathIcon class="h-4 w-4" />
+                <ArrowPathIcon class="h-4 w-4 Icons" />
                 Quiz neu starten
               </button>
 
@@ -3210,5 +3210,9 @@ export default defineComponent({
 
 .article.view {
   min-height: 100vh;
+}
+
+.Icons{
+  width: 30px;
 }
 </style>

@@ -1,31 +1,35 @@
 <!-- src/components/pages/DashboardPages/Notifications/SettingsModal.vue -->
 <template>
-  <div v-if="showModal" class="modal-backdrop" @click="$emit('close')">
-    <div class="modal-content" @click.stop>
-      <h3>Benachrichtigungseinstellungen</h3>
-      <p>Passe an, welche Benachrichtigungen du erhalten möchtest.</p>
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="showModal" class="modal-backdrop" @click="$emit('close')">
+        <div class="modal-content" @click.stop>
+          <h3>Benachrichtigungseinstellungen</h3>
+          <p>Passe an, welche Benachrichtigungen du erhalten möchtest.</p>
 
-      <div class="settings-form">
-        <div v-for="(setting, index) in settings" :key="index" class="setting-item">
-          <div class="setting-info">
-            <h4>{{ setting.name }}</h4>
-            <p>{{ setting.description }}</p>
+          <div class="settings-form">
+            <div v-for="(setting, index) in settings" :key="index" class="setting-item">
+              <div class="setting-info">
+                <h4>{{ setting.name }}</h4>
+                <p>{{ setting.description }}</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" v-model="setting.enabled" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" v-model="setting.enabled" />
-            <span class="toggle-slider"></span>
-          </label>
+
+          <div class="modal-actions">
+            <button class="cancel-button" @click="$emit('close')">Abbrechen</button>
+            <button class="save-button" @click="saveSettings">Speichern</button>
+          </div>
+
+          <button class="close-modal" @click="$emit('close')">×</button>
         </div>
       </div>
-
-      <div class="modal-actions">
-        <button class="cancel-button" @click="$emit('close')">Abbrechen</button>
-        <button class="save-button" @click="saveSettings">Speichern</button>
-      </div>
-
-      <button class="close-modal" @click="$emit('close')">×</button>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script lang="ts">
@@ -74,8 +78,9 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: map.get(vars.$spacing, m);
+  pointer-events: auto;
 
   .modal-content {
     width: 100%;
@@ -352,5 +357,16 @@ export default defineComponent({
       }
     }
   }
+}
+
+// Modal fade transition
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 </style>

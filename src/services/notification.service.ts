@@ -1,24 +1,17 @@
 // src/services/notification.service.ts
 
-import api from './axiosInstance';
-import { 
-  convertToDisplayNotification 
-} from '@/types/dtos/Notification.types';
-import type { 
-  Notification, 
-  NotificationCountResponse,
-  NotificationsResponse,
-  NotificationDisplay
-} from '@/types/dtos/Notification.types';
+import api from "./axiosInstance";
+import { convertToDisplayNotification } from "@/types/dtos/Notification.types";
+import type { Notification, NotificationDisplay } from "@/types/dtos/Notification.types";
 
 /**
  * Notification Service für API-Kommunikation
  * Mapping zu Backend-Endpunkten:
  * - GET /notification/count -> getNotificationCount()
- * - GET /notification -> getNotifications() 
+ * - GET /notification -> getNotifications()
  * - PATCH /notification/read/:id -> markAsRead(id)
  * - PATCH /notification/read-all -> markAllAsRead()
- * - DELETE /notification/:id -> deleteNotification(id)  
+ * - DELETE /notification/:id -> deleteNotification(id)
  * - DELETE /notification/all -> deleteAllNotifications()
  */
 class NotificationService {
@@ -30,26 +23,32 @@ class NotificationService {
    */
   async getNotificationCount(): Promise<number> {
     try {
-      const response = await api.get<number>('/notification/count');
+      const response = await api.get<number>("/notification/count");
+      // Backend gibt direkt die Zahl zurück
       return response.data;
     } catch (error) {
-      console.error('Fehler beim Abrufen der Benachrichtigungsanzahl:', error);
-      throw error;
+      console.error("Fehler beim Abrufen der Benachrichtigungsanzahl:", error);
+      // Bei Fehler 0 zurückgeben statt zu werfen (für bessere UX)
+      return 0;
     }
   }
 
   /**
-   * Alle Benachrichtigungen abrufen
+   * Alle Benachrichtigungen abrufen (ungelesen und gelesen)
    */
   async getNotifications(): Promise<NotificationDisplay[]> {
     try {
-      const response = await api.get<Notification[]>('/notification');
-      
+      const response = await api.get<Notification[]>("/notification");
+
+      // Backend gibt direkt ein Array zurück
+      const notifications = response.data || [];
+
       // Convert to Display-Notifications mit formatierten Zeiten und Titeln
-      return response.data.map(convertToDisplayNotification);
+      return notifications.map(convertToDisplayNotification);
     } catch (error) {
-      console.error('Fehler beim Abrufen der Benachrichtigungen:', error);
-      throw error;
+      console.error("Fehler beim Abrufen der Benachrichtigungen:", error);
+      // Bei Fehler leeres Array zurückgeben statt zu werfen (für bessere UX)
+      return [];
     }
   }
 
@@ -59,11 +58,14 @@ class NotificationService {
   async markAsRead(notificationId: string): Promise<void> {
     try {
       await api.patch(`/notification/read/${notificationId}`);
-      
+
+      // Cache invalidieren
+      this.invalidateCache();
+
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
-      console.error('Fehler beim Markieren als gelesen:', error);
+      console.error("Fehler beim Markieren als gelesen:", error);
       throw error;
     }
   }
@@ -73,12 +75,15 @@ class NotificationService {
    */
   async markAllAsRead(): Promise<void> {
     try {
-      await api.patch('/notification/read-all');
-      
+      await api.patch("/notification/read-all");
+
+      // Cache invalidieren
+      this.invalidateCache();
+
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
-      console.error('Fehler beim Markieren aller als gelesen:', error);
+      console.error("Fehler beim Markieren aller als gelesen:", error);
       throw error;
     }
   }
@@ -89,11 +94,14 @@ class NotificationService {
   async deleteNotification(notificationId: string): Promise<void> {
     try {
       await api.delete(`/notification/${notificationId}`);
-      
+
+      // Cache invalidieren
+      this.invalidateCache();
+
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
-      console.error('Fehler beim Löschen der Benachrichtigung:', error);
+      console.error("Fehler beim Löschen der Benachrichtigung:", error);
       throw error;
     }
   }
@@ -103,12 +111,15 @@ class NotificationService {
    */
   async deleteAllNotifications(): Promise<void> {
     try {
-      await api.delete('/notification/all');
-      
+      await api.delete("/notification/all");
+
+      // Cache invalidieren
+      this.invalidateCache();
+
       // Trigger update für Badge-Counter
       this.notifyListeners();
     } catch (error) {
-      console.error('Fehler beim Löschen aller Benachrichtigungen:', error);
+      console.error("Fehler beim Löschen aller Benachrichtigungen:", error);
       throw error;
     }
   }
@@ -117,6 +128,9 @@ class NotificationService {
    * Polling für Live-Updates starten (alle 30 Sekunden)
    */
   startPolling(): void {
+    // Vorheriges Polling stoppen falls vorhanden
+    this.stopPolling();
+
     // Sofortiger erster Aufruf
     this.notifyListeners();
 
@@ -125,11 +139,11 @@ class NotificationService {
       try {
         await this.notifyListeners();
       } catch (error) {
-        console.warn('Polling-Fehler bei Benachrichtigungen:', error);
+        console.warn("Polling-Fehler bei Benachrichtigungen:", error);
       }
     }, 30000); // 30 Sekunden
 
-    console.log('Notification-Polling gestartet (alle 30 Sekunden)');
+    console.log("Notification-Polling gestartet (alle 30 Sekunden)");
   }
 
   /**
@@ -139,7 +153,7 @@ class NotificationService {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
-      console.log('Notification-Polling gestoppt');
+      console.log("Notification-Polling gestoppt");
     }
   }
 
@@ -166,24 +180,26 @@ class NotificationService {
   private async notifyListeners(): Promise<void> {
     try {
       const count = await this.getNotificationCount();
-      
+
       // Alle registrierten Listener benachrichtigen
-      this.listeners.forEach(callback => {
+      this.listeners.forEach((callback) => {
         try {
           callback(count);
         } catch (error) {
-          console.error('Fehler beim Benachrichtigen eines Listeners:', error);
+          console.error("Fehler beim Benachrichtigen eines Listeners:", error);
         }
       });
 
       // Custom Event für Badge-Update in der Sidebar
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('notification-count-updated', {
-          detail: { count }
-        }));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("notification-count-updated", {
+            detail: { count },
+          })
+        );
       }
     } catch (error) {
-      console.error('Fehler beim Benachrichtigen der Listener:', error);
+      console.error("Fehler beim Benachrichtigen der Listener:", error);
     }
   }
 
@@ -193,6 +209,7 @@ class NotificationService {
   cleanup(): void {
     this.stopPolling();
     this.listeners = [];
+    this.invalidateCache();
   }
 
   /**
@@ -207,23 +224,20 @@ class NotificationService {
    */
   async getNotificationsCached(): Promise<NotificationDisplay[]> {
     const now = Date.now();
-    const cacheKey = 'notifications';
-    
+    const cacheKey = "notifications";
+
     // Cache prüfen
-    if (
-      this.notificationCache.has(cacheKey) && 
-      (now - this.cacheTimestamp) < this.CACHE_DURATION
-    ) {
+    if (this.notificationCache.has(cacheKey) && now - this.cacheTimestamp < this.CACHE_DURATION) {
       return this.notificationCache.get(cacheKey)!;
     }
 
     // Neue Daten laden
     const notifications = await this.getNotifications();
-    
+
     // Cache aktualisieren
     this.notificationCache.set(cacheKey, notifications);
     this.cacheTimestamp = now;
-    
+
     return notifications;
   }
 
@@ -239,9 +253,10 @@ class NotificationService {
    * Filter-Methoden für Frontend
    */
   filterByType(notifications: NotificationDisplay[], type: string): NotificationDisplay[] {
-    if (type === 'all') return notifications;
-    if (type === 'unread') return notifications.filter(n => !n.isRead);
-    return notifications.filter(n => n.type === type);
+    if (type === "all") return notifications;
+    if (type === "unread") return notifications.filter((n) => !n.isRead);
+    // Für Kategorien: Zeige ALLE Nachrichten dieser Kategorie (gelesen und ungelesen)
+    return notifications.filter((n) => n.type === type);
   }
 
   /**
@@ -254,12 +269,12 @@ class NotificationService {
   } {
     const stats = {
       total: notifications.length,
-      unread: notifications.filter(n => !n.isRead).length,
-      byType: {} as Record<string, number>
+      unread: notifications.filter((n) => !n.isRead).length,
+      byType: {} as Record<string, number>,
     };
 
     // Statistiken nach Typ
-    notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       const type = notification.type;
       stats.byType[type] = (stats.byType[type] || 0) + 1;
     });
@@ -271,23 +286,23 @@ class NotificationService {
    * Debug-Methoden für Entwicklung
    */
   async debugInfo(): Promise<void> {
-    console.group('🔔 Notification Service Debug Info');
-    
+    console.group("🔔 Notification Service Debug Info");
+
     try {
       const count = await this.getNotificationCount();
       const notifications = await this.getNotifications();
       const stats = this.getNotificationStats(notifications);
-      
-      console.log('Ungelesene Anzahl:', count);
-      console.log('Gesamte Benachrichtigungen:', stats.total);
-      console.log('Statistiken nach Typ:', stats.byType);
-      console.log('Polling aktiv:', !!this.pollingInterval);
-      console.log('Registrierte Listener:', this.listeners.length);
-      
+
+      console.log("Ungelesene Anzahl:", count);
+      console.log("Gesamte Benachrichtigungen:", stats.total);
+      console.log("Statistiken nach Typ:", stats.byType);
+      console.log("Polling aktiv:", !!this.pollingInterval);
+      console.log("Registrierte Listener:", this.listeners.length);
+      console.log("Cache aktiv:", this.notificationCache.size > 0);
     } catch (error) {
-      console.error('Debug-Fehler:', error);
+      console.error("Debug-Fehler:", error);
     }
-    
+
     console.groupEnd();
   }
 }

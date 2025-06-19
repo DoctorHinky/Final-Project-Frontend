@@ -30,6 +30,10 @@ export interface UserTicket {
   updatedAt: string;
   messageCount?: number;
   hasUnreadMessages?: boolean;
+  // Neue Felder für bessere Integration
+  _count?: {
+    messages: number;
+  };
 }
 
 // Vollständiges Ticket-Interface
@@ -37,18 +41,31 @@ export interface FullTicket extends UserTicket {
   description: string;
   messages?: TicketMessage[];
   files?: TicketFile[];
+  // Backend-kompatible Felder
+  workedBy?: {
+    id: string;
+    username: string;
+    email: string;
+  };
 }
 
 // Ticket-Nachricht-Interface
 export interface TicketMessage {
   id: string;
-  ticketId: string;
-  userId: string;
-  userName: string;
-  userRole: string;
+  ticketId?: string;
+  userId?: string;
+  userName?: string;
+  userRole?: string;
   message: string;
+  content?: string; // Backend nutzt möglicherweise 'content' statt 'message'
   createdAt: string;
   isStaff: boolean;
+  // Backend-kompatible Felder
+  author?: {
+    username: string;
+    id?: string;
+    role?: string;
+  };
 }
 
 // Ticket-Datei-Interface
@@ -62,8 +79,10 @@ export interface TicketFile {
 
 // Create-Ticket-Response
 export interface CreateTicketResponse {
-  message: string;
+  message?: string;
   ticketId: string;
+  id?: string; // Backend gibt möglicherweise direkt 'id' zurück
+  success?: boolean;
 }
 
 // Mock-Daten für Entwicklung
@@ -78,6 +97,9 @@ const mockUserTickets: FullTicket[] = [
     updatedAt: "2025-06-15T14:30:00Z",
     messageCount: 1,
     hasUnreadMessages: false,
+    _count: {
+      messages: 1
+    },
     messages: [
       {
         id: "msg_001",
@@ -86,8 +108,14 @@ const mockUserTickets: FullTicket[] = [
         userName: "Max Mustermann",
         userRole: "user",
         message: "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
+        content: "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
         createdAt: "2025-06-15T14:35:00Z",
         isStaff: false,
+        author: {
+          username: "Max Mustermann",
+          id: "currentUser",
+          role: "USER"
+        }
       }
     ]
   },
@@ -101,6 +129,14 @@ const mockUserTickets: FullTicket[] = [
     updatedAt: "2025-06-15T11:20:00Z",
     messageCount: 3,
     hasUnreadMessages: true,
+    _count: {
+      messages: 3
+    },
+    workedBy: {
+      id: "support_001",
+      username: "Sarah Schmidt",
+      email: "sarah@support.com"
+    },
     messages: [
       {
         id: "msg_002",
@@ -109,8 +145,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Max Mustermann",
         userRole: "user",
         message: "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
+        content: "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
         createdAt: "2025-06-14T09:20:00Z",
         isStaff: false,
+        author: {
+          username: "Max Mustermann",
+          role: "USER"
+        }
       },
       {
         id: "msg_003",
@@ -119,8 +160,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Sarah Schmidt",
         userRole: "support",
         message: "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
+        content: "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
         createdAt: "2025-06-14T15:45:00Z",
         isStaff: true,
+        author: {
+          username: "Sarah Schmidt",
+          role: "ADMIN"
+        }
       },
       {
         id: "msg_004",
@@ -129,8 +175,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Sarah Schmidt",
         userRole: "support",
         message: "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
+        content: "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
         createdAt: "2025-06-15T11:20:00Z",
         isStaff: true,
+        author: {
+          username: "Sarah Schmidt",
+          role: "ADMIN"
+        }
       }
     ]
   },
@@ -144,6 +195,14 @@ const mockUserTickets: FullTicket[] = [
     updatedAt: "2025-06-12T10:30:00Z",
     messageCount: 4,
     hasUnreadMessages: false,
+    _count: {
+      messages: 4
+    },
+    workedBy: {
+      id: "support_002",
+      username: "Tech Support",
+      email: "tech@support.com"
+    },
     messages: [
       {
         id: "msg_005",
@@ -152,8 +211,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Max Mustermann",
         userRole: "user",
         message: "Die Datei ist ein JPEG mit 1024x1024 Pixeln und etwa 980KB groß.",
+        content: "Die Datei ist ein JPEG mit 1024x1024 Pixeln und etwa 980KB groß.",
         createdAt: "2025-06-10T16:50:00Z",
         isStaff: false,
+        author: {
+          username: "Max Mustermann",
+          role: "USER"
+        }
       },
       {
         id: "msg_006",
@@ -162,8 +226,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Tech Support",
         userRole: "support",
         message: "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
+        content: "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
         createdAt: "2025-06-11T09:15:00Z",
         isStaff: true,
+        author: {
+          username: "Tech Support",
+          role: "ADMIN"
+        }
       },
       {
         id: "msg_007",
@@ -172,8 +241,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Tech Support",
         userRole: "support",
         message: "Das Problem wurde behoben. Sie sollten nun Ihr Profilbild ohne Probleme hochladen können.",
+        content: "Das Problem wurde behoben. Sie sollten nun Ihr Profilbild ohne Probleme hochladen können.",
         createdAt: "2025-06-12T10:30:00Z",
         isStaff: true,
+        author: {
+          username: "Tech Support",
+          role: "ADMIN"
+        }
       },
       {
         id: "msg_008",
@@ -182,8 +256,13 @@ const mockUserTickets: FullTicket[] = [
         userName: "Max Mustermann",
         userRole: "user",
         message: "Perfekt! Das Hochladen funktioniert jetzt einwandfrei. Vielen Dank!",
+        content: "Perfekt! Das Hochladen funktioniert jetzt einwandfrei. Vielen Dank!",
         createdAt: "2025-06-12T14:20:00Z",
         isStaff: false,
+        author: {
+          username: "Max Mustermann",
+          role: "USER"
+        }
       }
     ]
   }
@@ -216,13 +295,18 @@ export const memberTicketService = {
           messageCount: 0,
           hasUnreadMessages: false,
           messages: [],
+          _count: {
+            messages: 0
+          }
         };
         
         mockUserTickets.unshift(newTicket);
         
         return {
           message: "Ihr Support-Ticket wurde erfolgreich erstellt",
-          ticketId: mockTicketId
+          ticketId: mockTicketId,
+          id: mockTicketId,
+          success: true
         };
       } else {
         // Im Produktionsmodus: API-Aufruf
@@ -231,7 +315,14 @@ export const memberTicketService = {
             'Content-Type': 'multipart/form-data',
           },
         });
-        return response.data;
+        
+        // Response normalisieren
+        return {
+          ticketId: response.data.id || response.data.ticketId,
+          id: response.data.id || response.data.ticketId,
+          message: response.data.message || "Ticket erfolgreich erstellt",
+          success: true
+        };
       }
     } catch (error) {
       console.error("Fehler beim Erstellen des Support-Tickets:", error);
@@ -255,19 +346,25 @@ export const memberTicketService = {
           createdAt: ticket.createdAt,
           updatedAt: ticket.updatedAt,
           messageCount: ticket.messageCount || 0,
-          hasUnreadMessages: ticket.hasUnreadMessages || false
+          hasUnreadMessages: ticket.hasUnreadMessages || false,
+          _count: ticket._count
         }));
 
         return userTickets;
       } else {
         // Im Produktionsmodus: API-Aufruf
-        const response = await api.get(`/tickets/myTickets`);
-        return response.data;
+        const response = await api.get(`/tickets/my-tickets`);
+        return response.data || [];
       }
     } catch (error) {
       console.error("Fehler beim Abrufen der Tickets:", error);
-      throw new Error("Tickets konnten nicht geladen werden.");
+      return []; // Leeres Array zurückgeben statt Error zu werfen
     }
+  },
+
+  // Einzelnes User-Ticket abrufen (vollständige Details)
+  async getUserTicketById(id: string): Promise<FullTicket | null> {
+    return this.getTicketById(id);
   },
 
   // Einzelnes User-Ticket abrufen (vollständige Details)
@@ -281,21 +378,45 @@ export const memberTicketService = {
         if (ticket) {
           // Simuliere "gelesen" Status-Update
           ticket.hasUnreadMessages = false;
+          
+          // Stelle sicher, dass messages im richtigen Format sind
+          if (ticket.messages) {
+            ticket.messages = ticket.messages.map(msg => ({
+              ...msg,
+              message: msg.message || msg.content || '',
+              content: msg.content || msg.message || '',
+              userName: msg.userName || msg.author?.username || 'Unbekannt',
+              isStaff: msg.isStaff || (msg.author?.role === 'ADMIN' || msg.author?.role === 'MODERATOR')
+            }));
+          }
         }
         return ticket || null;
       } else {
         // Im Produktionsmodus: API-Aufruf
         const response = await api.get(`/tickets/${id}`);
-        return response.data;
+        const ticketData = response.data;
+        
+        // Response normalisieren
+        if (ticketData && ticketData.messages) {
+          ticketData.messages = ticketData.messages.map((msg: any) => ({
+            ...msg,
+            message: msg.message || msg.content || '',
+            content: msg.content || msg.message || '',
+            userName: msg.userName || msg.author?.username || 'Unbekannt',
+            isStaff: msg.isStaff !== undefined ? msg.isStaff : (msg.author?.role === 'ADMIN' || msg.author?.role === 'MODERATOR')
+          }));
+        }
+        
+        return ticketData;
       }
     } catch (error) {
       console.error(`Fehler beim Abrufen des Tickets mit ID ${id}:`, error);
-      throw new Error("Ticket-Details konnten nicht geladen werden.");
+      return null;
     }
   },
 
   // Nachricht zu Ticket hinzufügen
-  async addMessageToTicket(ticketId: string, message: string): Promise<TicketMessage[]> {
+  async addMessageToTicket(ticketId: string, message: string): Promise<void> {
     try {
       // Im Entwicklungsmodus: Mock-Verhalten
       if (import.meta.env.DEV) {
@@ -313,8 +434,13 @@ export const memberTicketService = {
           userName: "Max Mustermann",
           userRole: "user",
           message: message.trim(),
+          content: message.trim(),
           createdAt: new Date().toISOString(),
           isStaff: false,
+          author: {
+            username: "Max Mustermann",
+            role: "USER"
+          }
         };
 
         if (!ticket.messages) {
@@ -323,14 +449,17 @@ export const memberTicketService = {
         ticket.messages.push(newMessage);
         ticket.updatedAt = new Date().toISOString();
         ticket.messageCount = ticket.messages.length;
+        if (ticket._count) {
+          ticket._count.messages = ticket.messages.length;
+        }
 
-        return ticket.messages;
+        return;
       } else {
         // Im Produktionsmodus: API-Aufruf
-        const response = await api.post(`/tickets/${ticketId}/message`, {
+        await api.post(`/tickets/${ticketId}/message`, {
           message: message.trim()
         });
-        return response.data;
+        return;
       }
     } catch (error) {
       console.error(`Fehler beim Hinzufügen einer Nachricht zum Ticket ${ticketId}:`, error);
@@ -339,7 +468,7 @@ export const memberTicketService = {
   },
 
   // Ticket schließen (User kann eigene Tickets schließen)
-  async closeTicket(ticketId: string): Promise<boolean> {
+  async closeTicket(ticketId: string): Promise<void> {
     try {
       // Im Entwicklungsmodus: Mock-Verhalten
       if (import.meta.env.DEV) {
@@ -358,8 +487,13 @@ export const memberTicketService = {
             userName: "System",
             userRole: "system",
             message: "Dieses Ticket wurde vom Benutzer geschlossen.",
+            content: "Dieses Ticket wurde vom Benutzer geschlossen.",
             createdAt: new Date().toISOString(),
             isStaff: true,
+            author: {
+              username: "System",
+              role: "SYSTEM"
+            }
           };
           
           if (!ticket.messages) {
@@ -367,17 +501,71 @@ export const memberTicketService = {
           }
           ticket.messages.push(closeMessage);
           ticket.messageCount = ticket.messages.length;
+          if (ticket._count) {
+            ticket._count.messages = ticket.messages.length;
+          }
         }
 
-        return true;
+        return;
       } else {
         // Im Produktionsmodus: API-Aufruf
-        const response = await api.post(`/tickets/${ticketId}/close`);
-        return response.status === 200;
+        await api.post(`/tickets/${ticketId}/close`);
+        return;
       }
     } catch (error) {
       console.error(`Fehler beim Schließen des Tickets ${ticketId}:`, error);
       throw new Error("Ticket konnte nicht geschlossen werden.");
+    }
+  },
+
+  // Ticket wieder öffnen
+  async reopenTicket(ticketId: string): Promise<void> {
+    try {
+      // Im Entwicklungsmodus: Mock-Verhalten
+      if (import.meta.env.DEV) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
+        const ticket = mockUserTickets.find(t => t.id === ticketId);
+        if (ticket) {
+          ticket.status = TicketStatus.OPEN;
+          ticket.updatedAt = new Date().toISOString();
+          
+          // Automatische Wiedereröffnungs-Nachricht
+          const reopenMessage: TicketMessage = {
+            id: `msg_reopen_${Date.now()}`,
+            ticketId,
+            userId: "system",
+            userName: "System",
+            userRole: "system",
+            message: "Dieses Ticket wurde vom Benutzer wieder geöffnet.",
+            content: "Dieses Ticket wurde vom Benutzer wieder geöffnet.",
+            createdAt: new Date().toISOString(),
+            isStaff: true,
+            author: {
+              username: "System",
+              role: "SYSTEM"
+            }
+          };
+          
+          if (!ticket.messages) {
+            ticket.messages = [];
+          }
+          ticket.messages.push(reopenMessage);
+          ticket.messageCount = ticket.messages.length;
+          if (ticket._count) {
+            ticket._count.messages = ticket.messages.length;
+          }
+        }
+        
+        return;
+      } else {
+        // Im Produktionsmodus: API-Aufruf
+        await api.post(`/tickets/${ticketId}/reopen`);
+        return;
+      }
+    } catch (error) {
+      console.error(`Fehler beim Wiedereröffnen des Tickets ${ticketId}:`, error);
+      throw new Error("Ticket konnte nicht wieder geöffnet werden.");
     }
   },
 

@@ -7,12 +7,7 @@
       <div class="modal-header">
         <div class="header-content">
           <div class="header-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              <path d="M8 10h8"></path>
-              <path d="M8 14h6"></path>
-            </svg>
+            <ChatBubbleLeftRightIcon class="w-6 h-6" />
           </div>
           <div>
             <h3>Support kontaktieren</h3>
@@ -20,11 +15,7 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" :disabled="isSubmitting">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+          <XMarkIcon class="w-5 h-5 Close-Icon" />
         </button>
       </div>
 
@@ -54,18 +45,21 @@
           <!-- Kategorie -->
           <div class="form-group">
             <label for="ticket-category" class="form-label">Kategorie</label>
-            <select 
-              id="ticket-category" 
-              v-model="formData.category" 
-              class="form-select"
-              :disabled="isSubmitting"
-            >
-              <option value="ACCOUNT">Konto & Anmeldung</option>
-              <option value="TECHNICAL">Technisches Problem</option>
-              <option value="WEBSITE_BUG">Website-Fehler</option>
-              <option value="REPORT">Inhalte melden</option>
-              <option value="OTHER">Sonstiges</option>
-            </select>
+            <div class="custom-select">
+              <select 
+                id="ticket-category" 
+                v-model="formData.category" 
+                class="form-select"
+                :disabled="isSubmitting"
+              >
+                <option value="ACCOUNT">Konto & Anmeldung</option>
+                <option value="TECHNICAL">Technisches Problem</option>
+                <option value="WEBSITE_BUG">Website-Fehler</option>
+                <option value="REPORT">Inhalte melden</option>
+                <option value="OTHER">Sonstiges</option>
+              </select>
+              <ChevronDownIcon class="select-icon" />
+            </div>
           </div>
 
           <!-- Beschreibung -->
@@ -107,12 +101,7 @@
               >
               <div class="file-upload-content">
                 <div class="upload-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                  </svg>
+                  <CloudArrowUpIcon class="w-8 h-8 Icons-Big" />
                 </div>
                 <p class="upload-text">
                   <strong>Dateien hier ablegen</strong> oder klicken zum Auswählen
@@ -128,11 +117,7 @@
               <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
                 <div class="file-info">
                   <div class="file-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
+                    <DocumentIcon class="w-4 h-4 Icons" />
                   </div>
                   <div class="file-details">
                     <div class="file-name">{{ file.name }}</div>
@@ -146,11 +131,7 @@
                   :disabled="isSubmitting"
                   title="Datei entfernen"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  <XMarkIcon class="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -163,17 +144,11 @@
             </button>
             <button type="submit" class="btn-submit" :disabled="!canSubmit || isSubmitting">
               <span v-if="isSubmitting" class="loading">
-                <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-dasharray="16 16"></circle>
-                </svg>
+                <div class="spinner"></div>
                 Wird gesendet...
               </span>
               <span v-else>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
+                <PaperAirplaneIcon class="w-4 h-4 Icons" />
                 Ticket senden
               </span>
             </button>
@@ -183,11 +158,7 @@
         <!-- Erfolgs-Meldung -->
         <div v-if="showSuccess" class="success-message">
           <div class="success-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
+            <CheckCircleIcon class="w-12 h-12" />
           </div>
           <h4>Ticket erfolgreich erstellt!</h4>
           <p>Ihr Support-Ticket wurde erfolgreich übermittelt. Sie erhalten eine Bestätigung per E-Mail und unser Team wird sich baldmöglichst bei Ihnen melden.</p>
@@ -206,9 +177,27 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { memberTicketService } from '@/services/member.ticket.service';
+import {
+  ChatBubbleLeftRightIcon,
+  XMarkIcon,
+  CloudArrowUpIcon,
+  DocumentIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  ChevronDownIcon
+} from '@heroicons/vue/24/outline';
 
 export default defineComponent({
   name: 'UserTicketModal',
+  components: {
+    ChatBubbleLeftRightIcon,
+    XMarkIcon,
+    CloudArrowUpIcon,
+    DocumentIcon,
+    PaperAirplaneIcon,
+    CheckCircleIcon,
+    ChevronDownIcon
+  },
   props: {
     isOpen: {
       type: Boolean,
@@ -319,7 +308,6 @@ export default defineComponent({
         }
       } catch (error) {
         console.error('Fehler beim Erstellen des Tickets:', error);
-        // Hier könnte eine Toast-Notification gezeigt werden
       } finally {
         isSubmitting.value = false;
       }
@@ -461,9 +449,22 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
       color: white;
       flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 0 20px rgba(74, 210, 149, 0.25);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+        opacity: 0.4;
+        filter: blur(8px);
+        z-index: -1;
+      }
     }
 
     h3 {
@@ -544,14 +545,13 @@ export default defineComponent({
     }
 
     .required {
-      color: #ef4444;
+      color: #4ad295;
       margin-left: 2px;
     }
   }
 
   .form-input,
-  .form-textarea,
-  .form-select {
+  .form-textarea {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
@@ -567,8 +567,8 @@ export default defineComponent({
 
         &:focus {
           outline: none;
-          border-color: #4facfe;
-          box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+          border-color: #4ad295;
+          box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
         }
 
         &:disabled {
@@ -589,6 +589,67 @@ export default defineComponent({
     line-height: 1.5;
   }
 
+  // Custom Select Styling
+  .custom-select {
+    position: relative;
+
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      padding-right: 36px;
+      border-radius: 8px;
+      border: 1px solid;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, primary-bg);
+          border-color: mixins.theme-color($theme, border-medium);
+          color: mixins.theme-color($theme, text-primary);
+
+          &:focus {
+            outline: none;
+            border-color: #4ad295;
+            box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          // Option styling
+          option {
+            background-color: mixins.theme-color($theme, primary-bg);
+            color: mixins.theme-color($theme, text-primary);
+            padding: 8px;
+          }
+        }
+      }
+    }
+
+    .select-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
   .input-hint {
     margin-top: 4px;
     font-size: 0.75rem;
@@ -603,7 +664,7 @@ export default defineComponent({
   .form-error {
     margin-top: 6px;
     font-size: 0.75rem;
-    color: #ef4444;
+    color: #4ad295;
   }
 }
 
@@ -623,8 +684,9 @@ export default defineComponent({
       background-color: mixins.theme-color($theme, secondary-bg);
 
       &:hover, &.drag-over {
-        border-color: #4facfe;
-        background-color: rgba(79, 172, 254, 0.05);
+        border-color: #4ad295;
+        background-color: rgba(74, 210, 149, 0.05);
+        box-shadow: 0 0 15px rgba(74, 210, 149, 0.1);
       }
     }
   }
@@ -645,6 +707,7 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
+        filter: drop-shadow(0 0 5px rgba(74, 210, 149, 0.2));
       }
     }
   }
@@ -748,8 +811,8 @@ export default defineComponent({
           color: mixins.theme-color($theme, text-secondary);
 
           &:hover {
-            background-color: #ef4444;
-            color: white;
+            background-color: mixins.theme-color($theme, hover-color);
+            color: mixins.theme-color($theme, text-primary);
           }
 
           &:disabled {
@@ -811,15 +874,33 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
     border: none;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+      opacity: 0;
+      filter: blur(8px);
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
 
     &:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+      &::before {
+        opacity: 0.5;
+      }
     }
 
     &:disabled {
@@ -835,6 +916,11 @@ export default defineComponent({
     }
 
     .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-left-color: white;
+      border-radius: 50%;
       animation: spin 1s linear infinite;
     }
   }
@@ -847,7 +933,8 @@ export default defineComponent({
 
   .success-icon {
     margin-bottom: 16px;
-    color: #10b981;
+    color: #4ad295;
+    filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
   }
 
   h4 {
@@ -893,13 +980,31 @@ export default defineComponent({
     font-weight: 500;
     cursor: pointer;
     border: none;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
     transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+      opacity: 0;
+      filter: blur(8px);
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+      &::before {
+        opacity: 0.5;
+      }
     }
   }
 }
@@ -956,5 +1061,17 @@ export default defineComponent({
       justify-content: center;
     }
   }
+}
+.Icons{
+  width: 30px;
+}
+
+.Close-Icon{
+  width: 20px;
+  position: absolute;
+}
+
+.Icons-Big{
+  width: 50px;
 }
 </style>

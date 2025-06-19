@@ -41,7 +41,7 @@
     <!-- Einstellungen-Link -->
     <div class="notification-settings" v-if="!isLoading">
       <button @click="showSettings = true" class="settings-button">
-        <span class="settings-icon">⚙️</span>
+        <Cog6ToothIcon class="settings-icon hero-icon" />
         Benachrichtigungseinstellungen anpassen
       </button>
     </div>
@@ -64,22 +64,18 @@
       @cancel="cancelAction"
     />
 
-    <!-- Error Toast -->
-    <div v-if="errorMessage" class="error-toast" @click="errorMessage = ''">
-      <span class="error-icon">❌</span>
-      <span class="error-text">{{ errorMessage }}</span>
-    </div>
-
-    <!-- Success Toast -->
-    <div v-if="successMessage" class="success-toast" @click="successMessage = ''">
-      <span class="success-icon">✅</span>
-      <span class="success-text">{{ successMessage }}</span>
-    </div>
+    <!-- Loading Spinner -->
+    <Transition name="fade">
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
+import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 
 // Import der modularen Komponenten
 import {
@@ -91,15 +87,9 @@ import {
   ConfirmDialog,
 } from "@/components/pages/DashboardPages/Notifications";
 
-// 🔔 API Service Import
+// Services und Types
 import { notificationService } from "@/services/notification.service";
-import type { 
-  NotificationDisplay,
-  NotificationSetting,
-  NotificationFilter,
-  NotificationType,
-  NotificationTypeMap
-} from "@/types/dtos/Notification.types";
+import type { NotificationDisplay, NotificationSetting, NotificationFilter } from "@/types/dtos/Notification.types";
 
 export default defineComponent({
   name: "NotificationsDashboard",
@@ -110,6 +100,7 @@ export default defineComponent({
     EmptyState,
     SettingsModal,
     ConfirmDialog,
+    Cog6ToothIcon,
   },
   setup() {
     // 🔔 STATE MANAGEMENT
@@ -123,22 +114,24 @@ export default defineComponent({
     const confirmDialogMessage = ref("");
     const confirmDialogAction = ref("");
     const pendingAction = ref<(() => void) | null>(null);
+    const isLoading = ref(false);
 
-    // 🔔 NOTIFICATION DATA
+    // Notifications from Backend
     const notifications = ref<NotificationDisplay[]>([]);
 
-    // Filter-Optionen - initialisiert mit Typen aus dem Schema
+    // Filter-Optionen
     const filters = ref<NotificationFilter[]>([
       { id: "all", name: "Alle", count: 0 },
       { id: "unread", name: "Ungelesen", count: 0 },
-      { id: "FRIEND_REQUEST", name: "Freunde", count: 0 },
+      { id: "FRIEND_REQUEST", name: "Freundschaftsanfragen", count: 0 },
       { id: "COMMENT", name: "Kommentare", count: 0 },
+      { id: "NEW_MESSAGE", name: "Nachrichten", count: 0 },
       { id: "APPLICATION_STATUS_CHANGE", name: "Bewerbungen", count: 0 },
       { id: "TICKET_UPDATE", name: "Tickets", count: 0 },
       { id: "SYSTEM", name: "System", count: 0 },
     ]);
 
-    // Benachrichtigungseinstellungen
+    // Benachrichtigungseinstellungen (später von Backend laden)
     const notificationSettings = ref<NotificationSetting[]>([
       {
         id: "email_notifications",
@@ -165,9 +158,21 @@ export default defineComponent({
         enabled: true,
       },
       {
+        id: "new_messages",
+        name: "Neue Nachrichten",
+        description: "Benachrichtigungen für neue Direktnachrichten.",
+        enabled: true,
+      },
+      {
         id: "application_updates",
         name: "Bewerbungsupdates",
-        description: "Statusänderungen bei Autor-Bewerbungen.",
+        description: "Statusänderungen deiner Bewerbungen.",
+        enabled: true,
+      },
+      {
+        id: "ticket_updates",
+        name: "Ticket-Updates",
+        description: "Benachrichtigungen über Support-Tickets.",
         enabled: true,
       },
       {
@@ -178,13 +183,46 @@ export default defineComponent({
       },
     ]);
 
-    // 🔔 COMPUTED PROPERTIES
+    // Benachrichtigungen vom Backend laden
+    const loadNotifications = async (showLoader = true) => {
+      if (showLoader) {
+        isLoading.value = true;
+      }
+      try {
+        notifications.value = await notificationService.getNotifications();
+        updateFilterCounts();
+      } catch (error) {
+        console.error("Fehler beim Laden der Benachrichtigungen:", error);
+      } finally {
+        if (showLoader) {
+          isLoading.value = false;
+        }
+      }
+    };
+
+    // Filtere Benachrichtigungen basierend auf aktivem Filter
     const filteredNotifications = computed(() => {
       return notificationService.filterByType(notifications.value, activeFilter.value);
     });
 
+    // Dynamisch aktualisierte Anzahlen für Filter
+    const updateFilterCounts = () => {
+      const stats = notificationService.getNotificationStats(notifications.value);
+
+      filters.value.forEach((filter) => {
+        if (filter.id === "all") {
+          filter.count = stats.total;
+        } else if (filter.id === "unread") {
+          filter.count = stats.unread;
+        } else {
+          filter.count = stats.byType[filter.id] || 0;
+        }
+      });
+    };
+
+    // Berechnete Werte für Status
     const unreadCount = computed(() => {
-      return notifications.value.filter(n => !n.isRead).length;
+      return notifications.value.filter((n) => !n.isRead).length;
     });
 
     const totalCount = computed(() => {
@@ -199,91 +237,49 @@ export default defineComponent({
       return totalCount.value > 0;
     });
 
-    // 🔔 UTILITY FUNCTIONS
-    const updateFilterCounts = () => {
-      const stats = notificationService.getNotificationStats(notifications.value);
-      
-      filters.value.forEach((filter) => {
-        if (filter.id === "all") {
-          filter.count = stats.total;
-        } else if (filter.id === "unread") {
-          filter.count = stats.unread;
-        } else {
-          filter.count = stats.byType[filter.id] || 0;
-        }
-      });
-    };
-
-    const showSuccess = (message: string) => {
-      successMessage.value = message;
-      setTimeout(() => {
-        successMessage.value = "";
-      }, 3000);
-    };
-
-    const showError = (message: string) => {
-      errorMessage.value = message;
-      setTimeout(() => {
-        errorMessage.value = "";
-      }, 5000);
-    };
-
-    // 🔔 API FUNCTIONS
-    const loadNotifications = async () => {
+    // Benachrichtigung als gelesen markieren
+    const markAsRead = async (id: string) => {
       try {
-        isLoading.value = true;
-        notifications.value = await notificationService.getNotificationsCached();
-        updateFilterCounts();
-      } catch (error) {
-        console.error("Fehler beim Laden der Benachrichtigungen:", error);
-        showError("Benachrichtigungen konnten nicht geladen werden.");
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
-    const markAsRead = async (notificationId: string) => {
-      try {
-        await notificationService.markAsRead(notificationId);
-        
-        // Lokale Update
-        const notification = notifications.value.find(n => n.id === notificationId);
+        await notificationService.markAsRead(id);
+        // UI optimistisch aktualisieren
+        const notification = notifications.value.find((n) => n.id === id);
         if (notification) {
           notification.isRead = true;
           updateFilterCounts();
-          showSuccess("Benachrichtigung wurde als gelesen markiert.");
         }
       } catch (error) {
         console.error("Fehler beim Markieren als gelesen:", error);
-        showError("Benachrichtigung konnte nicht als gelesen markiert werden.");
+        // Bei Fehler neu laden
+        await loadNotifications();
       }
     };
 
+    // Alle Benachrichtigungen als gelesen markieren
     const markAllAsRead = () => {
       confirmDialog(
         "Alle als gelesen markieren",
-        "Möchtest du wirklich alle Benachrichtigungen als gelesen markieren?",
-        "Alle markieren",
+        "Möchtest du wirklich alle Benachrichtigungen als gelesen markieren? Die Benachrichtigungen bleiben erhalten und können weiterhin in den Kategorien eingesehen werden.",
+        "Als gelesen markieren",
         async () => {
           try {
             await notificationService.markAllAsRead();
-            
-            // Lokale Updates
-            notifications.value.forEach(notification => {
+            // UI optimistisch aktualisieren
+            notifications.value.forEach((notification) => {
               notification.isRead = true;
             });
             updateFilterCounts();
-            showSuccess("Alle Benachrichtigungen wurden als gelesen markiert.");
           } catch (error) {
             console.error("Fehler beim Markieren aller als gelesen:", error);
-            showError("Benachrichtigungen konnten nicht als gelesen markiert werden.");
+            // Bei Fehler neu laden mit Loading
+            await loadNotifications(true);
           }
         }
       );
     };
 
-    const deleteNotification = (notificationId: string) => {
-      const notification = notifications.value.find(n => n.id === notificationId);
+    // Benachrichtigung löschen
+    const deleteNotification = (id: string) => {
+      const notification = notifications.value.find((n) => n.id === id);
       if (notification) {
         confirmDialog(
           "Benachrichtigung löschen",
@@ -291,18 +287,17 @@ export default defineComponent({
           "Löschen",
           async () => {
             try {
-              await notificationService.deleteNotification(notificationId);
-              
-              // Lokale Entfernung
-              const index = notifications.value.findIndex(n => n.id === notificationId);
+              await notificationService.deleteNotification(id);
+              // UI optimistisch aktualisieren
+              const index = notifications.value.findIndex((n) => n.id === id);
               if (index !== -1) {
                 notifications.value.splice(index, 1);
                 updateFilterCounts();
-                showSuccess("Benachrichtigung wurde gelöscht.");
               }
             } catch (error) {
               console.error("Fehler beim Löschen der Benachrichtigung:", error);
-              showError("Benachrichtigung konnte nicht gelöscht werden.");
+              // Bei Fehler neu laden mit Loading
+              await loadNotifications(true);
             }
           }
         );
@@ -311,31 +306,30 @@ export default defineComponent({
 
     const clearAllNotifications = () => {
       confirmDialog(
-        "Alle Benachrichtigungen löschen",
-        "Möchtest du wirklich alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.",
-        "Alle löschen",
+        "Alle Benachrichtigungen entfernen",
+        "Möchtest du wirklich ALLE Benachrichtigungen endgültig löschen? Dies kann nicht rückgängig gemacht werden und die Benachrichtigungen sind dann auch aus allen Kategorien verschwunden.",
+        "Alle endgültig löschen",
         async () => {
           try {
             await notificationService.deleteAllNotifications();
-            
-            // Lokale Bereinigung
+            // UI optimistisch aktualisieren
             notifications.value = [];
             updateFilterCounts();
-            showSuccess("Alle Benachrichtigungen wurden gelöscht.");
           } catch (error) {
             console.error("Fehler beim Löschen aller Benachrichtigungen:", error);
-            showError("Benachrichtigungen konnten nicht gelöscht werden.");
+            // Bei Fehler neu laden mit Loading
+            await loadNotifications(true);
           }
         }
       );
     };
 
-    // 🔔 SETTINGS FUNCTIONS
+    // Einstellungen speichern (TODO: Backend-Integration)
     const saveSettings = (settings: NotificationSetting[]) => {
       // Hier würden die Einstellungen an den Server gesendet
       notificationSettings.value = [...settings];
       showSettings.value = false;
-      showSuccess("Einstellungen wurden gespeichert!");
+      console.log("Einstellungen gespeichert:", settings);
     };
 
     // 🔔 DIALOG FUNCTIONS
@@ -360,38 +354,24 @@ export default defineComponent({
       showConfirmDialog.value = false;
     };
 
-    // 🔔 LIFECYCLE HOOKS
-    onMounted(async () => {
-      console.log("🔔 Notifications Dashboard initialisiert");
-      await loadNotifications();
-    });
-
-    onUnmounted(() => {
-      console.log("🔔 Notifications Dashboard bereinigt");
-    });
-
-    // 🔔 REACTIVE UPDATES
-    // Watch für Filter-Änderungen
-    watch(activeFilter, () => {
-      console.log(`Filter geändert zu: ${activeFilter.value}`);
-    });
-
-    // Event-Listener für Echtzeit-Updates
+    // Event Handler für Notification Updates
     const handleNotificationUpdate = () => {
-      console.log("🔔 Echtzeit-Update empfangen, lade Benachrichtigungen neu");
-      loadNotifications();
+      // Beim Polling kein Loading-Spinner anzeigen
+      loadNotifications(false);
     };
 
+    // Lifecycle
     onMounted(() => {
-      if (typeof window !== "undefined") {
-        window.addEventListener("notification-count-updated", handleNotificationUpdate);
-      }
+      // Initial laden mit Loading-Spinner
+      loadNotifications(true);
+
+      // Event Listener für Updates registrieren
+      window.addEventListener("notification-count-updated", handleNotificationUpdate);
     });
 
     onUnmounted(() => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("notification-count-updated", handleNotificationUpdate);
-      }
+      // Event Listener entfernen
+      window.removeEventListener("notification-count-updated", handleNotificationUpdate);
     });
 
     return {
@@ -413,8 +393,7 @@ export default defineComponent({
       confirmDialogTitle,
       confirmDialogMessage,
       confirmDialogAction,
-
-      // Methods
+      isLoading,
       markAsRead,
       markAllAsRead,
       deleteNotification,
@@ -442,6 +421,7 @@ export default defineComponent({
   width: 100%;
   margin: 0 auto;
   padding: 0 map.get(vars.$spacing, m);
+  position: relative;
 
   @media (max-width: 768px) {
     padding: 0 map.get(vars.$spacing, s);
@@ -558,58 +538,71 @@ export default defineComponent({
       }
 
       .settings-icon {
-        font-size: 1.2rem;
+        &.hero-icon {
+          width: 24px;
+          height: 24px;
+          stroke-width: 1.5;
 
-        @media (max-width: 576px) {
-          font-size: 1rem;
+          @media (max-width: 576px) {
+            width: 20px;
+            height: 20px;
+          }
         }
       }
     }
   }
 
-  // 🔔 TOAST NOTIFICATIONS
-  .error-toast,
-  .success-toast {
-    position: fixed;
-    top: 100px;
-    right: 20px;
+  // Loading Overlay
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     align-items: center;
-    gap: map.get(vars.$spacing, s);
-    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
-    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-    cursor: pointer;
-    z-index: 1000;
-    @include animations.fade-in(0.3s);
-    transition: all 0.3s ease;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    pointer-events: none;
 
-    &:hover {
-      transform: translateY(-2px);
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        background-color: if($theme == "light", rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.8));
+      }
     }
 
-    @media (max-width: 576px) {
-      right: 10px;
-      left: 10px;
-      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
+          border-top-color: mixins.theme-color($theme, accent-teal);
+        }
+      }
     }
-  }
-
-  .error-toast {
-    background-color: #ff6b6b;
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-  }
-
-  .success-toast {
-    background-color: #2ed573;
-    color: white;
-    box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
   }
 }
 
-// 🔔 ANIMATIONS
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Fade transition
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

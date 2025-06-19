@@ -14,8 +14,8 @@
             <span class="user-status">{{ isOnline ? "Online" : "Zuletzt aktiv vor 2h" }}</span>
           </div>
         </div>
-        <button class="close-btn" @click="closeModal" aria-label="Chat schließen">
-          <XMarkIcon class="close-icon" />
+        <button class="close-button" @click="closeModal" aria-label="Chat schließen">
+          <XMarkIcon class="icon-size" />
         </button>
       </header>
 
@@ -30,8 +30,8 @@
         <!-- Messages -->
         <div v-else class="messages-list">
           <!-- Empty state -->
-          <div v-if="messages.length === 0" class="empty-state">
-            <div class="empty-icon">💬</div>
+          <div v-if="messages.length === 0" class="empty-chat">
+            <ChatBubbleLeftRightIcon class="empty-chat-icon" />
             <p>Noch keine Nachrichten vorhanden.</p>
             <p>Schreibe die erste Nachricht!</p>
           </div>
@@ -66,18 +66,17 @@
               <div v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-message">
                 <TrashIcon class="deleted-icon" />
                 <em>Diese Nachricht wurde gelöscht</em>
-              </div>
-
-              <!-- Normal message content -->
-              <div v-else>
-                <div class="message-text" v-html="formatMessage(message.content)"></div>
-
-                <!-- Attachment -->
-                <div v-if="message.attachmentUrl" class="attachment">
-                  <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
-                    📎 Anhang anzeigen
-                  </a>
-                </div>
+              </p>
+              
+              <!-- Normal message mit Rich-Text -->
+              <div v-else v-html="parseMessageContent(message.content)" class="message-text"></div>
+              
+              <!-- Attachment (if any) -->
+              <div v-if="message.attachmentUrl" class="message-attachment">
+                <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
+                  <PaperClipIcon class="attachment-icon" />
+                  Datei anhang
+                </a>
               </div>
 
               <!-- Message footer -->
@@ -98,9 +97,9 @@
               </div>
             </div>
           </div>
-
-          <!-- Typing indicators -->
-          <div v-if="isUserTyping && newMessage.trim()" class="typing-indicator own-typing">
+          
+          <!-- Own Typing Indicator -->
+          <div v-if="isUserTyping && editorContent.trim()" class="typing-indicator own-typing">
             <div class="typing-dots">
               <span></span>
               <span></span>
@@ -108,7 +107,8 @@
             </div>
             <span class="typing-text">Du schreibst...</span>
           </div>
-
+          
+          <!-- Friend Typing Indicator -->
           <div v-if="isTyping" class="typing-indicator">
             <div class="typing-dots">
               <span></span>
@@ -120,80 +120,117 @@
         </div>
       </div>
 
-      <!-- Emoji Picker -->
-      <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
-        <div class="emoji-header">
-          <span>Emojis auswählen</span>
-          <button @click="showEmojiPicker = false" class="emoji-close">
-            <XMarkIcon class="close-icon" />
-          </button>
-        </div>
-        <div class="emoji-grid">
-          <button v-for="emoji in popularEmojis" :key="emoji" @click="insertEmoji(emoji)" class="emoji-btn">
-            {{ emoji }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Input Area -->
-      <div class="input-area">
+      <!-- Rich Text Editor -->
+      <div class="message-editor">
         <!-- Formatting Toolbar -->
         <div class="formatting-toolbar">
-          <button type="button" @click="applyFormatting('bold')" class="format-btn"
-            :class="{ active: isFormatActive('bold') }" title="Fett (Strg+B)">
-            <span class="format-icon bold">B</span>
+          <button 
+            type="button"
+            @click="toggleFormat('bold')"
+            :class="['format-button', { active: activeFormats.bold }]"
+            title="Fett (Strg+B)"
+          >
+            <strong>B</strong>
           </button>
-          <button type="button" @click="applyFormatting('italic')" class="format-btn"
-            :class="{ active: isFormatActive('italic') }" title="Kursiv (Strg+I)">
-            <span class="format-icon italic">I</span>
+          
+          <button 
+            type="button"
+            @click="toggleFormat('italic')"
+            :class="['format-button', { active: activeFormats.italic }]"
+            title="Kursiv (Strg+I)"
+          >
+            <em>I</em>
           </button>
-          <button type="button" @click="applyFormatting('underline')" class="format-btn"
-            :class="{ active: isFormatActive('underline') }" title="Unterstrichen (Strg+U)">
-            <span class="format-icon underline">U</span>
+          
+          <button 
+            type="button"
+            @click="toggleFormat('underline')"
+            :class="['format-button', { active: activeFormats.underline }]"
+            title="Unterstreichen (Strg+U)"
+          >
+            <u>U</u>
           </button>
-          <div class="divider"></div>
-          <button type="button" @click="toggleEmojiPicker" class="format-btn emoji-btn" title="Emojis">
-            😀
-          </button>
+          
+          <div class="toolbar-separator"></div>
+          
+          <div class="emoji-picker-container">
+            <button 
+              type="button"
+              @click="toggleEmojiPicker"
+              class="format-button emoji-button"
+              title="Emoji einfügen"
+            >
+              <FaceSmileIcon class="icon-size" />
+            </button>
+            
+            <!-- Emoji Picker -->
+            <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
+              <div class="emoji-grid">
+                <button
+                  v-for="emoji in availableEmojis"
+                  :key="emoji"
+                  @click="insertEmoji(emoji)"
+                  class="emoji-item"
+                  type="button"
+                >
+                  {{ emoji }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Message Input -->
-        <form class="input-form" @submit.prevent="sendMessage">
-          <div class="input-wrapper">
-            <div ref="richTextInput" class="rich-input" contenteditable="true" @input="handleRichTextInput"
-              @keydown="handleKeydown" @paste="handlePaste" @focus="updateActiveFormats" @blur="updateActiveFormats"
-              @keyup="updateActiveFormats" @mouseup="updateActiveFormats"
-              :data-placeholder="newMessage ? '' : 'Nachricht schreiben...'"></div>
-          </div>
-          <button type="submit" class="send-btn" :disabled="!newMessage.trim() || isSending">
-            <PaperAirplaneIcon class="send-icon" />
+        <!-- Rich Text Input -->
+        <div class="message-input-wrapper">
+          <div 
+            ref="messageEditor"
+            class="message-input"
+            contenteditable="true"
+            @input="handleInput"
+            @keyup="handleInput"
+            @keydown="handleKeyDown"
+            @paste="handlePaste"
+            @focus="updateActiveFormats"
+            @click="updateActiveFormats"
+            @blur="handleInput"
+            :data-placeholder="'Nachricht schreiben...'"
+          ></div>
+          
+          <button 
+            type="button"
+            @click.prevent="sendMessage"
+            class="send-button"
+            :disabled="!canSendMessage"
+            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`"
+          >
+            <PaperAirplaneIcon class="icon-size" />
           </button>
-        </form>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
-import {
-  XMarkIcon,
-  PaperAirplaneIcon,
-  PencilIcon,
-  TrashIcon,
-  CheckIcon
-} from "@heroicons/vue/24/outline";
-import chatService, { type ChatMessage } from "@/services/chat.service";
-import { authService } from "@/services/auth.service";
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue';
+import { 
+  XMarkIcon, 
+  PaperAirplaneIcon, 
+  PaperClipIcon,
+  FaceSmileIcon,
+  ChatBubbleLeftRightIcon
+} from '@heroicons/vue/24/outline';
+import chatService, { type ChatMessage } from '@/services/chat.service';
+import { authService } from '@/services/auth.service';
 
 export default defineComponent({
   name: "ChatModal",
   components: {
     XMarkIcon,
     PaperAirplaneIcon,
-    PencilIcon,
-    TrashIcon,
-    CheckIcon,
+    PaperClipIcon,
+    FaceSmileIcon,
+    ChatBubbleLeftRightIcon
   },
   props: {
     isVisible: {
@@ -215,280 +252,44 @@ export default defineComponent({
   },
   emits: ["update:isVisible", "send-message", "show-toast"],
   setup(props, { emit }) {
-    // Reactive state
-    const newMessage = ref("");
+    // State
     const messages = ref<ChatMessage[]>([]);
     const isSending = ref(false);
     const isTyping = ref(false);
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
-    const richTextInput = ref<HTMLDivElement>();
-    const editRichText = ref<HTMLDivElement>();
-    const currentConversationId = ref<string>("");
-    const currentUserId = ref<string>("");
+    const messageEditor = ref<HTMLDivElement>();
+    const currentConversationId = ref<string>('');
+    const currentUserId = ref<string>('');
     const isUserTyping = ref(false);
-
-    // Features
     const showEmojiPicker = ref(false);
-    const editingMessageId = ref<string | null>(null);
-    const editingContent = ref("");
-    const activeFormats = ref(new Set<string>());
-
+    const editorContent = ref(''); // Neue reaktive Variable für Content
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Beliebte Emojis
-    const popularEmojis = ref([
-      "😀", "😃", "😄", "😊", "😉", "😍", "🥰", "😘", "😗", "😙",
-      "😚", "🙂", "🤗", "🤔", "😐", "😑", "😶", "🙄", "😏", "😣",
-      "😥", "😮", "🤐", "😯", "😪", "😫", "🥱", "😴", "😌", "😛",
-      "😜", "😝", "🤤", "😒", "😓", "😔", "😕", "🙃", "🤑", "😲",
-      "👍", "👎", "👏", "🙌", "👌", "✌️", "🤞", "🤟", "🤘", "🤙",
-      "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
-      "💯", "🔥", "⭐", "🌟", "✨", "⚡", "💫", "💥", "💢", "💨"
-    ]);
+    // Active formats tracking
+    const activeFormats = ref({
+      bold: false,
+      italic: false,
+      underline: false
+    });
 
-    // Rich Text Editor Functions
-    const isFormatActive = (format: string): boolean => {
-      return activeFormats.value.has(format);
-    };
+    // 50 verschiedene Emojis
+    const availableEmojis = [
+      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
+      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛',
+      '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶',
+      '🙄', '😏', '😣', '😥', '😮', '🤐', '😯', '😪', '😫', '😴',
+      '😌', '😓', '😔', '😕', '🙃', '🤑', '😲', '😢', '😭', '😤'
+    ];
 
-    const updateActiveFormats = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
+    // Computed
+    const hasContent = computed(() => {
+      return editorContent.value.trim().length > 0;
+    });
 
-      activeFormats.value.clear();
+    const canSendMessage = computed(() => hasContent.value && !isSending.value);
 
-      const range = selection.getRangeAt(0);
-      let parentElement = range.commonAncestorContainer;
-
-      if (parentElement.nodeType === Node.TEXT_NODE) {
-        parentElement = parentElement.parentElement;
-      }
-
-      let current = parentElement as Element;
-      while (current && current !== richTextInput.value) {
-        if (current.tagName === 'STRONG' || current.tagName === 'B') {
-          activeFormats.value.add('bold');
-        }
-        if (current.tagName === 'EM' || current.tagName === 'I') {
-          activeFormats.value.add('italic');
-        }
-        if (current.tagName === 'U') {
-          activeFormats.value.add('underline');
-        }
-        current = current.parentElement as Element;
-      }
-    };
-
-    const applyFormatting = (format: 'bold' | 'italic' | 'underline') => {
-      if (!richTextInput.value) return;
-
-      richTextInput.value.focus();
-
-      try {
-        let command: string;
-        switch (format) {
-          case 'bold':
-            command = 'bold';
-            break;
-          case 'italic':
-            command = 'italic';
-            break;
-          case 'underline':
-            command = 'underline';
-            break;
-          default:
-            return;
-        }
-
-        document.execCommand(command, false);
-        updateActiveFormats();
-        updateNewMessageFromRichText();
-      } catch (error) {
-        console.error('Fehler beim Anwenden der Formatierung:', error);
-      }
-    };
-
-    const handleRichTextInput = () => {
-      updateNewMessageFromRichText();
-      updateActiveFormats();
-      handleTyping();
-    };
-
-    const handleEditInput = () => {
-      if (!editRichText.value) return;
-      editingContent.value = editRichText.value.innerHTML;
-    };
-
-    const updateNewMessageFromRichText = () => {
-      if (!richTextInput.value) return;
-
-      let html = richTextInput.value.innerHTML;
-
-      // HTML zu Markdown für Backend
-      let text = html
-        .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
-        .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
-        .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
-        .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
-        .replace(/<u[^>]*>(.*?)<\/u>/gi, '__$1__')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<div[^>]*>/gi, '\n')
-        .replace(/<\/div>/gi, '')
-        .replace(/&nbsp;/gi, ' ')
-        .replace(/&lt;/gi, '<')
-        .replace(/&gt;/gi, '>')
-        .replace(/&amp;/gi, '&');
-
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = text;
-      text = tempDiv.textContent || tempDiv.innerText || '';
-
-      newMessage.value = text.trim();
-    };
-
-    const insertEmoji = (emoji: string) => {
-      if (!richTextInput.value) return;
-
-      richTextInput.value.focus();
-
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(document.createTextNode(emoji));
-
-        range.setStartAfter(range.endContainer);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      } else {
-        richTextInput.value.innerHTML += emoji;
-      }
-
-      updateNewMessageFromRichText();
-      showEmojiPicker.value = false;
-    };
-
-    const toggleEmojiPicker = () => {
-      showEmojiPicker.value = !showEmojiPicker.value;
-    };
-
-    const formatMessage = (content: string): string => {
-      return content
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/__(.*?)__/g, '<u>$1</u>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\n/g, '<br>');
-    };
-
-    const handleKeydown = (event: KeyboardEvent) => {
-      // Keyboard shortcuts
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key.toLowerCase()) {
-          case 'b':
-            event.preventDefault();
-            applyFormatting('bold');
-            break;
-          case 'i':
-            event.preventDefault();
-            applyFormatting('italic');
-            break;
-          case 'u':
-            event.preventDefault();
-            applyFormatting('underline');
-            break;
-          case 'enter':
-            event.preventDefault();
-            sendMessage();
-            break;
-        }
-      } else if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    };
-
-    const handlePaste = (event: ClipboardEvent) => {
-      event.preventDefault();
-
-      const clipboardData = event.clipboardData;
-      if (!clipboardData) return;
-
-      const text = clipboardData.getData('text/plain');
-
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(document.createTextNode(text));
-
-        range.setStartAfter(range.endContainer);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-
-      updateNewMessageFromRichText();
-    };
-
-    // Edit functions
-    const startEdit = (message: ChatMessage) => {
-      if (!isOwnMessage(message) || message.content === 'Die Nachricht wurde gelöscht') return;
-
-      editingMessageId.value = message.id;
-      editingContent.value = message.content;
-
-      nextTick(() => {
-        if (editRichText.value) {
-          editRichText.value.innerHTML = formatMessage(message.content);
-          editRichText.value.focus();
-        }
-      });
-    };
-
-    const cancelEdit = () => {
-      editingMessageId.value = null;
-      editingContent.value = "";
-    };
-
-    const saveEdit = async () => {
-      if (!editingMessageId.value || !editingContent.value.trim()) return;
-
-      try {
-        // TODO: Backend call
-        const messageIndex = messages.value.findIndex(m => m.id === editingMessageId.value);
-        if (messageIndex !== -1) {
-          messages.value[messageIndex].content = editingContent.value;
-          messages.value[messageIndex].isEdited = true;
-        }
-
-        cancelEdit();
-        emit("show-toast", "Nachricht wurde bearbeitet", "success");
-      } catch (error) {
-        console.error("Fehler beim Bearbeiten der Nachricht:", error);
-        emit("show-toast", "Fehler beim Bearbeiten der Nachricht", "error");
-      }
-    };
-
-    const deleteMessage = async (message: ChatMessage) => {
-      if (!confirm("Möchtest du diese Nachricht wirklich löschen?")) return;
-
-      try {
-        // TODO: Backend call
-        const messageIndex = messages.value.findIndex(m => m.id === message.id);
-        if (messageIndex !== -1) {
-          messages.value[messageIndex].content = "Die Nachricht wurde gelöscht";
-        }
-
-        emit("show-toast", "Nachricht wurde gelöscht", "info");
-      } catch (error) {
-        console.error("Fehler beim Löschen der Nachricht:", error);
-        emit("show-toast", "Fehler beim Löschen der Nachricht", "error");
-      }
-    };
-
-    // Core functions
+    // Methods
     const loadCurrentUser = () => {
       try {
         const userData = authService.getUserData();
@@ -502,9 +303,9 @@ export default defineComponent({
 
     const loadMessages = async () => {
       if (!props.friendId) return;
-
+      
       isLoading.value = true;
-
+      
       try {
         const conversation = await chatService.createOrGetConversation(props.friendId.toString());
         currentConversationId.value = conversation.id;
@@ -535,6 +336,14 @@ export default defineComponent({
       return chatService.isOwnMessage(message, currentUserId.value);
     };
 
+    const parseMessageContent = (content: string | null): string => {
+      if (!content) return '';
+      // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
+      let parsed = chatService.parseMessageContent(content);
+      parsed = parsed.replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>');
+      return parsed;
+    };
+
     const scrollToBottom = () => {
       nextTick(() => {
         if (chatContainer.value) {
@@ -543,40 +352,188 @@ export default defineComponent({
       });
     };
 
-    const handleTyping = () => {
-      isUserTyping.value = true;
+    // Rich Text Editor Functions
+    const updateActiveFormats = () => {
+      activeFormats.value.bold = document.queryCommandState('bold');
+      activeFormats.value.italic = document.queryCommandState('italic');
+      activeFormats.value.underline = document.queryCommandState('underline');
+    };
 
+    const toggleFormat = (format: 'bold' | 'italic' | 'underline') => {
+      messageEditor.value?.focus();
+      
+      // Stelle sicher, dass eine Selection existiert
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        document.execCommand(format, false);
+        updateActiveFormats();
+        
+        // Update content after formatting
+        nextTick(() => {
+          handleInput();
+        });
+      }
+    };
+
+    const insertEmoji = (emoji: string) => {
+      messageEditor.value?.focus();
+      
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(emoji);
+        range.insertNode(textNode);
+        
+        // Cursor nach dem Emoji positionieren
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      
+      showEmojiPicker.value = false;
+      
+      // Update content manually
+      nextTick(() => {
+        handleInput();
+      });
+    };
+
+    const toggleEmojiPicker = () => {
+      showEmojiPicker.value = !showEmojiPicker.value;
+    };
+
+    const handleInput = () => {
+      // Update editor content
+      if (messageEditor.value) {
+        // Get text content and clean it
+        let text = messageEditor.value.textContent || '';
+        
+        // Also check innerHTML for cases where only formatting tags exist
+        const html = messageEditor.value.innerHTML || '';
+        
+        // If there's only a <br> tag or empty formatting tags, consider it empty
+        if (html === '<br>' || html.match(/^<[^>]+><\/[^>]+>$/)) {
+          text = '';
+        }
+        
+        editorContent.value = text;
+        
+        console.log('Input changed:', {
+          text,
+          html,
+          editorContent: editorContent.value,
+          hasContent: hasContent.value,
+          canSendMessage: canSendMessage.value
+        });
+      }
+      
+      // Update active formats
+      updateActiveFormats();
+      
+      // Typing indicator
+      isUserTyping.value = true;
+      
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
-
+      
       typingTimeout = setTimeout(() => {
         isUserTyping.value = false;
       }, 2000);
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Strg+B für Fett
+      if (event.ctrlKey && event.key === 'b') {
+        event.preventDefault();
+        toggleFormat('bold');
+      }
+      
+      // Strg+I für Kursiv
+      if (event.ctrlKey && event.key === 'i') {
+        event.preventDefault();
+        toggleFormat('italic');
+      }
+      
+      // Strg+U für Unterstreichen
+      if (event.ctrlKey && event.key === 'u') {
+        event.preventDefault();
+        toggleFormat('underline');
+      }
+      
+      // Enter zum Senden (Shift+Enter für neue Zeile)
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    };
+
+    const handlePaste = (event: ClipboardEvent) => {
+      event.preventDefault();
+      const text = event.clipboardData?.getData('text/plain') || '';
+      document.execCommand('insertText', false, text);
+      
+      // Update content after paste
+      nextTick(() => {
+        handleInput();
+      });
+    };
+
     const sendMessage = async () => {
-      const messageText = newMessage.value.trim();
-      if (!messageText || isSending.value || !currentConversationId.value) return;
+      // Debug-Logs
+      console.log('SendMessage called:', {
+        canSendMessage: canSendMessage.value,
+        hasContent: hasContent.value,
+        isSending: isSending.value,
+        editorContent: editorContent.value,
+        currentConversationId: currentConversationId.value,
+        textContent: messageEditor.value?.textContent,
+        innerHTML: messageEditor.value?.innerHTML
+      });
+
+      if (!canSendMessage.value || !currentConversationId.value) {
+        console.log('SendMessage aborted - conditions not met');
+        return;
+      }
+
+      // Hole Text und HTML-Inhalt
+      const messageText = messageEditor.value?.textContent?.trim() || '';
+      let htmlContent = messageEditor.value?.innerHTML || '';
+      
+      // Prüfe nochmal ob wirklich Inhalt vorhanden ist
+      if (!messageText && !htmlContent.replace(/<[^>]*>/g, '').trim()) {
+        console.log('SendMessage aborted - no content');
+        return;
+      }
 
       isSending.value = true;
       isUserTyping.value = false;
-      showEmojiPicker.value = false;
-
+      
       if (typingTimeout) {
         clearTimeout(typingTimeout);
         typingTimeout = null;
       }
 
       try {
-        const response = await chatService.sendMessage(currentConversationId.value, messageText);
-
+        console.log('Sending message with content:', htmlContent);
+        
+        // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
+        htmlContent = htmlContent.replace(/<i>/g, '<em>').replace(/<\/i>/g, '</em>');
+        
+        // Sende Nachricht über Chat-Service
+        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        
+        console.log('Message sent successfully:', response);
+        
+        // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
           id: response.message.id || Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
-          content: messageText,
-          messageType: "TEXT",
+          content: htmlContent,
+          messageType: 'TEXT',
           attachmentUrl: null,
           isRead: true,
           isEdited: false,
@@ -585,13 +542,14 @@ export default defineComponent({
         };
 
         messages.value.push(localMessage);
-
-        // Reset input
-        newMessage.value = "";
-        if (richTextInput.value) {
-          richTextInput.value.innerHTML = "";
+        
+        // Clear editor
+        if (messageEditor.value) {
+          messageEditor.value.innerHTML = '';
+          editorContent.value = '';
+          updateActiveFormats();
         }
-
+        
         scrollToBottom();
 
         emit("send-message", {
@@ -600,118 +558,167 @@ export default defineComponent({
         });
 
       } catch (error) {
-        console.error("Fehler beim Senden der Nachricht:", error);
-        emit("show-toast", "Fehler beim Senden der Nachricht", "error");
+        console.error('Fehler beim Senden der Nachricht:', error);
       } finally {
         isSending.value = false;
       }
     };
 
     const closeModal = () => {
-      emit("update:isVisible", false);
+      showEmojiPicker.value = false;
+      emit('update:isVisible', false);
     };
 
-    const focusInput = () => {
+    const focusEditor = () => {
       nextTick(() => {
-        if (richTextInput.value) {
-          richTextInput.value.focus();
+        if (messageEditor.value) {
+          messageEditor.value.focus();
+          // Setze Cursor ans Ende
+          const range = document.createRange();
+          const selection = window.getSelection();
+          if (selection) {
+            range.selectNodeContents(messageEditor.value);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+          
+          // Initial content check
+          handleInput();
         }
       });
     };
 
+    // Click outside emoji picker
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showEmojiPicker.value && !target.closest('.emoji-picker-container')) {
+        showEmojiPicker.value = false;
+      }
+    };
+
+    // Selection change handler für Format-Updates
+    const handleSelectionChange = () => {
+      if (messageEditor.value && document.activeElement === messageEditor.value) {
+        updateActiveFormats();
+      }
+    };
+
+    // Debug helper
+    const debugSendButton = () => {
+      console.log('Debug Send Button:', {
+        canSendMessage: canSendMessage.value,
+        hasContent: hasContent.value,
+        isSending: isSending.value,
+        editorContent: editorContent.value,
+        editorHTML: messageEditor.value?.innerHTML,
+        editorText: messageEditor.value?.textContent,
+        conversationId: currentConversationId.value
+      });
+    };
+
+    // Watcher für editorContent
+    watch(editorContent, (newValue) => {
+      console.log('Editor content changed:', newValue, 'Can send:', canSendMessage.value);
+    });
+
     // Watchers
-    watch(
-      () => props.isVisible,
-      (visible) => {
-        if (visible) {
-          loadCurrentUser();
-          loadMessages();
-          focusInput();
-        } else {
-          messages.value = [];
-          currentConversationId.value = "";
-          newMessage.value = "";
-          isTyping.value = false;
-          isUserTyping.value = false;
-          showEmojiPicker.value = false;
-          cancelEdit();
-
-          if (typingTimeout) {
-            clearTimeout(typingTimeout);
-            typingTimeout = null;
-          }
+    watch(() => props.isVisible, (visible) => {
+      if (visible) {
+        loadCurrentUser();
+        loadMessages();
+        focusEditor();
+        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('selectionchange', handleSelectionChange);
+      } else {
+        // Reset state
+        messages.value = [];
+        currentConversationId.value = '';
+        editorContent.value = '';
+        if (messageEditor.value) {
+          messageEditor.value.innerHTML = '';
+        }
+        isTyping.value = false;
+        isUserTyping.value = false;
+        showEmojiPicker.value = false;
+        activeFormats.value = {
+          bold: false,
+          italic: false,
+          underline: false
+        };
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('selectionchange', handleSelectionChange);
+        
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+          typingTimeout = null;
         }
       }
-    );
+    });
 
-    watch(
-      () => props.friendId,
-      () => {
-        if (props.isVisible && props.friendId) {
-          loadMessages();
-        }
+    watch(() => props.friendId, () => {
+      if (props.isVisible && props.friendId) {
+        loadMessages();
       }
-    );
+    });
 
     // Keyboard shortcuts
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (editingMessageId.value) {
-          cancelEdit();
-        } else if (showEmojiPicker.value) {
-          showEmojiPicker.value = false;
-        } else if (props.isVisible) {
-          closeModal();
-        }
+      if (event.key === 'Escape' && props.isVisible) {
+        closeModal();
       }
     };
 
     onMounted(() => {
-      document.addEventListener("keydown", handleGlobalKeyDown);
+      document.addEventListener('keydown', handleGlobalKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener("keydown", handleGlobalKeyDown);
-
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+      
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
     });
 
     return {
-      newMessage,
+      // State
       messages,
       isSending,
       isTyping,
       isLoading,
       isUserTyping,
-      chatContainer,
-      richTextInput,
-      editRichText,
       showEmojiPicker,
-      editingMessageId,
-      editingContent,
-      popularEmojis,
+      availableEmojis,
+      activeFormats,
+      editorContent,
+      
+      // Refs
+      chatContainer,
+      messageEditor,
+      
+      // Computed
+      hasContent,
+      canSendMessage,
+      
+      // Methods
       getInitials,
       formatTime,
       isOwnMessage,
-      formatMessage,
-      isFormatActive,
-      applyFormatting,
+      parseMessageContent,
+      toggleFormat,
       insertEmoji,
       toggleEmojiPicker,
-      handleRichTextInput,
-      handleEditInput,
-      handleKeydown,
+      handleInput,
+      handleKeyDown,
       handlePaste,
-      startEdit,
-      cancelEdit,
-      saveEdit,
-      deleteMessage,
-      handleTyping,
       sendMessage,
       closeModal,
+      updateActiveFormats,
+      debugSendButton
     };
   },
 });
@@ -721,10 +728,17 @@ export default defineComponent({
 // Ersetzen Sie den bestehenden Style-Block mit diesem Code
 
 <style lang="scss" scoped>
-@use "sass:map";
-@use "@/style/base/variables" as vars;
-@use "@/style/base/mixins" as mixins;
-@use "@/style/base/animations" as animations;
+@use 'sass:map';
+@use '@/style/base/variables' as vars;
+@use '@/style/base/mixins' as mixins;
+@use '@/style/base/animations' as animations;
+
+// Einheitliche Icon-Größe
+.icon-size {
+  width: 20px !important;
+  height: 20px !important;
+  position: absolute;
+}
 
 .modal-backdrop {
   position: fixed;
@@ -738,24 +752,7 @@ export default defineComponent({
   justify-content: center;
   z-index: 1050;
   padding: map.get(vars.$spacing, m);
-
-  @each $theme in ("light", "dark") {
-    .theme-#{$theme} & {
-      background: rgba(mixins.theme-color($theme, primary-bg), 0.8);
-    }
-  }
-
-  // Mobile: Vollbild ohne Padding
-  @media (max-width: 640px) {
-    padding: 0;
-    align-items: stretch;
-    justify-content: stretch;
-  }
-
-  // Tablet: Reduziertes Padding
-  @media (min-width: 641px) and (max-width: 1024px) {
-    padding: map.get(vars.$spacing, s);
-  }
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
@@ -971,16 +968,37 @@ export default defineComponent({
       width: 32px;
       height: 32px;
     }
+  }
 
-    .close-icon {
-      width: 20px;
-      height: 20px;
-      position: absolute;
-
-      // Mobile: Kleineres Icon
-      @media (max-width: 640px) {
-        width: 18px;
-        height: 18px;
+  .debug-info {
+    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+    font-size: map.get(map.get(vars.$fonts, sizes), xs);
+    
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, secondary-bg);
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+    
+    button {
+      margin-top: map.get(vars.$spacing, xs);
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
+      border: 1px solid;
+      cursor: pointer;
+      
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          border-color: mixins.theme-color($theme, border-light);
+          color: mixins.theme-color($theme, text-primary);
+          
+          &:hover {
+            background-color: mixins.theme-color($theme, hover-color);
+          }
+        }
       }
     }
   }
@@ -1112,19 +1130,16 @@ export default defineComponent({
     padding: map.get(vars.$spacing, xxl);
     text-align: center;
 
-    // Mobile: Weniger Padding
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, xl);
-    }
-
-    .empty-icon {
-      font-size: 48px;
+    .empty-chat-icon {
+      width: 48px;
+      height: 48px;
       margin-bottom: map.get(vars.$spacing, m);
       opacity: 0.6;
 
-      // Mobile: Kleineres Icon
-      @media (max-width: 640px) {
-        font-size: 36px;
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
       }
     }
 
@@ -1306,12 +1321,27 @@ export default defineComponent({
         padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
         border-radius: 18px;
         position: relative;
-        transition: all 0.2s ease;
 
-        // Mobile: Kompakteres Padding
-        @media (max-width: 640px) {
-          padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-          border-radius: 16px;
+        .message-text {
+          margin: 0 0 map.get(vars.$spacing, xs) 0;
+          line-height: 1.4;
+          font-size: map.get(map.get(vars.$fonts, sizes), medium);
+          word-wrap: break-word;
+          
+          // Styles für Rich-Text
+          :deep(b),
+          :deep(strong) {
+            font-weight: map.get(map.get(vars.$fonts, weights), bold);
+          }
+          
+          :deep(i),
+          :deep(em) {
+            font-style: italic;
+          }
+          
+          :deep(u) {
+            text-decoration: underline;
+          }
         }
 
         .deleted-message {
@@ -1385,34 +1415,18 @@ export default defineComponent({
               font-size: map.get(map.get(vars.$fonts, sizes), xs);
             }
 
-            &:hover {
-              text-decoration: underline;
+                &:hover {
+                  background-color: rgba(255, 255, 255, 0.2);
+                }
+              }
+            }
+
+            .attachment-icon {
+              width: 16px;
+              height: 16px;
             }
           }
         }
-
-        .message-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: map.get(vars.$spacing, xs);
-          gap: map.get(vars.$spacing, s);
-
-          // Mobile: Weniger Gap
-          @media (max-width: 640px) {
-            gap: map.get(vars.$spacing, xs);
-            margin-top: 2px;
-          }
-
-          .edited-label {
-            font-size: map.get(map.get(vars.$fonts, sizes), xs);
-            opacity: 0.7;
-
-            // Mobile: Noch kleinere Schrift
-            @media (max-width: 640px) {
-              font-size: 10px;
-            }
-          }
 
           .message-time {
             font-size: map.get(map.get(vars.$fonts, sizes), xs);
@@ -1571,218 +1585,42 @@ export default defineComponent({
   }
 }
 
-.emoji-picker {
-  position: absolute;
-  bottom: 120px;
-  right: map.get(vars.$spacing, m);
-  width: 300px;
-  height: 240px;
-  border-radius: 16px;
-  z-index: 10;
-  @include animations.fade-in(0.2s);
+// Rich Text Editor
+.message-editor {
+  border-top: 1px solid;
 
-  @each $theme in ("light", "dark") {
+  @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, card-bg);
-      border: 1px solid mixins.theme-color($theme, border-light);
-      @include mixins.shadow("large", $theme);
-    }
-  }
-
-  // Mobile: Vollbreite am unteren Rand
-  @media (max-width: 640px) {
-    left: map.get(vars.$spacing, s);
-    right: map.get(vars.$spacing, s);
-    bottom: 140px;
-    width: auto;
-    height: 280px;
-    border-radius: 12px;
-  }
-
-  // Tablet: Angepasste Größe
-  @media (min-width: 641px) and (max-width: 1024px) {
-    width: 350px;
-    height: 260px;
-    bottom: 130px;
-  }
-
-  .emoji-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: map.get(vars.$spacing, m);
-    border-bottom: 1px solid;
-    flex-shrink: 0;
-
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        border-color: mixins.theme-color($theme, border-light);
-      }
-    }
-
-    // Mobile: Weniger Padding
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, s);
-    }
-
-    span {
-      font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-primary);
-        }
-      }
-
-      // Mobile: Kleinere Schrift
-      @media (max-width: 640px) {
-        font-size: map.get(map.get(vars.$fonts, sizes), xs);
-      }
-    }
-
-    .emoji-close {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: transparent;
-          color: mixins.theme-color($theme, text-secondary);
-
-          &:hover {
-            background-color: mixins.theme-color($theme, secondary-bg);
-          }
-        }
-      }
-
-      .close-icon {
-        width: 14px;
-        height: 14px;
-      }
-    }
-  }
-
-  .emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-    padding: map.get(vars.$spacing, s);
-    height: calc(100% - 60px);
-    overflow-y: auto;
-
-    // Mobile: Mehr Spalten für bessere Nutzung des Platzes
-    @media (max-width: 640px) {
-      grid-template-columns: repeat(8, 1fr);
-      gap: 2px;
-      padding: map.get(vars.$spacing, xs);
-    }
-
-    // Tablet: Angepasste Spaltenanzahl
-    @media (min-width: 641px) and (max-width: 1024px) {
-      grid-template-columns: repeat(7, 1fr);
-    }
-
-    .emoji-btn {
-      width: 44px;
-      height: 44px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      border-radius: 12px;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-
-      // Mobile: Kleinere Buttons
-      @media (max-width: 640px) {
-        width: 36px;
-        height: 36px;
-        font-size: 20px;
-        border-radius: 8px;
-      }
-
-      // Tablet: Mittlere Größe
-      @media (min-width: 641px) and (max-width: 1024px) {
-        width: 40px;
-        height: 40px;
-        font-size: 22px;
-      }
-
-      &:hover {
-        transform: scale(1.15);
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, hover-color);
-          }
-        }
-
-        // Mobile: Weniger Scale für Touch-Geräte
-        @media (max-width: 640px) {
-          transform: scale(1.1);
-        }
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-    }
-  }
-}
-
-.input-area {
-  flex-shrink: 0;
-
-  @each $theme in ("light", "dark") {
-    .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, secondary-bg);
-      border-top: 1px solid mixins.theme-color($theme, border-light);
+      border-color: mixins.theme-color($theme, border-light);
+      transition: border-color 0.4s ease-out;
     }
   }
 
   .formatting-toolbar {
     display: flex;
     align-items: center;
-    gap: map.get(vars.$spacing, s);
-    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-    overflow-x: auto;
+    gap: map.get(vars.$spacing, xs);
+    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
 
-    // Mobile: Kompaktere Toolbar
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-      gap: map.get(vars.$spacing, xs);
-    }
-
-    .format-btn {
+    .format-button {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: none;
+      border-radius: map.get(map.get(vars.$layout, border-radius), small);
       cursor: pointer;
       transition: all 0.2s ease;
-      flex-shrink: 0;
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: transparent;
           color: mixins.theme-color($theme, text-secondary);
 
-          &:hover,
-          &.active {
-            background-color: mixins.theme-color($theme, hover-color);
+          &:hover {
+            background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
           }
 
@@ -1792,90 +1630,92 @@ export default defineComponent({
           }
         }
       }
-
-      // Mobile: Kleinere Buttons
-      @media (max-width: 640px) {
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-      }
-
-      .format-icon {
-        font-size: 14px;
-
-        // Mobile: Kleinere Icons
-        @media (max-width: 640px) {
-          font-size: 12px;
-        }
-
-        &.bold {
-          font-weight: 900;
-        }
-
-        &.italic {
-          font-style: italic;
-        }
-
-        &.underline {
-          text-decoration: underline;
-        }
-      }
-
-      &.emoji-btn {
-        font-size: 16px;
-
-        // Mobile: Kleineres Emoji
-        @media (max-width: 640px) {
-          font-size: 14px;
-        }
-      }
     }
 
-    .divider {
+    .toolbar-separator {
       width: 1px;
-      height: 20px;
-      flex-shrink: 0;
+      height: 24px;
+      margin: 0 map.get(vars.$spacing, xs);
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, border-light);
         }
       }
+    }
 
-      // Mobile: Kürzere Divider
-      @media (max-width: 640px) {
-        height: 16px;
+    .emoji-picker-container {
+      position: relative;
+
+      .emoji-picker {
+        position: absolute;
+        bottom: calc(100% + #{map.get(vars.$spacing, s)});
+        left: 50%;
+        transform: translateX(-50%);
+        width: 320px;
+        max-height: 280px;
+        overflow-y: auto;
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        @include animations.fade-in(0.2s);
+        z-index: 100;
+
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, card-bg);
+            border: 1px solid mixins.theme-color($theme, border-light);
+            @include mixins.shadow('medium', $theme);
+          }
+        }
+
+        .emoji-grid {
+          display: grid;
+          grid-template-columns: repeat(10, 1fr);
+          gap: map.get(vars.$spacing, xxs);
+          padding: map.get(vars.$spacing, s);
+
+          .emoji-item {
+            width: 28px;
+            height: 28px;
+            font-size: 25px !important;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            transition: all 0.2s ease;
+
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                &:hover {
+                  background-color: mixins.theme-color($theme, secondary-bg);
+                  transform: scale(1.2);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
 
-  .input-form {
+  .message-input-wrapper {
     display: flex;
-    align-items: flex-end;
     gap: map.get(vars.$spacing, s);
-    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+    align-items: flex-end;
+    padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, xl);
 
-    // Mobile: Kompakteres Form
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-      gap: map.get(vars.$spacing, xs);
-    }
-
-    .input-wrapper {
+    .message-input {
       flex: 1;
-      min-width: 0; // Für Flex-Layout
-
-      .rich-input {
-        width: 100%;
-        min-height: 40px;
-        max-height: 100px;
-        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-        border-radius: 20px;
-        font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        line-height: 1.4;
-        overflow-y: auto;
-        outline: none;
-        word-wrap: break-word;
+      min-height: 44px;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      outline: none;
+      line-height: 1.5;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -1883,56 +1723,33 @@ export default defineComponent({
             color: mixins.theme-color($theme, text-primary);
             border: 1px solid mixins.theme-color($theme, border-light);
 
-            &:focus {
-              border-color: mixins.theme-color($theme, accent-teal);
-            }
+          &:focus {
+            border-color: mixins.theme-color($theme, accent-teal);
+            box-shadow: 0 0 0 3px rgba(mixins.theme-color($theme, accent-teal), 0.1);
+          }
 
-            &:empty:before {
-              content: attr(data-placeholder);
-              color: mixins.theme-color($theme, text-secondary);
-              pointer-events: none;
-            }
+          &:empty:not(:focus):before {
+            content: attr(data-placeholder);
+            color: mixins.theme-color($theme, text-muted);
+            pointer-events: none;
+            position: absolute;
           }
         }
-
-        // Mobile: Kompakterer Input
-        @media (max-width: 640px) {
-          min-height: 36px;
-          max-height: 80px;
-          padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
-          border-radius: 18px;
-        }
-
-        // Rich text formatting
-        :deep(strong) {
-          font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        }
-
-        :deep(em) {
-          font-style: italic;
-        }
-
-        :deep(u) {
-          text-decoration: underline;
-        }
-
-        &::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, border-medium);
-              border-radius: 2px;
-            }
-          }
-        }
+      }
+      
+      // Rich-Text Styles
+      :deep(b),
+      :deep(strong) {
+        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      }
+      
+      :deep(i),
+      :deep(em) {
+        font-style: italic;
+      }
+      
+      :deep(u) {
+        text-decoration: underline;
       }
     }
 
@@ -1962,23 +1779,6 @@ export default defineComponent({
             cursor: not-allowed;
             transform: none;
           }
-        }
-      }
-
-      // Mobile: Kompakterer Send-Button
-      @media (max-width: 640px) {
-        width: 36px;
-        height: 36px;
-      }
-
-      .send-icon {
-        width: 18px;
-        height: 18px;
-
-        // Mobile: Kleineres Icon
-        @media (max-width: 640px) {
-          width: 16px;
-          height: 16px;
         }
       }
     }
@@ -2111,56 +1911,30 @@ export default defineComponent({
     max-height: none;
   }
 
-  .messages-container {
-    // Mehr Platz für Nachrichten im Landscape-Modus
-    min-height: 200px;
+  .chat-container {
+    padding: map.get(vars.$spacing, s);
   }
 
-  .emoji-picker {
-    height: 200px;
-    bottom: 120px;
+  .message-editor {
+    .formatting-toolbar {
+      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
+    }
+
+    .message-input-wrapper {
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+    }
   }
-}
 
-// High-DPI Displays
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-  .modal-content {
-
-    // Schärfere Schatten für High-DPI
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        @include mixins.shadow("large", $theme);
+  .formatting-toolbar {
+    .emoji-picker-container {
+      .emoji-picker {
+        left: -10px;
+        right: 10px;
+        width: calc(100vw - 40px);
+        max-width: 320px;
+        transform: none;
       }
     }
-  }
-}
-
-// Hover-Unterstützung (Desktop)
-@media (hover: hover) and (pointer: fine) {
-  .message-wrapper .message-bubble .message-footer .message-actions {
-    opacity: 0;
-
-    .message-wrapper:hover & {
-      opacity: 1;
-    }
-  }
-}
-
-// Touch-Geräte (bessere Touch-Targets)
-@media (hover: none) and (pointer: coarse) {
-  .message-wrapper .message-bubble .message-footer .message-actions {
-    opacity: 0.7;
-  }
-
-  .format-btn,
-  .action-btn,
-  .edit-btn,
-  .emoji-btn,
-  .send-btn,
-  .close-btn {
-    min-height: 44px; // iOS HIG empfohlene Mindestgröße
-    min-width: 44px;
   }
 }
 </style>
