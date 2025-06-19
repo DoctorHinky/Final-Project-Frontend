@@ -14,58 +14,58 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
-import { 
-  UserGroupIcon, 
-  InboxIcon, 
+import { defineComponent, computed } from "vue";
+import {
+  UserGroupIcon,
+  InboxIcon,
   MagnifyingGlassIcon,
   EnvelopeIcon,
   ArrowPathIcon,
-  PlusIcon
-} from '@heroicons/vue/24/outline';
+  PlusIcon,
+} from "@heroicons/vue/24/outline";
 
 export default defineComponent({
-  name: 'EmptyState',
+  name: "EmptyState",
   components: {
     UserGroupIcon,
     InboxIcon,
     MagnifyingGlassIcon,
     EnvelopeIcon,
     ArrowPathIcon,
-    PlusIcon
+    PlusIcon,
   },
   props: {
     iconType: {
       type: String,
       required: true,
-      validator: (value: string) => ['friends', 'requests', 'search', 'general'].includes(value)
+      validator: (value: string) => ["friends", "requests", "search", "general"].includes(value),
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     message: {
       type: String,
-      required: true
+      required: true,
     },
     buttonText: {
       type: String,
-      required: true
+      required: true,
     },
     buttonAction: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['button-click'],
+  emits: ["button-click"],
   setup(props, { emit }) {
     const iconComponent = computed(() => {
       switch (props.iconType) {
-        case 'friends':
+        case "friends":
           return UserGroupIcon;
-        case 'requests':
+        case "requests":
           return InboxIcon;
-        case 'search':
+        case "search":
           return MagnifyingGlassIcon;
         default:
           return UserGroupIcon;
@@ -74,34 +74,32 @@ export default defineComponent({
 
     const buttonIconComponent = computed(() => {
       switch (props.buttonAction) {
-        case 'show-invite-modal':
+        case "show-invite-modal":
           return EnvelopeIcon;
-        case 'clear-search':
+        case "clear-search":
           return ArrowPathIcon;
-        case 'add-friends':
+        case "add-friends":
           return PlusIcon;
         default:
           return EnvelopeIcon;
       }
     });
 
-    const onButtonClick = () => {
-      emit('button-click', props.buttonAction);
-    };
+    const onButtonClick = () => emit("button-click", props.buttonAction);
 
     return {
       iconComponent,
       buttonIconComponent,
-      onButtonClick
+      onButtonClick,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Leerer Zustand
 .empty-state {
@@ -114,13 +112,13 @@ export default defineComponent({
 
   .empty-icon {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .empty-icon-svg {
       width: 64px;
       height: 64px;
       opacity: 0.5;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -133,7 +131,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), xl);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -146,7 +144,7 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, l);
     max-width: 500px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -164,7 +162,7 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, s);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
@@ -172,7 +170,7 @@ export default defineComponent({
 
         &:hover {
           transform: translateY(-3px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }

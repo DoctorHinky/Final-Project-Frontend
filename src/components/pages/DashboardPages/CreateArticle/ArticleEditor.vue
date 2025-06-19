@@ -413,9 +413,7 @@ export default defineComponent({
         type,
       };
 
-      setTimeout(() => {
-        notification.value.show = false;
-      }, 3000);
+      setTimeout(() => (notification.value.show = false), 3000);
     };
 
     const isSavingChapter = (index: number): boolean => {
@@ -690,16 +688,6 @@ export default defineComponent({
         }
         editMode.value = true;
 
-        console.group("Lade Entwurf");
-        console.log("Entwurf ID:", draft.id);
-        console.log("Entwurf Titel:", draft.title);
-        console.log("Entwurf Beschreibung:", draft.quickDescription);
-        console.log("Entwurf Kategorie:", draft.category);
-        console.log("Entwurf Tags:", draft.tags);
-        console.log("Entwurf Kapitel:", draft.chapters);
-        console.log("Entwurf Quiz:", draft.quiz);
-        console.groupEnd();
-
         // Entwurf laden
         currentDraftId.value = draft.id;
         articleId.value = draft.id;
@@ -795,7 +783,6 @@ export default defineComponent({
         tags.value = article.tags || [];
         chapters.value = normalizeChapters(article.chapters);
         articleQuiz.value = article.quiz || { questions: [] };
-        console.log("Lade veröffentlichten Artikel:", article);
 
         saveToLocalStorage();
         showNotification("Artikel wurde zum Bearbeiten geladen", "success");
@@ -1580,13 +1567,13 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
       @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, primary);
-        color: mixins.theme-color($theme, text-secondary);
-        border: 1px solid mixins.theme-color($theme, border-light);
-        cursor: pointer;
-        transition: all 0.3s;
-      }
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, primary);
+          color: mixins.theme-color($theme, text-secondary);
+          border: 1px solid mixins.theme-color($theme, border-light);
+          cursor: pointer;
+          transition: all 0.3s;
+        }
       }
     }
 

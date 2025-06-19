@@ -163,6 +163,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from "vue";
 import { memberTicketService, type FullTicket, TicketStatus, TicketCategory } from "@/services/member.ticket.service";
+import { formatDateTime } from "@/utils/helperFunctions";
 import {
   TicketIcon,
   XMarkIcon,
@@ -263,18 +264,6 @@ export default defineComponent({
     const formatCategory = (category: TicketCategory) => {
       return memberTicketService.formatCategory(category);
     };
-
-    const formatDateTime = (dateString: string) => {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(date);
-    };
-
     const formatRelativeTime = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();

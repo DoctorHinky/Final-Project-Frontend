@@ -44,9 +44,7 @@
           <h3>Meine Tickets</h3>
           <p>Verwalten Sie Ihre Support-Anfragen</p>
           <div class="card-action">
-            <span v-if="openTicketsCount > 0" class="open-count">
-              {{ openTicketsCount }} offen
-            </span>
+            <span v-if="openTicketsCount > 0" class="open-count"> {{ openTicketsCount }} offen </span>
             <span v-else>{{ totalTicketsCount }} gesamt</span>
             <ChevronRightIcon class="w-4 h-4 Icons" />
           </div>
@@ -160,15 +158,18 @@
     </Teleport>
 
     <!-- Create Ticket Modal -->
-    <UserTicketModal :is-open="showCreateTicket" @close="showCreateTicket = false"
-      @ticket-created="handleTicketCreated" />
+    <UserTicketModal
+      :is-open="showCreateTicket"
+      @close="showCreateTicket = false"
+      @ticket-created="handleTicketCreated"
+    />
   </div>
 
-  <img src="../../../assets/images/Support.jpg" alt="Support IMG" class="Support-IMG">
+  <img src="../../../assets/images/Support.jpg" alt="Support IMG" class="Support-IMG" />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted } from "vue";
 import {
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
@@ -182,20 +183,20 @@ import {
   ChatBubbleLeftIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
-  XMarkIcon
-} from '@heroicons/vue/24/outline';
+  XMarkIcon,
+} from "@heroicons/vue/24/outline";
 
 // Import child components
-import SupportFAQ from './SupportFAQ.vue';
-import UserTicketOverview from './UserTicketOverview.vue';
-import UserTicketModal from './UserTicketModal.vue';
-import SupportGuides from './SupportGuides.vue';
+import SupportFAQ from "./SupportFAQ.vue";
+import UserTicketOverview from "./UserTicketOverview.vue";
+import UserTicketModal from "./UserTicketModal.vue";
+import SupportGuides from "./SupportGuides.vue";
 
 // Import services
-import { memberTicketService } from '@/services/member.ticket.service';
+import { memberTicketService, type UserTicket } from "@/services/member.ticket.service";
 
 export default defineComponent({
-  name: 'SupportHub',
+  name: "SupportHub",
   components: {
     ChatBubbleLeftRightIcon,
     QuestionMarkCircleIcon,
@@ -213,7 +214,7 @@ export default defineComponent({
     SupportFAQ,
     UserTicketOverview,
     UserTicketModal,
-    SupportGuides
+    SupportGuides,
   },
   setup() {
     // State
@@ -221,15 +222,13 @@ export default defineComponent({
     const showFaqModal = ref(false);
     const showTicketsModal = ref(false);
     const showGuidesModal = ref(false);
-    const tickets = ref([]);
+    const tickets = ref<UserTicket[]>([]);
     const faqCount = ref(12);
     const isLoading = ref(false);
 
     // Computed
     const openTicketsCount = computed(() => {
-      return tickets.value.filter((ticket: any) =>
-        ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
-      ).length;
+      return tickets.value.filter((ticket: any) => ticket.status === "OPEN" || ticket.status === "IN_PROGRESS").length;
     });
 
     const totalTicketsCount = computed(() => tickets.value.length);
@@ -269,7 +268,7 @@ export default defineComponent({
         const response = await memberTicketService.getMyTickets();
         tickets.value = response || [];
       } catch (error) {
-        console.error('Fehler beim Laden der Tickets:', error);
+        console.error("Fehler beim Laden der Tickets:", error);
         tickets.value = [];
       } finally {
         isLoading.value = false;
@@ -297,16 +296,16 @@ export default defineComponent({
       handleCreateTicketFromFaq,
       handleCreateTicketFromGuides,
       handleTicketCreated,
-      loadTickets
+      loadTickets,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .support-hub {
   max-width: 1200px;
@@ -338,7 +337,7 @@ export default defineComponent({
         position: relative;
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           inset: -1px;
           border-radius: 16px;
@@ -356,7 +355,7 @@ export default defineComponent({
         font-size: 2.25rem;
         font-weight: 700;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -367,7 +366,7 @@ export default defineComponent({
         margin: 0;
         font-size: 1.125rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -389,7 +388,7 @@ export default defineComponent({
       font-size: 1.5rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -411,7 +410,7 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -438,7 +437,7 @@ export default defineComponent({
         position: relative;
         overflow: visible;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             border-color: rgba(74, 210, 149, 0.3);
 
@@ -447,7 +446,7 @@ export default defineComponent({
               box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1), 0 0 30px rgba(74, 210, 149, 0.2);
 
               &::after {
-                content: '';
+                content: "";
                 position: absolute;
                 inset: -2px;
                 border-radius: 16px;
@@ -480,7 +479,7 @@ export default defineComponent({
         font-size: 1.25rem;
         font-weight: 600;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -492,7 +491,7 @@ export default defineComponent({
         font-size: 0.875rem;
         line-height: 1.5;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -507,7 +506,7 @@ export default defineComponent({
         font-weight: 500;
         transition: color 0.3s ease;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -532,7 +531,7 @@ export default defineComponent({
   border-radius: 12px;
   flex-wrap: wrap;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -549,7 +548,7 @@ export default defineComponent({
       filter: drop-shadow(0 0 3px rgba(74, 210, 149, 0.4));
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
 
@@ -591,7 +590,7 @@ export default defineComponent({
     max-width: 1000px;
   }
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -608,7 +607,7 @@ export default defineComponent({
   align-items: center;
   border-bottom: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       border-color: mixins.theme-color($theme, border-light);
@@ -622,7 +621,7 @@ export default defineComponent({
     flex: 1;
     text-align: center;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -642,7 +641,7 @@ export default defineComponent({
     transition: all 0.2s;
     font-weight: 500;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
 

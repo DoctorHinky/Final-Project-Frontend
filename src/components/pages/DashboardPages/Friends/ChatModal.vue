@@ -6,7 +6,13 @@
       <header class="chat-header">
         <div class="user-info">
           <div class="avatar">
-            <span class="avatar-text">{{ getInitials(friendName) }}</span>
+            <img
+              v-if="friendProfileImage"
+              :src="friendProfileImage"
+              :alt="`${friendName}'s Avatar`"
+              class="avatar-image"
+            />
+            <span v-else class="avatar-text">{{ getInitials(friendName) }}</span>
             <div v-if="isOnline" class="online-status"></div>
           </div>
           <div class="user-details">
@@ -256,6 +262,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    friendProfileImage: {
+      type: String,
+      default: "",
+    },
   },
   emits: ["update:isVisible", "send-message", "show-toast"],
   setup(props, { emit }) {
@@ -335,9 +345,7 @@ export default defineComponent({
     ];
 
     // Computed
-    const hasContent = computed(() => {
-      return editorContent.value.trim().length > 0;
-    });
+    const hasContent = computed(() => editorContent.value.trim().length > 0);
 
     const canSendMessage = computed(() => hasContent.value && !isSending.value);
 
@@ -421,9 +429,7 @@ export default defineComponent({
         updateActiveFormats();
 
         // Update content after formatting
-        nextTick(() => {
-          handleInput();
-        });
+        nextTick(() => handleInput());
       }
     };
 
@@ -447,9 +453,7 @@ export default defineComponent({
       showEmojiPicker.value = false;
 
       // Update content manually
-      nextTick(() => {
-        handleInput();
-      });
+      nextTick(() => handleInput());
     };
 
     const toggleEmojiPicker = () => {
@@ -471,14 +475,6 @@ export default defineComponent({
         }
 
         editorContent.value = text;
-
-        console.log("Input changed:", {
-          text,
-          html,
-          editorContent: editorContent.value,
-          hasContent: hasContent.value,
-          canSendMessage: canSendMessage.value,
-        });
       }
 
       // Update active formats
@@ -487,9 +483,7 @@ export default defineComponent({
       // Typing indicator
       isUserTyping.value = true;
 
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-      }
+      if (typingTimeout) clearTimeout(typingTimeout);
 
       typingTimeout = setTimeout(() => {
         isUserTyping.value = false;
@@ -546,7 +540,6 @@ export default defineComponent({
       });
 
       if (!canSendMessage.value || !currentConversationId.value) {
-        console.log("SendMessage aborted - conditions not met");
         return;
       }
 
@@ -556,7 +549,6 @@ export default defineComponent({
 
       // Prüfe nochmal ob wirklich Inhalt vorhanden ist
       if (!messageText && !htmlContent.replace(/<[^>]*>/g, "").trim()) {
-        console.log("SendMessage aborted - no content");
         return;
       }
 
@@ -569,15 +561,11 @@ export default defineComponent({
       }
 
       try {
-        console.log("Sending message with content:", htmlContent);
-
         // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
         htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
 
         // Sende Nachricht über Chat-Service
         const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
-
-        console.log("Message sent successfully:", response);
 
         // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
@@ -736,9 +724,7 @@ export default defineComponent({
       document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("selectionchange", handleSelectionChange);
 
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-      }
+      if (typingTimeout) clearTimeout(typingTimeout);
     });
 
     return {
@@ -780,8 +766,6 @@ export default defineComponent({
   },
 });
 </script>
-
-// Verbesserte responsive Styles für das Chat-Modal // Ersetzen Sie den bestehenden Style-Block mit diesem Code
 
 <style lang="scss" scoped>
 @use "sass:map";
@@ -908,6 +892,14 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+
+      .avatar-image {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: all 0.2s ease;
+      }
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {

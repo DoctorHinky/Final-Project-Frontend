@@ -4,7 +4,13 @@
     <div v-if="filteredFriends.length > 0" class="friends-grid">
       <div v-for="friend in filteredFriends" :key="friend.id" class="friend-card">
         <div class="friend-avatar">
-          <span class="avatar-placeholder">{{ getInitials(friend.name) }}</span>
+          <img
+            v-if="friend.profileImage"
+            :src="friend.profileImage"
+            :alt="`${friend.name}'s Avatar`"
+            class="avatar-image"
+          />
+          <span v-else class="avatar-placeholder">{{ getInitials(friend.name) }}</span>
           <span v-if="friend.isOnline" class="online-indicator"></span>
         </div>
         <div class="friend-info">
@@ -51,44 +57,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, type PropType } from 'vue';
-import { 
-  UserGroupIcon, 
-  ChatBubbleLeftIcon, 
-  EllipsisVerticalIcon, 
-  ArrowPathIcon, 
-  EnvelopeIcon 
-} from '@heroicons/vue/24/outline';
-import type { Friend } from '@/types/Friends.types';
+import { defineComponent, ref, type PropType } from "vue";
+import {
+  UserGroupIcon,
+  ChatBubbleLeftIcon,
+  EllipsisVerticalIcon,
+  ArrowPathIcon,
+  EnvelopeIcon,
+} from "@heroicons/vue/24/outline";
+import type { Friend } from "@/types/Friends.types";
 
 export default defineComponent({
-  name: 'FriendsList',
+  name: "FriendsList",
   components: {
     UserGroupIcon,
     ChatBubbleLeftIcon,
     EllipsisVerticalIcon,
     ArrowPathIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
   },
   props: {
     filteredFriends: {
       type: Array as PropType<Friend[]>,
-      required: true
+      required: true,
     },
     searchQuery: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['unfriend', 'clear-search', 'show-invite-modal', 'open-chat'],
+  emits: ["unfriend", "clear-search", "show-invite-modal", "open-chat"],
   setup(_, { emit }) {
     const activeFriendMenu = ref<string | null>(null);
 
     const getInitials = (name: string) => {
       return name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
         .toUpperCase();
     };
 
@@ -97,29 +103,17 @@ export default defineComponent({
     };
 
     const unfriend = (friendId: string) => {
-      emit('unfriend', friendId);
+      emit("unfriend", friendId);
       activeFriendMenu.value = null;
     };
 
-    const clearSearch = () => {
-      emit('clear-search');
-    };
+    const clearSearch = () => emit("clear-search");
 
-    const showInviteModal = () => {
-      emit('show-invite-modal');
-    };
+    const showInviteModal = () => emit("show-invite-modal");
 
     const openChat = (friend: Friend) => {
-      console.log('FriendsList: openChat called with friend:', friend); // DEBUG
-      console.log('FriendsList: Friend object details:', {
-        id: friend.id,
-        friendId: friend.friendId,
-        name: friend.name,
-        username: friend.username
-      }); // DEBUG
-      
-      emit('open-chat', friend);
-      console.log('FriendsList: open-chat event emitted'); // DEBUG
+      emit("open-chat", friend);
+      console.log("FriendsList: open-chat event emitted"); // DEBUG
     };
 
     return {
@@ -129,16 +123,16 @@ export default defineComponent({
       unfriend,
       clearSearch,
       showInviteModal,
-      openChat
+      openChat,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Gemeinsame Stile für Cards
 .friends-grid {
@@ -163,7 +157,7 @@ export default defineComponent({
   gap: map.get(vars.$spacing, m);
   overflow: hidden;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -171,7 +165,7 @@ export default defineComponent({
 
       &:hover {
         transform: translateY(-4px);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
         border-color: mixins.theme-color($theme, border-medium);
       }
     }
@@ -189,7 +183,21 @@ export default defineComponent({
     position: relative;
     flex-shrink: 0;
 
-    @each $theme in ('light', 'dark') {
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      transition: all 0.4s ease-out;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border: 2px solid mixins.theme-color($theme, accent-green);
+        }
+      }
+    }
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 2px solid mixins.theme-color($theme, accent-green);
@@ -201,7 +209,7 @@ export default defineComponent({
       font-size: 2rem;
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -216,7 +224,7 @@ export default defineComponent({
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background-color: #4CAF50;
+      background-color: #4caf50;
       border: 2px solid white;
     }
   }
@@ -231,7 +239,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -244,7 +252,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
       line-height: 1.4;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -258,7 +266,7 @@ export default defineComponent({
       gap: map.get(vars.$spacing, s);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
           transition: all 0.4s ease-out;
@@ -271,7 +279,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         white-space: nowrap;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             transition: all 0.4s ease-out;
@@ -300,7 +308,7 @@ export default defineComponent({
       gap: map.get(vars.$spacing, xs);
 
       &.message {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
@@ -308,7 +316,7 @@ export default defineComponent({
 
             &:hover {
               transform: translateY(-2px);
-              @include mixins.shadow('small', $theme);
+              @include mixins.shadow("small", $theme);
             }
           }
         }
@@ -327,7 +335,7 @@ export default defineComponent({
         justify-content: center;
         padding: 0;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
@@ -354,9 +362,9 @@ export default defineComponent({
       z-index: 10;
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       overflow: hidden;
-      @include mixins.shadow('medium', 'light');
+      @include mixins.shadow("medium", "light");
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -370,7 +378,7 @@ export default defineComponent({
         border: none;
         cursor: pointer;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             color: #ff6b6b;
@@ -397,13 +405,13 @@ export default defineComponent({
 
   .empty-icon {
     margin-bottom: map.get(vars.$spacing, l);
-    
+
     .empty-icon-svg {
       width: 64px;
       height: 64px;
       opacity: 0.5;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -416,7 +424,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), xl);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -429,7 +437,7 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, l);
     max-width: 500px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -447,7 +455,7 @@ export default defineComponent({
     align-items: center;
     gap: map.get(vars.$spacing, s);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
@@ -455,7 +463,7 @@ export default defineComponent({
 
         &:hover {
           transform: translateY(-3px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }

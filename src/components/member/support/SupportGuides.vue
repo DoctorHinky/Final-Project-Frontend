@@ -9,16 +9,11 @@
 
     <!-- Guides Grid -->
     <div class="guides-grid">
-      <div 
-        v-for="guide in guides"
-        :key="guide.id"
-        class="guide-card"
-        @click="selectGuide(guide)"
-      >
+      <div v-for="guide in guides" :key="guide.id" class="guide-card" @click="selectGuide(guide)">
         <div class="guide-icon">
           <component :is="guide.icon" class="w-6 h-6" />
         </div>
-        
+
         <div class="guide-content">
           <h3 class="guide-title">{{ guide.title }}</h3>
           <p class="guide-description">{{ guide.description }}</p>
@@ -48,11 +43,7 @@
 
         <div class="guide-modal-content">
           <div class="guide-steps">
-            <div 
-              v-for="(step, index) in selectedGuide.steps"
-              :key="index"
-              class="guide-step"
-            >
+            <div v-for="(step, index) in selectedGuide.steps" :key="index" class="guide-step">
               <div class="step-number">{{ index + 1 }}</div>
               <div class="step-content">
                 <h4>{{ step.title }}</h4>
@@ -67,9 +58,7 @@
         </div>
 
         <div class="guide-modal-footer">
-          <button @click="closeGuide" class="btn-secondary">
-            Schließen
-          </button>
+          <button @click="closeGuide" class="btn-secondary">Schließen</button>
           <button @click="showCreateTicket" class="btn-primary">
             <ChatBubbleLeftIcon class="w-4 h-4 Icons" />
             Hilfe benötigt?
@@ -81,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from "vue";
 import {
   ClockIcon,
   ChevronRightIcon,
@@ -95,28 +84,28 @@ import {
   ShieldCheckIcon,
   BellIcon,
   DocumentIcon,
-  PencilIcon
-} from '@heroicons/vue/24/outline';
+  PencilIcon,
+} from "@heroicons/vue/24/outline";
 
-interface GuideStep {
+export interface GuideStep {
   title: string;
   description: string;
   note?: string;
 }
 
-interface Guide {
+export interface Guide {
   id: number;
   title: string;
   description: string;
   duration: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   icon: any;
   iconClass: string;
   steps: GuideStep[];
 }
 
 export default defineComponent({
-  name: 'SupportGuides',
+  name: "SupportGuides",
   components: {
     ClockIcon,
     ChevronRightIcon,
@@ -130,212 +119,215 @@ export default defineComponent({
     ShieldCheckIcon,
     BellIcon,
     DocumentIcon,
-    PencilIcon
+    PencilIcon,
   },
-  emits: ['create-ticket'],
+  emits: ["create-ticket"],
   setup(_, { emit }) {
     const selectedGuide = ref<Guide | null>(null);
 
     const guides: Guide[] = [
       {
         id: 1,
-        title: 'Passwort ändern',
-        description: 'Lernen Sie, wie Sie Ihr Passwort sicher ändern können',
-        duration: '3 Min.',
-        difficulty: 'easy',
+        title: "Passwort ändern",
+        description: "Lernen Sie, wie Sie Ihr Passwort sicher ändern können",
+        duration: "3 Min.",
+        difficulty: "easy",
         icon: KeyIcon,
-        iconClass: 'icon-account',
+        iconClass: "icon-account",
         steps: [
           {
-            title: 'Zu den Einstellungen navigieren',
-            description: 'Klicken Sie in der Sidebar auf "Einstellungen" oder auf Ihr Profilbild rechts oben'
+            title: "Zu den Einstellungen navigieren",
+            description: 'Klicken Sie in der Sidebar auf "Einstellungen" oder auf Ihr Profilbild rechts oben',
           },
           {
-            title: 'Account-Tab öffnen',
-            description: 'Wechseln Sie zum Tab "Account" in den Einstellungen'
+            title: "Account-Tab öffnen",
+            description: 'Wechseln Sie zum Tab "Account" in den Einstellungen',
           },
           {
-            title: 'Passwort-Bereich finden',
-            description: 'Scrollen Sie nach unten zum Bereich "Passwort & Sicherheit"'
+            title: "Passwort-Bereich finden",
+            description: 'Scrollen Sie nach unten zum Bereich "Passwort & Sicherheit"',
           },
           {
-            title: 'Neues Passwort eingeben',
-            description: 'Geben Sie Ihr aktuelles Passwort und das neue Passwort ein. Das neue Passwort sollte mindestens 8 Zeichen haben.',
-            note: 'Sie werden automatisch abgemeldet und müssen sich neu anmelden'
-          }
-        ]
+            title: "Neues Passwort eingeben",
+            description:
+              "Geben Sie Ihr aktuelles Passwort und das neue Passwort ein. Das neue Passwort sollte mindestens 8 Zeichen haben.",
+            note: "Sie werden automatisch abgemeldet und müssen sich neu anmelden",
+          },
+        ],
       },
       {
         id: 2,
-        title: 'Profilbild hochladen',
-        description: 'So laden Sie ein neues Profilbild hoch',
-        duration: '2 Min.',
-        difficulty: 'easy',
+        title: "Profilbild hochladen",
+        description: "So laden Sie ein neues Profilbild hoch",
+        duration: "2 Min.",
+        difficulty: "easy",
         icon: PhotoIcon,
-        iconClass: 'icon-media',
+        iconClass: "icon-media",
         steps: [
           {
-            title: 'Einstellungen öffnen',
-            description: 'Gehen Sie zu Ihren Einstellungen über die Sidebar'
+            title: "Einstellungen öffnen",
+            description: "Gehen Sie zu Ihren Einstellungen über die Sidebar",
           },
           {
-            title: 'Profil-Tab wählen',
-            description: 'Wählen Sie den Tab "Profil" in den Einstellungen'
+            title: "Profil-Tab wählen",
+            description: 'Wählen Sie den Tab "Profil" in den Einstellungen',
           },
           {
-            title: 'Profilbild bearbeiten',
-            description: 'Klicken Sie auf Ihr aktuelles Profilbild oder "Profilbild ändern"'
+            title: "Profilbild bearbeiten",
+            description: 'Klicken Sie auf Ihr aktuelles Profilbild oder "Profilbild ändern"',
           },
           {
-            title: 'Datei auswählen und speichern',
+            title: "Datei auswählen und speichern",
             description: 'Wählen Sie eine Bilddatei von Ihrem Gerät und klicken Sie "Speichern"',
-            note: 'Erlaubte Formate: JPG, PNG, WEBP (max. 5MB). Das Bild wird automatisch zugeschnitten'
-          }
-        ]
+            note: "Erlaubte Formate: JPG, PNG, WEBP (max. 5MB). Das Bild wird automatisch zugeschnitten",
+          },
+        ],
       },
       {
         id: 3,
-        title: 'Zwei-Faktor-Authentifizierung',
-        description: 'Erhöhen Sie die Sicherheit Ihres Kontos',
-        duration: '5 Min.',
-        difficulty: 'medium',
+        title: "Zwei-Faktor-Authentifizierung",
+        description: "Erhöhen Sie die Sicherheit Ihres Kontos",
+        duration: "5 Min.",
+        difficulty: "medium",
         icon: ShieldCheckIcon,
-        iconClass: 'icon-security',
+        iconClass: "icon-security",
         steps: [
           {
-            title: 'Einstellungen → Account öffnen',
-            description: 'Navigieren Sie zu Einstellungen und wählen Sie den Account-Tab'
+            title: "Einstellungen → Account öffnen",
+            description: "Navigieren Sie zu Einstellungen und wählen Sie den Account-Tab",
           },
           {
-            title: 'Sicherheitsbereich finden',
-            description: 'Scrollen Sie zum Bereich "Passwort & Sicherheit"'
+            title: "Sicherheitsbereich finden",
+            description: 'Scrollen Sie zum Bereich "Passwort & Sicherheit"',
           },
           {
-            title: 'Authenticator-App vorbereiten',
-            description: 'Installieren Sie eine App wie Google Authenticator oder Authy auf Ihrem Smartphone'
+            title: "Authenticator-App vorbereiten",
+            description: "Installieren Sie eine App wie Google Authenticator oder Authy auf Ihrem Smartphone",
           },
           {
-            title: '2FA aktivieren',
-            description: 'Folgen Sie den Anweisungen auf der Seite und scannen Sie den QR-Code',
-            note: 'Bewahren Sie die Backup-Codes sicher auf!'
-          }
-        ]
+            title: "2FA aktivieren",
+            description: "Folgen Sie den Anweisungen auf der Seite und scannen Sie den QR-Code",
+            note: "Bewahren Sie die Backup-Codes sicher auf!",
+          },
+        ],
       },
       {
         id: 4,
-        title: 'Benachrichtigungen verwalten',
-        description: 'Passen Sie Ihre Benachrichtigungseinstellungen an',
-        duration: '4 Min.',
-        difficulty: 'easy',
+        title: "Benachrichtigungen verwalten",
+        description: "Passen Sie Ihre Benachrichtigungseinstellungen an",
+        duration: "4 Min.",
+        difficulty: "easy",
         icon: BellIcon,
-        iconClass: 'icon-notifications',
+        iconClass: "icon-notifications",
         steps: [
           {
-            title: 'Benachrichtigungen in der Sidebar',
-            description: 'Klicken Sie in der Sidebar auf "Benachrichtigungen"'
+            title: "Benachrichtigungen in der Sidebar",
+            description: 'Klicken Sie in der Sidebar auf "Benachrichtigungen"',
           },
           {
-            title: 'Einstellungen öffnen',
-            description: 'Klicken Sie auf das Zahnrad-Symbol in der Benachrichtigungsübersicht'
+            title: "Einstellungen öffnen",
+            description: "Klicken Sie auf das Zahnrad-Symbol in der Benachrichtigungsübersicht",
           },
           {
-            title: 'Präferenzen anpassen',
-            description: 'Wählen Sie aus, für welche Ereignisse Sie Benachrichtigungen erhalten möchten'
+            title: "Präferenzen anpassen",
+            description: "Wählen Sie aus, für welche Ereignisse Sie Benachrichtigungen erhalten möchten",
           },
           {
-            title: 'Änderungen speichern',
-            description: 'Vergessen Sie nicht, Ihre Änderungen zu speichern'
-          }
-        ]
+            title: "Änderungen speichern",
+            description: "Vergessen Sie nicht, Ihre Änderungen zu speichern",
+          },
+        ],
       },
       {
         id: 5,
-        title: 'Artikel erstellen',
-        description: 'Schreiben und veröffentlichen Sie Ihren ersten Artikel',
-        duration: '10 Min.',
-        difficulty: 'medium',
+        title: "Artikel erstellen",
+        description: "Schreiben und veröffentlichen Sie Ihren ersten Artikel",
+        duration: "10 Min.",
+        difficulty: "medium",
         icon: PencilIcon,
-        iconClass: 'icon-writing',
+        iconClass: "icon-writing",
         steps: [
           {
-            title: 'Author-Berechtigung prüfen',
-            description: 'Stellen Sie sicher, dass Sie die Author-Rolle haben. Falls nicht, bewerben Sie sich über die Übersicht.',
-            note: 'Nur Authors und Admins können Artikel erstellen'
+            title: "Author-Berechtigung prüfen",
+            description:
+              "Stellen Sie sicher, dass Sie die Author-Rolle haben. Falls nicht, bewerben Sie sich über die Übersicht.",
+            note: "Nur Authors und Admins können Artikel erstellen",
           },
           {
-            title: 'Artikel-Editor öffnen',
-            description: 'Klicken Sie in der Sidebar auf "Artikel erstellen"'
+            title: "Artikel-Editor öffnen",
+            description: 'Klicken Sie in der Sidebar auf "Artikel erstellen"',
           },
           {
-            title: 'Grunddaten eingeben',
-            description: 'Geben Sie Titel, Kategorie und eine kurze Beschreibung ein'
+            title: "Grunddaten eingeben",
+            description: "Geben Sie Titel, Kategorie und eine kurze Beschreibung ein",
           },
           {
-            title: 'Inhalt erstellen',
-            description: 'Verwenden Sie den Editor, um Kapitel hinzuzufügen und Ihren Artikel zu schreiben'
+            title: "Inhalt erstellen",
+            description: "Verwenden Sie den Editor, um Kapitel hinzuzufügen und Ihren Artikel zu schreiben",
           },
           {
-            title: 'Veröffentlichen',
-            description: 'Nutzen Sie die Vorschau und veröffentlichen Sie, wenn Sie zufrieden sind',
-            note: 'Artikel werden von Moderatoren geprüft, bevor sie öffentlich werden'
-          }
-        ]
+            title: "Veröffentlichen",
+            description: "Nutzen Sie die Vorschau und veröffentlichen Sie, wenn Sie zufrieden sind",
+            note: "Artikel werden von Moderatoren geprüft, bevor sie öffentlich werden",
+          },
+        ],
       },
       {
         id: 6,
-        title: 'Freunde hinzufügen',
-        description: 'Verbinden Sie sich mit anderen Nutzern',
-        duration: '3 Min.',
-        difficulty: 'easy',
+        title: "Freunde hinzufügen",
+        description: "Verbinden Sie sich mit anderen Nutzern",
+        duration: "3 Min.",
+        difficulty: "easy",
         icon: UserCircleIcon,
-        iconClass: 'icon-social',
+        iconClass: "icon-social",
         steps: [
           {
-            title: 'Freunde-Bereich öffnen',
-            description: 'Klicken Sie in der Sidebar auf "Freunde"'
+            title: "Freunde-Bereich öffnen",
+            description: 'Klicken Sie in der Sidebar auf "Freunde"',
           },
           {
-            title: 'Andere Nutzer suchen',
-            description: 'Verwenden Sie die Suchfunktion, um andere Nutzer zu finden'
+            title: "Andere Nutzer suchen",
+            description: "Verwenden Sie die Suchfunktion, um andere Nutzer zu finden",
           },
           {
-            title: 'Freundschaftsanfrage senden',
-            description: 'Klicken Sie bei einem Nutzer auf "Freundschaftsanfrage senden"'
+            title: "Freundschaftsanfrage senden",
+            description: 'Klicken Sie bei einem Nutzer auf "Freundschaftsanfrage senden"',
           },
           {
-            title: 'Bestätigung abwarten',
-            description: 'Der andere Nutzer muss Ihre Anfrage bestätigen. Sie erhalten eine Benachrichtigung bei Annahme oder Ablehnung'
-          }
-        ]
+            title: "Bestätigung abwarten",
+            description:
+              "Der andere Nutzer muss Ihre Anfrage bestätigen. Sie erhalten eine Benachrichtigung bei Annahme oder Ablehnung",
+          },
+        ],
       },
       {
         id: 7,
-        title: 'Unterstützung erhalten',
-        description: 'So erstellen Sie ein Support-Ticket',
-        duration: '5 Min.',
-        difficulty: 'easy',
+        title: "Unterstützung erhalten",
+        description: "So erstellen Sie ein Support-Ticket",
+        duration: "5 Min.",
+        difficulty: "easy",
         icon: ChatBubbleLeftIcon,
-        iconClass: 'icon-support',
+        iconClass: "icon-support",
         steps: [
           {
-            title: 'Support-Bereich öffnen',
-            description: 'Klicken Sie in der Sidebar auf "Support" oder den blauen Support-Button'
+            title: "Support-Bereich öffnen",
+            description: 'Klicken Sie in der Sidebar auf "Support" oder den blauen Support-Button',
           },
           {
-            title: 'FAQ durchsuchen',
-            description: 'Schauen Sie zuerst in den häufigen Fragen nach Ihrer Lösung'
+            title: "FAQ durchsuchen",
+            description: "Schauen Sie zuerst in den häufigen Fragen nach Ihrer Lösung",
           },
           {
-            title: 'Ticket erstellen',
-            description: 'Falls Sie keine Lösung finden, klicken Sie auf "Neues Ticket erstellen"'
+            title: "Ticket erstellen",
+            description: 'Falls Sie keine Lösung finden, klicken Sie auf "Neues Ticket erstellen"',
           },
           {
-            title: 'Problem beschreiben',
-            description: 'Füllen Sie das Formular aus und beschreiben Sie Ihr Problem so detailliert wie möglich',
-            note: 'Sie können Screenshots oder Dateien anhängen'
-          }
-        ]
-      }
+            title: "Problem beschreiben",
+            description: "Füllen Sie das Formular aus und beschreiben Sie Ihr Problem so detailliert wie möglich",
+            note: "Sie können Screenshots oder Dateien anhängen",
+          },
+        ],
+      },
     ];
 
     const selectGuide = (guide: Guide) => {
@@ -348,7 +340,7 @@ export default defineComponent({
 
     const showCreateTicket = () => {
       closeGuide();
-      emit('create-ticket');
+      emit("create-ticket");
     };
 
     const getDifficultyClass = (difficulty: string) => {
@@ -357,9 +349,9 @@ export default defineComponent({
 
     const formatDifficulty = (difficulty: string) => {
       const map: Record<string, string> = {
-        'easy': 'Einfach',
-        'medium': 'Mittel',
-        'hard': 'Schwer'
+        easy: "Einfach",
+        medium: "Mittel",
+        hard: "Schwer",
       };
       return map[difficulty] || difficulty;
     };
@@ -371,16 +363,16 @@ export default defineComponent({
       closeGuide,
       showCreateTicket,
       getDifficultyClass,
-      formatDifficulty
+      formatDifficulty,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .support-guides {
   .guides-header {
@@ -392,7 +384,7 @@ export default defineComponent({
       font-size: 1.5rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -402,7 +394,7 @@ export default defineComponent({
     p {
       margin: 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -424,7 +416,7 @@ export default defineComponent({
       gap: 16px;
       transition: all 0.2s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -458,7 +450,7 @@ export default defineComponent({
           font-size: 1.125rem;
           font-weight: 600;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -469,7 +461,7 @@ export default defineComponent({
           margin: 0 0 12px 0;
           line-height: 1.5;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -487,7 +479,7 @@ export default defineComponent({
             align-items: center;
             gap: 4px;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
               }
@@ -511,7 +503,7 @@ export default defineComponent({
         flex-shrink: 0;
         transition: transform 0.2s;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -552,7 +544,7 @@ export default defineComponent({
       overflow: hidden;
       animation: modalAppear 0.3s ease-out;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border: 1px solid mixins.theme-color($theme, border-light);
@@ -566,7 +558,7 @@ export default defineComponent({
         align-items: flex-start;
         border-bottom: 1px solid;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border-color: mixins.theme-color($theme, border-light);
@@ -596,7 +588,7 @@ export default defineComponent({
             font-size: 1.25rem;
             font-weight: 600;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
               }
@@ -606,7 +598,7 @@ export default defineComponent({
           p {
             margin: 0;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -626,7 +618,7 @@ export default defineComponent({
           justify-content: center;
           transition: all 0.2s;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
 
@@ -677,7 +669,7 @@ export default defineComponent({
                 font-size: 1rem;
                 font-weight: 600;
 
-                @each $theme in ('light', 'dark') {
+                @each $theme in ("light", "dark") {
                   .theme-#{$theme} & {
                     color: mixins.theme-color($theme, text-primary);
                   }
@@ -688,7 +680,7 @@ export default defineComponent({
                 margin: 0 0 12px 0;
                 line-height: 1.5;
 
-                @each $theme in ('light', 'dark') {
+                @each $theme in ("light", "dark") {
                   .theme-#{$theme} & {
                     color: mixins.theme-color($theme, text-secondary);
                   }
@@ -704,7 +696,7 @@ export default defineComponent({
                 font-size: 0.875rem;
                 margin-top: 8px;
 
-                @each $theme in ('light', 'dark') {
+                @each $theme in ("light", "dark") {
                   .theme-#{$theme} & {
                     background-color: rgba(74, 210, 149, 0.1);
                     color: #4ad295;
@@ -724,7 +716,7 @@ export default defineComponent({
         gap: 12px;
         border-top: 1px solid;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             border-color: mixins.theme-color($theme, border-light);
@@ -746,7 +738,7 @@ export default defineComponent({
         .btn-secondary {
           border: 1px solid;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: transparent;
               border-color: mixins.theme-color($theme, border-medium);
@@ -768,7 +760,7 @@ export default defineComponent({
           overflow: hidden;
 
           &::before {
-            content: '';
+            content: "";
             position: absolute;
             inset: -1px;
             border-radius: 6px;
