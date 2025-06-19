@@ -6,4 +6,5 @@ export * from "./Quiz.Answers.types";
 export * from "./Quiz.Question.types";
 export * from "./Quiz.types";
 export * from "./User.types";
-export * from "./UserRoles.types";
+export * from "./jwtPayload.types";
+export * from "./Comment.types";

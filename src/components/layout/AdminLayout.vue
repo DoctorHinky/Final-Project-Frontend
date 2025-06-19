@@ -6,8 +6,17 @@
       <div class="header-left">
         <button class="sidebar-toggle" @click="toggleSidebar" aria-label="Seitenleiste umschalten">
           <span class="toggle-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -20,8 +29,17 @@
         <div class="admin-info">
           <button class="logout-button" @click="handleLogout">
             <span class="logout-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -35,12 +53,12 @@
 
     <div class="admin-container" :class="{ 'sidebar-open': isSidebarOpen }">
       <!-- Sidebar Komponente einbinden -->
-      <AdminSidebar 
-        :is-open="isSidebarOpen" 
-        :active-menu="activeMenu" 
+      <AdminSidebar
+        :is-open="isSidebarOpen"
+        :active-menu="activeMenu"
         @select-menu="onMenuSelect"
-        @close="closeSidebar" 
-        @logout="handleLogout" 
+        @close="closeSidebar"
+        @logout="handleLogout"
       />
 
       <!-- Hauptinhalt -->
@@ -59,15 +77,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { authService } from '@/services/auth.service';
-import AdminSidebar from '@/components/layout/AdminSidebar.vue';
+import { defineComponent, ref, onMounted, onUnmounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { authService } from "@/services/auth.service";
+import AdminSidebar from "@/components/layout/AdminSidebar.vue";
 
 export default defineComponent({
-  name: 'AdminLayout',
+  name: "AdminLayout",
   components: {
-    AdminSidebar
+    AdminSidebar,
   },
   setup() {
     const router = useRouter();
@@ -77,25 +95,34 @@ export default defineComponent({
 
     // Aktives Menü basierend auf Route
     const activeMenu = computed(() => {
-      if (route.path.includes('/admin/tickets')) {
-        return 'tickets';
+      if (route.path.includes("/admin/tickets")) {
+        return "tickets";
       }
       // WICHTIG: Wenn kein Tab-Query vorhanden ist, ist 'overview' aktiv
-      return (route.query.tab as string) || 'overview';
+      return (route.query.tab as string) || "overview";
     });
 
     // Seitentitel basierend auf aktivem Menü - ERWEITERT um Bewerbungen
     const pageTitle = computed(() => {
       switch (activeMenu.value) {
-        case 'overview': return 'Dashboard Übersicht';
-        case 'user-search': return 'User Suche';
-        case 'all-users': return 'Alle User';
-        case 'deleted-users': return 'Gelöschte Benutzer';
-        case 'applications': return 'Bewerbungen'; // NEU
-        case 'active-posts': return 'Active Posts';
-        case 'tickets': return 'Ticket Management';
-        case 'staff-team': return 'Staff Team';
-        default: return 'Admin Dashboard';
+        case "overview":
+          return "Dashboard Übersicht";
+        case "user-search":
+          return "User Suche";
+        case "all-users":
+          return "Alle User";
+        case "deleted-users":
+          return "Gelöschte Benutzer";
+        case "applications":
+          return "Bewerbungen"; // NEU
+        case "active-posts":
+          return "Active Posts";
+        case "tickets":
+          return "Ticket Management";
+        case "staff-team":
+          return "Staff Team";
+        default:
+          return "Admin Dashboard";
       }
     });
 
@@ -104,7 +131,7 @@ export default defineComponent({
       isSidebarOpen.value = !isSidebarOpen.value;
 
       if (isSmallScreen.value) {
-        document.body.style.overflow = isSidebarOpen.value ? 'hidden' : '';
+        document.body.style.overflow = isSidebarOpen.value ? "hidden" : "";
       }
     };
 
@@ -114,25 +141,24 @@ export default defineComponent({
         isSidebarOpen.value = false;
 
         if (isSmallScreen.value) {
-          document.body.style.overflow = '';
+          document.body.style.overflow = "";
         }
       }
     };
 
     // Menüpunkt auswählen - ERWEITERT um Bewerbungen
     const onMenuSelect = (menuItem: string) => {
-      
       // Navigation basierend auf dem ausgewählten Menüpunkt
-      if (menuItem === 'tickets') {
-        router.push('/admin/tickets');
-      } else if (menuItem === 'overview') {
+      if (menuItem === "tickets") {
+        router.push("/admin/tickets");
+      } else if (menuItem === "overview") {
         // Für Dashboard/Overview ohne Query-Parameter navigieren
-        router.push('/admin/dashboard');
+        router.push("/admin/dashboard");
       } else {
         // Für alle anderen Items (including 'applications') mit Tab-Query navigieren
         router.push({
-          path: '/admin/dashboard',
-          query: { tab: menuItem }
+          path: "/admin/dashboard",
+          query: { tab: menuItem },
         });
       }
 
@@ -147,9 +173,9 @@ export default defineComponent({
       // Beide Sessions beenden für vollständiges Logout
       authService.adminLogout();
       authService.logout();
-      
+
       // Zur allgemeinen Login-Seite navigieren
-      router.push('/login-register');
+      router.push("/login-register");
     };
 
     // Handler für die Bildschirmgröße
@@ -175,14 +201,14 @@ export default defineComponent({
     // Event-Listener
     onMounted(() => {
       handleResize();
-      window.addEventListener('resize', debounce(handleResize, 250));
-      window.addEventListener('orientationchange', handleResize);
+      window.addEventListener("resize", debounce(handleResize, 250));
+      window.addEventListener("orientationchange", handleResize);
     });
 
     onUnmounted(() => {
-      window.removeEventListener('resize', debounce(handleResize, 250));
-      window.removeEventListener('orientationchange', handleResize);
-      document.body.style.overflow = '';
+      window.removeEventListener("resize", debounce(handleResize, 250));
+      window.removeEventListener("orientationchange", handleResize);
+      document.body.style.overflow = "";
     });
 
     return {
@@ -193,9 +219,9 @@ export default defineComponent({
       onMenuSelect,
       handleLogout,
       pageTitle,
-      activeMenu
+      activeMenu,
     };
-  }
+  },
 });
 </script>
 
@@ -209,7 +235,7 @@ export default defineComponent({
   flex-direction: column;
   background: #161616;
   color: #f0f0f0;
-  
+
   /* Überschreibt AppLayout Styles komplett */
   position: fixed;
   top: 0;
@@ -283,7 +309,6 @@ export default defineComponent({
   gap: 12px;
 }
 
-
 /* Abmelde-Button */
 .logout-button {
   display: flex;
@@ -324,7 +349,7 @@ export default defineComponent({
   width: 100%;
   padding: 16px;
   transition: all 0.4s ease-out;
-  
+
   .content-wrapper {
     max-width: 1400px;
     margin: 0 auto;

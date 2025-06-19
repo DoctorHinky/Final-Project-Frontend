@@ -24,7 +24,7 @@
           <div class="stat-label">Offen</div>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon">
           <ClockIcon class="w-5 h-5 Icons" />
@@ -34,7 +34,7 @@
           <div class="stat-label">In Bearbeitung</div>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon">
           <TicketIcon class="w-5 h-5 Icons" />
@@ -62,7 +62,7 @@
           <ChevronDownIcon class="select-icon" />
         </div>
       </div>
-      
+
       <div class="filter-item">
         <label for="category-filter">Kategorie:</label>
         <div class="custom-select">
@@ -77,18 +77,18 @@
           <ChevronDownIcon class="select-icon" />
         </div>
       </div>
-      
+
       <div class="filter-item search">
         <label for="search-filter">Suche:</label>
         <div class="search-wrapper">
           <MagnifyingGlassIcon class="search-icon w-5 h-5 Icons" />
-          <input 
-            type="text" 
-            id="search-filter" 
-            v-model="searchQuery" 
+          <input
+            type="text"
+            id="search-filter"
+            v-model="searchQuery"
             @input="debounceSearch"
             placeholder="Ticket-Titel durchsuchen..."
-          >
+          />
         </div>
       </div>
     </div>
@@ -104,33 +104,35 @@
       <div class="empty-icon">
         <ChatBubbleLeftRightIcon class="w-16 h-16" />
       </div>
-      <h3>{{ searchQuery || statusFilter || categoryFilter ? 'Keine Tickets gefunden' : 'Noch keine Support-Tickets' }}</h3>
+      <h3>
+        {{ searchQuery || statusFilter || categoryFilter ? "Keine Tickets gefunden" : "Noch keine Support-Tickets" }}
+      </h3>
       <p>
-        {{ searchQuery || statusFilter || categoryFilter 
-           ? 'Versuchen Sie andere Suchkriterien oder Filter.' 
-           : 'Sie haben noch keine Support-Tickets erstellt. Erstellen Sie Ihr erstes Ticket, wenn Sie Hilfe benötigen.' 
+        {{
+          searchQuery || statusFilter || categoryFilter
+            ? "Versuchen Sie andere Suchkriterien oder Filter."
+            : "Sie haben noch keine Support-Tickets erstellt. Erstellen Sie Ihr erstes Ticket, wenn Sie Hilfe benötigen."
         }}
       </p>
-      <button v-if="!searchQuery && !statusFilter && !categoryFilter" class="btn-create-first" @click="showCreateModal = true">
+      <button
+        v-if="!searchQuery && !statusFilter && !categoryFilter"
+        class="btn-create-first"
+        @click="showCreateModal = true"
+      >
         Erstes Ticket erstellen
       </button>
     </div>
 
     <!-- Tickets List -->
     <div v-else class="tickets-list">
-      <div 
-        v-for="ticket in filteredTickets" 
-        :key="ticket.id" 
-        class="ticket-card"
-        @click="selectTicket(ticket)"
-      >
+      <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-card" @click="selectTicket(ticket)">
         <div class="ticket-header">
           <div class="ticket-title">{{ ticket.title }}</div>
           <div class="ticket-status" :class="getStatusClass(ticket.status)">
             {{ formatStatus(ticket.status) }}
           </div>
         </div>
-        
+
         <div class="ticket-meta">
           <div class="meta-item">
             <span class="meta-label">Kategorie:</span>
@@ -145,7 +147,7 @@
             <span class="meta-value">{{ formatDate(ticket.updatedAt) }}</span>
           </div>
         </div>
-        
+
         <div class="ticket-footer">
           <div class="ticket-id">ID: {{ ticket.id }}</div>
           <div class="ticket-indicators">
@@ -162,8 +164,8 @@
     </div>
 
     <!-- Create Ticket Modal -->
-    <UserTicketModal 
-      :is-open="showCreateModal" 
+    <UserTicketModal
+      :is-open="showCreateModal"
       @close="showCreateModal = false"
       @ticket-created="handleTicketCreated"
     />
@@ -179,22 +181,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import { 
+import { defineComponent, ref, computed, onMounted } from "vue";
+import {
   PlusIcon,
   ExclamationCircleIcon,
   ClockIcon,
   TicketIcon,
   MagnifyingGlassIcon,
   ChatBubbleLeftRightIcon,
-  ChevronDownIcon
-} from '@heroicons/vue/24/outline';
-import { memberTicketService, type UserTicket, TicketStatus, TicketCategory } from '@/services/member.ticket.service';
-import UserTicketModal from './UserTicketModal.vue';
-import UserTicketDetailModal from './UserTicketDetailModal.vue';
+  ChevronDownIcon,
+} from "@heroicons/vue/24/outline";
+import { memberTicketService, type UserTicket, TicketStatus, TicketCategory } from "@/services/member.ticket.service";
+import UserTicketModal from "./UserTicketModal.vue";
+import UserTicketDetailModal from "./UserTicketDetailModal.vue";
 
 export default defineComponent({
-  name: 'UserTicketOverview',
+  name: "UserTicketOverview",
   components: {
     PlusIcon,
     ExclamationCircleIcon,
@@ -204,7 +206,7 @@ export default defineComponent({
     ChatBubbleLeftRightIcon,
     ChevronDownIcon,
     UserTicketModal,
-    UserTicketDetailModal
+    UserTicketDetailModal,
   },
   setup() {
     // State
@@ -212,69 +214,68 @@ export default defineComponent({
     const isLoading = ref(false);
     const showCreateModal = ref(false);
     const selectedTicketForDetail = ref<any>(null);
-    
+
     // Filter
-    const statusFilter = ref('');
-    const categoryFilter = ref('');
-    const searchQuery = ref('');
-    
+    const statusFilter = ref("");
+    const categoryFilter = ref("");
+    const searchQuery = ref("");
+
     // Computed
     const filteredTickets = computed(() => {
       let result = [...tickets.value];
-      
+
       if (statusFilter.value) {
-        result = result.filter(ticket => ticket.status === statusFilter.value);
+        result = result.filter((ticket) => ticket.status === statusFilter.value);
       }
-      
+
       if (categoryFilter.value) {
-        result = result.filter(ticket => ticket.category === categoryFilter.value);
+        result = result.filter((ticket) => ticket.category === categoryFilter.value);
       }
-      
+
       if (searchQuery.value) {
         const search = searchQuery.value.toLowerCase();
-        result = result.filter(ticket => 
-          ticket.title.toLowerCase().includes(search) ||
-          ticket.id.toLowerCase().includes(search)
+        result = result.filter(
+          (ticket) => ticket.title.toLowerCase().includes(search) || ticket.id.toLowerCase().includes(search)
         );
       }
-      
+
       // Sortierung: Neueste zuerst, offene Tickets oben
       result.sort((a, b) => {
         // Offene Tickets haben Priorität
         if (a.status === TicketStatus.OPEN && b.status !== TicketStatus.OPEN) return -1;
         if (b.status === TicketStatus.OPEN && a.status !== TicketStatus.OPEN) return 1;
-        
+
         // Dann nach Aktualisierungsdatum
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       });
-      
+
       return result;
     });
-    
+
     const totalTicketsCount = computed(() => tickets.value.length);
-    const openTicketsCount = computed(() => 
-      tickets.value.filter(t => t.status === TicketStatus.OPEN).length
+    const openTicketsCount = computed(
+      () => tickets.value.filter((t: UserTicket) => t.status === TicketStatus.OPEN).length
     );
-    const inProgressTicketsCount = computed(() => 
-      tickets.value.filter(t => t.status === TicketStatus.IN_PROGRESS).length
+    const inProgressTicketsCount = computed(
+      () => tickets.value.filter((t: UserTicket) => t.status === TicketStatus.IN_PROGRESS).length
     );
-    
+
     // Methods
     const loadTickets = async () => {
       isLoading.value = true;
       try {
         tickets.value = await memberTicketService.getMyTickets();
       } catch (error) {
-        console.error('Fehler beim Laden der Tickets:', error);
+        console.error("Fehler beim Laden der Tickets:", error);
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     const applyFilters = () => {
       // Filter werden automatisch durch computed property angewendet
     };
-    
+
     let searchTimeout: ReturnType<typeof setTimeout> | null = null;
     const debounceSearch = () => {
       if (searchTimeout) {
@@ -284,7 +285,7 @@ export default defineComponent({
         // Suche wird automatisch durch computed property angewendet
       }, 300);
     };
-    
+
     const selectTicket = async (ticket: UserTicket) => {
       try {
         // Vollständiges Ticket laden
@@ -293,66 +294,58 @@ export default defineComponent({
           selectedTicketForDetail.value = fullTicket;
         }
       } catch (error) {
-        console.error('Fehler beim Laden des Ticket-Details:', error);
+        console.error("Fehler beim Laden des Ticket-Details:", error);
       }
     };
-    
+
     const handleTicketCreated = () => {
       showCreateModal.value = false;
       loadTickets(); // Tickets neu laden
     };
-    
+
     const handleTicketUpdated = () => {
       selectedTicketForDetail.value = null;
       loadTickets(); // Tickets neu laden
     };
-    
+
     // Formatierungsfunktionen
     const formatStatus = (status: TicketStatus) => {
       return memberTicketService.formatStatus(status);
     };
-    
+
     const formatCategory = (category: TicketCategory) => {
       return memberTicketService.formatCategory(category);
     };
-    
+
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();
       const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-      
+
       if (diffInHours < 24) {
-        return new Intl.RelativeTimeFormat('de-DE', { numeric: 'auto' }).format(
-          -Math.round(diffInHours), 'hour'
-        );
+        return new Intl.RelativeTimeFormat("de-DE", { numeric: "auto" }).format(-Math.round(diffInHours), "hour");
       } else if (diffInHours < 24 * 7) {
-        return new Intl.RelativeTimeFormat('de-DE', { numeric: 'auto' }).format(
-          -Math.round(diffInHours / 24), 'day'
-        );
+        return new Intl.RelativeTimeFormat("de-DE", { numeric: "auto" }).format(-Math.round(diffInHours / 24), "day");
       } else {
-        return new Intl.DateTimeFormat('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
+        return new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
         }).format(date);
       }
     };
-    
+
     const getStatusClass = (status: TicketStatus) => {
       return {
-        'status-open': status === TicketStatus.OPEN,
-        'status-progress': status === TicketStatus.IN_PROGRESS,
-        'status-waiting': status === TicketStatus.WAITING,
-        'status-resolved': status === TicketStatus.RESOLVED,
-        'status-closed': status === TicketStatus.CLOSED
+        "status-open": status === TicketStatus.OPEN,
+        "status-progress": status === TicketStatus.IN_PROGRESS,
+        "status-closed": status === TicketStatus.CLOSED,
       };
     };
-    
+
     // Lifecycle
-    onMounted(() => {
-      loadTickets();
-    });
-    
+    onMounted(() => loadTickets());
+
     return {
       tickets,
       isLoading,
@@ -374,16 +367,16 @@ export default defineComponent({
       formatStatus,
       formatCategory,
       formatDate,
-      getStatusClass
+      getStatusClass,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .user-ticket-overview {
   max-width: 1200px;
@@ -405,7 +398,7 @@ export default defineComponent({
       font-size: 1.75rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -416,7 +409,7 @@ export default defineComponent({
       margin: 0;
       font-size: 1rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -440,7 +433,7 @@ export default defineComponent({
     overflow: hidden;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       inset: -1px;
       border-radius: 8px;
@@ -476,7 +469,7 @@ export default defineComponent({
     gap: 16px;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -510,7 +503,7 @@ export default defineComponent({
         font-weight: 700;
         margin-bottom: 4px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -520,7 +513,7 @@ export default defineComponent({
       .stat-label {
         font-size: 0.875rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -538,7 +531,7 @@ export default defineComponent({
   padding: 20px;
   border-radius: 12px;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -564,7 +557,7 @@ export default defineComponent({
           top: 50%;
           transform: translateY(-50%);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
@@ -581,7 +574,7 @@ export default defineComponent({
       font-size: 0.875rem;
       font-weight: 500;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -603,7 +596,7 @@ export default defineComponent({
         -moz-appearance: none;
         cursor: pointer;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, primary-bg);
             border-color: mixins.theme-color($theme, border-medium);
@@ -633,348 +626,354 @@ export default defineComponent({
         height: 20px;
         pointer-events: none;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
-    }
 
-    input {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid;
-      font-size: 0.875rem;
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, primary-bg);
-          border-color: mixins.theme-color($theme, border-medium);
-          color: mixins.theme-color($theme, text-primary);
-
-          &:focus {
-            outline: none;
-            border-color: #4ad295;
-            box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
-          }
-
-          &::placeholder {
-            color: mixins.theme-color($theme, text-tertiary);
-          }
-        }
-      }
-    }
-  }
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 0;
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(74, 210, 149, 0.1);
-    border-left: 4px solid #4ad295;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
-  }
-
-  p {
-    margin: 0;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
-      }
-    }
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 64px 0;
-
-  .empty-icon {
-    margin-bottom: 20px;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-tertiary);
-        filter: drop-shadow(0 0 8px rgba(74, 210, 149, 0.2));
-      }
-    }
-  }
-
-  h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.25rem;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-primary);
-      }
-    }
-  }
-
-  p {
-    margin: 0 0 24px 0;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.5;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
-      }
-    }
-  }
-
-  .btn-create-first {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-    color: white;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-      opacity: 0;
-      filter: blur(8px);
-      transition: opacity 0.3s;
-      z-index: -1;
-    }
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
-
-      &::before {
-        opacity: 0.5;
-      }
-    }
-  }
-}
-
-.tickets-list {
-  display: grid;
-  gap: 16px;
-
-  .ticket-card {
-    padding: 20px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, card-bg);
-        border: 1px solid mixins.theme-color($theme, border-light);
-
-        &:hover {
-          border-color: #4ad295;
-          box-shadow: 0 4px 12px rgba(74, 210, 149, 0.1), 0 0 20px rgba(74, 210, 149, 0.1);
-          transform: translateY(-2px);
-        }
-      }
-    }
-
-    .ticket-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-      gap: 16px;
-
-      .ticket-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        line-height: 1.4;
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-primary);
-          }
-        }
-      }
-
-      .ticket-status {
-        padding: 4px 8px;
+      select,
+      input {
+        padding: 8px 12px;
         border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        white-space: nowrap;
-        background-color: rgba(74, 210, 149, 0.1);
-        color: #4ad295;
-        box-shadow: 0 0 8px rgba(74, 210, 149, 0.15);
-      }
-    }
+        border: 1px solid;
+        font-size: 0.875rem;
 
-    .ticket-meta {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, primary-bg);
+            border-color: mixins.theme-color($theme, border-medium);
+            color: mixins.theme-color($theme, text-primary);
 
-      .meta-item {
-        display: flex;
-        gap: 8px;
+            &:focus {
+              outline: none;
+              border-color: #4ad295;
+              box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
+            }
 
-        .meta-label {
-          font-size: 0.875rem;
-          font-weight: 500;
-
-          @each $theme in ('light', 'dark') {
-            .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-secondary);
+            &::placeholder {
+              color: mixins.theme-color($theme, text-tertiary);
             }
           }
         }
+      }
+    }
+  }
 
-        .meta-value {
-          font-size: 0.875rem;
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 0;
 
-          @each $theme in ('light', 'dark') {
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(74, 210, 149, 0.1);
+      border-left: 4px solid #4ad295;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
+    }
+
+    p {
+      margin: 0;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 0;
+
+    .empty-icon {
+      margin-bottom: 20px;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+          filter: drop-shadow(0 0 8px rgba(74, 210, 149, 0.2));
+        }
+      }
+    }
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 1.25rem;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .btn-create-first {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+      color: white;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+        opacity: 0;
+        filter: blur(8px);
+        transition: opacity 0.3s;
+        z-index: -1;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+
+        &::before {
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+  .tickets-list {
+    display: grid;
+    gap: 16px;
+
+    .ticket-card {
+      padding: 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, card-bg);
+          border: 1px solid mixins.theme-color($theme, border-light);
+
+          &:hover {
+            border-color: #4ad295;
+            box-shadow: 0 4px 12px rgba(74, 210, 149, 0.1), 0 0 20px rgba(74, 210, 149, 0.1);
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        gap: 16px;
+
+        .ticket-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          line-height: 1.4;
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
           }
         }
-      }
-    }
 
-    .ticket-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 12px;
-      border-top: 1px solid;
-
-      @each $theme in ('light', 'dark') {
-        .theme-#{$theme} & {
-          border-color: mixins.theme-color($theme, border-light);
+        .ticket-status {
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+          background-color: rgba(74, 210, 149, 0.1);
+          color: #4ad295;
+          box-shadow: 0 0 8px rgba(74, 210, 149, 0.15);
         }
       }
 
-      .ticket-id {
-        font-size: 0.75rem;
-        font-family: monospace;
+      .ticket-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
 
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-tertiary);
+        .meta-item {
+          display: flex;
+          gap: 8px;
+
+          .meta-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+
+            @each $theme in ("light", "dark") {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+
+          .meta-value {
+            font-size: 0.875rem;
+
+            @each $theme in ("light", "dark") {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-primary);
+              }
+            }
           }
         }
       }
 
-      .ticket-indicators {
+      .ticket-footer {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        padding-top: 12px;
+        border-top: 1px solid;
 
-        .message-count {
-          display: flex;
-          align-items: center;
-          gap: 4px;
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            border-color: mixins.theme-color($theme, border-light);
+          }
+        }
+
+        .ticket-id {
           font-size: 0.75rem;
+          font-family: monospace;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-secondary);
+              color: mixins.theme-color($theme, text-tertiary);
             }
           }
         }
 
-        .unread-indicator {
-          .unread-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #4ad295;
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
+        .ticket-indicators {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .message-count {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+
+            @each $theme in ("light", "dark") {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
+            }
+          }
+
+          .unread-indicator {
+            .unread-dot {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background-color: #4ad295;
+              animation: pulse 2s infinite;
+              box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
+            }
           }
         }
       }
     }
   }
-}
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
-  }
-  50% {
-    opacity: .5;
-    box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
-  }
-}
-
-@media (max-width: 768px) {
-  .user-ticket-overview {
-    padding: 16px;
-  }
-
-  .tickets-header {
-    flex-direction: column;
-    align-items: flex-start;
-
-    .btn-new-ticket {
-      width: 100%;
-      justify-content: center;
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 
-  .quick-stats {
-    grid-template-columns: 1fr;
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
+    }
+    50% {
+      opacity: 0.5;
+      box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
+    }
   }
 
-  .tickets-filter {
-    .filter-item {
-      min-width: 100%;
+  @media (max-width: 768px) {
+    .user-ticket-overview {
+      padding: 16px;
+    }
 
-      &.search {
+    .tickets-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .btn-new-ticket {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .quick-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .tickets-filter {
+      .filter-item {
         min-width: 100%;
+
+        &.search {
+          min-width: 100%;
+        }
+      }
+    }
+
+    .ticket-card {
+      .ticket-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .ticket-meta {
+        grid-template-columns: 1fr;
       }
     }
   }
 
-  .ticket-card {
-    .ticket-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .ticket-meta {
-      grid-template-columns: 1fr;
-    }
+  .Icons {
+    width: 30px;
   }
-}
-
-.Icons{
-  width: 30px;
 }
 </style>

@@ -5,23 +5,23 @@
       <div class="header-title-section">
         <h2>Alle Benutzer</h2>
         <div class="user-count-badge">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-4 w-4"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="5" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="5" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
           <span>{{ totalUsersCount }} registrierte Benutzer</span>
         </div>
       </div>
@@ -32,26 +32,28 @@
             <div class="select-trigger" @click="toggleDropdown">
               <span>{{ getFilterLabel(userFilter) }}</span>
               <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="chevron"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="chevron"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
             <div class="select-options" v-if="isDropdownOpen">
-              <div class="select-option" 
-                   v-for="option in filterOptions" 
-                   :key="option.value"
-                   :class="{ selected: userFilter === option.value }"
-                   @click="selectFilter(option.value)">
+              <div
+                class="select-option"
+                v-for="option in filterOptions"
+                :key="option.value"
+                :class="{ selected: userFilter === option.value }"
+                @click="selectFilter(option.value)"
+              >
                 {{ option.label }}
               </div>
             </div>
@@ -73,12 +75,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Schnellsuche..."
-            class="search-input"
-          />
+          <input type="text" v-model="searchQuery" placeholder="Schnellsuche..." class="search-input" />
         </div>
       </div>
     </div>
@@ -90,7 +87,6 @@
             <th class="col-id">ID</th>
             <th class="col-name">Name</th>
             <th class="col-email">E-Mail</th>
-            <th class="col-status">Status</th>
             <th class="col-type">Typ</th>
             <th class="col-actions">Aktionen</th>
           </tr>
@@ -139,30 +135,13 @@
             <td class="col-name">
               <div class="user-name-cell">
                 <div class="user-avatar">
-                  <span v-if="!user.avatarUrl">{{
-                    getUserInitials(user)
-                  }}</span>
-                  <img
-                    v-else
-                    :src="user.avatarUrl"
-                    :alt="`Avatar von ${user.name}`"
-                  />
+                  <span v-if="!user.profilePicture">{{ getUserInitials(user) }}</span>
+                  <img v-else :src="user.profilePicture" :alt="`Avatar von ${user.username}`" />
                 </div>
-                <span>{{ user.name }}</span>
+                <span>{{ user.username }}</span>
               </div>
             </td>
             <td class="col-email">{{ user.email }}</td>
-            <td class="col-status">
-              <span
-                class="status-badge"
-                :class="{
-                  active: user.status === 'active',
-                  inactive: user.status === 'inactive',
-                }"
-              >
-                {{ user.status === "active" ? "Aktiv" : "Inaktiv" }}
-              </span>
-            </td>
             <td class="col-type">
               <span
                 :class="{
@@ -192,7 +171,9 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                  ></path>
                   <line x1="1" y1="1" x2="23" y2="23"></line>
                 </svg>
                 <svg
@@ -211,11 +192,7 @@
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
-              <button
-                class="action-button view-button"
-                @click.stop="viewUserDetails(user.id)"
-                title="Details anzeigen"
-              >
+              <button class="action-button view-button" @click.stop="viewUserDetails(user.id)" title="Details anzeigen">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -236,14 +213,8 @@
           </tr>
         </tbody>
       </table>
-      <div
-        class="toggle-hidden-container"
-        v-if="hiddenUsers.size > 0"
-      >
-        <button
-          @click="showHiddenUsers = !showHiddenUsers"
-          class="btn-toggle-hidden"
-        >
+      <div class="toggle-hidden-container" v-if="hiddenUsers.size > 0">
+        <button @click="showHiddenUsers = !showHiddenUsers" class="btn-toggle-hidden">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -257,20 +228,15 @@
           >
             <path v-if="!showHiddenUsers" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle v-if="!showHiddenUsers" cx="12" cy="12" r="3"></circle>
-            <path v-else d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <path
+              v-else
+              d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+            ></path>
             <line v-else x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
-          {{
-            showHiddenUsers
-              ? "Ausgeblendete verbergen"
-              : `Ausgeblendete anzeigen (${hiddenUsers.size})`
-          }}
+          {{ showHiddenUsers ? "Ausgeblendete verbergen" : `Ausgeblendete anzeigen (${hiddenUsers.size})` }}
         </button>
-        <button
-          @click="unhideAllUsers"
-          class="btn-unhide-all"
-          title="Alle Benutzer wieder einblenden"
-        >
+        <button @click="unhideAllUsers" class="btn-unhide-all" title="Alle Benutzer wieder einblenden">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -291,11 +257,7 @@
     </div>
 
     <div class="pagination-container" v-if="totalPages > 1">
-      <button
-        class="pagination-button"
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
+      <button class="pagination-button" :disabled="currentPage === 1" @click="currentPage--">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -311,15 +273,9 @@
         </svg>
       </button>
 
-      <span class="page-info"
-        >Seite {{ currentPage }} von {{ totalPages }}</span
-      >
+      <span class="page-info">Seite {{ currentPage }} von {{ totalPages }}</span>
 
-      <button
-        class="pagination-button"
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
+      <button class="pagination-button" :disabled="currentPage === totalPages" @click="currentPage++">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -340,15 +296,18 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
-import type { User } from "@/services/user.types";
+import type { User, UserRoles } from "@/types/dtos";
 import UserService from "@/services/user.service";
 
-type UserRole = "ADMIN" | "AUTHOR" | "USER" | "MODERATOR";
+/* 
+  deleted users muss über einen anderen endpoint geladen werden,
+  damit gelöschte Benutzer nicht in der Hauptliste erscheinen.
+*/
 
 export default defineComponent({
   name: "UserList",
   emits: ["user-selected"],
-  setup(props, { emit }) {
+  setup(_props, { emit }) {
     const users = ref<User[]>([]);
     const isLoading = ref(true);
     const searchQuery = ref("");
@@ -369,7 +328,7 @@ export default defineComponent({
     ];
 
     function getFilterLabel(value: string): string {
-      const option = filterOptions.find(opt => opt.value === value);
+      const option = filterOptions.find((opt) => opt.value === value);
       return option ? option.label : "Alle Rollen";
     }
 
@@ -386,20 +345,18 @@ export default defineComponent({
     // Klick außerhalb des Dropdowns schließt es
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement;
-      if (!target.closest('.custom-select')) {
+      if (!target.closest(".custom-select")) {
         isDropdownOpen.value = false;
       }
     }
 
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside);
-    });
+    onMounted(() => document.addEventListener("click", handleClickOutside));
 
     onUnmounted(() => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     });
 
-    function roleLabel(role: UserRole): string {
+    function roleLabel(role: UserRoles): string {
       switch (role) {
         case "ADMIN":
           return "Admin";
@@ -417,17 +374,8 @@ export default defineComponent({
     onMounted(async () => {
       isLoading.value = true;
       try {
-        const allUsers = await UserService.getAllUsers();
-        users.value = allUsers.map((u) => ({
-          id: u.id,
-          name: u.username,
-          email: u.email,
-          status: u.deactivated ? "inactive" : "active",
-          role: ["ADMIN", "AUTHOR", "USER", "MODERATOR"].includes(u.role)
-            ? (u.role as UserRole)
-            : "USER",
-        }));
-        totalUsersCount.value = allUsers.length;
+        users.value = await UserService.getAllUsers();
+        totalUsersCount.value = users.value.length;
       } catch (error) {
         console.error("Fehler beim Laden der Benutzer:", error);
       } finally {
@@ -450,21 +398,22 @@ export default defineComponent({
 
       // Ausgeblendete Benutzer filtern
       if (!showHiddenUsers.value) {
-        result = result.filter(user => !hiddenUsers.value.has(user.id));
+        result = result.filter((user) => !hiddenUsers.value.has(user.id));
       }
 
       // Rollenfilter
       if (userFilter.value !== "all") {
-        result = result.filter(user => user.role === userFilter.value);
+        result = result.filter((user) => user.role === userFilter.value);
       }
 
       // Suchfilter
       if (searchQuery.value.trim() !== "") {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(user =>
-          user.name.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query) ||
-          user.id.toLowerCase().includes(query)
+        result = result.filter(
+          (user) =>
+            user.username.toLowerCase().includes(query) ||
+            user.email.toLowerCase().includes(query) ||
+            user.id.toLowerCase().includes(query)
         );
       }
 
@@ -484,9 +433,7 @@ export default defineComponent({
     });
 
     // Bei Änderung des Filters oder der Suche zur ersten Seite zurückkehren
-    const resetPagination = () => {
-      currentPage.value = 1;
-    };
+    const resetPagination = () => (currentPage.value = 1);
 
     // Beobachter für Filter und Suche
     const setupWatchers = () => {
@@ -516,9 +463,9 @@ export default defineComponent({
 
     // Benutzer-Initialen generieren
     const getUserInitials = (user: User): string => {
-      if (!user.name) return "??";
+      if (!user.username) return "??";
 
-      const nameParts = user.name.split(" ");
+      const nameParts = user.username.split(" ");
       if (nameParts.length >= 2) {
         return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
       }

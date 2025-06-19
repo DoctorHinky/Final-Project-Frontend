@@ -1,7 +1,6 @@
 <!-- src/components/layout/MemberSidebar.vue -->
 <template>
   <aside class="member-sidebar" :class="{ open: isOpen }">
-  <aside class="member-sidebar" :class="{ open: isOpen }">
     <!-- Sidebar-Header mit Logo und Schließen-Button -->
     <a href="/" class="logo-link">
       <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
@@ -9,22 +8,14 @@
     <div class="sidebar-header">
       <!-- Dynamisches Profilbild -->
       <div class="profile-image-container" @click="goToProfileSettings">
-        <img :src="userProfileImage" :alt="userName + ' Profilbild'" class="account-logo" @error="handleImageError" />
-        <img :src="userProfileImage" :alt="userName + ' Profilbild'" class="account-logo" @error="handleImageError" />
-        <div v-if="!isImageLoaded" class="image-placeholder">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="placeholder-icon"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-            />
+        <img
+          v-if="isImageLoaded && userProfileImage"
+          :src="userProfileImage"
+          :alt="'Profilbild'"
+          class="account-logo"
+          @error="handleImageError"
+        />
+        <div v-else class="image-placeholder">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -50,13 +41,11 @@
         </div>
       </div>
 
-
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
         <span v-if="isCustomProfileImage" class="profile-status">Am Verfassen</span>
       </div>
-
 
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
@@ -69,10 +58,10 @@
           :key="item.id"
           :data-item-id="item.id"
           class="nav-item"
-          :class="{ 
+          :class="{
             active: activeMenu === item.id,
             dragging: draggedItem === item.id,
-            'drag-over': dragOverIndex === index
+            'drag-over': dragOverIndex === index,
           }"
           draggable="true"
           @click="selectMenuItem(item.id)"
@@ -86,12 +75,12 @@
           <span class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
           </span>
-          
+
           <span class="nav-icon">
             <component :is="item.icon" class="h-6 w-6" />
           </span>
           <span class="nav-text">{{ item.text }}</span>
-          
+
           <!-- Badge für ungelesene Nachrichten bei Freunde -->
           <span
             v-if="item.id === 'friends' && unreadMessagesCount > 0"
@@ -100,7 +89,7 @@
           >
             {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
           </span>
-          
+
           <!-- Badge für ungelesene Benachrichtigungen -->
           <span
             v-if="item.id === 'notifications' && notificationCount > 0"
@@ -112,55 +101,15 @@
         </div>
 
         <!-- Drop-Indikator Linie -->
-        <div
-          v-if="showDropIndicator"
-          class="drop-indicator"
-          :style="dropIndicatorStyle"
-        ></div>
+        <div v-if="showDropIndicator" class="drop-indicator" :style="dropIndicatorStyle"></div>
       </transition-group>
-    <!-- Sidebar-Navigation -->
-    <nav class="sidebar-nav">
-      <div
-        v-for="(item, index) in menuItems"
-        :key="index"
-        class="nav-item"
-        :class="{ active: activeMenu === item.id }"
-        @click="selectMenuItem(item.id)"
-      >
-        <span class="nav-icon">
-          <component :is="item.icon" class="h-6 w-6" />
-        </span>
-        <span class="nav-text">{{ item.text }}</span>
-        
-        <!-- Badge für ungelesene Nachrichten bei Freunde -->
-        <span
-          v-if="item.id === 'friends' && unreadMessagesCount > 0"
-          class="nav-badge messages-badge"
-          :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
-        >
-          {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
-        </span>
-        
-        <!-- Badge für ungelesene Benachrichtigungen -->
-        <span
-          v-if="item.id === 'notifications' && notificationCount > 0"
-          class="nav-badge notifications-badge"
-          :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`"
-        >
-          {{ notificationCount > 99 ? "99+" : notificationCount }}
-        </span>
-      </div>
     </nav>
 
     <!-- Support-Bereich mit Reset-Button -->
     <div class="support-section">
       <div class="support-divider"></div>
       <div class="support-container">
-        <div 
-          class="support-item"
-          :class="{ active: activeMenu === 'support' }"
-          @click="selectMenuItem('support')"
-        >
+        <div class="support-item" :class="{ active: activeMenu === 'support' }" @click="selectMenuItem('support')">
           <span class="support-icon">
             <LifebuoyIcon class="h-5 w-5" />
           </span>
@@ -169,13 +118,9 @@
             {{ openTicketsCount }}
           </span>
         </div>
-        
+
         <!-- Reset Button -->
-        <button 
-          class="reset-button"
-          @click="resetMenuOrder"
-          title="Menüreihenfolge zurücksetzen"
-        >
+        <button class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
           <ArrowPathIcon class="h-4 w-4 Icons" />
         </button>
       </div>
@@ -184,7 +129,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -200,25 +145,19 @@ import {
 import { userService } from "@/services/userMD.services";
 import { notificationService } from "@/services/notification.service";
 import { memberTicketService } from "@/services/member.ticket.service";
-import type { User } from "@/types/dtos/User.types";
-
-// TypeScript Interface für Token-Payload
-interface TokenPayload {
-  userId?: string;
-  username?: string;
-  email?: string;
-  role?: string;
-}
+import type { User, TokenPayload } from "@/types/dtos";
 
 // Interface für Menu Items
-interface MenuItem {
+export interface MenuItem {
   id: string;
   text: string;
   icon: any;
 }
 
 // Storage Key für die Menüreihenfolge
-const MENU_ORDER_STORAGE_KEY = 'member-sidebar-menu-order';
+const MENU_ORDER_STORAGE_KEY = "member-sidebar-menu-order";
+
+// TypeScript Interface für Token-Payload
 
 export default defineComponent({
   name: "MemberSidebar",
@@ -245,7 +184,7 @@ export default defineComponent({
     },
   },
   emits: ["select-menu", "close", "logout"],
-  setup(_, { emit }) {
+  setup(_props, { emit }) {
     // State
     const canCreateArticles = ref(false);
     const userName = ref("");
@@ -256,7 +195,7 @@ export default defineComponent({
     const unreadMessagesCount = ref(0);
     const openTicketsCount = ref(0);
     const notificationCount = ref(0);
-    
+
     // Drag & Drop State
     const draggedItem = ref<string | null>(null);
     const draggedIndex = ref<number | null>(null);
@@ -307,18 +246,18 @@ export default defineComponent({
 
       // Sortiere basierend auf der gespeicherten Reihenfolge
       const sorted: MenuItem[] = [];
-      
+
       // Füge Items in der gespeicherten Reihenfolge hinzu
-      menuOrder.value.forEach(id => {
-        const item = baseMenuItems.value.find(i => i.id === id);
+      menuOrder.value.forEach((id) => {
+        const item = baseMenuItems.value.find((i) => i.id === id);
         if (item) {
           sorted.push(item);
         }
       });
 
       // Füge neue Items hinzu, die noch nicht in der gespeicherten Reihenfolge sind
-      baseMenuItems.value.forEach(item => {
-        if (!sorted.find(i => i.id === item.id)) {
+      baseMenuItems.value.forEach((item) => {
+        if (!sorted.find((i) => i.id === item.id)) {
           sorted.push(item);
         }
       });
@@ -395,15 +334,10 @@ export default defineComponent({
       }
     };
 
-    const handleImageError = () => {
-      isImageLoaded.value = false;
-      console.warn("Profilbild konnte nicht geladen werden, verwende Fallback");
-    };
+    const handleImageError = () => (isImageLoaded.value = false);
 
     // Menüpunkt auswählen
-    const selectMenuItem = (itemId: string) => {
-      emit("select-menu", itemId);
-    };
+    const selectMenuItem = (itemId: string) => emit("select-menu", itemId);
 
     // Zu Profileinstellungen weiterleiten
     const goToProfileSettings = () => {
@@ -420,17 +354,17 @@ export default defineComponent({
     const handleDragStart = (event: DragEvent, itemId: string, index: number) => {
       draggedItem.value = itemId;
       draggedIndex.value = index;
-      
+
       // Visuelles Feedback
       if (event.dataTransfer) {
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/html', ''); // Für Firefox
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/html", ""); // Für Firefox
       }
-      
+
       // Füge Dragging-Klasse nach kurzer Verzögerung hinzu
       setTimeout(() => {
         const element = event.target as HTMLElement;
-        element.classList.add('dragging');
+        element.classList.add("dragging");
       }, 0);
     };
 
@@ -440,50 +374,50 @@ export default defineComponent({
       draggedIndex.value = null;
       dragOverIndex.value = null;
       showDropIndicator.value = false;
-      
+
       // Entferne Dragging-Klasse
       const element = event.target as HTMLElement;
-      element.classList.remove('dragging');
+      element.classList.remove("dragging");
     };
 
     const handleDragOver = (event: DragEvent, index: number) => {
       event.preventDefault();
-      
+
       if (draggedIndex.value === null || draggedIndex.value === index) {
         return;
       }
-      
+
       // Zeige Drop-Indikator
       showDropIndicator.value = true;
       dragOverIndex.value = index;
-      
+
       // Berechne Position für Drop-Indikator
       if (navContainer.value) {
-        const items = navContainer.value.querySelectorAll('.nav-item');
+        const items = navContainer.value.querySelectorAll(".nav-item");
         const targetItem = items[index] as HTMLElement;
-        
+
         if (targetItem) {
           const rect = targetItem.getBoundingClientRect();
           const containerRect = navContainer.value.getBoundingClientRect();
-          
+
           // Position relativ zum Container
           const relativeTop = rect.top - containerRect.top;
-          
+
           // Entscheide ob oben oder unten basierend auf Mausposition
           const mouseY = event.clientY - rect.top;
           const itemHeight = rect.height;
-          
+
           if (mouseY < itemHeight / 2) {
             // Oberhalb des Items
             dropIndicatorStyle.value = {
               top: `${relativeTop - 2}px`,
-              opacity: 1
+              opacity: 1,
             };
           } else {
             // Unterhalb des Items
             dropIndicatorStyle.value = {
               top: `${relativeTop + itemHeight - 2}px`,
-              opacity: 1
+              opacity: 1,
             };
           }
         }
@@ -502,26 +436,26 @@ export default defineComponent({
 
     const handleDrop = (event: DragEvent, dropIndex: number) => {
       event.preventDefault();
-      
+
       if (draggedIndex.value === null || draggedIndex.value === dropIndex) {
         return;
       }
-      
+
       // Erstelle neue Reihenfolge
       const items = [...sortedMenuItems.value];
       const draggedItem = items[draggedIndex.value];
-      
+
       // Entferne das gezogene Element
       items.splice(draggedIndex.value, 1);
-      
+
       // Füge es an der neuen Position ein
       const insertIndex = dropIndex > draggedIndex.value ? dropIndex - 1 : dropIndex;
       items.splice(insertIndex, 0, draggedItem);
-      
+
       // Speichere neue Reihenfolge
-      menuOrder.value = items.map(item => item.id);
+      menuOrder.value = items.map((item) => item.id);
       saveMenuOrder();
-      
+
       // Cleanup
       showDropIndicator.value = false;
       dragOverIndex.value = null;
@@ -549,13 +483,13 @@ export default defineComponent({
     const resetMenuOrder = () => {
       menuOrder.value = [];
       localStorage.removeItem(MENU_ORDER_STORAGE_KEY);
-      
+
       // Visuelles Feedback
-      const resetBtn = document.querySelector('.reset-button') as HTMLElement;
+      const resetBtn = document.querySelector(".reset-button") as HTMLElement;
       if (resetBtn) {
-        resetBtn.classList.add('reset-active');
+        resetBtn.classList.add("reset-active");
         setTimeout(() => {
-          resetBtn.classList.remove('reset-active');
+          resetBtn.classList.remove("reset-active");
         }, 600);
       }
     };
@@ -563,17 +497,6 @@ export default defineComponent({
     // NOTIFICATION FUNCTIONS
     const updateNotificationCount = (count: number) => {
       notificationCount.value = count;
-    };
-
-    const handleNotificationCountUpdate = (event: CustomEvent) => {
-      const count = event.detail.count || 0;
-      updateNotificationCount(count);
-    };
-
-    // 🔔 NOTIFICATION FUNCTIONS
-    const updateNotificationCount = (count: number) => {
-      notificationCount.value = count;
-      console.log(`📱 Notification Badge Update: ${count} ungelesene Benachrichtigungen`);
     };
 
     const handleNotificationCountUpdate = (event: CustomEvent) => {
@@ -602,22 +525,19 @@ export default defineComponent({
       try {
         // Listener für Notification-Updates registrieren
         notificationService.addCountListener(updateNotificationCount);
-        
+
         // Polling starten (alle 30 Sekunden)
         notificationService.startPolling();
-        
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     const cleanupNotificationPolling = () => {
       try {
         // Listener entfernen
         notificationService.removeCountListener(updateNotificationCount);
-        
+
         // Polling stoppen
         notificationService.stopPolling();
-        
       } catch (error) {
         console.error("Fehler beim Cleanup des Notification-Systems:", error);
       }
@@ -661,9 +581,7 @@ export default defineComponent({
     );
 
     // Event-Listener für Profilbild-Updates
-    const handleProfileUpdate = () => {
-      loadUserData();
-    };
+    const handleProfileUpdate = () => loadUserData();
 
     // Event-Listener registrieren (kann von außen getriggert werden)
     if (typeof window !== "undefined") {
@@ -683,7 +601,7 @@ export default defineComponent({
       unreadMessagesCount,
       notificationCount,
       openTicketsCount,
-      
+
       // Drag & Drop State
       draggedItem,
       dragOverIndex,
@@ -697,7 +615,7 @@ export default defineComponent({
       loadUserData,
       goToProfileSettings,
       resetMenuOrder,
-      
+
       // Drag & Drop Methods
       handleDragStart,
       handleDragEnd,
@@ -715,7 +633,7 @@ export default defineComponent({
 @use "@/style/base/mixins" as mixins;
 @use "@/style/base/animations" as animations;
 
-.Icons{
+.Icons {
   width: 20px;
   height: 20px;
   color: mixins.theme-color("light", text-secondary);
@@ -744,9 +662,9 @@ export default defineComponent({
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
-      background: if($theme == "light", rgba(255,255,255,0.22), rgba(30,34,40,0.22));
+      background: if($theme == "light", rgba(255, 255, 255, 0.22), rgba(30, 34, 40, 0.22));
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-      border-right: 1.5px solid rgba(255,255,255,0.22);
+      border-right: 1.5px solid rgba(255, 255, 255, 0.22);
       transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
   }
@@ -771,15 +689,15 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: map.get(vars.$spacing, m);
-    border-bottom: 1px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.10);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(8px) saturate(180%);
     -webkit-backdrop-filter: blur(8px) saturate(180%);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        border-color: rgba(255,255,255,0.18);
-        background: if($theme == "light", rgba(255,255,255,0.10), rgba(30,34,40,0.10));
+        border-color: rgba(255, 255, 255, 0.18);
+        background: if($theme == "light", rgba(255, 255, 255, 0.1), rgba(30, 34, 40, 0.1));
         transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
@@ -795,7 +713,7 @@ export default defineComponent({
         transform: scale(1.05);
 
         .account-logo {
-          filter: brightness(0.8) drop-shadow(0 2px 8px rgba(31,38,135,0.10));
+          filter: brightness(0.8) drop-shadow(0 2px 8px rgba(31, 38, 135, 0.1));
         }
 
         .profile-edit-overlay {
@@ -809,12 +727,12 @@ export default defineComponent({
         border-radius: 50%;
         object-fit: cover;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        border: 2px solid rgba(255,255,255,0.22);
-        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
+        border: 2px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            border-color: rgba(255,255,255,0.22);
+            border-color: rgba(255, 255, 255, 0.22);
           }
         }
       }
@@ -829,8 +747,8 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255,255,255,0.22);
-        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
+        background: rgba(255, 255, 255, 0.22);
+        box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
         opacity: 0;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         pointer-events: none;
@@ -838,14 +756,12 @@ export default defineComponent({
         .edit-icon {
           font-size: 16px;
           color: #fff;
-          text-shadow: 0 1px 4px rgba(31,38,135,0.18);
+          text-shadow: 0 1px 4px rgba(31, 38, 135, 0.18);
         }
       }
 
       .image-placeholder {
-        position: absolute;
-        top: 0;
-        left: 0;
+        position: static;
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -853,13 +769,13 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        background: rgba(255,255,255,0.18);
-        border: 2px solid rgba(255,255,255,0.22);
+        background: rgba(255, 255, 255, 0.18);
+        border: 2px solid rgba(255, 255, 255, 0.22);
 
         .placeholder-icon {
           width: 24px;
           height: 24px;
-          color: rgba(31,38,135,0.22);
+          color: rgba(31, 38, 135, 0.22);
         }
       }
 
@@ -875,9 +791,9 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         font-size: 10px;
-        border: 2px solid rgba(255,255,255,0.22);
+        border: 2px solid rgba(255, 255, 255, 0.22);
         animation: twinkle 2s ease-in-out infinite;
-        box-shadow: 0 2px 8px 0 rgba(255,215,0,0.18);
+        box-shadow: 0 2px 8px 0 rgba(255, 215, 0, 0.18);
       }
     }
 
@@ -893,7 +809,7 @@ export default defineComponent({
         overflow: hidden;
         text-overflow: ellipsis;
         color: #222;
-        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.18);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -912,7 +828,7 @@ export default defineComponent({
         text-overflow: ellipsis;
         color: #444;
         opacity: 0.8;
-        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.18);
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -928,7 +844,7 @@ export default defineComponent({
         opacity: 0.8;
         font-style: italic;
         color: #00bfae;
-        text-shadow: 0 1px 4px rgba(255,255,255,0.18);
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.18);
       }
     }
 
@@ -938,7 +854,7 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
@@ -953,7 +869,7 @@ export default defineComponent({
 
           &:hover {
             color: #fff;
-            background: rgba(31,38,135,0.18);
+            background: rgba(31, 38, 135, 0.18);
           }
         }
       }
@@ -985,25 +901,25 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       position: relative;
-      background: rgba(255,255,255,0.10);
-      box-shadow: 0 1px 4px 0 rgba(31,38,135,0.06);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.06);
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: if($theme == "light", #222, #e0e0e0);
 
           &:hover:not(.dragging) {
-            background: rgba(255,255,255,0.18);
+            background: rgba(255, 255, 255, 0.18);
             color: #222;
             transform: translateX(3px) scale(1.03);
-            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
           }
 
           &.active:not(.dragging) {
             background: linear-gradient(135deg, #e0e7ff 0%, #b2fefa 100%);
             color: #222;
             transform: translateX(5px) scale(1.04);
-            box-shadow: 0 4px 16px 0 rgba(31,38,135,0.12);
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.12);
           }
         }
       }
@@ -1052,7 +968,7 @@ export default defineComponent({
         justify-content: center;
         width: 24px;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        filter: drop-shadow(0 1px 4px rgba(31,38,135,0.08));
+        filter: drop-shadow(0 1px 4px rgba(31, 38, 135, 0.08));
       }
 
       .nav-text {
@@ -1079,7 +995,7 @@ export default defineComponent({
         box-shadow: 0 2px 8px rgba(255, 71, 87, 0.18);
         @include animations.fade-in(0.3s);
         animation: nav-badge-pulse 3s infinite;
-        border: 1.5px solid rgba(255,255,255,0.22);
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
       }
 
       &:hover:not(.dragging) .nav-icon {
@@ -1093,12 +1009,7 @@ export default defineComponent({
       left: map.get(vars.$spacing, s);
       right: map.get(vars.$spacing, s);
       height: 3px;
-      background: linear-gradient(90deg, 
-        transparent 0%, 
-        #3b82f6 20%, 
-        #3b82f6 80%, 
-        transparent 100%
-      );
+      background: linear-gradient(90deg, transparent 0%, #3b82f6 20%, #3b82f6 80%, transparent 100%);
       border-radius: 2px;
       opacity: 0;
       transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
@@ -1106,7 +1017,7 @@ export default defineComponent({
       z-index: 10;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         left: -8px;
         top: 50%;
@@ -1119,7 +1030,7 @@ export default defineComponent({
       }
 
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         right: -8px;
         top: 50%;
@@ -1143,7 +1054,7 @@ export default defineComponent({
     .support-divider {
       height: 1px;
       margin-bottom: map.get(vars.$spacing, m);
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.18);
     }
 
     .support-container {
@@ -1162,7 +1073,7 @@ export default defineComponent({
       position: relative;
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       flex: 1;
-      background: rgba(255,255,255,0.10);
+      background: rgba(255, 255, 255, 0.1);
       color: #444;
 
       @each $theme in ("light", "dark") {
@@ -1170,17 +1081,17 @@ export default defineComponent({
           color: if($theme == "light", #444, #e0e0e0);
 
           &:hover {
-            background: rgba(255,255,255,0.18);
+            background: rgba(255, 255, 255, 0.18);
             color: #222;
             transform: translateX(2px) scale(1.03);
-            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
           }
 
           &.active {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: #222;
             transform: translateX(3px) scale(1.04);
-            box-shadow: 0 4px 16px 0 rgba(31,38,135,0.12);
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.12);
           }
         }
       }
@@ -1193,7 +1104,7 @@ export default defineComponent({
         width: 20px;
         opacity: 0.8;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        filter: drop-shadow(0 1px 4px rgba(31,38,135,0.08));
+        filter: drop-shadow(0 1px 4px rgba(31, 38, 135, 0.08));
       }
 
       .support-text {
@@ -1217,8 +1128,8 @@ export default defineComponent({
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
         @include animations.fade-in(0.3s);
-        border: 1.5px solid rgba(255,255,255,0.22);
-        box-shadow: 0 2px 8px 0 rgba(31,38,135,0.10);
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
       }
 
       &:hover .support-icon {
@@ -1235,7 +1146,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       border: none;
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
       cursor: pointer;
       border-radius: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
@@ -1248,7 +1159,7 @@ export default defineComponent({
 
           &:hover {
             color: #222;
-            background: rgba(31,38,135,0.12);
+            background: rgba(31, 38, 135, 0.12);
             transform: rotate(-45deg) scale(1.08);
           }
         }

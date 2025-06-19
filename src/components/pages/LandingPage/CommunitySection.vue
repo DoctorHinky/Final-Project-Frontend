@@ -5,37 +5,30 @@
         <!-- Informationsbereich -->
         <div class="informationen">
           <h1 class="beschreibung">So denkt unsere Community</h1>
-          <p class="info-text">
-            Hier sind einige authentische Gedanken und Meinungen unserer geschätzten Nutzer.
-          </p>
+          <p class="info-text">Hier sind einige authentische Gedanken und Meinungen unserer geschätzten Nutzer.</p>
         </div>
 
         <!-- Kommentarkarten -->
-        <div 
-          v-for="(kommentar, index) in kommentare" 
+        <div
+          v-for="(kommentar, index) in kommentare"
           :key="kommentar.id"
           :class="getKartenKlasse(index)"
           class="kommentar-karte"
           :style="getKartenStyle(index)"
           @click="aktiviereKarte(index)"
         >
-          <img
-            :src="kommentar.avatar"
-            :alt="`Avatar von ${kommentar.autor}`"
-            class="avatar-logo"
-            loading="lazy"
-          />
+          <img :src="kommentar.avatar" :alt="`Avatar von ${kommentar.autor}`" class="avatar-logo" loading="lazy" />
           <div class="kommentar-inhalt">
             <!-- Bewertung -->
             <div class="bewertung" :aria-label="`Bewertung: ${kommentar.sterne} von 5 Sternen`">
-              <StarIcon 
-                v-for="stern in 5" 
+              <StarIcon
+                v-for="stern in 5"
                 :key="stern"
-                class="stern-icon" 
-                :class="{ 'aktiv': stern <= kommentar.sterne, 'inaktiv': stern > kommentar.sterne }"
+                class="stern-icon"
+                :class="{ aktiv: stern <= kommentar.sterne, inaktiv: stern > kommentar.sterne }"
               />
             </div>
-            
+
             <!-- Kommentar-Artikel -->
             <article class="kommentar">
               <h2 class="titel">{{ kommentar.titel }}</h2>
@@ -47,20 +40,10 @@
 
         <!-- Karussell-Steuerung -->
         <div class="karussell-steuerung">
-          <button 
-            class="vorherige"
-            @click="vorherige"
-            :aria-label="'Vorheriger Kommentar'"
-            :disabled="isAnimating"
-          >
+          <button class="vorherige" @click="vorherige" :aria-label="'Vorheriger Kommentar'" :disabled="isAnimating">
             <ChevronLeftIcon class="chevron-icon" />
           </button>
-          <button 
-            class="naechste"
-            @click="naechste"
-            :aria-label="'Nächster Kommentar'"
-            :disabled="isAnimating"
-          >
+          <button class="naechste" @click="naechste" :aria-label="'Nächster Kommentar'" :disabled="isAnimating">
             <ChevronRightIcon class="chevron-icon" />
           </button>
         </div>
@@ -70,7 +53,7 @@
           <button
             v-for="(kommentar, index) in kommentare"
             :key="`indikator-${kommentar.id}`"
-            :class="{ 'aktiv': index === aktuellerIndex }"
+            :class="{ aktiv: index === aktuellerIndex }"
             @click="geheZuIndex(index)"
             :aria-label="`Gehe zu Kommentar ${index + 1}`"
           ></button>
@@ -81,11 +64,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from '@heroicons/vue/24/solid';
+import { defineComponent, ref, onMounted, onUnmounted, computed, nextTick } from "vue";
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "@heroicons/vue/24/solid";
 
-interface Kommentar {
-  id: number;
+export interface Kommentar {
+  id: string;
   titel: string;
   text: string;
   autor: string;
@@ -94,11 +77,11 @@ interface Kommentar {
 }
 
 export default defineComponent({
-  name: 'KommentarKarussell',
+  name: "KommentarKarussell",
   components: {
     ChevronLeftIcon,
     ChevronRightIcon,
-    StarIcon
+    StarIcon,
   },
   setup() {
     // Reaktive Daten
@@ -110,45 +93,45 @@ export default defineComponent({
     // Kommentar-Daten
     const kommentare = ref<Kommentar[]>([
       {
-        id: 1,
+        id: "godifgsüaofdigjads",
         titel: "Inspirierende Community",
         text: "Ich finde es großartig, wie offen hier über Erziehung gesprochen wird. Die Erfahrungen anderer Eltern helfen mir, neue Perspektiven zu gewinnen und eigene Lösungen zu finden.",
         autor: "Julia S. - Mutter eines Grundschülers",
         sterne: 4,
-        avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150&h=150&fit=crop&crop=face"
+        avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150&h=150&fit=crop&crop=face",
       },
       {
-        id: 2,
+        id: "dgfsdfgsdfgdsfgs",
         titel: "Medienerziehung leicht gemacht",
         text: "Die Tipps zur Medienerziehung waren für uns ein echter Durchbruch. Wir haben klare, faire Regeln etabliert und die endlosen Diskussionen über Bildschirmzeit gehören der Vergangenheit an. Unsere Kinder akzeptieren die Grenzen viel besser.",
         autor: "Sandra K. - Mutter von zwei Schulkindern",
         sterne: 5,
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
       },
       {
-        id: 3,
+        id: "dfgsdfgsdfgsdfgsd",
         titel: "Verbesserte Kommunikation mit Teenagern",
         text: "Als Vater eines Teenagers hatte ich oft das Gefühl, gegen Wände zu reden. Die Kommunikationstipps haben unsere Beziehung komplett verändert. Wir verstehen uns jetzt viel besser und meine Tochter öffnet sich wieder mehr.",
         autor: "Thomas Weber - Vater einer 15-jährigen Tochter",
         sterne: 5,
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       },
       {
-        id: 4,
+        id: "sdfgdfgsoidfgjüdfg",
         titel: "Wertvolle Erziehungstipps",
         text: "Die praktischen Ratschläge haben uns als junge Eltern enorm geholfen. Besonders die Artikel über Schlafgewohnheiten und Routine-Entwicklung waren Gold wert. Unser Baby schläft jetzt endlich durch!",
         autor: "Lisa & Marc - Erstlingseltern",
         sterne: 5,
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
       },
       {
-        id: 5,
+        id: "ödfgksndfügoisdnfügoisnf",
         titel: "Umgang mit Schulstress",
         text: "Die Strategien zum Umgang mit Schulstress haben unserem Sohn sehr geholfen. Er geht jetzt entspannter an die Hausaufgaben heran und wir als Familie sind viel ausgeglichener geworden.",
         autor: "Familie Schmidt - Eltern eines Grundschülers",
         sterne: 4,
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
-      }
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+      },
     ]);
 
     // Computed Properties
@@ -157,20 +140,20 @@ export default defineComponent({
     // Methoden
     const getKartenKlasse = (index: number) => {
       const position = (index - aktuellerIndex.value + gesamtAnzahl.value) % gesamtAnzahl.value;
-      
-      if (position === 0) return 'kommentar-karte-1'; // Vorderste Karte
-      if (position === 1) return 'kommentar-karte-2'; // Mittlere Karte
-      return 'kommentar-karte-3'; // Hinterste Karte
+
+      if (position === 0) return "kommentar-karte-1"; // Vorderste Karte
+      if (position === 1) return "kommentar-karte-2"; // Mittlere Karte
+      return "kommentar-karte-3"; // Hinterste Karte
     };
 
     const getKartenStyle = (index: number) => {
       const position = (index - aktuellerIndex.value + gesamtAnzahl.value) % gesamtAnzahl.value;
-      
+
       // Verstecke Karten, die nicht in den ersten 3 Positionen sind
       if (position > 2) {
-        return { display: 'none' };
+        return { display: "none" };
       }
-      
+
       return {};
     };
 
@@ -182,13 +165,13 @@ export default defineComponent({
 
     const naechste = async () => {
       if (isAnimating.value) return;
-      
+
       isAnimating.value = true;
       aktuellerIndex.value = (aktuellerIndex.value + 1) % gesamtAnzahl.value;
-      
+
       // Reset Timer bei manueller Navigation
       resetAutoplay();
-      
+
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -197,13 +180,13 @@ export default defineComponent({
 
     const vorherige = async () => {
       if (isAnimating.value) return;
-      
+
       isAnimating.value = true;
       aktuellerIndex.value = (aktuellerIndex.value - 1 + gesamtAnzahl.value) % gesamtAnzahl.value;
-      
+
       // Reset Timer bei manueller Navigation
       resetAutoplay();
-      
+
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -212,13 +195,13 @@ export default defineComponent({
 
     const geheZuIndex = async (index: number) => {
       if (isAnimating.value || index === aktuellerIndex.value) return;
-      
+
       isAnimating.value = true;
       aktuellerIndex.value = index;
-      
+
       // Reset Timer bei manueller Navigation
       resetAutoplay();
-      
+
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -227,7 +210,7 @@ export default defineComponent({
 
     const aktiviereKarte = (index: number) => {
       const kartenKlasse = getKartenKlasse(index);
-      if (kartenKlasse !== 'kommentar-karte-1') {
+      if (kartenKlasse !== "kommentar-karte-1") {
         geheZuIndex(index);
       }
     };
@@ -265,17 +248,17 @@ export default defineComponent({
       naechste,
       vorherige,
       geheZuIndex,
-      aktiviereKarte
+      aktiviereKarte,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .kommentar-karussell-section {
   min-height: 50vh;
@@ -332,7 +315,7 @@ export default defineComponent({
       letter-spacing: 0.03em;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, accent-yellow);
         }
@@ -344,7 +327,7 @@ export default defineComponent({
       font-size: 1.18em;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -362,17 +345,17 @@ export default defineComponent({
     align-items: flex-start;
     gap: 18px;
     cursor: pointer;
-    transition: transform 0.5s cubic-bezier(0.4, 2, 0.6, 1), 
-                box-shadow 0.5s ease,
-                filter 0.5s ease;
+    transition: transform 0.5s cubic-bezier(0.4, 2, 0.6, 1), box-shadow 0.5s ease, filter 0.5s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        background: linear-gradient(120deg, 
-          mixins.theme-color($theme, primary-bg) 0%, 
-          mixins.theme-color($theme, card-bg) 100%);
+        background: linear-gradient(
+          120deg,
+          mixins.theme-color($theme, primary-bg) 0%,
+          mixins.theme-color($theme, card-bg) 100%
+        );
         border: 1px solid rgba(mixins.theme-color($theme, border-medium), 0.18);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
       }
     }
 
@@ -383,17 +366,17 @@ export default defineComponent({
       transform: scale(1.05);
       filter: blur(0px);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          @include mixins.shadow('large', $theme);
+          @include mixins.shadow("large", $theme);
         }
       }
 
       &:hover {
         transform: scale(1.1);
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            @include mixins.glow('green', 'large', $theme);
+            @include mixins.glow("green", "large", $theme);
           }
         }
       }
@@ -407,9 +390,9 @@ export default defineComponent({
       transform: scale(0.95);
       filter: blur(2px);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
     }
@@ -422,9 +405,9 @@ export default defineComponent({
       transform: scale(0.85);
       filter: blur(4px);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          @include mixins.shadow('small', $theme);
+          @include mixins.shadow("small", $theme);
         }
       }
     }
@@ -437,10 +420,10 @@ export default defineComponent({
       object-fit: cover;
       flex-shrink: 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border: 2px solid mixins.theme-color($theme, border-medium);
-          @include mixins.shadow('small', $theme);
+          @include mixins.shadow("small", $theme);
         }
       }
     }
@@ -463,7 +446,7 @@ export default defineComponent({
         transition: color 0.3s ease;
 
         &.aktiv {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-yellow);
               filter: drop-shadow(0 0 2px mixins.theme-color($theme, accent-yellow));
@@ -472,7 +455,7 @@ export default defineComponent({
         }
 
         &.inaktiv {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
             }
@@ -492,11 +475,12 @@ export default defineComponent({
         // Text-Overflow verhindern
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         word-wrap: break-word;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             text-shadow: 0 1px 2px rgba(mixins.theme-color($theme, text-primary), 0.5);
@@ -511,11 +495,12 @@ export default defineComponent({
         // Text-Overflow verhindern
         display: -webkit-box;
         -webkit-line-clamp: 4;
+        line-clamp: 4;
         -webkit-box-orient: vertical;
         overflow: hidden;
         word-wrap: break-word;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             text-shadow: 0 1px 2px rgba(mixins.theme-color($theme, text-secondary), 0.4);
@@ -532,7 +517,7 @@ export default defineComponent({
         overflow: hidden;
         text-overflow: ellipsis;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -565,11 +550,11 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, primary-bg), 0.8);
           color: mixins.theme-color($theme, text-primary);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
       }
 
@@ -581,11 +566,11 @@ export default defineComponent({
 
       &:hover:not(:disabled) {
         transform: scale(1.1);
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, secondary-bg);
-            @include mixins.glow('yellow', 'medium', $theme);
-            
+            @include mixins.glow("yellow", "medium", $theme);
+
             .chevron-icon {
               color: mixins.theme-color($theme, accent-yellow);
             }
@@ -617,24 +602,24 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, text-tertiary), 0.5);
         }
       }
 
       &.aktiv {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-green);
             transform: scale(1.3);
-            @include mixins.glow('green', 'small', $theme);
+            @include mixins.glow("green", "small", $theme);
           }
         }
       }
 
       &:hover:not(.aktiv) {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, text-secondary), 0.8);
             transform: scale(1.1);
@@ -669,7 +654,8 @@ export default defineComponent({
     }
 
     .informationen {
-      .beschreibung, .info-text {
+      .beschreibung,
+      .info-text {
         width: 90vw !important;
         font-size: 1.1em !important;
       }
@@ -749,11 +735,13 @@ export default defineComponent({
         .titel {
           font-size: 1.1em;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
 
         .kommentar-text {
           font-size: 0.95em;
           -webkit-line-clamp: 3;
+          line-clamp: 3;
         }
 
         .kommentar-autor {
@@ -798,7 +786,7 @@ export default defineComponent({
       &.kommentar-karte-1 {
         top: 40% !important; // Viel mehr Platz nach unten
         right: 6% !important;
-        transform: scale(1.0) !important;
+        transform: scale(1) !important;
       }
 
       &.kommentar-karte-2 {
@@ -831,9 +819,10 @@ export default defineComponent({
 
       .kommentar {
         .titel {
-          font-size: 1.0em;
+          font-size: 1em;
           margin-bottom: 6px;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
 
         .kommentar-text {
@@ -841,6 +830,7 @@ export default defineComponent({
           margin-bottom: 8px;
           line-height: 1.4;
           -webkit-line-clamp: 3;
+          line-clamp: 2;
         }
 
         .kommentar-autor {
@@ -908,7 +898,7 @@ export default defineComponent({
         transform: scale(0.95) !important;
 
         &:hover {
-          transform: scale(1.0) !important;
+          transform: scale(1) !important;
         }
       }
 
@@ -946,6 +936,8 @@ export default defineComponent({
           font-size: 0.9em;
           margin-bottom: 4px;
           -webkit-line-clamp: 1;
+          line-clamp: 2;
+
           line-height: 1.2;
         }
 
@@ -954,6 +946,7 @@ export default defineComponent({
           margin-bottom: 6px;
           line-height: 1.3;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
         }
 
         .kommentar-autor {
@@ -994,9 +987,9 @@ export default defineComponent({
 }
 
 @media (max-width: 1300px) {
-  .info-text, .beschreibung {
+  .info-text,
+  .beschreibung {
     display: none;
   }
-
 }
 </style>

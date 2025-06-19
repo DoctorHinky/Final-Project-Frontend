@@ -219,7 +219,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from "vue";
-import { ticketService, type Ticket, TicketStatus, TicketCategory } from "@/services/ticket.service";
+import { type Ticket, TicketStatus, TicketCategory } from "@/types";
+import ticketService from "@/services/ticket.service";
 import { authService } from "@/services/auth.service";
 
 export default defineComponent({
@@ -477,8 +478,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .ticket-detail {
   max-width: 1000px;
-  margin: 0 auto;
-  padding: 24px 0;
+  margin: 0px auto;
+  padding: 24px;
+  overflow-x: auto;
 }
 
 .ticket-header {
@@ -510,6 +512,14 @@ export default defineComponent({
 
     &:hover {
       background-color: #444;
+    }
+
+    svg {
+      transition: transform 0.2s;
+    }
+
+    &:hover svg {
+      transform: translateX(-2px);
     }
   }
 
@@ -549,34 +559,40 @@ export default defineComponent({
 .ticket-info-box {
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  border: 1px solid #333;
 
   .info-section {
     .info-label {
       font-size: 0.875rem;
       color: #888;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      font-weight: 500;
     }
 
     .info-value {
       font-size: 1rem;
       color: #f0f0f0;
 
-      select {
+      .category-select {
         width: 100%;
-        padding: 6px 10px;
+        padding: 8px 12px;
         border-radius: 4px;
         background-color: #333;
         border: 1px solid #444;
         color: #fff;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
 
         &:focus {
           outline: none;
           border-color: #ff9800;
+          box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
         }
 
         option {
@@ -584,6 +600,133 @@ export default defineComponent({
           color: #fff;
         }
       }
+
+      // Styling für die Buttons im info-value Bereich
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background-color: #ff9800;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-right: 8px;
+        margin-bottom: 8px;
+
+        &:hover {
+          background-color: #f57c00;
+          transform: translateY(-1px);
+        }
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background-color: #4caf50;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-right: 8px;
+        margin-bottom: 8px;
+
+        &:hover {
+          background-color: #388e3c;
+          transform: translateY(-1px);
+        }
+      }
+
+      .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background-color: #f44336;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-right: 8px;
+        margin-bottom: 8px;
+
+        &:hover {
+          background-color: #d32f2f;
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+}
+
+// Message Form Styling
+.message-form {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #333;
+  border-radius: 6px;
+  border: 1px solid #444;
+
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #fff;
+    resize: vertical;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-family: inherit;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #ff9800;
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+    }
+
+    &::placeholder {
+      color: #888;
+    }
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #ff9800;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+
+    &:hover:not(:disabled) {
+      background-color: #f57c00;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background-color: #555;
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
     }
   }
 }
@@ -598,21 +741,24 @@ export default defineComponent({
 .ticket-description-box {
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
+  border: 1px solid #333;
 
   .description-text {
     margin: 0;
     line-height: 1.6;
     white-space: pre-line;
+    color: #e0e0e0;
   }
 }
 
 .message-timeline {
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
+  border: 1px solid #333;
 
   .timeline {
     position: relative;
@@ -624,7 +770,7 @@ export default defineComponent({
       bottom: 0;
       left: 24px;
       width: 2px;
-      background-color: #444;
+      background: linear-gradient(to bottom, #444, #666, #444);
     }
   }
 
@@ -639,8 +785,13 @@ export default defineComponent({
 
     &.is-staff {
       .timeline-content {
-        background-color: rgba(255, 152, 0, 0.05);
+        background-color: rgba(255, 152, 0, 0.08);
         border-left: 3px solid #ff9800;
+      }
+
+      .timeline-icon {
+        background-color: #ff9800;
+        box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
       }
     }
   }
@@ -657,6 +808,8 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     color: #fff;
+    border: 2px solid #2a2a2a;
+    z-index: 1;
 
     &.staff-icon {
       background-color: #ff9800;
@@ -667,7 +820,14 @@ export default defineComponent({
     background-color: #333;
     border-radius: 6px;
     padding: 16px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #444;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #555;
+      transform: translateY(-1px);
+    }
   }
 
   .message-header {
@@ -697,14 +857,16 @@ export default defineComponent({
   .message-body {
     line-height: 1.6;
     white-space: pre-line;
+    color: #e0e0e0;
   }
 }
 
 .reply-form {
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
+  border: 1px solid #333;
 
   .reply-input {
     width: 100%;
@@ -716,10 +878,17 @@ export default defineComponent({
     resize: vertical;
     font-size: 1rem;
     line-height: 1.5;
+    min-height: 100px;
+    transition: all 0.2s;
 
     &:focus {
       outline: none;
       border-color: #ff9800;
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+    }
+
+    &::placeholder {
+      color: #888;
     }
   }
 
@@ -731,7 +900,7 @@ export default defineComponent({
   }
 
   .btn-cancel {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background-color: transparent;
     border: 1px solid #555;
     border-radius: 4px;
@@ -743,11 +912,12 @@ export default defineComponent({
     &:hover {
       background-color: #444;
       color: #fff;
+      border-color: #666;
     }
   }
 
   .btn-submit {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background-color: #ff9800;
     border: none;
     border-radius: 4px;
@@ -756,14 +926,16 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: #f57c00;
+      transform: translateY(-1px);
     }
 
     &:disabled {
       background-color: #555;
       color: #888;
       cursor: not-allowed;
+      transform: none;
     }
   }
 }
@@ -773,6 +945,10 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   margin-top: 32px;
+  padding: 20px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  border: 1px solid #333;
 
   > div {
     display: flex;
@@ -784,77 +960,94 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 18px;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+  font-size: 0.95rem;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
 
   &.delete {
     background-color: #461e1e;
     color: #f44336;
+    border: 1px solid #5a2a2a;
 
     &:hover {
       background-color: #5a2a2a;
+      border-color: #6a3a3a;
     }
   }
 
   &.resolve {
     background-color: #1e4620;
     color: #4caf50;
+    border: 1px solid #2a5a2a;
 
     &:hover {
       background-color: #2a5a2a;
+      border-color: #3a6a3a;
     }
   }
 
   &.close {
     background-color: #333;
     color: #ccc;
+    border: 1px solid #444;
 
     &:hover {
       background-color: #444;
+      color: #fff;
+      border-color: #555;
     }
   }
 
   &.reopen {
     background-color: #1e3a46;
     color: #42a5f5;
+    border: 1px solid #2a4a5a;
 
     &:hover {
       background-color: #2a4a5a;
+      border-color: #3a5a6a;
     }
   }
 }
 
-/* Confirmation Dialog */
+/* Confirmation Dialog - Verbesserter Abstand und Styling */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1100;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
+  padding: 20px; /* Besserer Abstand zu den Rändern */
 }
 
 .confirm-dialog {
   width: 90%;
-  max-width: 500px;
+  max-width: 480px;
   background-color: #222;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
   animation: modal-appear 0.3s ease-out;
+  border: 1px solid #333;
+  margin: 20px; /* Zusätzlicher Abstand */
 }
 
 .confirm-header {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -864,7 +1057,8 @@ export default defineComponent({
   h3 {
     margin: 0;
     color: #f44336;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    font-weight: 600;
   }
 
   .close-button {
@@ -873,8 +1067,8 @@ export default defineComponent({
     font-size: 1.5rem;
     color: #888;
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -889,16 +1083,18 @@ export default defineComponent({
 }
 
 .confirm-content {
-  padding: 20px;
+  padding: 24px;
 
   p {
     margin: 0;
     line-height: 1.6;
+    color: #e0e0e0;
+    font-size: 1rem;
   }
 }
 
 .confirm-actions {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -906,7 +1102,7 @@ export default defineComponent({
   background-color: #262626;
 
   .btn-cancel {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background-color: transparent;
     border: 1px solid #555;
     border-radius: 4px;
@@ -918,11 +1114,12 @@ export default defineComponent({
     &:hover {
       background-color: #444;
       color: #fff;
+      border-color: #666;
     }
   }
 
   .btn-delete {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background-color: #f44336;
     border: none;
     border-radius: 4px;
@@ -933,6 +1130,7 @@ export default defineComponent({
 
     &:hover {
       background-color: #d32f2f;
+      transform: translateY(-1px);
     }
   }
 }
@@ -940,16 +1138,20 @@ export default defineComponent({
 @keyframes modal-appear {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 /* Responsive Anpassungen */
 @media (max-width: 768px) {
+  .ticket-detail {
+    padding: 16px;
+  }
+
   .ticket-header {
     flex-direction: column;
     align-items: flex-start;
@@ -958,6 +1160,11 @@ export default defineComponent({
       flex-direction: column;
       align-items: flex-start;
       gap: 12px;
+      width: 100%;
+    }
+
+    .ticket-title {
+      font-size: 1.3rem;
     }
 
     .ticket-status {
@@ -973,11 +1180,13 @@ export default defineComponent({
 
   .ticket-info-box {
     grid-template-columns: 1fr;
+    padding: 16px;
   }
 
   .action-bar {
     flex-direction: column;
     gap: 16px;
+    padding: 16px;
 
     > div {
       width: 100%;
@@ -986,7 +1195,55 @@ export default defineComponent({
   }
 
   .timeline-item {
-    padding-left: 40px;
+    padding-left: 50px;
+  }
+
+  .timeline:before {
+    left: 20px;
+  }
+
+  .timeline-icon {
+    left: 8px;
+  }
+
+  .confirm-dialog {
+    margin: 10px;
+    max-width: none;
+  }
+
+  .confirm-header,
+  .confirm-content,
+  .confirm-actions {
+    padding: 16px 20px;
+  }
+
+  .confirm-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    .btn-cancel,
+    .btn-delete {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ticket-detail {
+    padding: 12px;
+  }
+
+  .ticket-info-box,
+  .ticket-description-box,
+  .message-timeline,
+  .action-bar {
+    padding: 12px;
+  }
+
+  .btn-action {
+    padding: 10px 14px;
+    font-size: 0.9rem;
   }
 }
 </style>

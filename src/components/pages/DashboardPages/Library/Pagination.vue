@@ -1,65 +1,60 @@
 <!-- src/components/pages/DashboardPages/Library/Pagination.vue -->
 <template>
   <div class="pagination">
-    <button class="pagination-button prev" :disabled="currentPage === 1" @click="onPrevPage">
-      « Zurück
-    </button>
+    <button class="pagination-button prev" :disabled="currentPage === 1" @click="onPrevPage">« Zurück</button>
 
     <div class="page-numbers">
-      <button v-for="page in totalPages" :key="page" class="page-number" :class="{ active: page === currentPage }"
-        @click="onGoToPage(page)">
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        class="page-number"
+        :class="{ active: page === currentPage }"
+        @click="onGoToPage(page)"
+      >
         {{ page }}
       </button>
     </div>
 
-    <button class="pagination-button next" :disabled="currentPage === totalPages" @click="onNextPage">
-      Weiter »
-    </button>
+    <button class="pagination-button next" :disabled="currentPage === totalPages" @click="onNextPage">Weiter »</button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'Pagination',
+  name: "Pagination",
   props: {
     currentPage: {
       type: Number,
-      required: true
+      required: true,
     },
     totalPages: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['prev-page', 'next-page', 'go-to-page'],
+  emits: ["prev-page", "next-page", "go-to-page"],
   setup(_, { emit }) {
-    const onPrevPage = () => {
-      emit('prev-page');
-    };
+    const onPrevPage = () => emit("prev-page");
 
-    const onNextPage = () => {
-      emit('next-page');
-    };
+    const onNextPage = () => emit("next-page");
 
-    const onGoToPage = (page: number) => {
-      emit('go-to-page', page);
-    };
+    const onGoToPage = (page: number) => emit("go-to-page", page);
 
     return {
       onPrevPage,
       onNextPage,
-      onGoToPage
+      onGoToPage,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Paginierung
 .pagination {
@@ -75,7 +70,7 @@ export default defineComponent({
     font-size: map.get(map.get(vars.$fonts, sizes), small);
     cursor: pointer;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-primary);
@@ -108,7 +103,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       cursor: pointer;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);

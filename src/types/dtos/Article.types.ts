@@ -6,19 +6,23 @@ export type Article = {
   id: string;
   title: string;
   quickDescription: string;
-  image: string;
-  publicId_image: string;
+  image: string | null;
   tags: string[];
   forKids: boolean;
   ageRestriction: number;
   category: PostCategory;
-  isCertifiedAuthor: false;
+  isCertifiedAuthor: boolean;
   authorId: string | null;
+  author?: {
+    username: string;
+    profilePicture?: string | null;
+    id?: string | null;
+  };
   moderatorId: string | null;
   published: boolean;
-  publishedAt: string | null;
+  publishedAt: string | Date | null;
   isDeleted: boolean;
-  deletedAt: string | null;
+  deletedAt: string | Date | null;
   deletedBy: string | null;
   deleteReason: string | null;
   createdAt: Date | string;
@@ -34,3 +38,21 @@ export type Article = {
 
   quiz: Quiz | null;
 };
+export interface LibraryArticle {
+  id: string;
+  title: string;
+  quickDescription: string;
+  image: string | null;
+  category: PostCategory | string;
+  author: {
+    id?: string;
+    username: string;
+    profilePicture?: string | null;
+  };
+  tags: string[];
+  isCertifiedAuthor: boolean;
+  createdAt: string;
+  publishedAt?: string | Date;
+
+  readTime?: string; // Geschätzte Lesezeit
+}

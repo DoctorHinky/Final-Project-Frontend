@@ -57,14 +57,14 @@
         <div class="messages-section" v-if="ticket.messages && ticket.messages.length > 0">
           <h4>Nachrichtenverlauf</h4>
           <div class="messages-timeline">
-            <div 
-              v-for="(message, index) in ticket.messages" 
-              :key="message.id" 
+            <div
+              v-for="message in ticket.messages"
+              :key="message.id"
               class="message-item"
               :class="{ 'is-staff': message.isStaff, 'is-user': !message.isStaff }"
             >
               <div class="message-avatar">
-                <div class="avatar-circle" :class="{ 'staff': message.isStaff }">
+                <div class="avatar-circle" :class="{ staff: message.isStaff }">
                   <StarIcon v-if="message.isStaff" class="w-4 h-4 Icons" />
                   <UserIcon v-else class="w-4 h-4 Icons" />
                 </div>
@@ -87,8 +87,8 @@
         <div v-if="canReply" class="reply-section">
           <h4>Antworten</h4>
           <div class="reply-form">
-            <textarea 
-              v-model="replyMessage" 
+            <textarea
+              v-model="replyMessage"
               class="reply-input"
               placeholder="Ihre Nachricht..."
               rows="4"
@@ -97,11 +97,7 @@
             ></textarea>
             <div class="reply-footer">
               <div class="character-count">{{ replyMessage.length }}/1000</div>
-              <button 
-                class="btn-send-reply" 
-                @click="sendReply"
-                :disabled="!canSendReply || isSubmitting"
-              >
+              <button class="btn-send-reply" @click="sendReply" :disabled="!canSendReply || isSubmitting">
                 <span v-if="isSubmitting" class="loading">
                   <div class="spinner"></div>
                   Wird gesendet...
@@ -125,15 +121,13 @@
             <span v-else-if="ticket.status === 'RESOLVED'">
               Dieses Ticket wurde als gelöst markiert. Falls Sie weitere Fragen haben, können Sie es wieder öffnen.
             </span>
-            <span v-else>
-              Unser Support-Team wird sich baldmöglichst bei Ihnen melden.
-            </span>
+            <span v-else> Unser Support-Team wird sich baldmöglichst bei Ihnen melden. </span>
           </div>
-          
+
           <div class="action-buttons">
-            <button 
-              v-if="ticket.status !== 'CLOSED' && ticket.status !== 'RESOLVED'" 
-              class="btn-action close-ticket" 
+            <button
+              v-if="ticket.status !== 'CLOSED' && ticket.status !== 'RESOLVED'"
+              class="btn-action close-ticket"
               @click="confirmCloseTicket"
               :disabled="isSubmitting"
             >
@@ -153,7 +147,10 @@
         <h4>Ticket schließen</h4>
       </div>
       <div class="confirm-content">
-        <p>Möchten Sie dieses Ticket wirklich schließen? Nach dem Schließen können Sie keine weiteren Nachrichten mehr hinzufügen.</p>
+        <p>
+          Möchten Sie dieses Ticket wirklich schließen? Nach dem Schließen können Sie keine weiteren Nachrichten mehr
+          hinzufügen.
+        </p>
       </div>
       <div class="confirm-actions">
         <button class="btn-cancel" @click="cancelCloseTicket">Abbrechen</button>
@@ -164,134 +161,127 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
-import { memberTicketService, type FullTicket, TicketStatus, TicketCategory } from '@/services/member.ticket.service';
+import { defineComponent, ref, computed, watch } from "vue";
+import { memberTicketService, type FullTicket, TicketStatus, TicketCategory } from "@/services/member.ticket.service";
 import {
   TicketIcon,
   XMarkIcon,
   ExclamationCircleIcon,
   StarIcon,
   UserIcon,
-  PaperAirplaneIcon
-} from '@heroicons/vue/24/outline';
+  PaperAirplaneIcon,
+} from "@heroicons/vue/24/outline";
 
 export default defineComponent({
-  name: 'UserTicketDetailModal',
+  name: "UserTicketDetailModal",
   components: {
     TicketIcon,
     XMarkIcon,
     ExclamationCircleIcon,
     StarIcon,
     UserIcon,
-    PaperAirplaneIcon
+    PaperAirplaneIcon,
   },
   props: {
     isOpen: {
       type: Boolean,
-      default: false
+      default: false,
     },
     ticket: {
       type: Object as () => FullTicket | null,
-      default: null
-    }
+      default: null,
+    },
   },
-  emits: ['close', 'ticket-updated'],
+  emits: ["close", "ticket-updated"],
   setup(props, { emit }) {
     // State
-    const replyMessage = ref('');
+    const replyMessage = ref("");
     const isSubmitting = ref(false);
     const showCloseConfirm = ref(false);
-    
+
     // Computed
     const canReply = computed(() => {
-      return props.ticket && 
-             props.ticket.status !== TicketStatus.CLOSED && 
-             props.ticket.status !== TicketStatus.RESOLVED;
+      return (
+        props.ticket && props.ticket.status !== TicketStatus.CLOSED && props.ticket.status !== TicketStatus.RESOLVED
+      );
     });
-    
+
     const canSendReply = computed(() => {
       return replyMessage.value.trim().length >= 5;
     });
-    
+
     // Methods
     const closeModal = () => {
       if (!isSubmitting.value) {
-        replyMessage.value = '';
-        emit('close');
+        replyMessage.value = "";
+        emit("close");
       }
     };
-    
+
     const sendReply = async () => {
       if (!canSendReply.value || !props.ticket) return;
-      
+
       isSubmitting.value = true;
-      
+
       try {
-        await memberTicketService.addMessageToTicket(
-          props.ticket.id,
-          replyMessage.value.trim()
-        );
-        
-        replyMessage.value = '';
-        emit('ticket-updated');
+        await memberTicketService.addMessageToTicket(props.ticket.id, replyMessage.value.trim());
+
+        replyMessage.value = "";
+        emit("ticket-updated");
       } catch (error) {
-        console.error('Fehler beim Senden der Nachricht:', error);
+        console.error("Fehler beim Senden der Nachricht:", error);
       } finally {
         isSubmitting.value = false;
       }
     };
-    
-    const confirmCloseTicket = () => {
-      showCloseConfirm.value = true;
-    };
-    
-    const cancelCloseTicket = () => {
-      showCloseConfirm.value = false;
-    };
-    
+
+    const confirmCloseTicket = () => (showCloseConfirm.value = true);
+
+    const cancelCloseTicket = () => (showCloseConfirm.value = false);
+
     const closeTicket = async () => {
       if (!props.ticket) return;
-      
+
       showCloseConfirm.value = false;
       isSubmitting.value = true;
-      
+
       try {
         await memberTicketService.closeTicket(props.ticket.id);
-        emit('ticket-updated');
+        emit("ticket-updated");
       } catch (error) {
-        console.error('Fehler beim Schließen des Tickets:', error);
+        console.error("Fehler beim Schließen des Tickets:", error);
       } finally {
         isSubmitting.value = false;
       }
     };
-    
+
     // Formatierungsfunktionen
     const formatStatus = (status: TicketStatus) => {
       return memberTicketService.formatStatus(status);
     };
-    
+
     const formatCategory = (category: TicketCategory) => {
       return memberTicketService.formatCategory(category);
     };
-    
+
     const formatDateTime = (dateString: string) => {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       }).format(date);
     };
-    
+
     const formatRelativeTime = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();
       const diffInMinutes = (now.getTime() - date.getTime()) / (1000 * 60);
-      
+
       if (diffInMinutes < 1) {
-        return 'Gerade eben';
+        return "Gerade eben";
       } else if (diffInMinutes < 60) {
         return `vor ${Math.round(diffInMinutes)} Min.`;
       } else if (diffInMinutes < 24 * 60) {
@@ -300,35 +290,38 @@ export default defineComponent({
         return formatDateTime(dateString);
       }
     };
-    
+
     const getStatusClass = (status: TicketStatus) => {
       return {
-        'status-open': status === TicketStatus.OPEN,
-        'status-progress': status === TicketStatus.IN_PROGRESS,
-        'status-waiting': status === TicketStatus.WAITING,
-        'status-resolved': status === TicketStatus.RESOLVED,
-        'status-closed': status === TicketStatus.CLOSED
+        "status-open": status === TicketStatus.OPEN,
+        "status-progress": status === TicketStatus.IN_PROGRESS,
+        "status-waiting": status === TicketStatus.WAITING,
+        "status-resolved": status === TicketStatus.RESOLVED,
+        "status-closed": status === TicketStatus.CLOSED,
       };
     };
-    
+
     const getStatusIconClass = (status: TicketStatus) => {
       return {
-        'icon-open': status === TicketStatus.OPEN,
-        'icon-progress': status === TicketStatus.IN_PROGRESS,
-        'icon-waiting': status === TicketStatus.WAITING,
-        'icon-resolved': status === TicketStatus.RESOLVED,
-        'icon-closed': status === TicketStatus.CLOSED
+        "icon-open": status === TicketStatus.OPEN,
+        "icon-progress": status === TicketStatus.IN_PROGRESS,
+        "icon-waiting": status === TicketStatus.WAITING,
+        "icon-resolved": status === TicketStatus.RESOLVED,
+        "icon-closed": status === TicketStatus.CLOSED,
       };
     };
-    
+
     // Watch für Modal-Reset
-    watch(() => props.isOpen, (newValue) => {
-      if (newValue) {
-        replyMessage.value = '';
-        showCloseConfirm.value = false;
+    watch(
+      () => props.isOpen,
+      (newValue) => {
+        if (newValue) {
+          replyMessage.value = "";
+          showCloseConfirm.value = false;
+        }
       }
-    });
-    
+    );
+
     return {
       replyMessage,
       isSubmitting,
@@ -345,16 +338,16 @@ export default defineComponent({
       formatDateTime,
       formatRelativeTime,
       getStatusClass,
-      getStatusIconClass
+      getStatusIconClass,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .modal-overlay {
   position: fixed;
@@ -386,7 +379,7 @@ export default defineComponent({
   flex-direction: column;
   animation: modal-appear 0.3s ease-out;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -401,7 +394,7 @@ export default defineComponent({
   align-items: flex-start;
   border-bottom: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, secondary-bg);
       border-color: mixins.theme-color($theme, border-light);
@@ -431,9 +424,9 @@ export default defineComponent({
       &.icon-closed {
         background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
         box-shadow: 0 0 20px rgba(74, 210, 149, 0.25);
-        
+
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           inset: -1px;
           border-radius: 12px;
@@ -451,7 +444,7 @@ export default defineComponent({
       font-weight: 600;
       line-height: 1.4;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -463,7 +456,7 @@ export default defineComponent({
       font-size: 0.875rem;
       font-family: monospace;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -482,7 +475,7 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
         color: mixins.theme-color($theme, text-secondary);
@@ -522,7 +515,7 @@ export default defineComponent({
         font-weight: 500;
         margin-bottom: 4px;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -532,7 +525,7 @@ export default defineComponent({
       span {
         font-size: 0.875rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -560,7 +553,7 @@ export default defineComponent({
     font-size: 1rem;
     font-weight: 600;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -573,7 +566,7 @@ export default defineComponent({
     line-height: 1.6;
     white-space: pre-line;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -591,7 +584,7 @@ export default defineComponent({
     font-size: 1rem;
     font-weight: 600;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -626,7 +619,7 @@ export default defineComponent({
           }
 
           &:not(.staff) {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, border-medium);
                 color: mixins.theme-color($theme, text-secondary);
@@ -653,7 +646,7 @@ export default defineComponent({
             font-size: 0.875rem;
             font-weight: 600;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-primary);
               }
@@ -672,7 +665,7 @@ export default defineComponent({
           .message-time {
             font-size: 0.75rem;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-tertiary);
               }
@@ -686,7 +679,7 @@ export default defineComponent({
           line-height: 1.5;
           white-space: pre-line;
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               border: 1px solid mixins.theme-color($theme, border-light);
@@ -698,7 +691,7 @@ export default defineComponent({
 
       &.is-staff {
         .message-content .message-body {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(135deg, rgba(74, 210, 149, 0.05) 0%, rgba(53, 204, 208, 0.05) 100%);
               border-color: rgba(74, 210, 149, 0.2);
@@ -718,7 +711,7 @@ export default defineComponent({
     font-size: 1rem;
     font-weight: 600;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -736,7 +729,7 @@ export default defineComponent({
       resize: vertical;
       min-height: 100px;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, primary-bg);
           border-color: mixins.theme-color($theme, border-medium);
@@ -769,7 +762,7 @@ export default defineComponent({
       .character-count {
         font-size: 0.75rem;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -792,7 +785,7 @@ export default defineComponent({
         overflow: hidden;
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           inset: -1px;
           border-radius: 8px;
@@ -841,7 +834,7 @@ export default defineComponent({
   padding-top: 20px;
   border-top: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
     }
@@ -856,7 +849,7 @@ export default defineComponent({
     border-radius: 8px;
     font-size: 0.875rem;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-secondary);
@@ -880,7 +873,7 @@ export default defineComponent({
       border: 1px solid;
 
       &.close-ticket {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: transparent;
             border-color: mixins.theme-color($theme, border-medium);
@@ -911,7 +904,7 @@ export default defineComponent({
   overflow: hidden;
   animation: modal-appear 0.3s ease-out;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -922,7 +915,7 @@ export default defineComponent({
     padding: 20px;
     border-bottom: 1px solid;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: mixins.theme-color($theme, border-light);
       }
@@ -933,7 +926,7 @@ export default defineComponent({
       font-size: 1.125rem;
       font-weight: 600;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -948,7 +941,7 @@ export default defineComponent({
       margin: 0;
       line-height: 1.5;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -963,7 +956,7 @@ export default defineComponent({
     gap: 12px;
     border-top: 1px solid;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         border-color: mixins.theme-color($theme, border-light);
@@ -978,7 +971,7 @@ export default defineComponent({
       transition: all 0.2s;
       border: 1px solid;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
           border-color: mixins.theme-color($theme, border-medium);
@@ -1005,7 +998,7 @@ export default defineComponent({
       overflow: hidden;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         inset: -1px;
         border-radius: 6px;
@@ -1040,8 +1033,12 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1104,7 +1101,7 @@ export default defineComponent({
   }
 }
 
-.Icons{
+.Icons {
   width: 30px !important;
 }
 </style>

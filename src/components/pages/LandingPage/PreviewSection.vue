@@ -22,20 +22,27 @@
 
     <!-- Article Preview Cards -->
     <div v-else-if="articles.length > 0" class="preview-container">
-      <div 
-        v-for="(article, index) in articles" 
+      <div
+        v-for="(article, index) in articles"
         :key="article.id"
         :class="['preview-card', `flip-${getFlipDirection(index)}`]"
         @click="handleCardClick(article)"
       >
         <!-- Article Image -->
         <div class="card-image">
-          <div 
-            v-if="!article.image" 
-            class="image-placeholder"
-          >
+          <div v-if="!article.image" class="image-placeholder">
             <div class="placeholder-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="48"
+                height="48"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21,15 16,10 5,21"></polyline>
@@ -43,10 +50,10 @@
             </div>
             <span class="placeholder-text">Kein Bild verfügbar</span>
           </div>
-          
-          <img 
+
+          <img
             v-else
-            :src="article.image" 
+            :src="article.image"
             :alt="article.title"
             loading="lazy"
             decoding="async"
@@ -60,7 +67,17 @@
 
           <!-- Certified Author Badge -->
           <div v-if="article.isCertifiedAuthor" class="certified-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M9 12l2 2 4-4"></path>
               <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
               <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
@@ -72,7 +89,17 @@
           <div class="click-overlay">
             <div class="click-content">
               <div class="click-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
@@ -86,35 +113,39 @@
         <div class="card-content">
           <!-- Meta Information -->
           <div class="article-meta">
-            <span class="meta-author">{{ article.author || 'Unbekannt' }}</span>
+            <span class="meta-author">{{ article.author || "Unbekannt" }}</span>
             <span class="meta-separator">•</span>
             <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
           </div>
 
           <!-- Title -->
           <h3 class="card-title">{{ article.title }}</h3>
-          
+
           <!-- Description -->
           <p class="card-description">{{ article.quickDescription }}</p>
 
           <!-- Tags -->
           <div class="card-tags" v-if="article.tags && article.tags.length > 0">
-            <span 
-              v-for="(tag, idx) in article.tags.slice(0, 3)" 
-              :key="idx" 
-              class="card-tag"
-            >
+            <span v-for="(tag, idx) in article.tags.slice(0, 3)" :key="idx" class="card-tag">
               {{ tag }}
             </span>
-            <span v-if="article.tags.length > 3" class="tag-more">
-              +{{ article.tags.length - 3 }}
-            </span>
+            <span v-if="article.tags.length > 3" class="tag-more"> +{{ article.tags.length - 3 }} </span>
           </div>
 
           <!-- Read Button -->
           <button class="read-button" @click.stop="handleCardClick(article)">
             <span>Artikel lesen</span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
@@ -136,7 +167,17 @@
       <p>Melde dich an und entdecke unsere komplette Artikel-Bibliothek</p>
       <button class="cta-button" @click="redirectToLogin">
         <span>Jetzt kostenlos anmelden</span>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
           <polyline points="10 17 15 12 10 7"></polyline>
           <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -147,20 +188,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
-import { postService, type PostPreviewItem } from '@/services/post.service';
+import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
+import { type PostPreviewItem } from "@/services/post.service";
 
 export default defineComponent({
-  name: 'PreviewSection',
+  name: "PreviewSection",
   setup() {
     const router = useRouter();
-    
+
     // Reactive State
     const loading = ref(false);
     const error = ref<string | null>(null);
     const articles = ref<PostPreviewItem[]>([]);
-    
+
     // ScrollObserver
     let observer: IntersectionObserver | null = null;
 
@@ -168,54 +209,56 @@ export default defineComponent({
     const loadPreviews = async () => {
       loading.value = true;
       error.value = null;
-      
+
       try {
         // TODO: Sobald Public-Endpunkt verfügbar ist, diesen verwenden:
         // const response = await postService.getPublicPostPreviews(1, 3);
-        
+
         // MOCK-DATEN für Landingpage (bis Public-Endpunkt verfügbar)
         const mockArticles: PostPreviewItem[] = [
           {
-            id: 'mock-1',
-            title: 'Spannende Abenteuer für die ganze Familie',
-            quickDescription: 'Entdecke aufregende Geschichten und lehrreiche Inhalte, die Kinder und Erwachsene gleichermaßen begeistern. Von magischen Welten bis hin zu wissenschaftlichen Wundern.',
-            image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop',
-            author: 'Familie Müller',
-            category: 'FAMILY',
+            id: "mock-1",
+            title: "Spannende Abenteuer für die ganze Familie",
+            quickDescription:
+              "Entdecke aufregende Geschichten und lehrreiche Inhalte, die Kinder und Erwachsene gleichermaßen begeistern. Von magischen Welten bis hin zu wissenschaftlichen Wundern.",
+            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop",
+            author: "Familie Müller",
+            category: "FAMILY",
             createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Gestern
-            tags: ['Familie', 'Abenteuer', 'Lernen'],
-            isCertifiedAuthor: true
+            tags: ["Familie", "Abenteuer", "Lernen"],
+            isCertifiedAuthor: true,
           },
           {
-            id: 'mock-2', 
-            title: 'Kreative Bastelprojekte für Regentage',
-            quickDescription: 'Verwandle langweilige Nachmittage in kreative Workshops. Mit einfachen Materialien entstehen wunderbare Kunstwerke und unvergessliche Erinnerungen.',
-            image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500&h=300&fit=crop',
-            author: 'Anna Schmidt',
-            category: 'EDUCATION',
+            id: "mock-2",
+            title: "Kreative Bastelprojekte für Regentage",
+            quickDescription:
+              "Verwandle langweilige Nachmittage in kreative Workshops. Mit einfachen Materialien entstehen wunderbare Kunstwerke und unvergessliche Erinnerungen.",
+            image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500&h=300&fit=crop",
+            author: "Anna Schmidt",
+            category: "EDUCATION",
             createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // Vor 2 Tagen
-            tags: ['Basteln', 'Kreativität', 'DIY'],
-            isCertifiedAuthor: false
+            tags: ["Basteln", "Kreativität", "DIY"],
+            isCertifiedAuthor: false,
           },
           {
-            id: 'mock-3',
-            title: 'Gesunde Ernährung spielerisch vermitteln',
-            quickDescription: 'Wie du deinen Kindern gesunde Ernährung schmackhaft machst. Praktische Tipps, leckere Rezepte und spielerische Ansätze für mehr Freude am Essen.',
-            image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&h=300&fit=crop',
-            author: 'Dr. Sarah Weber',
-            category: 'HEALTH',
+            id: "mock-3",
+            title: "Gesunde Ernährung spielerisch vermitteln",
+            quickDescription:
+              "Wie du deinen Kindern gesunde Ernährung schmackhaft machst. Praktische Tipps, leckere Rezepte und spielerische Ansätze für mehr Freude am Essen.",
+            image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&h=300&fit=crop",
+            author: "Dr. Sarah Weber",
+            category: "HEALTH",
             createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // Vor 3 Tagen
-            tags: ['Gesundheit', 'Ernährung', 'Kinder'],
-            isCertifiedAuthor: true
-          }
+            tags: ["Gesundheit", "Ernährung", "Kinder"],
+            isCertifiedAuthor: true,
+          },
         ];
 
         // Simuliere API-Response-Format
         articles.value = mockArticles;
-        
       } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Unbekannter Fehler beim Laden der Artikel';
-        console.error('Error loading article previews:', err);
+        error.value = err instanceof Error ? err.message : "Unbekannter Fehler beim Laden der Artikel";
+        console.error("Error loading article previews:", err);
       } finally {
         loading.value = false;
       }
@@ -223,22 +266,25 @@ export default defineComponent({
 
     // Setup IntersectionObserver für Scroll-Animationen
     const setupScrollObserver = () => {
-      observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            // Wenn Section sichtbar wird, alle Cards animieren
-            const cards = entry.target.querySelectorAll('.preview-card');
-            cards.forEach((card, index) => {
-              setTimeout(() => {
-                card.classList.add('visible');
-              }, index * 200); // Staggered animation
-            });
-          }
-        });
-      }, { threshold: 0.1 });
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              // Wenn Section sichtbar wird, alle Cards animieren
+              const cards = entry.target.querySelectorAll(".preview-card");
+              cards.forEach((card, index) => {
+                setTimeout(() => {
+                  card.classList.add("visible");
+                }, index * 200); // Staggered animation
+              });
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
 
       // Section beobachten
-      const section = document.querySelector('.preview-section');
+      const section = document.querySelector(".preview-section");
       if (section) {
         observer.observe(section);
       }
@@ -246,19 +292,19 @@ export default defineComponent({
 
     // Get flip direction für unterschiedliche Animationen
     const getFlipDirection = (index: number): string => {
-      const directions = ['left', 'bottom', 'right'];
+      const directions = ["left", "bottom", "right"];
       return directions[index % directions.length];
     };
 
     // Handle card click → redirect to login
     const handleCardClick = (article: PostPreviewItem) => {
-      console.log('Card clicked:', article.title);
+      console.log("Card clicked:", article.title);
       redirectToLogin();
     };
 
     // Redirect to login
     const redirectToLogin = () => {
-      router.push('/login-register');
+      router.push("/login-register");
     };
 
     // Handle image error
@@ -271,21 +317,21 @@ export default defineComponent({
     // Format category
     const formatCategory = (category: string): string => {
       const categoryMap: Record<string, string> = {
-        'EDUCATION': 'Bildung',
-        'ENTERTAINMENT': 'Unterhaltung', 
-        'FAMILY': 'Familie',
-        'CULTURE': 'Kultur',
-        'NATURE': 'Natur',
-        'RAISING_CHILDREN': 'Kindererziehung',
-        'TECHNOLOGY': 'Technologie',
-        'HEALTH': 'Gesundheit',
-        'LIFESTYLE': 'Lifestyle',
-        'TRAVEL': 'Reisen',
-        'FOOD': 'Essen',
-        'FITNESS': 'Fitness',
-        'OTHER': 'Sonstiges'
+        EDUCATION: "Bildung",
+        ENTERTAINMENT: "Unterhaltung",
+        FAMILY: "Familie",
+        CULTURE: "Kultur",
+        NATURE: "Natur",
+        RAISING_CHILDREN: "Kindererziehung",
+        TECHNOLOGY: "Technologie",
+        HEALTH: "Gesundheit",
+        LIFESTYLE: "Lifestyle",
+        TRAVEL: "Reisen",
+        FOOD: "Essen",
+        FITNESS: "Fitness",
+        OTHER: "Sonstiges",
       };
-      return categoryMap[category] || 'Sonstiges';
+      return categoryMap[category] || "Sonstiges";
     };
 
     // Format date
@@ -295,14 +341,14 @@ export default defineComponent({
       const diffTime = now.getTime() - date.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 0) return 'Heute';
-      if (diffDays === 1) return 'Gestern';
+      if (diffDays === 0) return "Heute";
+      if (diffDays === 1) return "Gestern";
       if (diffDays < 7) return `vor ${diffDays} Tagen`;
-      
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     };
 
@@ -312,15 +358,15 @@ export default defineComponent({
       // Small delay to ensure DOM is updated
       setTimeout(() => {
         setupScrollObserver();
-        
+
         // Fallback: Wenn Cards bereits im Viewport sind, sofort anzeigen
-        const cards = document.querySelectorAll('.preview-card');
+        const cards = document.querySelectorAll(".preview-card");
         if (cards.length > 0) {
           const rect = cards[0].getBoundingClientRect();
           if (rect.top < window.innerHeight && rect.bottom > 0) {
             cards.forEach((card, index) => {
               setTimeout(() => {
-                card.classList.add('visible');
+                card.classList.add("visible");
               }, index * 200);
             });
           }
@@ -339,7 +385,7 @@ export default defineComponent({
       loading,
       error,
       articles,
-      
+
       // Methods
       loadPreviews,
       getFlipDirection,
@@ -347,41 +393,41 @@ export default defineComponent({
       redirectToLogin,
       handleImageError,
       formatCategory,
-      formatDate
+      formatDate,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss">
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 .preview-section {
   @include animations.scroll-fade-in;
   padding: 5rem 0;
   position: relative;
   overflow: hidden;
-  
+
   .section-header {
     text-align: center;
     margin-bottom: 4rem;
     position: relative;
-    
+
     h2 {
       font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       position: relative;
       display: inline-block;
       margin-bottom: 1rem;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
-            90deg, 
-            mixins.theme-color($theme, accent-green) 0%, 
+            90deg,
+            mixins.theme-color($theme, accent-green) 0%,
             mixins.theme-color($theme, accent-teal) 100%
           );
           -webkit-background-clip: text;
@@ -394,18 +440,18 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       }
     }
-    
+
     .header-decoration {
       width: 80px;
       height: 4px;
       border-radius: 2px;
       margin: 0 auto 1.5rem;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
-            90deg, 
-            mixins.theme-color($theme, accent-green) 0%, 
+            90deg,
+            mixins.theme-color($theme, accent-green) 0%,
             mixins.theme-color($theme, accent-teal) 100%
           );
         }
@@ -423,7 +469,7 @@ export default defineComponent({
         padding: 0 map.get(vars.$spacing, m);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -448,7 +494,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       animation: spin 1s linear infinite;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
           border-top-color: mixins.theme-color($theme, accent-green);
@@ -457,7 +503,7 @@ export default defineComponent({
     }
 
     p {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -481,7 +527,7 @@ export default defineComponent({
 
     h3 {
       margin-bottom: map.get(vars.$spacing, s);
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -490,7 +536,7 @@ export default defineComponent({
 
     p {
       margin-bottom: map.get(vars.$spacing, l);
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -505,7 +551,7 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
@@ -535,7 +581,7 @@ export default defineComponent({
 
     h3 {
       margin-bottom: map.get(vars.$spacing, s);
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -543,7 +589,7 @@ export default defineComponent({
     }
 
     p {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -578,16 +624,15 @@ export default defineComponent({
     overflow: hidden;
     opacity: 0;
     transform: translateY(50px);
-    
+
     // CSS-only Fallback Animation
     animation: fadeInUp 0.6s ease-out forwards;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       }
     }
 
@@ -646,10 +691,9 @@ export default defineComponent({
     &:hover {
       transform: translateY(-12px) scale(1.02);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
-                      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           border-color: transparent;
         }
       }
@@ -691,7 +735,7 @@ export default defineComponent({
         justify-content: center;
         gap: map.get(vars.$spacing, s);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-tertiary);
@@ -720,7 +764,7 @@ export default defineComponent({
         backdrop-filter: blur(10px);
         z-index: 2;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, accent-green), 0.9);
             color: white;
@@ -743,7 +787,7 @@ export default defineComponent({
         gap: 4px;
         z-index: 2;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(255, 215, 0, 0.9);
             color: #333;
@@ -817,7 +861,7 @@ export default defineComponent({
       .meta-author {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-green);
           }
@@ -825,7 +869,7 @@ export default defineComponent({
       }
 
       .meta-date {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
           }
@@ -833,7 +877,7 @@ export default defineComponent({
       }
 
       .meta-separator {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
             opacity: 0.5;
@@ -858,7 +902,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), large);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -883,7 +927,7 @@ export default defineComponent({
         line-clamp: 2;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -904,7 +948,7 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
         transition: all 0.2s;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-secondary);
@@ -919,7 +963,7 @@ export default defineComponent({
         font-size: 12px;
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, accent-teal);
             color: white;
@@ -945,13 +989,13 @@ export default defineComponent({
       overflow: hidden;
       margin-top: auto;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
 
           &::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 50%;
             left: 50%;
@@ -974,7 +1018,8 @@ export default defineComponent({
         }
       }
 
-      span, svg {
+      span,
+      svg {
         z-index: 1;
         position: relative;
       }
@@ -990,7 +1035,7 @@ export default defineComponent({
     position: relative;
     overflow: hidden;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, secondary);
         border: 1px solid mixins.theme-color($theme, border-light);
@@ -998,14 +1043,14 @@ export default defineComponent({
     }
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: -50%;
       right: -50%;
       width: 200%;
       height: 200%;
       opacity: 0.1;
-      background: radial-gradient(circle, transparent 0%, rgba(255,255,255,0.1) 100%);
+      background: radial-gradient(circle, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
       animation: rotate 20s linear infinite;
     }
 
@@ -1018,7 +1063,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1036,7 +1081,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1063,10 +1108,10 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
-          color: white; 
+          color: white;
           box-shadow: 0 10px 20px rgba(mixins.theme-color($theme, accent-teal), 0.3);
 
           &:hover {
@@ -1081,13 +1126,21 @@ export default defineComponent({
 
 // Animationen
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInUp {

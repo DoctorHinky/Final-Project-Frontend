@@ -12,25 +12,42 @@
     <!-- Hauptinhaltsbereich -->
     <div class="dashboard-content">
       <!-- Aktivitäten-Sektion -->
-      <recent-activities :articles="recentArticles" @view-all="goToMyArticles" @discover="goToDiscovery"
-        @open-article="openArticle" class="dashboard-section dashboard-section--activities" />
+      <recent-activities
+        :articles="recentArticles"
+        @view-all="goToMyArticles"
+        @discover="goToDiscovery"
+        @open-article="openArticle"
+        class="dashboard-section dashboard-section--activities"
+      />
 
       <!-- Empfehlungen-Sektion -->
-      <recommended-articles :articles="recommendedArticles" @open-article="openArticle"
-        class="dashboard-section dashboard-section--recommendations" />
+      <recommended-articles
+        :articles="recommendedArticles"
+        @open-article="openArticle"
+        class="dashboard-section dashboard-section--recommendations"
+      />
     </div>
 
     <!-- Modal für Autor-Bewerbung -->
-    <author-application-modal :show-modal="showAuthorModal" @close="toggleAuthorModal" @submit="submitAuthorApplication"
-      class="modal-enhanced" />
+    <author-application-modal
+      :show-modal="showAuthorModal"
+      @close="toggleAuthorModal"
+      @submit="submitAuthorApplication"
+      class="modal-enhanced"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { authService } from '@/services/auth.service';
-import { overviewService, type DashboardStats, type RecentActivityArticle, type RecommendedArticle } from '@/services/overview.service';
+import { defineComponent, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { authService } from "@/services/auth.service";
+import {
+  overviewService,
+  type DashboardStats,
+  type RecentActivityArticle,
+  type RecommendedArticle,
+} from "@/services/overview.service";
 
 // Import der modularen Komponenten
 import {
@@ -38,11 +55,11 @@ import {
   StatsCards,
   RecentActivities,
   RecommendedArticles,
-  AuthorApplicationModal
-} from '@/components/pages/DashboardPages/Overview';
+  AuthorApplicationModal,
+} from "@/components/pages/DashboardPages/Overview";
 
 interface Article {
-  id: number;
+  id: string;
   title: string;
   preview?: string;
   category?: string;
@@ -53,22 +70,22 @@ interface Article {
   totalChapters?: number;
   lastRead?: string;
   readingTime?: string;
-  difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
+  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
 }
 
 export default defineComponent({
-  name: 'OverviewDashboard',
+  name: "OverviewDashboard",
   components: {
     WelcomeSection,
     StatsCards,
     RecentActivities,
     RecommendedArticles,
-    AuthorApplicationModal
+    AuthorApplicationModal,
   },
   setup() {
     const router = useRouter();
-    const userName = ref('Mitglied');
-    
+    const userName = ref("Mitglied");
+
     // Loading states
     const isLoading = ref(true);
 
@@ -78,25 +95,25 @@ export default defineComponent({
     // Dashboard-Daten
     const stats = ref([
       {
-        icon: '📚',
-        label: 'Gelesene Artikel',
-        value: '0',
-        color: 'gradient-green',
-        animation: 'pulse'
+        icon: "📚",
+        label: "Gelesene Artikel",
+        value: "0",
+        color: "gradient-green",
+        animation: "pulse",
       },
       {
-        icon: '⭐',
-        label: 'Favoriten',
-        value: '0',
-        color: 'gradient-yellow',
-        animation: 'float'
+        icon: "⭐",
+        label: "Favoriten",
+        value: "0",
+        color: "gradient-yellow",
+        animation: "float",
       },
       {
-        icon: '👥',
-        label: 'Freunde',
-        value: '0',
-        color: 'gradient-teal',
-        animation: 'bounce'
+        icon: "👥",
+        label: "Freunde",
+        value: "0",
+        color: "gradient-teal",
+        animation: "bounce",
       },
     ]);
 
@@ -108,45 +125,43 @@ export default defineComponent({
     const loadAllDashboardData = async () => {
       try {
         isLoading.value = true;
-        
+
         const result = await overviewService.getAllDashboardData();
 
         // Statistiken aktualisieren
         stats.value = [
           {
-            icon: '📚',
-            label: 'Gelesene Artikel',
+            icon: "📚",
+            label: "Gelesene Artikel",
             value: result.stats.readArticles.toString(),
-            color: 'gradient-green',
-            animation: 'pulse'
+            color: "gradient-green",
+            animation: "pulse",
           },
           {
-            icon: '⭐',
-            label: 'Favoriten',
+            icon: "⭐",
+            label: "Favoriten",
             value: result.stats.favorites.toString(),
-            color: 'gradient-yellow',
-            animation: 'float'
+            color: "gradient-yellow",
+            animation: "float",
           },
           {
-            icon: '👥',
-            label: 'Freunde',
+            icon: "👥",
+            label: "Freunde",
             value: result.stats.friends.toString(),
-            color: 'gradient-teal',
-            animation: 'bounce'
+            color: "gradient-teal",
+            animation: "bounce",
           },
         ];
 
         // Artikel-Daten setzen
         recentArticles.value = result.recentActivities;
         recommendedArticles.value = result.recommendedArticles;
-
       } catch (error) {
-        console.error('Fehler beim Laden der Dashboard-Daten:', error);
-        
+        console.error("Fehler beim Laden der Dashboard-Daten:", error);
+
         // Fallback: Leere Arrays
         recentArticles.value = [];
         recommendedArticles.value = [];
-        
       } finally {
         isLoading.value = false;
       }
@@ -162,22 +177,22 @@ export default defineComponent({
       if (data.success) {
         // Das Modal zeigt bereits die Erfolgsmeldung an
       } else {
-        console.error('Fehler bei Bewerbung:', data.error);
+        console.error("Fehler bei Bewerbung:", data.error);
       }
     };
 
     // Artikel öffnen
-    const openArticle = (article: Article) => {
-      window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
+    const openArticle = () => {
+      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
     };
 
     // Navigation zu anderen Dashboardbereichen
     const goToMyArticles = () => {
-      window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
+      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
     };
 
     const goToDiscovery = () => {
-      window.location.href = 'http://localhost:5173/member/dashboard?tab=my-articles';
+      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
     };
 
     // Daten neu laden
@@ -189,7 +204,7 @@ export default defineComponent({
     onMounted(async () => {
       const userData = authService.getUserData();
       if (userData && userData.name) {
-        userName.value = userData.name.split(' ')[0];
+        userName.value = userData.name.split(" ")[0];
       }
 
       await loadAllDashboardData();
@@ -197,18 +212,18 @@ export default defineComponent({
       // Scroll-Animationen aktivieren
       const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: "0px 0px -50px 0px",
       };
 
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+            entry.target.classList.add("visible");
           }
         });
       }, observerOptions);
 
-      document.querySelectorAll('.dashboard-section').forEach(section => {
+      document.querySelectorAll(".dashboard-section").forEach((section) => {
         observer.observe(section);
       });
     });
@@ -219,29 +234,29 @@ export default defineComponent({
       recentArticles,
       recommendedArticles,
       isLoading,
-      
+
       // Modal
       showAuthorModal,
       toggleAuthorModal,
       submitAuthorApplication,
-      
+
       // Navigation
       openArticle,
       goToMyArticles,
       goToDiscovery,
-      
+
       // Refresh
-      refreshDashboard
+      refreshDashboard,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 * {
   box-sizing: border-box;
@@ -259,7 +274,7 @@ export default defineComponent({
   min-height: 100vh;
   overflow: hidden;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       color: mixins.theme-color($theme, text-primary);
       transition: all 0.4s;
@@ -267,7 +282,7 @@ export default defineComponent({
   }
 
   .dashboard-section {
-    @include mixins.card-style($theme: 'light', $padding: 'medium', $hover-effect: true);
+    @include mixins.card-style($theme: "light", $padding: "medium", $hover-effect: true);
     @include animations.scroll-fade-in();
     position: relative;
     overflow: hidden;
@@ -280,10 +295,7 @@ export default defineComponent({
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg,
-          transparent,
-          rgba(255, 255, 255, 0.2),
-          transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: left 0.8s ease;
       z-index: 0;
       pointer-events: none;
@@ -294,18 +306,19 @@ export default defineComponent({
     }
 
     .theme-dark & {
-      @include mixins.card-style($theme: 'dark', $padding: 'medium', $hover-effect: true);
+      @include mixins.card-style($theme: "dark", $padding: "medium", $hover-effect: true);
     }
 
     &--hero {
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         inset: -2px;
         border-radius: map.get(map.get(vars.$layout, border-radius), large);
         padding: 2px;
-        background: mixins.theme-gradient('light', 'primary');
+        background: mixins.theme-gradient("light", "primary");
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         opacity: 0.6;
@@ -314,7 +327,7 @@ export default defineComponent({
         pointer-events: none;
 
         .theme-dark & {
-          background: mixins.theme-gradient('dark', 'primary');
+          background: mixins.theme-gradient("dark", "primary");
         }
       }
 
@@ -327,23 +340,24 @@ export default defineComponent({
       transition: all map.get(vars.$transitions, default);
 
       &:hover {
-        @include mixins.glow('lime', 'medium', 'light');
+        @include mixins.glow("lime", "medium", "light");
 
         .theme-dark & {
-          @include mixins.glow('lime', 'medium', 'dark');
+          @include mixins.glow("lime", "medium", "dark");
         }
       }
     }
 
     &--recommendations {
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         inset: 0;
         border-radius: map.get(map.get(vars.$layout, border-radius), large);
         border: 2px solid transparent;
-        background: mixins.theme-gradient('light', 'header') border-box;
+        background: mixins.theme-gradient("light", "header") border-box;
         -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         opacity: 0;
@@ -352,7 +366,7 @@ export default defineComponent({
         pointer-events: none;
 
         .theme-dark & {
-          background: mixins.theme-gradient('dark', 'header') border-box;
+          background: mixins.theme-gradient("dark", "header") border-box;
         }
       }
 
@@ -362,7 +376,7 @@ export default defineComponent({
       }
     }
 
-    &>* {
+    & > * {
       position: relative;
       z-index: 1;
     }
@@ -399,7 +413,7 @@ export default defineComponent({
     }
 
     :deep(.stat-card) {
-      @include mixins.card-style($theme: 'light', $padding: 'small', $hover-effect: false);
+      @include mixins.card-style($theme: "light", $padding: "small", $hover-effect: false);
       @include animations.fade-in(0.6s);
       cursor: pointer;
       position: relative;
@@ -407,25 +421,25 @@ export default defineComponent({
       width: 100%;
 
       .theme-dark & {
-        @include mixins.card-style($theme: 'dark', $padding: 'small', $hover-effect: false);
+        @include mixins.card-style($theme: "dark", $padding: "small", $hover-effect: false);
       }
 
       .icon-container {
-        @include mixins.icon-container($theme: 'light', $size: 'medium');
+        @include mixins.icon-container($theme: "light", $size: "medium");
         margin-bottom: map.get(vars.$spacing, m);
         transition: transform map.get(vars.$transitions, default);
 
         .theme-dark & {
-          @include mixins.icon-container($theme: 'dark', $size: 'medium');
+          @include mixins.icon-container($theme: "dark", $size: "medium");
         }
       }
 
       &:hover {
         transform: translateY(-5px) scale(1.02);
-        @include mixins.shadow('large', 'light');
+        @include mixins.shadow("large", "light");
 
         .theme-dark & {
-          @include mixins.shadow('large', 'dark');
+          @include mixins.shadow("large", "dark");
         }
 
         .icon-container {
@@ -463,7 +477,7 @@ export default defineComponent({
       gap: map.get(vars.$spacing, xl);
     }
 
-    >* {
+    > * {
       width: 100%;
       min-width: 0;
     }
@@ -479,10 +493,10 @@ export default defineComponent({
         z-index: 2;
 
         .article-title {
-          @include mixins.text-gradient('primary', 'light');
+          @include mixins.text-gradient("primary", "light");
 
           .theme-dark & {
-            @include mixins.text-gradient('primary', 'dark');
+            @include mixins.text-gradient("primary", "dark");
           }
         }
 
@@ -501,20 +515,24 @@ export default defineComponent({
     }
 
     :deep(.modal-content) {
-      @include mixins.card-style($theme: 'light', $padding: 'large');
+      @include mixins.card-style($theme: "light", $padding: "large");
       @include animations.fade-in(0.4s);
       max-width: 600px;
       margin: auto;
 
       .theme-dark & {
-        @include mixins.card-style($theme: 'dark', $padding: 'large');
+        @include mixins.card-style($theme: "dark", $padding: "large");
       }
     }
   }
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {

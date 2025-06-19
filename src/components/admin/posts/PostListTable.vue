@@ -9,7 +9,6 @@
           <th class="col-category">Kategorie</th>
           <th class="col-date">Veröffentlicht</th>
           <th class="col-status">Status</th>
-          <th class="col-views">Aufrufe</th>
           <th class="col-actions">Aktionen</th>
         </tr>
       </thead>
@@ -29,21 +28,21 @@
           <td class="col-author">
             <div class="author-cell">
               <div class="author-avatar">
-                <span>{{ getAuthorInitials(post.author) }}</span>
+                <span v-if="!post.author?.profilePicture">{{ getAuthorInitials(post.author) }}</span>
+                <img v-else :src="post.author.profilePicture" :alt="`Avatar von ${post.author.username}`" />
               </div>
-              <span>{{ post.author || "Unbekannt" }}</span>
+              <span>{{ post.author?.username || "Unbekannt" }}</span>
             </div>
           </td>
           <td class="col-category">
             <span class="post-category">{{ formatCategory(post.category) }}</span>
           </td>
-          <td class="col-date">{{ formatDate(post.publishedAt) }}</td>
+          <td class="col-date">{{ formatDate(post.publishedAt, "-") }}</td>
           <td class="col-status">
             <span class="status-badge" :class="getStatusClass(post)">
               {{ getStatusText(post) }}
             </span>
           </td>
-          <td class="col-views">{{ formatNumber(post.views) }}</td>
           <td class="col-actions">
             <div class="actions-container">
               <button class="action-button view-button" @click.stop="$emit('view', post.id)" title="Artikel ansehen">
@@ -108,19 +107,8 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-
-interface Post {
-  id: string;
-  title: string;
-  quickDescription?: string;
-  image?: string;
-  author?: { username: string };
-  category?: string;
-  publishedAt?: Date | string | null;
-  published: boolean;
-  isDeleted?: boolean;
-  views?: number;
-}
+import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
+import { formatDate } from "@/utils/helperFunctions";
 
 export default defineComponent({
   name: "PostListTable",
@@ -132,6 +120,7 @@ export default defineComponent({
   },
   emits: ["view", "toggle-status"],
   methods: {
+    formatDate,
     getAuthorInitials(author?: { username: string }): string {
       if (!author?.username) return "??";
       const parts = author.username.split(" ");
@@ -144,15 +133,6 @@ export default defineComponent({
     truncateText(text: string, maxLength: number): string {
       if (!text || text.length <= maxLength) return text || "";
       return text.substring(0, maxLength) + "...";
-    },
-
-    formatDate(date: Date | null): string {
-      if (!date || date === null) return "-";
-      return new Date(date).toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
     },
 
     formatCategory(category: string): string {
@@ -280,6 +260,13 @@ export default defineComponent({
           font-weight: bold;
           color: white;
           font-size: 0.8rem;
+
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+          }
         }
       }
     }

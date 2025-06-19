@@ -37,19 +37,30 @@
           </div>
 
           <!-- Message bubbles -->
-          <div v-else v-for="message in messages" :key="message.id" :class="[
-            'message-wrapper',
-            {
-              'own-message': isOwnMessage(message),
-              'friend-message': !isOwnMessage(message),
-              'editing': editingMessageId === message.id,
-            },
-          ]">
+          <div
+            v-else
+            v-for="message in messages"
+            :key="message.id"
+            :class="[
+              'message-wrapper',
+              {
+                'own-message': isOwnMessage(message),
+                'friend-message': !isOwnMessage(message),
+                editing: editingMessageId === message.id,
+              },
+            ]"
+          >
             <!-- Edit Mode -->
             <div v-if="editingMessageId === message.id" class="edit-container">
-              <div ref="editRichText" class="edit-input" contenteditable="true" @input="handleEditInput"
-                @keydown.escape="cancelEdit" @keydown.enter.ctrl="saveEdit" @keydown.enter.exact.prevent="saveEdit">
-              </div>
+              <div
+                ref="editRichText"
+                class="edit-input"
+                contenteditable="true"
+                @input="handleEditInput"
+                @keydown.escape="cancelEdit"
+                @keydown.enter.ctrl="saveEdit"
+                @keydown.enter.exact.prevent="saveEdit"
+              ></div>
               <div class="edit-actions">
                 <button @click="cancelEdit" class="edit-btn cancel">
                   <XMarkIcon class="btn-icon" />
@@ -66,11 +77,10 @@
               <div v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-message">
                 <TrashIcon class="deleted-icon" />
                 <em>Diese Nachricht wurde gelöscht</em>
-              </p>
-              
+              </div>
               <!-- Normal message mit Rich-Text -->
               <div v-else v-html="parseMessageContent(message.content)" class="message-text"></div>
-              
+
               <!-- Attachment (if any) -->
               <div v-if="message.attachmentUrl" class="message-attachment">
                 <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
@@ -85,8 +95,10 @@
                 <span class="message-time">{{ formatTime(message.createdAt) }}</span>
 
                 <!-- Message actions -->
-                <div v-if="isOwnMessage(message) && message.content !== 'Die Nachricht wurde gelöscht'"
-                  class="message-actions">
+                <div
+                  v-if="isOwnMessage(message) && message.content !== 'Die Nachricht wurde gelöscht'"
+                  class="message-actions"
+                >
                   <button @click="startEdit(message)" class="action-btn" title="Bearbeiten">
                     <PencilIcon class="action-icon" />
                   </button>
@@ -97,7 +109,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Own Typing Indicator -->
           <div v-if="isUserTyping && editorContent.trim()" class="typing-indicator own-typing">
             <div class="typing-dots">
@@ -107,7 +119,7 @@
             </div>
             <span class="typing-text">Du schreibst...</span>
           </div>
-          
+
           <!-- Friend Typing Indicator -->
           <div v-if="isTyping" class="typing-indicator">
             <div class="typing-dots">
@@ -124,7 +136,7 @@
       <div class="message-editor">
         <!-- Formatting Toolbar -->
         <div class="formatting-toolbar">
-          <button 
+          <button
             type="button"
             @click="toggleFormat('bold')"
             :class="['format-button', { active: activeFormats.bold }]"
@@ -132,8 +144,8 @@
           >
             <strong>B</strong>
           </button>
-          
-          <button 
+
+          <button
             type="button"
             @click="toggleFormat('italic')"
             :class="['format-button', { active: activeFormats.italic }]"
@@ -141,8 +153,8 @@
           >
             <em>I</em>
           </button>
-          
-          <button 
+
+          <button
             type="button"
             @click="toggleFormat('underline')"
             :class="['format-button', { active: activeFormats.underline }]"
@@ -150,19 +162,14 @@
           >
             <u>U</u>
           </button>
-          
+
           <div class="toolbar-separator"></div>
-          
+
           <div class="emoji-picker-container">
-            <button 
-              type="button"
-              @click="toggleEmojiPicker"
-              class="format-button emoji-button"
-              title="Emoji einfügen"
-            >
+            <button type="button" @click="toggleEmojiPicker" class="format-button emoji-button" title="Emoji einfügen">
               <FaceSmileIcon class="icon-size" />
             </button>
-            
+
             <!-- Emoji Picker -->
             <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
               <div class="emoji-grid">
@@ -182,7 +189,7 @@
 
         <!-- Rich Text Input -->
         <div class="message-input-wrapper">
-          <div 
+          <div
             ref="messageEditor"
             class="message-input"
             contenteditable="true"
@@ -195,8 +202,8 @@
             @blur="handleInput"
             :data-placeholder="'Nachricht schreiben...'"
           ></div>
-          
-          <button 
+
+          <button
             type="button"
             @click.prevent="sendMessage"
             class="send-button"
@@ -212,16 +219,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue';
-import { 
-  XMarkIcon, 
-  PaperAirplaneIcon, 
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from "vue";
+import {
+  XMarkIcon,
+  PaperAirplaneIcon,
   PaperClipIcon,
   FaceSmileIcon,
-  ChatBubbleLeftRightIcon
-} from '@heroicons/vue/24/outline';
-import chatService, { type ChatMessage } from '@/services/chat.service';
-import { authService } from '@/services/auth.service';
+  ChatBubbleLeftRightIcon,
+} from "@heroicons/vue/24/outline";
+import chatService, { type ChatMessage } from "@/services/chat.service";
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
   name: "ChatModal",
@@ -230,7 +237,7 @@ export default defineComponent({
     PaperAirplaneIcon,
     PaperClipIcon,
     FaceSmileIcon,
-    ChatBubbleLeftRightIcon
+    ChatBubbleLeftRightIcon,
   },
   props: {
     isVisible: {
@@ -259,27 +266,72 @@ export default defineComponent({
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
     const messageEditor = ref<HTMLDivElement>();
-    const currentConversationId = ref<string>('');
-    const currentUserId = ref<string>('');
+    const currentConversationId = ref<string>("");
+    const currentUserId = ref<string>("");
     const isUserTyping = ref(false);
     const showEmojiPicker = ref(false);
-    const editorContent = ref(''); // Neue reaktive Variable für Content
+    const editorContent = ref(""); // Neue reaktive Variable für Content
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
     // Active formats tracking
     const activeFormats = ref({
       bold: false,
       italic: false,
-      underline: false
+      underline: false,
     });
 
     // 50 verschiedene Emojis
     const availableEmojis = [
-      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
-      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛',
-      '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶',
-      '🙄', '😏', '😣', '😥', '😮', '🤐', '😯', '😪', '😫', '😴',
-      '😌', '😓', '😔', '😕', '🙃', '🤑', '😲', '😢', '😭', '😤'
+      "😀",
+      "😃",
+      "😄",
+      "😁",
+      "😆",
+      "😅",
+      "🤣",
+      "😂",
+      "🙂",
+      "😊",
+      "😇",
+      "🥰",
+      "😍",
+      "🤩",
+      "😘",
+      "😗",
+      "😚",
+      "😙",
+      "😋",
+      "😛",
+      "😜",
+      "🤪",
+      "😝",
+      "🤗",
+      "🤭",
+      "🤫",
+      "🤔",
+      "😐",
+      "😑",
+      "😶",
+      "🙄",
+      "😏",
+      "😣",
+      "😥",
+      "😮",
+      "🤐",
+      "😯",
+      "😪",
+      "😫",
+      "😴",
+      "😌",
+      "😓",
+      "😔",
+      "😕",
+      "🙃",
+      "🤑",
+      "😲",
+      "😢",
+      "😭",
+      "😤",
     ];
 
     // Computed
@@ -303,9 +355,9 @@ export default defineComponent({
 
     const loadMessages = async () => {
       if (!props.friendId) return;
-      
+
       isLoading.value = true;
-      
+
       try {
         const conversation = await chatService.createOrGetConversation(props.friendId.toString());
         currentConversationId.value = conversation.id;
@@ -337,10 +389,10 @@ export default defineComponent({
     };
 
     const parseMessageContent = (content: string | null): string => {
-      if (!content) return '';
+      if (!content) return "";
       // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
       let parsed = chatService.parseMessageContent(content);
-      parsed = parsed.replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>');
+      parsed = parsed.replace(/<em>/g, "<i>").replace(/<\/em>/g, "</i>");
       return parsed;
     };
 
@@ -354,20 +406,20 @@ export default defineComponent({
 
     // Rich Text Editor Functions
     const updateActiveFormats = () => {
-      activeFormats.value.bold = document.queryCommandState('bold');
-      activeFormats.value.italic = document.queryCommandState('italic');
-      activeFormats.value.underline = document.queryCommandState('underline');
+      activeFormats.value.bold = document.queryCommandState("bold");
+      activeFormats.value.italic = document.queryCommandState("italic");
+      activeFormats.value.underline = document.queryCommandState("underline");
     };
 
-    const toggleFormat = (format: 'bold' | 'italic' | 'underline') => {
+    const toggleFormat = (format: "bold" | "italic" | "underline") => {
       messageEditor.value?.focus();
-      
+
       // Stelle sicher, dass eine Selection existiert
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         document.execCommand(format, false);
         updateActiveFormats();
-        
+
         // Update content after formatting
         nextTick(() => {
           handleInput();
@@ -377,23 +429,23 @@ export default defineComponent({
 
     const insertEmoji = (emoji: string) => {
       messageEditor.value?.focus();
-      
+
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
         const textNode = document.createTextNode(emoji);
         range.insertNode(textNode);
-        
+
         // Cursor nach dem Emoji positionieren
         range.setStartAfter(textNode);
         range.setEndAfter(textNode);
         selection.removeAllRanges();
         selection.addRange(range);
       }
-      
+
       showEmojiPicker.value = false;
-      
+
       // Update content manually
       nextTick(() => {
         handleInput();
@@ -408,37 +460,37 @@ export default defineComponent({
       // Update editor content
       if (messageEditor.value) {
         // Get text content and clean it
-        let text = messageEditor.value.textContent || '';
-        
+        let text = messageEditor.value.textContent || "";
+
         // Also check innerHTML for cases where only formatting tags exist
-        const html = messageEditor.value.innerHTML || '';
-        
+        const html = messageEditor.value.innerHTML || "";
+
         // If there's only a <br> tag or empty formatting tags, consider it empty
-        if (html === '<br>' || html.match(/^<[^>]+><\/[^>]+>$/)) {
-          text = '';
+        if (html === "<br>" || html.match(/^<[^>]+><\/[^>]+>$/)) {
+          text = "";
         }
-        
+
         editorContent.value = text;
-        
-        console.log('Input changed:', {
+
+        console.log("Input changed:", {
           text,
           html,
           editorContent: editorContent.value,
           hasContent: hasContent.value,
-          canSendMessage: canSendMessage.value
+          canSendMessage: canSendMessage.value,
         });
       }
-      
+
       // Update active formats
       updateActiveFormats();
-      
+
       // Typing indicator
       isUserTyping.value = true;
-      
+
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
-      
+
       typingTimeout = setTimeout(() => {
         isUserTyping.value = false;
       }, 2000);
@@ -446,25 +498,25 @@ export default defineComponent({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Strg+B für Fett
-      if (event.ctrlKey && event.key === 'b') {
+      if (event.ctrlKey && event.key === "b") {
         event.preventDefault();
-        toggleFormat('bold');
+        toggleFormat("bold");
       }
-      
+
       // Strg+I für Kursiv
-      if (event.ctrlKey && event.key === 'i') {
+      if (event.ctrlKey && event.key === "i") {
         event.preventDefault();
-        toggleFormat('italic');
+        toggleFormat("italic");
       }
-      
+
       // Strg+U für Unterstreichen
-      if (event.ctrlKey && event.key === 'u') {
+      if (event.ctrlKey && event.key === "u") {
         event.preventDefault();
-        toggleFormat('underline');
+        toggleFormat("underline");
       }
-      
+
       // Enter zum Senden (Shift+Enter für neue Zeile)
-      if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
       }
@@ -472,9 +524,9 @@ export default defineComponent({
 
     const handlePaste = (event: ClipboardEvent) => {
       event.preventDefault();
-      const text = event.clipboardData?.getData('text/plain') || '';
-      document.execCommand('insertText', false, text);
-      
+      const text = event.clipboardData?.getData("text/plain") || "";
+      document.execCommand("insertText", false, text);
+
       // Update content after paste
       nextTick(() => {
         handleInput();
@@ -483,57 +535,57 @@ export default defineComponent({
 
     const sendMessage = async () => {
       // Debug-Logs
-      console.log('SendMessage called:', {
+      console.log("SendMessage called:", {
         canSendMessage: canSendMessage.value,
         hasContent: hasContent.value,
         isSending: isSending.value,
         editorContent: editorContent.value,
         currentConversationId: currentConversationId.value,
         textContent: messageEditor.value?.textContent,
-        innerHTML: messageEditor.value?.innerHTML
+        innerHTML: messageEditor.value?.innerHTML,
       });
 
       if (!canSendMessage.value || !currentConversationId.value) {
-        console.log('SendMessage aborted - conditions not met');
+        console.log("SendMessage aborted - conditions not met");
         return;
       }
 
       // Hole Text und HTML-Inhalt
-      const messageText = messageEditor.value?.textContent?.trim() || '';
-      let htmlContent = messageEditor.value?.innerHTML || '';
-      
+      const messageText = messageEditor.value?.textContent?.trim() || "";
+      let htmlContent = messageEditor.value?.innerHTML || "";
+
       // Prüfe nochmal ob wirklich Inhalt vorhanden ist
-      if (!messageText && !htmlContent.replace(/<[^>]*>/g, '').trim()) {
-        console.log('SendMessage aborted - no content');
+      if (!messageText && !htmlContent.replace(/<[^>]*>/g, "").trim()) {
+        console.log("SendMessage aborted - no content");
         return;
       }
 
       isSending.value = true;
       isUserTyping.value = false;
-      
+
       if (typingTimeout) {
         clearTimeout(typingTimeout);
         typingTimeout = null;
       }
 
       try {
-        console.log('Sending message with content:', htmlContent);
-        
+        console.log("Sending message with content:", htmlContent);
+
         // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
-        htmlContent = htmlContent.replace(/<i>/g, '<em>').replace(/<\/i>/g, '</em>');
-        
+        htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
+
         // Sende Nachricht über Chat-Service
         const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
-        
-        console.log('Message sent successfully:', response);
-        
+
+        console.log("Message sent successfully:", response);
+
         // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
           id: response.message.id || Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: htmlContent,
-          messageType: 'TEXT',
+          messageType: "TEXT",
           attachmentUrl: null,
           isRead: true,
           isEdited: false,
@@ -542,23 +594,22 @@ export default defineComponent({
         };
 
         messages.value.push(localMessage);
-        
+
         // Clear editor
         if (messageEditor.value) {
-          messageEditor.value.innerHTML = '';
-          editorContent.value = '';
+          messageEditor.value.innerHTML = "";
+          editorContent.value = "";
           updateActiveFormats();
         }
-        
+
         scrollToBottom();
 
         emit("send-message", {
           friendId: props.friendId,
           message: messageText,
         });
-
       } catch (error) {
-        console.error('Fehler beim Senden der Nachricht:', error);
+        console.error("Fehler beim Senden der Nachricht:", error);
       } finally {
         isSending.value = false;
       }
@@ -566,7 +617,7 @@ export default defineComponent({
 
     const closeModal = () => {
       showEmojiPicker.value = false;
-      emit('update:isVisible', false);
+      emit("update:isVisible", false);
     };
 
     const focusEditor = () => {
@@ -582,7 +633,7 @@ export default defineComponent({
             selection.removeAllRanges();
             selection.addRange(range);
           }
-          
+
           // Initial content check
           handleInput();
         }
@@ -592,7 +643,7 @@ export default defineComponent({
     // Click outside emoji picker
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (showEmojiPicker.value && !target.closest('.emoji-picker-container')) {
+      if (showEmojiPicker.value && !target.closest(".emoji-picker-container")) {
         showEmojiPicker.value = false;
       }
     };
@@ -606,79 +657,85 @@ export default defineComponent({
 
     // Debug helper
     const debugSendButton = () => {
-      console.log('Debug Send Button:', {
+      console.log("Debug Send Button:", {
         canSendMessage: canSendMessage.value,
         hasContent: hasContent.value,
         isSending: isSending.value,
         editorContent: editorContent.value,
         editorHTML: messageEditor.value?.innerHTML,
         editorText: messageEditor.value?.textContent,
-        conversationId: currentConversationId.value
+        conversationId: currentConversationId.value,
       });
     };
 
     // Watcher für editorContent
     watch(editorContent, (newValue) => {
-      console.log('Editor content changed:', newValue, 'Can send:', canSendMessage.value);
+      console.log("Editor content changed:", newValue, "Can send:", canSendMessage.value);
     });
 
     // Watchers
-    watch(() => props.isVisible, (visible) => {
-      if (visible) {
-        loadCurrentUser();
-        loadMessages();
-        focusEditor();
-        document.addEventListener('click', handleClickOutside);
-        document.addEventListener('selectionchange', handleSelectionChange);
-      } else {
-        // Reset state
-        messages.value = [];
-        currentConversationId.value = '';
-        editorContent.value = '';
-        if (messageEditor.value) {
-          messageEditor.value.innerHTML = '';
-        }
-        isTyping.value = false;
-        isUserTyping.value = false;
-        showEmojiPicker.value = false;
-        activeFormats.value = {
-          bold: false,
-          italic: false,
-          underline: false
-        };
-        document.removeEventListener('click', handleClickOutside);
-        document.removeEventListener('selectionchange', handleSelectionChange);
-        
-        if (typingTimeout) {
-          clearTimeout(typingTimeout);
-          typingTimeout = null;
-        }
-      }
-    });
+    watch(
+      () => props.isVisible,
+      (visible) => {
+        if (visible) {
+          loadCurrentUser();
+          loadMessages();
+          focusEditor();
+          document.addEventListener("click", handleClickOutside);
+          document.addEventListener("selectionchange", handleSelectionChange);
+        } else {
+          // Reset state
+          messages.value = [];
+          currentConversationId.value = "";
+          editorContent.value = "";
+          if (messageEditor.value) {
+            messageEditor.value.innerHTML = "";
+          }
+          isTyping.value = false;
+          isUserTyping.value = false;
+          showEmojiPicker.value = false;
+          activeFormats.value = {
+            bold: false,
+            italic: false,
+            underline: false,
+          };
+          document.removeEventListener("click", handleClickOutside);
+          document.removeEventListener("selectionchange", handleSelectionChange);
 
-    watch(() => props.friendId, () => {
-      if (props.isVisible && props.friendId) {
-        loadMessages();
+          if (typingTimeout) {
+            clearTimeout(typingTimeout);
+            typingTimeout = null;
+          }
+        }
       }
-    });
+    );
+
+    watch(
+      () => props.friendId,
+      () => {
+        if (props.isVisible && props.friendId) {
+          loadMessages();
+        }
+      }
+    );
 
     // Keyboard shortcuts
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && props.isVisible) {
+      if (event.key === "Escape" && props.isVisible) {
         closeModal();
       }
     };
 
     onMounted(() => {
-      document.addEventListener('keydown', handleGlobalKeyDown);
+      document.addEventListener("keydown", handleGlobalKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener('keydown', handleGlobalKeyDown);
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('selectionchange', handleSelectionChange);
-      
+      document.removeEventListener("keydown", handleGlobalKeyDown);
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("selectionchange", handleSelectionChange);
+
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
@@ -695,15 +752,15 @@ export default defineComponent({
       availableEmojis,
       activeFormats,
       editorContent,
-      
+
       // Refs
       chatContainer,
       messageEditor,
-      
+
       // Computed
       hasContent,
       canSendMessage,
-      
+
       // Methods
       getInitials,
       formatTime,
@@ -718,20 +775,19 @@ export default defineComponent({
       sendMessage,
       closeModal,
       updateActiveFormats,
-      debugSendButton
+      debugSendButton,
     };
   },
 });
 </script>
 
-// Verbesserte responsive Styles für das Chat-Modal
-// Ersetzen Sie den bestehenden Style-Block mit diesem Code
+// Verbesserte responsive Styles für das Chat-Modal // Ersetzen Sie den bestehenden Style-Block mit diesem Code
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Einheitliche Icon-Größe
 .icon-size {
@@ -973,14 +1029,14 @@ export default defineComponent({
   .debug-info {
     padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
     font-size: map.get(map.get(vars.$fonts, sizes), xs);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-secondary);
       }
     }
-    
+
     button {
       margin-top: map.get(vars.$spacing, xs);
       padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
@@ -988,13 +1044,13 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), small);
       border: 1px solid;
       cursor: pointer;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border-color: mixins.theme-color($theme, border-light);
           color: mixins.theme-color($theme, text-primary);
-          
+
           &:hover {
             background-color: mixins.theme-color($theme, hover-color);
           }
@@ -1018,7 +1074,7 @@ export default defineComponent({
 
   // Texturierter Hintergrund wie WhatsApp/Telegram
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -1026,8 +1082,7 @@ export default defineComponent({
     bottom: 0;
     opacity: 0.03;
     z-index: 0;
-    background-image:
-      radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
+    background-image: radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
       radial-gradient(circle at 40% 80%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
       radial-gradient(circle at 60% 30%, rgba(120, 120, 120, 0.2) 0%, transparent 50%);
@@ -1036,17 +1091,13 @@ export default defineComponent({
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        @if $theme =='dark' {
-          background-image:
-            radial-gradient(circle at 20% 50%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
+        @if $theme == "dark" {
+          background-image: radial-gradient(circle at 20% 50%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
             radial-gradient(circle at 80% 20%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
             radial-gradient(circle at 40% 80%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
             radial-gradient(circle at 60% 30%, rgba(200, 200, 200, 0.01) 0%, transparent 50%);
-        }
-
-        @else {
-          background-image:
-            radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
+        } @else {
+          background-image: radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
             radial-gradient(circle at 80% 20%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
             radial-gradient(circle at 40% 80%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
             radial-gradient(circle at 60% 30%, rgba(120, 120, 120, 0.03) 0%, transparent 50%);
@@ -1056,7 +1107,7 @@ export default defineComponent({
   }
 
   // Alle Child-Elemente über dem Hintergrund
-  >* {
+  > * {
     position: relative;
     z-index: 1;
   }
@@ -1136,7 +1187,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       opacity: 0.6;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1197,7 +1248,7 @@ export default defineComponent({
         .message-bubble {
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
-                background-color: darken(mixins.theme-color($theme, accent-teal), 10%);
+              background-color: darken(mixins.theme-color($theme, accent-teal), 10%);
               color: white;
             }
           }
@@ -1327,18 +1378,18 @@ export default defineComponent({
           line-height: 1.4;
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           word-wrap: break-word;
-          
+
           // Styles für Rich-Text
           :deep(b),
           :deep(strong) {
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
           }
-          
+
           :deep(i),
           :deep(em) {
             font-style: italic;
           }
-          
+
           :deep(u) {
             text-decoration: underline;
           }
@@ -1415,181 +1466,177 @@ export default defineComponent({
               font-size: map.get(map.get(vars.$fonts, sizes), xs);
             }
 
-                &:hover {
-                  background-color: rgba(255, 255, 255, 0.2);
-                }
-              }
-            }
-
-            .attachment-icon {
-              width: 16px;
-              height: 16px;
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.2);
             }
           }
         }
 
-          .message-time {
-            font-size: map.get(map.get(vars.$fonts, sizes), xs);
-            opacity: 0.7;
-
-            // Mobile: Noch kleinere Schrift
-            @media (max-width: 640px) {
-              font-size: 10px;
-            }
-          }
-
-          .message-actions {
-            display: flex;
-            gap: map.get(vars.$spacing, xxs);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-
-            // Mobile: Immer sichtbar für bessere Zugänglichkeit
-            @media (max-width: 640px) {
-              opacity: 0.7;
-            }
-
-            .action-btn {
-              width: 24px;
-              height: 24px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border: none;
-              cursor: pointer;
-              transition: all 0.2s ease;
-
-              @each $theme in ("light", "dark") {
-                .theme-#{$theme} & {
-                  background-color: rgba(0, 0, 0, 0.1);
-                  color: rgba(255, 255, 255, 0.8);
-
-                  &:hover {
-                    background-color: rgba(0, 0, 0, 0.2);
-                    color: white;
-                  }
-                }
-              }
-
-              // Mobile: Größere Touch-Targets
-              @media (max-width: 640px) {
-                width: 28px;
-                height: 28px;
-              }
-
-              .action-icon {
-                width: 12px;
-                height: 12px;
-                position: absolute;
-
-                // Mobile: Etwas größere Icons
-                @media (max-width: 640px) {
-                  width: 14px;
-                  height: 14px;
-                }
-              }
-            }
-          }
-        }
-
-        &:hover .message-actions {
-          opacity: 1;
+        .attachment-icon {
+          width: 16px;
+          height: 16px;
         }
       }
     }
 
-    .typing-indicator {
-      align-self: flex-start;
-      display: flex;
-      align-items: center;
-      gap: map.get(vars.$spacing, s);
-      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-      border-radius: 18px;
+    .message-time {
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
+      opacity: 0.7;
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, secondary-bg);
-        }
-      }
-
-      // Mobile: Kompakterer Typing-Indikator
+      // Mobile: Noch kleinere Schrift
       @media (max-width: 640px) {
-        padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-        gap: map.get(vars.$spacing, xs);
-        border-radius: 16px;
+        font-size: 10px;
+      }
+    }
+
+    .message-actions {
+      display: flex;
+      gap: map.get(vars.$spacing, xxs);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+
+      // Mobile: Immer sichtbar für bessere Zugänglichkeit
+      @media (max-width: 640px) {
+        opacity: 0.7;
       }
 
-      &.own-typing {
-        align-self: flex-end;
+      .action-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
-            border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-          }
-        }
+            background-color: rgba(0, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.8);
 
-        .typing-text {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              color: mixins.theme-color($theme, accent-teal);
-              font-style: italic;
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.2);
+              color: white;
             }
           }
         }
-      }
 
-      .typing-dots {
-        display: flex;
-        gap: 3px;
-
-        span {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background-color: #888;
-          animation: typing 1.4s infinite;
-
-          // Mobile: Kleinere Dots
-          @media (max-width: 640px) {
-            width: 5px;
-            height: 5px;
-          }
-
-          &:nth-child(2) {
-            animation-delay: 0.2s;
-          }
-
-          &:nth-child(3) {
-            animation-delay: 0.4s;
-          }
-        }
-      }
-
-      .typing-text {
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-          }
-        }
-
-        // Mobile: Kleinere Schrift
+        // Mobile: Größere Touch-Targets
         @media (max-width: 640px) {
-          font-size: map.get(map.get(vars.$fonts, sizes), xs);
+          width: 28px;
+          height: 28px;
+        }
+
+        .action-icon {
+          width: 12px;
+          height: 12px;
+          position: absolute;
+
+          // Mobile: Etwas größere Icons
+          @media (max-width: 640px) {
+            width: 14px;
+            height: 14px;
+          }
         }
       }
     }
   }
+
+  &:hover .message-actions {
+    opacity: 1;
+  }
 }
 
+.typing-indicator {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: map.get(vars.$spacing, s);
+  padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+  border-radius: 18px;
+
+  @each $theme in ("light", "dark") {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, secondary-bg);
+    }
+  }
+
+  // Mobile: Kompakterer Typing-Indikator
+  @media (max-width: 640px) {
+    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+    gap: map.get(vars.$spacing, xs);
+    border-radius: 16px;
+  }
+
+  &.own-typing {
+    align-self: flex-end;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+        border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+      }
+    }
+
+    .typing-text {
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, accent-teal);
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .typing-dots {
+    display: flex;
+    gap: 3px;
+
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #888;
+      animation: typing 1.4s infinite;
+
+      // Mobile: Kleinere Dots
+      @media (max-width: 640px) {
+        width: 5px;
+        height: 5px;
+      }
+
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+    }
+  }
+
+  .typing-text {
+    font-size: map.get(map.get(vars.$fonts, sizes), small);
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+
+    // Mobile: Kleinere Schrift
+    @media (max-width: 640px) {
+      font-size: map.get(map.get(vars.$fonts, sizes), xs);
+    }
+  }
+}
 // Rich Text Editor
 .message-editor {
   border-top: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -1614,7 +1661,7 @@ export default defineComponent({
       transition: all 0.2s ease;
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
           color: mixins.theme-color($theme, text-secondary);
@@ -1637,7 +1684,7 @@ export default defineComponent({
       height: 24px;
       margin: 0 map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, border-light);
         }
@@ -1659,11 +1706,11 @@ export default defineComponent({
         @include animations.fade-in(0.2s);
         z-index: 100;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
 
@@ -1686,7 +1733,7 @@ export default defineComponent({
             border-radius: map.get(map.get(vars.$layout, border-radius), small);
             transition: all 0.2s ease;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 &:hover {
                   background-color: mixins.theme-color($theme, secondary-bg);
@@ -1717,11 +1764,11 @@ export default defineComponent({
       outline: none;
       line-height: 1.5;
 
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, hover-color);
-            color: mixins.theme-color($theme, text-primary);
-            border: 1px solid mixins.theme-color($theme, border-light);
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, hover-color);
+          color: mixins.theme-color($theme, text-primary);
+          border: 1px solid mixins.theme-color($theme, border-light);
 
           &:focus {
             border-color: mixins.theme-color($theme, accent-teal);
@@ -1736,18 +1783,18 @@ export default defineComponent({
           }
         }
       }
-      
+
       // Rich-Text Styles
       :deep(b),
       :deep(strong) {
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
       }
-      
+
       :deep(i),
       :deep(em) {
         font-style: italic;
       }
-      
+
       :deep(u) {
         text-decoration: underline;
       }
@@ -1796,7 +1843,6 @@ export default defineComponent({
 }
 
 @keyframes typing {
-
   0%,
   60%,
   100% {
@@ -1842,7 +1888,6 @@ export default defineComponent({
           }
 
           .message-footer {
-
             .message-time,
             .edited-label {
               font-size: 9px;

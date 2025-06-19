@@ -8,16 +8,25 @@
 
     <div class="search-box">
       <div class="search-input-container">
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          placeholder="Suchen..." 
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Suchen..."
           class="search-input"
           @keyup.enter="performSearch"
         />
         <button class="search-button" @click="performSearch">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -32,8 +41,17 @@
       </div>
 
       <div v-else-if="searchResults.length === 0" class="no-results">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="8" y1="12" x2="16" y2="12"></line>
         </svg>
@@ -44,7 +62,7 @@
         <div class="results-header">
           <h3>{{ searchResults.length }} Ergebnisse gefunden</h3>
         </div>
-        
+
         <div class="user-card" v-for="user in searchResults" :key="user.id" @click="viewUserDetails(user.id)">
           <div class="user-avatar">
             <span v-if="!user.avatarUrl">{{ getUserInitials(user) }}</span>
@@ -56,14 +74,23 @@
             <div class="user-meta">
               <span class="user-id">ID: {{ user.id }}</span>
               <span class="user-type" :class="user.isAuthor ? 'author' : ''">
-                {{ user.isAuthor ? 'Autor' : 'Benutzer' }}
+                {{ user.isAuthor ? "Autor" : "Benutzer" }}
               </span>
             </div>
           </div>
           <div class="user-actions">
             <button class="action-button view-button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
@@ -76,8 +103,17 @@
 
     <div class="search-tips" v-if="!hasSearched">
       <div class="tips-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="16" x2="12" y2="12"></line>
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -96,7 +132,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from "vue";
 
 interface User {
   id: string;
@@ -107,66 +143,63 @@ interface User {
 }
 
 export default defineComponent({
-  name: 'UserSearch',
-  emits: ['user-selected'],
-  setup(props, { emit }) {
-    const searchQuery = ref('');
+  name: "UserSearch",
+  emits: ["user-selected"],
+  setup(_props, { emit }) {
+    const searchQuery = ref("");
     const isLoading = ref(false);
     const hasSearched = ref(false);
     const searchResults = ref<User[]>([]);
 
     // Dummy-Daten für die Demonstration
     const users: User[] = [
-      { id: 'usr_001', name: 'Max Mustermann', email: 'max@example.com', isAuthor: false },
-      { id: 'usr_002', name: 'Anna Schmidt', email: 'anna@example.com', isAuthor: true },
-      { id: 'usr_003', name: 'Thomas Müller', email: 'thomas@example.com', isAuthor: false },
-      { id: 'usr_004', name: 'Lisa Wagner', email: 'lisa@example.com', isAuthor: true },
-      { id: 'usr_005', name: 'Michael Klein', email: 'michael@example.com', isAuthor: false }
+      { id: "usr_001", name: "Max Mustermann", email: "max@example.com", isAuthor: false },
+      { id: "usr_002", name: "Anna Schmidt", email: "anna@example.com", isAuthor: true },
+      { id: "usr_003", name: "Thomas Müller", email: "thomas@example.com", isAuthor: false },
+      { id: "usr_004", name: "Lisa Wagner", email: "lisa@example.com", isAuthor: true },
+      { id: "usr_005", name: "Michael Klein", email: "michael@example.com", isAuthor: false },
     ];
 
     // Suche durchführen
     const performSearch = () => {
-      if (searchQuery.value.trim() === '') return;
-      
+      if (searchQuery.value.trim() === "") return;
+
       isLoading.value = true;
       hasSearched.value = true;
-      
+
       // Simuliere Netzwerkverzögerung
       setTimeout(() => {
         const query = searchQuery.value.toLowerCase();
-        
+
         // Prüfe, ob nach ID gesucht wird
-        if (query.startsWith('id:')) {
+        if (query.startsWith("id:")) {
           const idQuery = query.substring(3).trim();
-          searchResults.value = users.filter(user => 
-            user.id.toLowerCase().includes(idQuery)
-          );
+          searchResults.value = users.filter((user) => user.id.toLowerCase().includes(idQuery));
         } else {
           // Suche nach Name oder E-Mail
-          searchResults.value = users.filter(user => 
-            user.name.toLowerCase().includes(query) || 
-            user.email.toLowerCase().includes(query)
+          searchResults.value = users.filter(
+            (user) => user.name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
           );
         }
-        
+
         isLoading.value = false;
       }, 800);
     };
 
     // Benutzerdetails anzeigen
     const viewUserDetails = (userId: string) => {
-      emit('user-selected', userId);
+      emit("user-selected", userId);
     };
 
     // Benutzer-Initialen generieren
     const getUserInitials = (user: User): string => {
-      if (!user.name) return '??';
-      
-      const nameParts = user.name.split(' ');
+      if (!user.name) return "??";
+
+      const nameParts = user.name.split(" ");
       if (nameParts.length >= 2) {
         return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
       }
-      
+
       return nameParts[0].substring(0, 2).toUpperCase();
     };
 
@@ -177,9 +210,9 @@ export default defineComponent({
       searchResults,
       performSearch,
       viewUserDetails,
-      getUserInitials
+      getUserInitials,
     };
-  }
+  },
 });
 </script>
 
@@ -198,13 +231,13 @@ export default defineComponent({
 
 .search-header {
   margin-bottom: 8px;
-  
+
   h2 {
     font-size: 1.5rem;
     margin: 0 0 8px 0;
     color: #f0f0f0;
   }
-  
+
   p {
     margin: 0;
     color: #a0a0a0;
@@ -214,7 +247,7 @@ export default defineComponent({
 
 .search-box {
   margin-bottom: 16px;
-  
+
   .search-input-container {
     display: flex;
     position: relative;
@@ -222,12 +255,12 @@ export default defineComponent({
     overflow: hidden;
     border: 2px solid #444;
     transition: all 0.3s ease;
-    
+
     &:focus-within {
       border-color: #666;
       box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
     }
-    
+
     .search-input {
       flex: 1;
       padding: 14px 16px;
@@ -235,16 +268,16 @@ export default defineComponent({
       border: none;
       background-color: #2a2a2a;
       color: #f0f0f0;
-      
+
       &:focus {
         outline: none;
       }
-      
+
       &::placeholder {
         color: #777;
       }
     }
-    
+
     .search-button {
       background-color: #333;
       border: none;
@@ -255,7 +288,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       transition: background-color 0.3s ease;
-      
+
       &:hover {
         background-color: #444;
       }
@@ -272,7 +305,7 @@ export default defineComponent({
     padding: 40px;
     gap: 16px;
     color: #a0a0a0;
-    
+
     .loading-spinner {
       width: 40px;
       height: 40px;
@@ -282,7 +315,7 @@ export default defineComponent({
       animation: spin 1s linear infinite;
     }
   }
-  
+
   .no-results {
     display: flex;
     flex-direction: column;
@@ -291,26 +324,26 @@ export default defineComponent({
     padding: 40px;
     gap: 16px;
     color: #a0a0a0;
-    
+
     svg {
       opacity: 0.5;
     }
-    
+
     p {
       font-size: 1.1rem;
       margin: 0;
     }
   }
-  
+
   .results-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    
+
     .results-header {
       padding-bottom: 12px;
       border-bottom: 1px solid #333;
-      
+
       h3 {
         margin: 0;
         font-size: 1rem;
@@ -318,7 +351,7 @@ export default defineComponent({
         font-weight: normal;
       }
     }
-    
+
     .user-card {
       display: flex;
       align-items: center;
@@ -329,13 +362,13 @@ export default defineComponent({
       gap: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
-      
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         background-color: #333;
       }
-      
+
       .user-avatar {
         width: 50px;
         height: 50px;
@@ -348,44 +381,44 @@ export default defineComponent({
         color: white;
         font-size: 1.2rem;
         overflow: hidden;
-        
+
         img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
       }
-      
+
       .user-info {
         flex: 1;
-        
+
         .user-name {
           margin: 0 0 4px 0;
           font-size: 1.1rem;
           color: #f0f0f0;
         }
-        
+
         .user-email {
           margin: 0 0 6px 0;
           font-size: 0.9rem;
           color: #a0a0a0;
         }
-        
+
         .user-meta {
           display: flex;
           gap: 12px;
           font-size: 0.8rem;
-          
+
           .user-id {
             color: #777;
           }
-          
+
           .user-type {
             color: #888;
             background-color: #333;
             padding: 2px 8px;
             border-radius: 12px;
-            
+
             &.author {
               background-color: rgba(255, 152, 0, 0.2);
               color: #ff9800;
@@ -393,11 +426,11 @@ export default defineComponent({
           }
         }
       }
-      
+
       .user-actions {
         display: flex;
         gap: 8px;
-        
+
         .action-button {
           width: 36px;
           height: 36px;
@@ -411,17 +444,17 @@ export default defineComponent({
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
-          
+
           &:hover {
             background-color: #444;
             color: #f0f0f0;
-            
+
             .tooltip {
               opacity: 1;
               transform: translateY(0);
             }
           }
-          
+
           .tooltip {
             position: absolute;
             top: -30px;
@@ -437,9 +470,9 @@ export default defineComponent({
             transition: all 0.3s ease;
             pointer-events: none;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            
+
             &:after {
-              content: '';
+              content: "";
               position: absolute;
               bottom: -5px;
               right: 10px;
@@ -450,11 +483,11 @@ export default defineComponent({
               border-top: 5px solid #333;
             }
           }
-          
+
           &.view-button {
             background-color: rgba(0, 120, 215, 0.2);
             color: #0078d7;
-            
+
             &:hover {
               background-color: rgba(0, 120, 215, 0.3);
             }
@@ -472,26 +505,26 @@ export default defineComponent({
   border: 1px solid #333;
   padding: 16px;
   gap: 16px;
-  
+
   .tips-icon {
     color: #777;
   }
-  
+
   .tips-content {
     h3 {
       margin: 0 0 8px 0;
       font-size: 1.1rem;
       color: #f0f0f0;
     }
-    
+
     ul {
       margin: 0;
       padding-left: 20px;
       color: #a0a0a0;
-      
+
       li {
         margin-bottom: 6px;
-        
+
         code {
           background-color: #333;
           padding: 2px 6px;
@@ -513,21 +546,21 @@ export default defineComponent({
   .user-card {
     flex-direction: column;
     align-items: flex-start !important;
-    
+
     .user-avatar {
       margin-bottom: 12px;
     }
-    
+
     .user-actions {
       width: 100%;
       justify-content: flex-end;
       padding-top: 12px;
     }
   }
-  
+
   .search-tips {
     flex-direction: column;
-    
+
     .tips-icon {
       display: flex;
       justify-content: center;

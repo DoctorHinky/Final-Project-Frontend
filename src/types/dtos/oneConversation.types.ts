@@ -1,3 +1,5 @@
+import type { DirectMessage } from "./DirectMessage.types";
+
 export type Conversation = {
   id: string;
   user1Id: string;

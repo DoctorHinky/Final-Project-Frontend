@@ -270,7 +270,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
-import { type Ticket, TicketStatus, TicketCategory } from "@/services/ticket.service";
+import { type Ticket, TicketStatus, TicketCategory } from "@/types";
 
 export default defineComponent({
   name: "TicketList",

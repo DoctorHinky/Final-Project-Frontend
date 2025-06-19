@@ -15,39 +15,20 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label for="firstName">Vorname</label>
-                    <input 
-                      type="text" 
-                      id="firstName" 
-                      v-model="formData.firstName" 
-                      required
-                    />
+                    <input type="text" id="firstName" v-model="formData.firstName" required />
                   </div>
                   <div class="form-group">
                     <label for="lastName">Nachname</label>
-                    <input 
-                      type="text" 
-                      id="lastName" 
-                      v-model="formData.lastName" 
-                      required
-                    />
+                    <input type="text" id="lastName" v-model="formData.lastName" required />
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="email">E-Mail</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    v-model="formData.email" 
-                    required
-                  />
+                  <input type="email" id="email" v-model="formData.email" required />
                 </div>
                 <div class="form-group">
                   <label for="phone">Telefon</label>
-                  <input 
-                    type="text" 
-                    id="phone" 
-                    v-model="formData.phone"
-                  />
+                  <input type="text" id="phone" v-model="formData.phone" />
                 </div>
               </div>
 
@@ -75,30 +56,18 @@
                 <h4 class="section-title">Autoreninformationen</h4>
                 <div class="form-group">
                   <label for="expertise">Fachgebiet</label>
-                  <input 
-                    type="text" 
-                    id="expertise" 
-                    v-model="formData.expertise"
-                  />
+                  <input type="text" id="expertise" v-model="formData.expertise" />
                 </div>
                 <div class="form-group">
                   <label for="authorBio">Biografie</label>
-                  <textarea 
-                    id="authorBio" 
-                    v-model="formData.authorBio" 
-                    rows="4"
-                  ></textarea>
+                  <textarea id="authorBio" v-model="formData.authorBio" rows="4"></textarea>
                 </div>
               </div>
             </div>
 
             <div class="form-actions">
-              <button type="button" class="cancel-button" @click="$emit('close')">
-                Abbrechen
-              </button>
-              <button type="submit" class="save-button">
-                Speichern
-              </button>
+              <button type="button" class="cancel-button" @click="$emit('close')">Abbrechen</button>
+              <button type="submit" class="save-button">Speichern</button>
             </div>
           </form>
         </div>
@@ -108,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, PropType } from 'vue';
+import { defineComponent, ref, onMounted, type PropType, onUnmounted } from "vue";
 
 interface User {
   id: string;
@@ -117,65 +86,67 @@ interface User {
   name?: string;
   email: string;
   phone?: string;
-  status: 'active' | 'inactive';
-  role: 'user' | 'author' | 'moderator' | 'admin';
+  status: "active" | "inactive";
+  role: "user" | "author" | "moderator" | "admin";
   expertise?: string;
   authorBio?: string;
   avatarUrl?: string;
 }
 
 export default defineComponent({
-  name: 'UserProfileEdit',
+  name: "UserProfileEdit",
   props: {
     user: {
       type: Object as PropType<User>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['close', 'save'],
+  emits: ["close", "save"],
   setup(props, { emit }) {
     const formData = ref({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      status: 'active' as 'active' | 'inactive',
-      role: 'user' as 'user' | 'author' | 'moderator' | 'admin',
-      expertise: '',
-      authorBio: ''
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      status: "active" as "active" | "inactive",
+      role: "user" as "user" | "author" | "moderator" | "admin",
+      expertise: "",
+      authorBio: "",
     });
 
     onMounted(() => {
       // Formulardaten mit Benutzerdaten vorausfüllen
       const user = props.user;
-      
+
       // Wenn der komplette Name als ein String vorliegt, ihn aufteilen
-      let firstName = '';
-      let lastName = '';
-      
+      let firstName = "";
+      let lastName = "";
+
       if (user.firstName && user.lastName) {
         firstName = user.firstName;
         lastName = user.lastName;
       } else if (user.name) {
-        const nameParts = user.name.split(' ');
+        const nameParts = user.name.split(" ");
         if (nameParts.length > 1) {
           firstName = nameParts[0];
-          lastName = nameParts.slice(1).join(' ');
+          lastName = nameParts.slice(1).join(" ");
         } else {
           firstName = user.name;
         }
       }
-      
+
       formData.value = {
         firstName,
         lastName,
         email: user.email,
-        phone: user.phone || '',
-        status: user.status || 'active',
-        role: user.role || 'user',
-        expertise: user.expertise || '',
-        authorBio: user.authorBio || ''
+        phone: user.phone || "",
+        status: user.status || "active",
+        role: user.role || "user",
+        expertise: user.expertise || "",
+        authorBio: user.authorBio || "",
       };
+
+      window.addEventListener("keydown", handleKeyDown);
     });
 
     const saveUserProfile = () => {
@@ -191,24 +162,34 @@ export default defineComponent({
         role: formData.value.role,
         expertise: formData.value.expertise,
         authorBio: formData.value.authorBio,
-        avatarUrl: props.user.avatarUrl
+        avatarUrl: props.user.avatarUrl,
       };
-      
+
       // Überflüssige Autorenfelder entfernen, wenn der Benutzer kein Autor ist
-      if (updatedUser.role !== 'author') {
+      if (updatedUser.role !== "author") {
         delete updatedUser.expertise;
         delete updatedUser.authorBio;
       }
-      
+
       // Emit das aktualisierte Benutzerobjekt
-      emit('save', updatedUser);
+      emit("save", updatedUser);
     };
+    function handleKeyDown(event: KeyboardEvent) {
+      console.log("Key pressed:", event.key);
+
+      if (event.key === "Escape") {
+        emit("close");
+      }
+    }
+    onUnmounted(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+    });
 
     return {
       formData,
-      saveUserProfile
+      saveUserProfile,
     };
-  }
+  },
 });
 </script>
 
@@ -288,20 +269,20 @@ export default defineComponent({
 .modal-content {
   padding: 20px;
   overflow-y: auto;
-  
+
   .edit-form {
     .form-sections {
       display: flex;
       flex-direction: column;
       gap: 24px;
     }
-    
+
     .form-section {
       background-color: #1c1c1c;
       border-radius: 8px;
       border: 1px solid #333;
       padding: 16px;
-      
+
       .section-title {
         margin: 0 0 16px 0;
         color: #f0f0f0;
@@ -309,33 +290,35 @@ export default defineComponent({
         border-bottom: 1px solid #333;
         font-size: 1.1rem;
       }
-      
+
       .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 16px;
         margin-bottom: 16px;
-        
+
         @media (max-width: 600px) {
           grid-template-columns: 1fr;
         }
       }
-      
+
       .form-group {
         margin-bottom: 16px;
-        
+
         &:last-child {
           margin-bottom: 0;
         }
-        
+
         label {
           display: block;
           margin-bottom: 6px;
           color: #d0d0d0;
           font-weight: 500;
         }
-        
-        input, select, textarea {
+
+        input,
+        select,
+        textarea {
           width: 100%;
           padding: 10px 12px;
           background-color: #2a2a2a;
@@ -343,26 +326,26 @@ export default defineComponent({
           border-radius: 4px;
           color: #f0f0f0;
           font-size: 1rem;
-          
+
           &:focus {
             outline: none;
             border-color: #666;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
           }
         }
-        
+
         textarea {
           resize: vertical;
         }
       }
     }
-    
+
     .form-actions {
       display: flex;
       justify-content: flex-end;
       gap: 12px;
       margin-top: 24px;
-      
+
       button {
         padding: 10px 20px;
         border-radius: 4px;
@@ -370,20 +353,20 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         &.cancel-button {
           background-color: #333;
           color: #f0f0f0;
-          
+
           &:hover {
             background-color: #444;
           }
         }
-        
+
         &.save-button {
           background-color: rgba(46, 204, 113, 0.7);
           color: white;
-          
+
           &:hover {
             background-color: rgba(46, 204, 113, 0.9);
           }

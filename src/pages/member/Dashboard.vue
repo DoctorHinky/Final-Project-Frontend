@@ -26,7 +26,6 @@ import ArticleEditor from "@/components/pages/DashboardPages/CreateArticle"; // 
 // Services
 import { authService } from "@/services/auth.service";
 import { authorService } from "@/services/author.service";
-import type { Article } from "@/types/Article";
 
 export default defineComponent({
   name: "MemberDashboard",
@@ -161,17 +160,20 @@ export default defineComponent({
     });
 
     // Watcher für Route-Änderungen nach dem Mounting
-    watch(() => route.query.tab, (newTab) => {
-      if (newTab && typeof newTab === 'string') {
-        // Validieren, ob der Tab existiert und für den Benutzer zugänglich ist
-        if (newTab === "create-article" && !isAuthor.value) {
-          activeMenu.value = "overview";
-          router.replace({ query: { ...route.query, tab: "overview" } });
-        } else if (Object.keys(componentMap.value).includes(newTab)) {
-          activeMenu.value = newTab;
+    watch(
+      () => route.query.tab,
+      (newTab) => {
+        if (newTab && typeof newTab === "string") {
+          // Validieren, ob der Tab existiert und für den Benutzer zugänglich ist
+          if (newTab === "create-article" && !isAuthor.value) {
+            activeMenu.value = "overview";
+            router.replace({ query: { ...route.query, tab: "overview" } });
+          } else if (Object.keys(componentMap.value).includes(newTab)) {
+            activeMenu.value = newTab;
+          }
         }
       }
-    });
+    );
 
     return {
       activeMenu,

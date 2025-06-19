@@ -114,7 +114,6 @@ export default defineComponent({
     const confirmDialogMessage = ref("");
     const confirmDialogAction = ref("");
     const pendingAction = ref<(() => void) | null>(null);
-    const isLoading = ref(false);
 
     // Notifications from Backend
     const notifications = ref<NotificationDisplay[]>([]);
@@ -393,7 +392,6 @@ export default defineComponent({
       confirmDialogTitle,
       confirmDialogMessage,
       confirmDialogAction,
-      isLoading,
       markAsRead,
       markAllAsRead,
       deleteNotification,

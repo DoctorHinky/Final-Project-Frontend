@@ -81,7 +81,7 @@
 
     <!-- Artikel-Leseansicht -->
     <div v-else class="article-reader-mode">
-      <article-reader :article="selectedArticle" @close="closeArticleReader" />
+      <article-reader :articleId="selectedArticle?.id || ''" @close="closeArticleReader" />
     </div>
   </div>
 </template>

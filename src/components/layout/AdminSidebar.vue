@@ -57,14 +57,8 @@ import {
   ArrowLeftIcon,
 } from "@heroicons/vue/24/outline";
 import userService from "@/services/userMD.services";
-
+import type { TokenPayload } from "@/types/dtos";
 // TypeScript Interface für Token-Payload
-export interface TokenPayload {
-  userId?: string;
-  username?: string;
-  email?: string;
-  role?: string;
-}
 
 export default defineComponent({
   name: "AdminSidebar",

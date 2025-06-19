@@ -9,13 +9,13 @@
       </div>
       <div class="empty-icon">📚</div>
     </div>
-    
+
     <h3 class="empty-title">Keine Artikel gefunden</h3>
     <p class="empty-description">
-      Es sieht so aus, als hätten wir keine Artikel gefunden, die deinen Suchkriterien entsprechen.
-      Versuche andere Suchbegriffe oder Filter.
+      Es sieht so aus, als hätten wir keine Artikel gefunden, die deinen Suchkriterien entsprechen. Versuche andere
+      Suchbegriffe oder Filter.
     </p>
-    
+
     <div class="empty-actions">
       <button @click="onResetClick" class="reset-button primary">
         <span class="button-icon">🔄</span>
@@ -30,32 +30,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'EmptyState',
-  emits: ['reset-filters', 'explore-all'],
+  name: "EmptyState",
+  emits: ["reset-filters", "explore-all"],
   setup(_, { emit }) {
-    const onResetClick = () => {
-      emit('reset-filters');
-    };
+    const onResetClick = () => emit("reset-filters");
 
-    const onExploreClick = () => {
-      emit('explore-all');
-    };
+    const onExploreClick = () => emit("explore-all");
 
     return {
       onResetClick,
-      onExploreClick
+      onExploreClick,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .empty-state {
   display: flex;
@@ -92,7 +88,7 @@ export default defineComponent({
         transform-origin: bottom;
         animation: sway 4s ease-in-out infinite;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
           }
@@ -137,7 +133,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -155,7 +151,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, l);
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -208,13 +204,13 @@ export default defineComponent({
       }
 
       &.primary {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
             color: white;
 
             &::before {
-              content: '';
+              content: "";
               position: absolute;
               top: 50%;
               left: 50%;
@@ -239,7 +235,7 @@ export default defineComponent({
       }
 
       &.secondary {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
             color: mixins.theme-color($theme, text-primary);
@@ -260,7 +256,8 @@ export default defineComponent({
 
 // Animationen
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -269,7 +266,8 @@ export default defineComponent({
 }
 
 @keyframes sway {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(-2deg);
   }
   50% {

@@ -161,7 +161,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { TicketStatus } from "@/services/ticket.service";
+import { TicketStatus } from "@/types";
 
 export default defineComponent({
   name: "TicketStats",

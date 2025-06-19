@@ -97,7 +97,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { TicketCategory } from "@/services/ticket.service";
+import { TicketCategory } from "@/types";
 
 export default defineComponent({
   name: "TicketForm",

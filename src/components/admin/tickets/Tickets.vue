@@ -66,7 +66,8 @@ import TicketFilter from "./TicketFilter.vue";
 import TicketList from "./TicketList.vue";
 import TicketForm from "./TicketForm.vue";
 import TicketDetail from "./TicketDetail.vue";
-import { ticketService, TicketStatus, type Ticket } from "@/services/ticket.service";
+import { TicketStatus, type Ticket } from "@/types";
+import ticketService from "@/services/ticket.service";
 
 export default defineComponent({
   name: "Tickets",

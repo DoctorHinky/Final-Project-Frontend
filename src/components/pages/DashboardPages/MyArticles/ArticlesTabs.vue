@@ -1,8 +1,13 @@
 <!-- src/components/pages/DashboardPages/MyArticles/ArticlesTabs.vue -->
 <template>
   <div class="articles-tabs">
-    <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
-      @click="setActiveTab(tab.id)">
+    <button
+      v-for="(tab, index) in tabs"
+      :key="index"
+      class="tab-button"
+      :class="{ active: activeTab === tab.id }"
+      @click="setActiveTab(tab.id)"
+    >
       {{ tab.name }}
       <span class="count">{{ getArticleCount(tab.id) }}</span>
     </button>
@@ -10,14 +15,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from "vue";
 
-interface Tab {
+export interface Tab {
   id: string;
   name: string;
 }
 
-interface ArticleCounts {
+export interface ArticleCounts {
   all: number;
   reading: number;
   completed: number;
@@ -25,25 +30,25 @@ interface ArticleCounts {
 }
 
 export default defineComponent({
-  name: 'ArticlesTabs',
+  name: "ArticlesTabs",
   props: {
     tabs: {
       type: Array as PropType<Tab[]>,
-      required: true
+      required: true,
     },
     activeTab: {
       type: String,
-      required: true
+      required: true,
     },
     articleCounts: {
       type: Object as PropType<ArticleCounts>,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:activeTab'],
+  emits: ["update:activeTab"],
   setup(props, { emit }) {
     const setActiveTab = (tabId: string) => {
-      emit('update:activeTab', tabId);
+      emit("update:activeTab", tabId);
     };
 
     const getArticleCount = (tabId: string): number => {
@@ -52,16 +57,16 @@ export default defineComponent({
 
     return {
       setActiveTab,
-      getArticleCount
+      getArticleCount,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 // Tabs für Artikelgruppen
 .articles-tabs {
@@ -88,7 +93,7 @@ export default defineComponent({
       font-size: 12px;
     }
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
         color: mixins.theme-color($theme, text-secondary);
@@ -116,7 +121,7 @@ export default defineComponent({
         padding: 1px 4px;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: rgba(255, 255, 255, 0.2);
         }

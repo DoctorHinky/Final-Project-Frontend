@@ -109,7 +109,6 @@ import {
   ChatModal,
 } from "@/components/pages/DashboardPages/Friends";
 import friendService from "@/services/friend.service";
-import chatService from "@/services/chat.service";
 import type {
   Friend,
   FriendRequest,
@@ -119,6 +118,7 @@ import type {
   FriendRequestEvent,
   ChatMessageEvent,
 } from "@/types/Friends.types";
+import chatService from "@/services/chat.service";
 
 export default defineComponent({
   name: "FriendsDashboard",

@@ -5,7 +5,17 @@
       <h2>Gelöschte Benutzer</h2>
       <div class="header-stats">
         <span class="stat-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M3 6h18"></path>
             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
           </svg>
@@ -39,7 +49,17 @@
           <tr>
             <td colspan="7" class="empty-cell">
               <div class="empty-message">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M8 12h8"></path>
                 </svg>
@@ -49,12 +69,7 @@
           </tr>
         </tbody>
         <tbody v-else>
-          <tr
-            v-for="user in paginatedUsers"
-            :key="user.id"
-            class="user-row"
-            @click="selectUser(user)"
-          >
+          <tr v-for="user in paginatedUsers" :key="user.id" class="user-row" @click="selectUser(user)">
             <td>
               <div class="user-cell">
                 <div class="user-avatar">
@@ -62,7 +77,7 @@
                 </div>
                 <div class="user-info">
                   <span class="user-name">{{ getUserDisplayName(user) }}</span>
-                  <span class="user-username">@{{ user.username || 'N/A' }}</span>
+                  <span class="user-username">@{{ user.username || "N/A" }}</span>
                 </div>
               </div>
             </td>
@@ -77,28 +92,40 @@
                 {{ getReasonText(user.deleteReason) }}
               </span>
             </td>
-            <td>{{ formatDate(user.deletedAt) }}</td>
-            <td>{{ user.deletedByUser?.username || 'System' }}</td>
+            <td>{{ formatDate(user.deletedAt, "Unbekannt") }}</td>
+            <td>{{ user.deletedByUser?.username || "System" }}</td>
             <td>
               <div class="action-buttons">
-                <button
-                  class="action-button restore"
-                  @click.stop="handleRestore(user)"
-                  title="Wiederherstellen"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="action-button restore" @click.stop="handleRestore(user)" title="Wiederherstellen">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
                     <path d="M21 3v5h-5"></path>
                     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
                     <path d="M8 16H3v5"></path>
                   </svg>
                 </button>
-                <button
-                  class="action-button view"
-                  @click.stop="selectUser(user)"
-                  title="Details anzeigen"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="action-button view" @click.stop="selectUser(user)" title="Details anzeigen">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M12 16v-4"></path>
                     <path d="M12 8h.01"></path>
@@ -112,24 +139,36 @@
     </div>
 
     <div class="pagination-container" v-if="totalPages > 1">
-      <button
-        class="pagination-button"
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="pagination-button" :disabled="currentPage === 1" @click="currentPage--">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
       <span class="page-info">Seite {{ currentPage }} von {{ totalPages }}</span>
 
-      <button
-        class="pagination-button"
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="pagination-button" :disabled="currentPage === totalPages" @click="currentPage++">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
@@ -138,88 +177,40 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import userService, { type DeletedUser } from '@/services/user.service';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import userService from "@/services/user.service";
+import { formatDate } from "@/utils/helperFunctions";
+import type { DeletedUser } from "@/types";
+import { getReasonText, getReasonClass, getUserInitials } from "./deletedUsers.helper";
 
 export default defineComponent({
-  name: 'DeletedUsersList',
-  emits: ['user-selected', 'user-restored'],
+  name: "DeletedUsersList",
+  emits: ["user-selected", "user-restored"],
   setup(_, { emit }) {
     const deletedUsers = ref<DeletedUser[]>([]);
     const isLoading = ref(true);
     const currentPage = ref(1);
     const itemsPerPage = 10;
 
-    // Benutzer-Initialen generieren
-    const getUserInitials = (user: DeletedUser): string => {
-      const firstname = user.firstname || '';
-      const lastname = user.lastname || '';
-      
-      if (firstname && lastname) {
-        return (firstname[0] + lastname[0]).toUpperCase();
-      } else if (user.username) {
-        return user.username.substring(0, 2).toUpperCase();
-      }
-      return '??';
-    };
-
     // Anzeigename generieren
     const getUserDisplayName = (user: DeletedUser): string => {
       if (user.firstname && user.lastname) {
         return `${user.firstname} ${user.lastname}`;
       }
-      return user.username || 'Gelöschter Benutzer';
+      return user.username || "Gelöschter Benutzer";
     };
 
     // Rollen-Label
     const getRoleLabel = (role?: string): string => {
       const roleMap: Record<string, string> = {
-        'ADMIN': 'Admin',
-        'MODERATOR': 'Moderator',
-        'AUTHOR': 'Autor',
-        'ADULT': 'Erwachsener',
-        'CHILD': 'Kind',
-        'USER': 'Benutzer'
+        ADMIN: "Admin",
+        MODERATOR: "Moderator",
+        AUTHOR: "Autor",
+        ADULT: "Erwachsener",
+        CHILD: "Kind",
+        USER: "Benutzer",
       };
-      return roleMap[role || ''] || role || 'Unbekannt';
-    };
-
-    // Löschgrund formatieren
-    const getReasonText = (reason?: string): string => {
-      if (!reason) return "Kein Grund";
-      
-      const reasonMap: Record<string, string> = {
-        "No reason given": "Kein Grund angegeben",
-        "VIOLATION": "Regelverstoß",
-        "SELF_DELETION": "Eigene Löschung",
-        "ADMIN_DELETION": "Admin-Löschung",
-        "INACTIVITY": "Inaktivität",
-      };
-      
-      return reasonMap[reason] || reason;
-    };
-
-    // CSS-Klasse für Löschgrund
-    const getReasonClass = (reason?: string): string => {
-      if (!reason) return "other";
-      
-      if (reason.includes("Regel") || reason.includes("VIOLATION")) return "violation";
-      if (reason.includes("Eigene") || reason.includes("SELF")) return "self-deletion";
-      if (reason.includes("Admin") || reason.includes("ADMIN")) return "admin-deletion";
-      if (reason.includes("Inaktiv") || reason.includes("INACTIVITY")) return "inactivity";
-      
-      return "other";
-    };
-
-    // Datum formatieren
-    const formatDate = (date?: string): string => {
-      if (!date) return "Unbekannt";
-      
-      return new Date(date).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
+      return roleMap[role || ""] || role || "Unbekannt";
     };
 
     // Paginierte Benutzer
@@ -235,21 +226,18 @@ export default defineComponent({
     });
 
     // Benutzer auswählen
-    const selectUser = (user: DeletedUser) => {
-      emit('user-selected', user);
-    };
+    const selectUser = (user: DeletedUser) => emit("user-selected", user);
 
     // Benutzer wiederherstellen
     const handleRestore = async (user: DeletedUser) => {
       if (confirm(`Möchten Sie den Benutzer "${getUserDisplayName(user)}" wirklich wiederherstellen?`)) {
         try {
           await userService.restoreUser(user.id);
-          // User aus Liste entfernen
-          deletedUsers.value = deletedUsers.value.filter(u => u.id !== user.id);
-          emit('user-restored', user);
+          emit("user-restored", user);
+          // Liste wird durch parent component refresh aktualisiert
         } catch (error) {
-          console.error('Fehler beim Wiederherstellen:', error);
-          alert('Fehler beim Wiederherstellen des Benutzers');
+          console.error("Fehler beim Wiederherstellen:", error);
+          alert("Fehler beim Wiederherstellen des Benutzers");
         }
       }
     };
@@ -260,16 +248,14 @@ export default defineComponent({
         isLoading.value = true;
         deletedUsers.value = await userService.getDeletedUsers();
       } catch (error) {
-        console.error('Fehler beim Laden der gelöschten Benutzer:', error);
+        console.error("Fehler beim Laden der gelöschten Benutzer:", error);
         deletedUsers.value = [];
       } finally {
         isLoading.value = false;
       }
     };
 
-    onMounted(() => {
-      loadDeletedUsers();
-    });
+    onMounted(() => loadDeletedUsers());
 
     return {
       deletedUsers,
@@ -285,9 +271,9 @@ export default defineComponent({
       getReasonClass,
       formatDate,
       selectUser,
-      handleRestore
+      handleRestore,
     };
-  }
+  },
 });
 </script>
 

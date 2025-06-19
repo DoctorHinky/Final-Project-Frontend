@@ -1,6 +1,6 @@
 // src/services/post.service.ts
-import axiosInstance from './axiosInstance';
-import type { Article } from '@/types/dtos/Article.types';
+import axiosInstance from "./axiosInstance";
+import type { Article as FullPost, Article } from "@/types/dtos/Article.types";
 
 // Response-Typen für Backend
 export interface PostPreviewItem {
@@ -8,8 +8,13 @@ export interface PostPreviewItem {
   title: string;
   quickDescription: string;
   image: string | null;
-  author: string;
+  author: {
+    id?: string;
+    username: string;
+    profilePicture?: string | null;
+  };
   category: string;
+  publishedAt: string;
   createdAt: string;
   tags: string[];
   isCertifiedAuthor: boolean;
@@ -23,60 +28,6 @@ export interface PostPreviewsResponse {
   };
   data: PostPreviewItem[];
 }
-
-export interface Chapter {
-  id: string;
-  title: string;
-  content: string;
-  image: string | null;
-}
-
-export interface QuizAnswer {
-  id: string;
-  answer: string;
-  isCorrect: boolean;
-}
-
-export interface QuizQuestion {
-  id: string;
-  question: string;
-  answers: QuizAnswer[];
-}
-
-export interface Quiz {
-  id: string;
-  questions: QuizQuestion[];
-}
-
-export interface FullPost {
-  id: string;
-  title: string;
-  quickDescription: string;
-  image: string | null;
-  publicId_image: string | null;
-  tags: string[];
-  forKids: boolean;
-  ageRestriction: number;
-  category: string;
-  isCertifiedAuthor: boolean;
-  authorId: string | null;
-  moderatorId: string | null;
-  published: boolean;
-  publishedAt: string | null;
-  isDeleted: boolean;
-  deletedAt: string | null;
-  deletedBy: string | null;
-  deleteReason: string | null;
-  createdAt: string;
-  updatedAt: string;
-  popularityScore: number;
-  author?: {
-    username: string;
-  };
-  chapters: Chapter[];
-  quiz?: Quiz;
-}
-
 export interface PostResponse {
   message: string;
   data: FullPost;
@@ -102,7 +53,7 @@ export interface SearchFilters {
 }
 
 class PostService {
-  private readonly baseUrl = '/article';
+  private readonly baseUrl = "/article";
 
   /**
    * Post-Previews für Startseite/Library abrufen (paginiert)
@@ -110,12 +61,12 @@ class PostService {
   async getPostPreviews(page: number = 1, limit: number = 10): Promise<PostPreviewsResponse> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getPreviews`, {
-        params: { page, limit }
+        params: { page, limit },
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching post previews:', error);
-      throw new Error('Fehler beim Laden der Artikel-Vorschauen');
+      console.error("Error fetching post previews:", error);
+      throw new Error("Fehler beim Laden der Artikel-Vorschauen");
     }
   }
 
@@ -127,8 +78,8 @@ class PostService {
       const response = await axiosInstance.get(`${this.baseUrl}/getPostById/${postId}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching post by ID:', error);
-      throw new Error('Fehler beim Laden des Artikels');
+      console.error("Error fetching post by ID:", error);
+      throw new Error("Fehler beim Laden des Artikels");
     }
   }
 
@@ -140,31 +91,28 @@ class PostService {
       const response = await axiosInstance.get(`${this.baseUrl}/getPostForUser`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching posts for user:', error);
-      throw new Error('Fehler beim Laden der Benutzer-Artikel');
+      console.error("Error fetching posts for user:", error);
+      throw new Error("Fehler beim Laden der Benutzer-Artikel");
     }
   }
 
   /**
    * Artikel eines bestimmten Autors abrufen
    */
-  async getPostsByAuthor(
-    authorId: string, 
-    published?: boolean
-  ): Promise<{ posts: FullPost[] }> {
+  async getPostsByAuthor(authorId: string, published?: boolean): Promise<{ posts: FullPost[] }> {
     try {
       const params: Record<string, any> = {};
-      if (typeof published === 'boolean') {
+      if (typeof published === "boolean") {
         params.published = published.toString();
       }
 
       const response = await axiosInstance.get(`${this.baseUrl}/getPostByAuthor/${authorId}`, {
-        params
+        params,
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching posts by author:', error);
-      throw new Error('Fehler beim Laden der Autor-Artikel');
+      console.error("Error fetching posts by author:", error);
+      throw new Error("Fehler beim Laden der Autor-Artikel");
     }
   }
 
@@ -177,7 +125,7 @@ class PostService {
     try {
       await axiosInstance.post(`${this.baseUrl}/recordView/${articleId}`);
     } catch (error) {
-      console.warn('Could not record article view:', error);
+      console.warn("Could not record article view:", error);
       // Fehler beim Registrieren der Ansicht sollte nicht kritisch sein
     }
   }
@@ -185,18 +133,18 @@ class PostService {
   /**
    * Artikel liken/unliken
    */
-  async toggleLike(articleId: string): Promise<{ 
-    success: boolean; 
-    isLiked: boolean; 
-    likesCount: number; 
-    message?: string 
+  async toggleLike(articleId: string): Promise<{
+    success: boolean;
+    isLiked: boolean;
+    likesCount: number;
+    message?: string;
   }> {
     try {
       const response = await axiosInstance.post(`${this.baseUrl}/toggleLike/${articleId}`);
       return response.data;
     } catch (error: any) {
-      console.error('Error toggling like:', error);
-      throw new Error(error.response?.data?.message || 'Fehler beim Liken des Artikels');
+      console.error("Error toggling like:", error);
+      throw new Error(error.response?.data?.message || "Fehler beim Liken des Artikels");
     }
   }
 
@@ -207,7 +155,7 @@ class PostService {
     try {
       await axiosInstance.post(`${this.baseUrl}/recordShare/${articleId}`, { platform });
     } catch (error) {
-      console.warn('Could not record article share:', error);
+      console.warn("Could not record article share:", error);
       // Fehler beim Registrieren des Teilens sollte nicht kritisch sein
     }
   }
@@ -220,14 +168,14 @@ class PostService {
       const response = await axiosInstance.get(`${this.baseUrl}/getStats/${articleId}`);
       return response.data.stats;
     } catch (error: any) {
-      console.error('Error fetching post stats:', error);
+      console.error("Error fetching post stats:", error);
       return {
         views: 0,
         likes: 0,
         bookmarks: 0,
         shares: 0,
         comments: 0,
-        averageRating: 0
+        averageRating: 0,
       };
     }
   }
@@ -238,11 +186,11 @@ class PostService {
   async getSimilarPosts(articleId: string, limit: number = 5): Promise<PostPreviewItem[]> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getSimilar/${articleId}`, {
-        params: { limit }
+        params: { limit },
       });
       return response.data.articles || [];
     } catch (error: any) {
-      console.error('Error fetching similar posts:', error);
+      console.error("Error fetching similar posts:", error);
       return [];
     }
   }
@@ -250,42 +198,34 @@ class PostService {
   /**
    * Artikel nach Kategorie abrufen
    */
-  async getPostsByCategory(
-    category: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<PostPreviewsResponse> {
+  async getPostsByCategory(category: string, page: number = 1, limit: number = 10): Promise<PostPreviewsResponse> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getByCategory/${category}`, {
-        params: { page, limit }
+        params: { page, limit },
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error fetching posts by category:', error);
-      throw new Error('Fehler beim Laden der Artikel nach Kategorie');
+      console.error("Error fetching posts by category:", error);
+      throw new Error("Fehler beim Laden der Artikel nach Kategorie");
     }
   }
 
   /**
    * Artikel durchsuchen
    */
-  async searchPosts(
-    filters: SearchFilters,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<PostPreviewsResponse> {
+  async searchPosts(filters: SearchFilters, page: number = 1, limit: number = 10): Promise<PostPreviewsResponse> {
     try {
       const params = {
         page,
         limit,
-        ...filters
+        ...filters,
       };
 
       const response = await axiosInstance.get(`${this.baseUrl}/search`, { params });
       return response.data;
     } catch (error: any) {
-      console.error('Error searching posts:', error);
-      throw new Error('Fehler bei der Artikelsuche');
+      console.error("Error searching posts:", error);
+      throw new Error("Fehler bei der Artikelsuche");
     }
   }
 
@@ -293,16 +233,16 @@ class PostService {
    * Beliebte Artikel abrufen
    */
   async getPopularPosts(
-    timeframe: 'today' | 'week' | 'month' | 'all' = 'week',
+    timeframe: "today" | "week" | "month" | "all" = "week",
     limit: number = 10
   ): Promise<PostPreviewItem[]> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getPopular`, {
-        params: { timeframe, limit }
+        params: { timeframe, limit },
       });
       return response.data.articles || [];
     } catch (error: any) {
-      console.error('Error fetching popular posts:', error);
+      console.error("Error fetching popular posts:", error);
       return [];
     }
   }
@@ -313,11 +253,11 @@ class PostService {
   async getLatestPosts(limit: number = 10): Promise<PostPreviewItem[]> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getLatest`, {
-        params: { limit }
+        params: { limit },
       });
       return response.data.articles || [];
     } catch (error: any) {
-      console.error('Error fetching latest posts:', error);
+      console.error("Error fetching latest posts:", error);
       return [];
     }
   }
@@ -328,11 +268,11 @@ class PostService {
   async getRecommendedPosts(limit: number = 10): Promise<PostPreviewItem[]> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getRecommended`, {
-        params: { limit }
+        params: { limit },
       });
       return response.data.articles || [];
     } catch (error: any) {
-      console.error('Error fetching recommended posts:', error);
+      console.error("Error fetching recommended posts:", error);
       return [];
     }
   }
@@ -345,7 +285,7 @@ class PostService {
       const response = await axiosInstance.get(`${this.baseUrl}/getCategories`);
       return response.data.categories || [];
     } catch (error: any) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
       return [];
     }
   }
@@ -356,11 +296,11 @@ class PostService {
   async getTrendingTags(limit: number = 20): Promise<Array<{ tag: string; count: number }>> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/getTrendingTags`, {
-        params: { limit }
+        params: { limit },
       });
       return response.data.tags || [];
     } catch (error: any) {
-      console.error('Error fetching trending tags:', error);
+      console.error("Error fetching trending tags:", error);
       return [];
     }
   }
@@ -369,19 +309,19 @@ class PostService {
    * Artikel melden
    */
   async reportPost(
-    articleId: string, 
-    reason: string, 
+    articleId: string,
+    reason: string,
     description?: string
   ): Promise<{ success: boolean; message?: string }> {
     try {
       const response = await axiosInstance.post(`${this.baseUrl}/report/${articleId}`, {
         reason,
-        description
+        description,
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error reporting post:', error);
-      throw new Error(error.response?.data?.message || 'Fehler beim Melden des Artikels');
+      console.error("Error reporting post:", error);
+      throw new Error(error.response?.data?.message || "Fehler beim Melden des Artikels");
     }
   }
 
@@ -393,7 +333,7 @@ class PostService {
       const response = await axiosInstance.get(`${this.baseUrl}/getLikeStatus/${articleId}`);
       return response.data.isLiked || false;
     } catch (error: any) {
-      console.error('Error getting like status:', error);
+      console.error("Error getting like status:", error);
       return false;
     }
   }
@@ -408,13 +348,13 @@ class PostService {
       id: preview.id,
       title: preview.title,
       quickDescription: preview.quickDescription,
-      image: preview.image || '',
+      image: preview.image || "",
       tags: preview.tags,
       category: preview.category as any,
       isCertifiedAuthor: preview.isCertifiedAuthor,
       createdAt: preview.createdAt,
       // Dummy-Werte für nicht verfügbare Felder
-      publicId_image: '',
+      publicId_image: "",
       forKids: false,
       ageRestriction: 0,
       authorId: null,
@@ -426,7 +366,7 @@ class PostService {
       deletedBy: null,
       deleteReason: null,
       updatedAt: preview.createdAt,
-      popularityScore: 0
+      popularityScore: 0,
     };
   }
 
@@ -438,8 +378,8 @@ class PostService {
       id: post.id,
       title: post.title,
       quickDescription: post.quickDescription,
-      image: post.image || '',
-      publicId_image: post.publicId_image || '',
+      image: post.image || "",
+      publicId_image: post.publicId_image || "",
       tags: post.tags,
       forKids: post.forKids,
       ageRestriction: post.ageRestriction,
@@ -455,7 +395,7 @@ class PostService {
       deleteReason: post.deleteReason,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
-      popularityScore: post.popularityScore
+      popularityScore: post.popularityScore,
     };
   }
 
@@ -472,9 +412,9 @@ class PostService {
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       author: {
-        id: post.authorId || '',
-        username: post.author?.username || 'Unbekannt',
-        avatar: null
+        id: post.authorId || "",
+        username: post.author?.username || "Unbekannt",
+        avatar: null,
       },
       readingTime: this.estimateReadingTime(post.chapters),
     };
@@ -487,9 +427,9 @@ class PostService {
     const wordsPerMinute = 200; // Durchschnittliche Lesegeschwindigkeit
     let totalWords = 0;
 
-    chapters.forEach(chapter => {
+    chapters.forEach((chapter) => {
       // Grobe Schätzung: HTML-Tags entfernen und Wörter zählen
-      const textContent = chapter.content.replace(/<[^>]*>/g, '');
+      const textContent = chapter.content.replace(/<[^>]*>/g, "");
       totalWords += textContent.split(/\s+/).length;
     });
 
