@@ -26,3 +26,18 @@
 
 - Einstellungen
   [ ] frei platz oben sollte weg damit das menu mittig lädt
+
+---
+
+[ ] Feedback muss noch erstellt werden
+_inhalt_
+
+- content (normaler Text)
+- rating (1-5) Sterne
+- allowedToPublish (boolean) - ist für die überprüfung ob es veröffentlicht werden darf
+
+[ ] Feedback im Admin
+
+- readed (ist es gelesen worden)
+- responses die response ist ein eigenes feld (braucht nur content (text))
+- schau einfach mal beim feedback controller rein

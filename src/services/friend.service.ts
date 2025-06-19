@@ -280,7 +280,9 @@ class FriendService {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
-          message: `Einladung an ${email} wurde erfolgreich gesendet!`,
+          message: `Einladung an ${email} wurde erfolgreich gesendet! with message: "${
+            message || "Kein Nachricht angegeben"
+          }"`,
         });
       }, 1000);
     });
@@ -291,7 +293,7 @@ class FriendService {
    */
   async getTotalUnreadMessagesCount(): Promise<number> {
     try {
-      return await chatService.getTotalUnreadCount();
+      return await chatService.getUnreadMessageCount();
     } catch (error) {
       console.error("Fehler beim Laden der ungelesenen Nachrichten:", error);
       return 0;

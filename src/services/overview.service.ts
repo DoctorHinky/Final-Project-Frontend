@@ -1,7 +1,7 @@
 // src/services/overview.service.ts
-import { historyService, type HistoryItem } from './history.service';
-import { postService, type PostPreviewItem } from './post.service';
-import friendService, { type FriendResponse } from './friend.service';
+import { historyService } from "./history.service";
+import { postService, type PostPreviewItem } from "./post.service";
+import friendService from "./friend.service";
 
 export interface DashboardStats {
   readArticles: number;
@@ -14,14 +14,18 @@ export interface RecentActivityArticle {
   title: string;
   preview?: string;
   category?: string;
-  author?: string;
+  author?: {
+    username: string;
+    profileImage?: string | null;
+    id?: string;
+  };
   date?: string;
   status?: string;
   currentChapter?: number;
   totalChapters?: number;
   lastRead?: string;
   readingTime?: string;
-  difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
+  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
 }
 
 export interface RecommendedArticle {
@@ -29,12 +33,16 @@ export interface RecommendedArticle {
   title: string;
   preview?: string;
   category?: string;
-  author?: string;
+  author?: {
+    username: string;
+    profileImage?: string | null;
+    id?: string;
+  };
   date?: string;
   image?: string;
   coverImage?: string;
   readingTime?: string;
-  difficulty?: 'Einfach' | 'Mittel' | 'Fortgeschritten';
+  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
   tags?: string[];
 }
 
@@ -46,28 +54,24 @@ class OverviewService {
     try {
       const [historyResponse, friendsResponse] = await Promise.allSettled([
         historyService.getHistory(1, 1),
-        friendService.getAllFriendsOfUser()
+        friendService.getAllFriendsOfUser(),
       ]);
 
-      const historyCount = historyResponse.status === 'fulfilled' 
-        ? historyResponse.value.meta.total 
-        : 0;
+      const historyCount = historyResponse.status === "fulfilled" ? historyResponse.value.meta.total : 0;
 
-      const friendsCount = friendsResponse.status === 'fulfilled'
-        ? friendsResponse.value.data.length
-        : 0;
+      const friendsCount = friendsResponse.status === "fulfilled" ? friendsResponse.value.data.length : 0;
 
       return {
         readArticles: historyCount,
         favorites: historyCount,
-        friends: friendsCount
+        friends: friendsCount,
       };
     } catch (error) {
-      console.error('Error loading dashboard stats:', error);
+      console.error("Error loading dashboard stats:", error);
       return {
         readArticles: 0,
         favorites: 0,
-        friends: 0
+        friends: 0,
       };
     }
   }
@@ -80,7 +84,7 @@ class OverviewService {
       const historyResponse = await historyService.getHistory(1, 3);
       return historyResponse.data.map((item: any) => this.convertHistoryToRecentActivity(item));
     } catch (error) {
-      console.error('Error loading recent activities:', error);
+      console.error("Error loading recent activities:", error);
       return [];
     }
   }
@@ -93,7 +97,7 @@ class OverviewService {
       const response = await postService.getPostPreviews(1, 4);
       return response.data.map((post: PostPreviewItem) => this.convertPostToRecommended(post));
     } catch (error) {
-      console.error('Error loading recommended articles:', error);
+      console.error("Error loading recommended articles:", error);
       return [];
     }
   }
@@ -110,20 +114,20 @@ class OverviewService {
       const [stats, recentActivities, recommendedArticles] = await Promise.allSettled([
         this.getDashboardStats(),
         this.getRecentActivities(),
-        this.getRecommendedArticles()
+        this.getRecommendedArticles(),
       ]);
 
       return {
-        stats: stats.status === 'fulfilled' ? stats.value : { readArticles: 0, favorites: 0, friends: 0 },
-        recentActivities: recentActivities.status === 'fulfilled' ? recentActivities.value : [],
-        recommendedArticles: recommendedArticles.status === 'fulfilled' ? recommendedArticles.value : []
+        stats: stats.status === "fulfilled" ? stats.value : { readArticles: 0, favorites: 0, friends: 0 },
+        recentActivities: recentActivities.status === "fulfilled" ? recentActivities.value : [],
+        recommendedArticles: recommendedArticles.status === "fulfilled" ? recommendedArticles.value : [],
       };
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
       return {
         stats: { readArticles: 0, favorites: 0, friends: 0 },
         recentActivities: [],
-        recommendedArticles: []
+        recommendedArticles: [],
       };
     }
   }
@@ -132,23 +136,25 @@ class OverviewService {
    * Konvertiert History-Item zu Recent Activity Format
    */
   private convertHistoryToRecentActivity(historyItem: any): RecentActivityArticle {
-    const status = historyItem.solvedAt ? 'almost-done' : 'in-progress';
+    const status = historyItem.solvedAt ? "almost-done" : "in-progress";
     const totalChapters = 6;
-    const currentChapter = status === 'almost-done' ? totalChapters - 1 : Math.floor(Math.random() * totalChapters) + 1;
-    
+    const currentChapter = status === "almost-done" ? totalChapters - 1 : Math.floor(Math.random() * totalChapters) + 1;
+
     return {
       id: parseInt(historyItem.postId),
       title: historyItem.postTitle,
       preview: historyItem.postQuickDescription,
-      category: historyItem.postCategory || 'Allgemein',
-      author: historyItem.postAuthor || 'Unbekannt',
+      category: historyItem.postCategory || "Allgemein",
+      author: {
+        username: historyItem.postAuthor || "Unbekannt",
+      },
       date: historyItem.readAt,
       status,
       currentChapter,
       totalChapters,
       lastRead: this.formatRelativeTime(historyItem.readAt),
-      readingTime: this.estimateReadingTime(historyItem.postQuickDescription || ''),
-      difficulty: this.mapCategoryToDifficulty(historyItem.postCategory || 'OTHER')
+      readingTime: this.estimateReadingTime(historyItem.postQuickDescription || ""),
+      difficulty: this.mapCategoryToDifficulty(historyItem.postCategory || "OTHER"),
     };
   }
 
@@ -163,10 +169,10 @@ class OverviewService {
       category: post.category,
       author: post.author,
       date: this.formatGermanDate(post.createdAt),
-      image: post.image || null,
+      image: post.image ?? undefined,
       readingTime: this.estimateReadingTime(post.quickDescription),
       difficulty: this.mapCategoryToDifficulty(post.category),
-      tags: Array.isArray(post.tags) ? post.tags : []
+      tags: Array.isArray(post.tags) ? post.tags : [],
     };
   }
 
@@ -177,16 +183,16 @@ class OverviewService {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) {
-      return 'Gerade eben';
+      return "Gerade eben";
     } else if (diffInHours < 24) {
-      return `vor ${diffInHours} Stunde${diffInHours > 1 ? 'n' : ''}`;
+      return `vor ${diffInHours} Stunde${diffInHours > 1 ? "n" : ""}`;
     } else if (diffInHours < 168) {
       const days = Math.floor(diffInHours / 24);
-      return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
+      return `vor ${days} Tag${days > 1 ? "en" : ""}`;
     } else {
-      return 'vor einer Woche';
+      return "vor einer Woche";
     }
   }
 
@@ -195,10 +201,10 @@ class OverviewService {
    */
   private formatGermanDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   }
 
@@ -209,7 +215,7 @@ class OverviewService {
     const wordsPerMinute = 200;
     const wordCount = text.split(/\s+/).length;
     const minutes = Math.max(1, Math.round(wordCount / wordsPerMinute));
-    
+
     if (minutes < 60) {
       return `${minutes} Min.`;
     } else {
@@ -222,26 +228,25 @@ class OverviewService {
   /**
    * Mappt Kategorie zu Schwierigkeitsgrad
    */
-  private mapCategoryToDifficulty(category: string): 'Einfach' | 'Mittel' | 'Fortgeschritten' {
-    const difficultyMap: Record<string, 'Einfach' | 'Mittel' | 'Fortgeschritten'> = {
-      'EDUCATION': 'Mittel',
-      'ENTERTAINMENT': 'Einfach',
-      'FAMILY': 'Mittel',
-      'CULTURE': 'Mittel',
-      'NATURE': 'Einfach',
-      'RAISING_CHILDREN': 'Fortgeschritten',
-      'TECHNOLOGY': 'Fortgeschritten',
-      'HEALTH': 'Mittel',
-      'LIFESTYLE': 'Einfach',
-      'TRAVEL': 'Einfach',
-      'FOOD': 'Einfach',
-      'FITNESS': 'Mittel',
-      'OTHER': 'Mittel'
+  private mapCategoryToDifficulty(category: string): "Einfach" | "Mittel" | "Fortgeschritten" {
+    const difficultyMap: Record<string, "Einfach" | "Mittel" | "Fortgeschritten"> = {
+      EDUCATION: "Mittel",
+      ENTERTAINMENT: "Einfach",
+      FAMILY: "Mittel",
+      CULTURE: "Mittel",
+      NATURE: "Einfach",
+      RAISING_CHILDREN: "Fortgeschritten",
+      TECHNOLOGY: "Fortgeschritten",
+      HEALTH: "Mittel",
+      LIFESTYLE: "Einfach",
+      TRAVEL: "Einfach",
+      FOOD: "Einfach",
+      FITNESS: "Mittel",
+      OTHER: "Mittel",
     };
-    
-    return difficultyMap[category?.toUpperCase()] || 'Mittel';
-  }
 
+    return difficultyMap[category?.toUpperCase()] || "Mittel";
+  }
 }
 
 export const overviewService = new OverviewService();

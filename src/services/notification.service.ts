@@ -15,7 +15,7 @@ import type { Notification, NotificationDisplay } from "@/types/dtos/Notificatio
  * - DELETE /notification/all -> deleteAllNotifications()
  */
 class NotificationService {
-  private pollingInterval: NodeJS.Timeout | null = null;
+  private pollingInterval: ReturnType<typeof setInterval> | null = null;
   private listeners: Array<(count: number) => void> = [];
 
   /**
@@ -142,8 +142,6 @@ class NotificationService {
         console.warn("Polling-Fehler bei Benachrichtigungen:", error);
       }
     }, 30000); // 30 Sekunden
-
-    console.log("Notification-Polling gestartet (alle 30 Sekunden)");
   }
 
   /**

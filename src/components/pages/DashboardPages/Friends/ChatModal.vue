@@ -485,9 +485,7 @@ export default defineComponent({
 
       if (typingTimeout) clearTimeout(typingTimeout);
 
-      typingTimeout = setTimeout(() => {
-        isUserTyping.value = false;
-      }, 2000);
+      typingTimeout = setTimeout(() => (isUserTyping.value = false), 2000);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -522,9 +520,7 @@ export default defineComponent({
       document.execCommand("insertText", false, text);
 
       // Update content after paste
-      nextTick(() => {
-        handleInput();
-      });
+      nextTick(() => handleInput());
     };
 
     const sendMessage = async () => {
@@ -564,12 +560,12 @@ export default defineComponent({
         // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
         htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
 
-        // Sende Nachricht über Chat-Service
-        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        // Sende Nachricht über Chat-Service (erstmal auskommentiert, da sonst 2x gesendet wird)
+        // const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
 
         // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
-          id: response.message.id || Date.now().toString(),
+          id: /* response.message.id ||  */ Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: htmlContent,
