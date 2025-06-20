@@ -29,7 +29,8 @@ class AuthService {
     remeberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
-      if (!email && !username) throw new Error("Either email or username must be provided");
+      if (!email && !username)
+        throw new Error("Either email or username must be provided");
       const payload: { username?: string; email?: string; password: string } = {
         password,
       };
@@ -41,8 +42,11 @@ class AuthService {
       const response = await api.post("/auth/local/login", payload, {
         headers: { "Content-Type": "application/json" },
       });
+      console.log("📍 login() Methode aufgerufen");
+console.log("Antwort vom Server:", response.data);
       const { access_token, refresh_token } = response.data;
-
+console.log("🔐 Access:", access_token);
+console.log("🔁 Refresh:", refresh_token);
       this.remeberMe = remeberMe;
 
       if (remeberMe) {
@@ -56,7 +60,7 @@ class AuthService {
       const decoded = jwtDecode<DecodedToken>(access_token);
 
       this.scheduleTokenRefresh();
-
+      this.startTokenCountdown();
       return { success: true, role: decoded.role };
     } catch (error) {
       console.error("Login error:", error);
@@ -91,7 +95,10 @@ class AuthService {
 
   getAccessToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
+    return (
+      localStorage.getItem(this.accessTokenKey) ||
+      sessionStorage.getItem(this.accessTokenKey)
+    );
   }
 
   getUserData(): DecodedToken | null {
@@ -122,13 +129,18 @@ class AuthService {
 
   getRefreshToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
+    return (
+      localStorage.getItem(this.refreshTokenKey) ||
+      sessionStorage.getItem(this.refreshTokenKey)
+    );
   }
 
   // Separate Token-Verwaltung für Admin
   getAdminAccessToken(): string | null {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
-    const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
+    const adminToken =
+      localStorage.getItem("admin_access_token") ||
+      sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
 
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
@@ -147,7 +159,11 @@ class AuthService {
     return null;
   }
 
-  setAdminTokens(accessToken: string, refreshToken: string, remeberMe: boolean = false): void {
+  setAdminTokens(
+    accessToken: string,
+    refreshToken: string,
+    remeberMe: boolean = false
+  ): void {
     if (remeberMe) {
       localStorage.setItem("admin_access_token", accessToken);
       localStorage.setItem("admin_refresh_token", refreshToken);
@@ -311,7 +327,7 @@ class AuthService {
     if (this.isRefreshing) {
       return false;
     }
-
+    console.log("⚙️ refreshAccessToken() wurde aufgerufen");
     const refreshToken = this.getRefreshToken();
 
     if (!refreshToken) {
@@ -333,13 +349,16 @@ class AuthService {
           },
         }
       );
-
-      const newAccessToken = response.data.access_token;
-
-      // Verwende den gleichen Storage wie beim Login
+      console.log("Refresh-Response", response.data);
+      const { access_token, refresh_token } = response.data;
+console.log("🔐 Access (neu):", access_token);
+console.log("🔁 Refresh (neu):", refresh_token);
       const storage = this.getStorage();
-      storage.setItem(this.accessTokenKey, newAccessToken);
+      storage.setItem(this.accessTokenKey, access_token);
 
+      if (refresh_token) {
+        storage.setItem(this.refreshTokenKey, refresh_token);
+      }
       // Neuen Refresh planen
       this.scheduleTokenRefresh();
 
@@ -354,8 +373,36 @@ class AuthService {
       return false;
     }
   }
+  startTokenCountdown(): void {
+    const token = this.getAccessToken();
+    if (!token) {
+      console.warn("❗ Kein Access Token gefunden.");
+      return;
+    }
 
-  isremeberMeActive(): boolean {
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      if (!decoded.exp) {
+        console.warn("❗ Access Token hat kein Ablaufdatum (exp).");
+        return;
+      }
+
+      const interval = setInterval(() => {
+        const now = Math.floor(Date.now() / 1000);
+        const remaining = decoded.exp! - now;
+
+        if (remaining <= 0) {
+          console.log("⛔ Token abgelaufen");
+          clearInterval(interval);
+        } else {
+          console.log(`⏳ Token gültig für noch ${remaining} Sekunden`);
+        }
+      }, 5000); // Alle 5 Sekunden aktualisieren
+    } catch (e) {
+      console.error("❌ Fehler beim Dekodieren des Tokens:", e);
+    }
+  }
+  isRememberMeActive(): boolean {
     return !!localStorage.getItem(this.accessTokenKey);
   }
 
