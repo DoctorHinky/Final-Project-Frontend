@@ -1,6 +1,7 @@
 // import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import api from "./axiosInstance"; // Importiere die konfigurierte axios Instanz
+import axios from "axios";
 
 interface DecodedToken {
   exp?: number;
@@ -29,8 +30,7 @@ class AuthService {
     remeberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
-      if (!email && !username)
-        throw new Error("Either email or username must be provided");
+      if (!email && !username) throw new Error("Either email or username must be provided");
       const payload: { username?: string; email?: string; password: string } = {
         password,
       };
@@ -43,10 +43,10 @@ class AuthService {
         headers: { "Content-Type": "application/json" },
       });
       console.log("📍 login() Methode aufgerufen");
-console.log("Antwort vom Server:", response.data);
+      console.log("Antwort vom Server:", response.data);
       const { access_token, refresh_token } = response.data;
-console.log("🔐 Access:", access_token);
-console.log("🔁 Refresh:", refresh_token);
+      console.log("🔐 Access:", access_token);
+      console.log("🔁 Refresh:", refresh_token);
       this.remeberMe = remeberMe;
 
       if (remeberMe) {
@@ -95,10 +95,7 @@ console.log("🔁 Refresh:", refresh_token);
 
   getAccessToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return (
-      localStorage.getItem(this.accessTokenKey) ||
-      sessionStorage.getItem(this.accessTokenKey)
-    );
+    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
   }
 
   getUserData(): DecodedToken | null {
@@ -129,18 +126,13 @@ console.log("🔁 Refresh:", refresh_token);
 
   getRefreshToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return (
-      localStorage.getItem(this.refreshTokenKey) ||
-      sessionStorage.getItem(this.refreshTokenKey)
-    );
+    return localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
   }
 
   // Separate Token-Verwaltung für Admin
   getAdminAccessToken(): string | null {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
-    const adminToken =
-      localStorage.getItem("admin_access_token") ||
-      sessionStorage.getItem("admin_access_token");
+    const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
 
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
@@ -159,11 +151,7 @@ console.log("🔁 Refresh:", refresh_token);
     return null;
   }
 
-  setAdminTokens(
-    accessToken: string,
-    refreshToken: string,
-    remeberMe: boolean = false
-  ): void {
+  setAdminTokens(accessToken: string, refreshToken: string, remeberMe: boolean = false): void {
     if (remeberMe) {
       localStorage.setItem("admin_access_token", accessToken);
       localStorage.setItem("admin_refresh_token", refreshToken);
@@ -330,29 +318,31 @@ console.log("🔁 Refresh:", refresh_token);
     console.log("⚙️ refreshAccessToken() wurde aufgerufen");
     const refreshToken = this.getRefreshToken();
 
-    if (!refreshToken) {
+    /*  if (!refreshToken) {
       this.logout();
       // Keine automatische Weiterleitung hier - lass die App entscheiden
       return false;
-    }
+    } */
 
     this.isRefreshing = true;
 
     try {
-      const response = await api.post(
-        "/auth/refresh",
+      console.group("bestehende token");
+      console.log("🔐 Access (alt):", this.getAccessToken());
+      console.log("🔁 Refresh (alt):", refreshToken);
+      console.groupEnd();
+
+      const response = await axios.post(
+        "http://localhost:4001/auth/refresh",
         {},
         {
-          headers: {
-            Authorization: `Bearer ${refreshToken}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${refreshToken}` },
         }
       );
       console.log("Refresh-Response", response.data);
       const { access_token, refresh_token } = response.data;
-console.log("🔐 Access (neu):", access_token);
-console.log("🔁 Refresh (neu):", refresh_token);
+      console.log("🔐 Access (neu):", access_token);
+      console.log("🔁 Refresh (neu):", refresh_token);
       const storage = this.getStorage();
       storage.setItem(this.accessTokenKey, access_token);
 
