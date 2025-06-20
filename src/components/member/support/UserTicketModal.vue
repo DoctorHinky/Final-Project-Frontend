@@ -7,7 +7,7 @@
       <div class="modal-header">
         <div class="header-content">
           <div class="header-icon">
-            <ChatBubbleLeftRightIcon class="w-6 h-6" />
+            <ChatBubbleLeftRightIcon class="icon-size" />
           </div>
           <div>
             <h3>Support kontaktieren</h3>
@@ -15,32 +15,59 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" :disabled="isSubmitting">
-          <XMarkIcon class="w-5 h-5 Close-Icon" />
+          <XMarkIcon class="icon-size-sm" />
         </button>
       </div>
 
       <!-- Modal Content -->
       <div class="modal-content">
-        <!-- Ticket-Formular -->
-        <form @submit.prevent="submitTicket" class="ticket-form">
-          <!-- Titel -->
+        <!-- Success State -->
+        <div v-if="showSuccess" class="success-message">
+          <div class="success-icon">
+            <CheckCircleIcon class="icon-size-xl" />
+          </div>
+          <h4>Ticket erfolgreich erstellt!</h4>
+          <p>
+            Ihr Support-Ticket wurde erfolgreich übermittelt. Sie erhalten eine Bestätigung per E-Mail und unser Team
+            wird sich baldmöglichst bei Ihnen melden.
+          </p>
+          <div class="ticket-id" v-if="createdTicketId">
+            <span class="ticket-id-label">Ticket-ID:</span>
+            <span class="ticket-id-value">{{ createdTicketId }}</span>
+          </div>
+          <button class="btn-close-success" @click="closeModal">
+            Schließen
+          </button>
+        </div>
+
+        <!-- Ticket Form -->
+        <form v-else @submit.prevent="submitTicket" class="ticket-form">
+          <!-- Title Field -->
           <div class="form-group">
-            <label for="ticket-title" class="form-label"> Betreff <span class="required">*</span> </label>
-            <input
-              type="text"
-              id="ticket-title"
-              v-model="formData.title"
-              class="form-input"
-              placeholder="Beschreiben Sie Ihr Anliegen kurz"
-              required
-              :disabled="isSubmitting"
-              maxlength="100"
-            />
-            <div class="input-hint">{{ formData.title.length }}/100 Zeichen</div>
-            <div v-if="errors.title" class="form-error">{{ errors.title }}</div>
+            <label for="ticket-title" class="form-label">
+              Betreff <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="ticket-title"
+                v-model="formData.title"
+                class="form-input"
+                :class="{ 'has-error': errors.title }"
+                placeholder="Beschreiben Sie Ihr Anliegen kurz"
+                required
+                :disabled="isSubmitting"
+                maxlength="100"
+              />
+              <div class="input-hint">{{ formData.title.length }}/100</div>
+            </div>
+            <div v-if="errors.title" class="form-error">
+              <ExclamationCircleIcon class="icon-size-xs" />
+              {{ errors.title }}
+            </div>
           </div>
 
-          <!-- Kategorie -->
+          <!-- Category Field -->
           <div class="form-group">
             <label for="ticket-category" class="form-label">Kategorie</label>
             <div class="custom-select">
@@ -51,30 +78,40 @@
                 <option value="REPORT">Inhalte melden</option>
                 <option value="OTHER">Sonstiges</option>
               </select>
-              <ChevronDownIcon class="select-icon" />
+              <ChevronDownIcon class="select-icon icon-size-sm" />
             </div>
           </div>
 
-          <!-- Beschreibung -->
+          <!-- Description Field -->
           <div class="form-group">
-            <label for="ticket-description" class="form-label"> Beschreibung <span class="required">*</span> </label>
-            <textarea
-              id="ticket-description"
-              v-model="formData.description"
-              class="form-textarea"
-              placeholder="Beschreiben Sie Ihr Problem oder Ihre Anfrage so detailliert wie möglich..."
-              rows="6"
-              required
-              :disabled="isSubmitting"
-              maxlength="2000"
-            ></textarea>
-            <div class="input-hint">{{ formData.description.length }}/2000 Zeichen</div>
-            <div v-if="errors.description" class="form-error">{{ errors.description }}</div>
+            <label for="ticket-description" class="form-label">
+              Beschreibung <span class="required">*</span>
+            </label>
+            <div class="textarea-wrapper">
+              <textarea
+                id="ticket-description"
+                v-model="formData.description"
+                class="form-textarea"
+                :class="{ 'has-error': errors.description }"
+                placeholder="Beschreiben Sie Ihr Problem oder Ihre Anfrage so detailliert wie möglich..."
+                rows="6"
+                required
+                :disabled="isSubmitting"
+                maxlength="2000"
+              ></textarea>
+              <div class="input-hint">{{ formData.description.length }}/2000</div>
+            </div>
+            <div v-if="errors.description" class="form-error">
+              <ExclamationCircleIcon class="icon-size-xs" />
+              {{ errors.description }}
+            </div>
           </div>
 
-          <!-- Datei-Upload -->
+          <!-- File Upload -->
           <div class="form-group">
-            <label for="ticket-files" class="form-label"> Anhänge (optional) </label>
+            <label for="ticket-files" class="form-label">
+              Anhänge <span class="optional">(optional)</span>
+            </label>
             <div
               class="file-upload-area"
               :class="{ 'drag-over': isDragOver }"
@@ -93,19 +130,21 @@
               />
               <div class="file-upload-content">
                 <div class="upload-icon">
-                  <CloudArrowUpIcon class="w-8 h-8 Icons-Big" />
+                  <CloudArrowUpIcon class="icon-size-xl" />
                 </div>
-                <p class="upload-text"><strong>Dateien hier ablegen</strong> oder klicken zum Auswählen</p>
+                <p class="upload-text">
+                  <strong>Dateien hier ablegen</strong> oder <span class="upload-link">durchsuchen</span>
+                </p>
                 <p class="upload-hint">Max. 5 Dateien, je 5MB (Bilder, PDF, Word, Text)</p>
               </div>
             </div>
 
-            <!-- Ausgewählte Dateien -->
+            <!-- Selected Files -->
             <div v-if="selectedFiles.length > 0" class="selected-files">
               <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
                 <div class="file-info">
                   <div class="file-icon">
-                    <DocumentIcon class="w-4 h-4 Icons" />
+                    <DocumentIcon class="icon-size-sm" />
                   </div>
                   <div class="file-details">
                     <div class="file-name">{{ file.name }}</div>
@@ -119,41 +158,29 @@
                   :disabled="isSubmitting"
                   title="Datei entfernen"
                 >
-                  <XMarkIcon class="w-3 h-3" />
+                  <XMarkIcon class="icon-size-xs" />
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Submit Button -->
+          <!-- Form Actions -->
           <div class="form-actions">
-            <button type="button" class="btn-cancel" @click="closeModal" :disabled="isSubmitting">Abbrechen</button>
+            <button type="button" class="btn-cancel" @click="closeModal" :disabled="isSubmitting">
+              Abbrechen
+            </button>
             <button type="submit" class="btn-submit" :disabled="!canSubmit || isSubmitting">
               <span v-if="isSubmitting" class="loading">
                 <div class="spinner"></div>
                 Wird gesendet...
               </span>
-              <span v-else>
-                <PaperAirplaneIcon class="w-4 h-4 Icons" />
+              <span v-else class="btn-content">
+                <PaperAirplaneIcon class="icon-size-sm" />
                 Ticket senden
               </span>
             </button>
           </div>
         </form>
-
-        <!-- Erfolgs-Meldung -->
-        <div v-if="showSuccess" class="success-message">
-          <div class="success-icon">
-            <CheckCircleIcon class="w-12 h-12" />
-          </div>
-          <h4>Ticket erfolgreich erstellt!</h4>
-          <p>
-            Ihr Support-Ticket wurde erfolgreich übermittelt. Sie erhalten eine Bestätigung per E-Mail und unser Team
-            wird sich baldmöglichst bei Ihnen melden.
-          </p>
-          <div class="ticket-id" v-if="createdTicketId"><strong>Ticket-ID:</strong> {{ createdTicketId }}</div>
-          <button class="btn-close-success" @click="closeModal">Schließen</button>
-        </div>
       </div>
     </div>
   </div>
@@ -170,6 +197,7 @@ import {
   PaperAirplaneIcon,
   CheckCircleIcon,
   ChevronDownIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 export default defineComponent({
@@ -182,6 +210,7 @@ export default defineComponent({
     PaperAirplaneIcon,
     CheckCircleIcon,
     ChevronDownIcon,
+    ExclamationCircleIcon,
   },
   props: {
     isOpen: {
@@ -382,46 +411,88 @@ export default defineComponent({
 @use "@/style/base/variables" as vars;
 @use "@/style/base/mixins" as mixins;
 
+// Icon Size Classes
+.icon-size-xs {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.icon-size-sm {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.icon-size {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.icon-size-lg {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.icon-size-xl {
+  width: 30px !important;
+  height: 30px !important;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999 !important;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: overlay-fade-in 0.3s ease-out;
 }
 
 .modal-container {
   width: 90%;
-  max-width: 600px;
+  max-width: 680px;
   max-height: 90vh;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 60px rgba(74, 210, 149, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: modal-appear 0.3s ease-out;
+  animation: modal-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
-      border: 1px solid mixins.theme-color($theme, border-light);
+      border: 2px solid mixins.theme-color($theme, border-light);
     }
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4ad295 0%, #35ccd0 50%, #4ad295 100%);
+    background-size: 200% 100%;
+    animation: gradient-slide 3s ease-in-out infinite;
   }
 }
 
 .modal-header {
-  padding: 24px;
+  padding: 28px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid;
+  position: relative;
+  overflow: hidden;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
@@ -430,15 +501,27 @@ export default defineComponent({
     }
   }
 
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74, 210, 149, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
   .header-content {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
 
     .header-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -446,24 +529,15 @@ export default defineComponent({
       color: white;
       flex-shrink: 0;
       position: relative;
-      box-shadow: 0 0 20px rgba(74, 210, 149, 0.25);
-
-      &::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-        opacity: 0.4;
-        filter: blur(8px);
-        z-index: -1;
-      }
+      box-shadow: 0 8px 24px rgba(74, 210, 149, 0.35);
+      animation: icon-float 3s ease-in-out infinite;
     }
 
     h3 {
       margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.375rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -473,8 +547,9 @@ export default defineComponent({
     }
 
     .header-subtitle {
-      margin: 4px 0 0 0;
-      font-size: 0.875rem;
+      margin: 6px 0 0 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -485,24 +560,27 @@ export default defineComponent({
   }
 
   .close-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 2px solid;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
+        border-color: mixins.theme-color($theme, border-light);
         color: mixins.theme-color($theme, text-secondary);
 
         &:hover {
           background-color: mixins.theme-color($theme, hover-color);
+          border-color: mixins.theme-color($theme, border-medium);
           color: mixins.theme-color($theme, text-primary);
+          transform: rotate(90deg);
         }
 
         &:disabled {
@@ -515,21 +593,26 @@ export default defineComponent({
 }
 
 .modal-content {
-  padding: 24px;
+  padding: 32px;
   overflow-y: auto;
   flex: 1;
 }
 
 .ticket-form {
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
 
   .form-label {
     display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    font-size: 0.875rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -538,39 +621,70 @@ export default defineComponent({
     }
 
     .required {
-      color: #4ad295;
-      margin-left: 2px;
+      color: #ff3b30;
+      margin-left: 4px;
+      font-weight: 700;
     }
+
+    .optional {
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+          font-weight: 400;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  .input-wrapper,
+  .textarea-wrapper {
+    position: relative;
   }
 
   .form-input,
   .form-textarea {
     width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid;
-    font-size: 0.875rem;
-    transition: all 0.2s;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, primary-bg);
-        border-color: mixins.theme-color($theme, border-medium);
+        border-color: mixins.theme-color($theme, border-light);
         color: mixins.theme-color($theme, text-primary);
+
+        &:hover:not(:disabled) {
+          border-color: mixins.theme-color($theme, border-medium);
+        }
 
         &:focus {
           outline: none;
           border-color: #4ad295;
-          box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
+          box-shadow: 0 0 0 4px rgba(74, 210, 149, 0.1);
+        }
+
+        &.has-error {
+          border-color: #ff3b30;
+          
+          &:focus {
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.1);
+          }
         }
 
         &:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+          background-color: mixins.theme-color($theme, secondary-bg);
         }
 
         &::placeholder {
           color: mixins.theme-color($theme, text-tertiary);
+          font-weight: 400;
         }
       }
     }
@@ -578,49 +692,45 @@ export default defineComponent({
 
   .form-textarea {
     resize: vertical;
-    min-height: 120px;
-    line-height: 1.5;
+    min-height: 140px;
+    line-height: 1.6;
+    font-family: inherit;
   }
 
-  // Custom Select Styling
   .custom-select {
     position: relative;
 
     .form-select {
       width: 100%;
-      padding: 12px;
-      padding-right: 36px;
-      border-radius: 8px;
-      border: 1px solid;
-      font-size: 0.875rem;
-      transition: all 0.2s;
+      padding: 14px 44px 14px 16px;
+      border-radius: 12px;
+      border: 2px solid;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
       cursor: pointer;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, primary-bg);
-          border-color: mixins.theme-color($theme, border-medium);
+          border-color: mixins.theme-color($theme, border-light);
           color: mixins.theme-color($theme, text-primary);
+
+          &:hover:not(:disabled) {
+            border-color: mixins.theme-color($theme, border-medium);
+          }
 
           &:focus {
             outline: none;
             border-color: #4ad295;
-            box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
+            box-shadow: 0 0 0 4px rgba(74, 210, 149, 0.1);
           }
 
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-          }
-
-          // Option styling
-          option {
-            background-color: mixins.theme-color($theme, primary-bg);
-            color: mixins.theme-color($theme, text-primary);
-            padding: 8px;
+            background-color: mixins.theme-color($theme, secondary-bg);
           }
         }
       }
@@ -628,12 +738,11 @@ export default defineComponent({
 
     .select-icon {
       position: absolute;
-      right: 12px;
+      right: 16px;
       top: 50%;
       transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
       pointer-events: none;
+      transition: transform 0.3s;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -641,11 +750,18 @@ export default defineComponent({
         }
       }
     }
+
+    &:hover .select-icon {
+      transform: translateY(-50%) rotate(180deg);
+    }
   }
 
   .input-hint {
-    margin-top: 4px;
+    position: absolute;
+    right: 16px;
+    bottom: -24px;
     font-size: 0.75rem;
+    font-weight: 500;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -655,21 +771,27 @@ export default defineComponent({
   }
 
   .form-error {
-    margin-top: 6px;
-    font-size: 0.75rem;
-    color: #4ad295;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #ff3b30;
+    animation: error-shake 0.3s ease-out;
   }
 }
 
 // File Upload
 .file-upload-area {
   border: 2px dashed;
-  border-radius: 8px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 32px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  overflow: hidden;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
@@ -679,10 +801,32 @@ export default defineComponent({
       &:hover,
       &.drag-over {
         border-color: #4ad295;
-        background-color: rgba(74, 210, 149, 0.05);
-        box-shadow: 0 0 15px rgba(74, 210, 149, 0.1);
+        background: linear-gradient(135deg, rgba(74, 210, 149, 0.05) 0%, rgba(53, 204, 208, 0.05) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(74, 210, 149, 0.15);
+
+        .upload-icon {
+          transform: scale(1.1);
+        }
       }
     }
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(74, 210, 149, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  &:hover::before,
+  &.drag-over::before {
+    opacity: 1;
   }
 
   .file-input {
@@ -696,30 +840,43 @@ export default defineComponent({
   }
 
   .upload-icon {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
-        filter: drop-shadow(0 0 5px rgba(74, 210, 149, 0.2));
+        color: #4ad295;
+        filter: drop-shadow(0 4px 12px rgba(74, 210, 149, 0.3));
       }
     }
   }
 
   .upload-text {
     margin: 0 0 8px 0;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
     }
+
+    strong {
+      font-weight: 700;
+    }
+
+    .upload-link {
+      color: #4ad295;
+      text-decoration: underline;
+      font-weight: 600;
+    }
   }
 
   .upload-hint {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -730,44 +887,58 @@ export default defineComponent({
 }
 
 .selected-files {
-  margin-top: 12px;
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
 
   .file-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    transition: all 0.2s;
+    animation: file-slide-in 0.3s ease-out;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, secondary-bg);
-        border: 1px solid mixins.theme-color($theme, border-light);
-      }
-    }
+        border: 2px solid mixins.theme-color($theme, border-light);
 
-    &:last-child {
-      margin-bottom: 0;
+        &:hover {
+          border-color: #4ad295;
+          transform: translateX(4px);
+        }
+      }
     }
 
     .file-info {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
 
       .file-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
+            background-color: rgba(74, 210, 149, 0.1);
+            color: #4ad295;
           }
         }
       }
 
       .file-details {
         .file-name {
-          font-size: 0.875rem;
-          font-weight: 500;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin-bottom: 2px;
 
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
@@ -777,7 +948,8 @@ export default defineComponent({
         }
 
         .file-size {
-          font-size: 0.75rem;
+          font-size: 0.8rem;
+          font-weight: 500;
 
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
@@ -789,9 +961,9 @@ export default defineComponent({
     }
 
     .remove-file {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       border: none;
       display: flex;
       align-items: center;
@@ -805,8 +977,9 @@ export default defineComponent({
           color: mixins.theme-color($theme, text-secondary);
 
           &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
-            color: mixins.theme-color($theme, text-primary);
+            background-color: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            transform: rotate(90deg);
           }
 
           &:disabled {
@@ -823,10 +996,10 @@ export default defineComponent({
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 32px;
-  padding-top: 20px;
-  border-top: 1px solid;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 2px solid;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
@@ -835,12 +1008,13 @@ export default defineComponent({
   }
 
   .btn-cancel {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -850,7 +1024,9 @@ export default defineComponent({
 
         &:hover {
           background-color: mixins.theme-color($theme, hover-color);
+          border-color: mixins.theme-color($theme, border-heavy);
           color: mixins.theme-color($theme, text-primary);
+          transform: translateY(-1px);
         }
 
         &:disabled {
@@ -862,60 +1038,66 @@ export default defineComponent({
   }
 
   .btn-submit {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 210, 149, 0.3);
 
     &::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-      opacity: 0;
-      filter: blur(8px);
-      transition: opacity 0.3s;
-      z-index: -1;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
     }
 
     &:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(74, 210, 149, 0.4), 0 0 30px rgba(74, 210, 149, 0.3);
 
       &::before {
-        opacity: 0.5;
+        width: 300px;
+        height: 300px;
       }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
     }
 
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
+      box-shadow: none;
     }
 
+    .btn-content,
     .loading {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .spinner {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-left-color: white;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
   }
 }
@@ -923,18 +1105,21 @@ export default defineComponent({
 // Success Message
 .success-message {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 40px;
+  animation: success-fade-in 0.5s ease-out;
 
   .success-icon {
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     color: #4ad295;
-    filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
+    filter: drop-shadow(0 8px 24px rgba(74, 210, 149, 0.4));
+    animation: success-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   h4 {
-    margin: 0 0 12px 0;
-    font-size: 1.25rem;
-    font-weight: 600;
+    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -944,8 +1129,11 @@ export default defineComponent({
   }
 
   p {
-    margin: 0 0 20px 0;
-    line-height: 1.5;
+    margin: 0 0 28px 0;
+    line-height: 1.6;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -955,99 +1143,200 @@ export default defineComponent({
   }
 
   .ticket-id {
-    margin-bottom: 24px;
-    padding: 12px;
-    border-radius: 8px;
-    font-family: monospace;
+    margin-bottom: 32px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: "SF Mono", Monaco, monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, secondary-bg);
-        color: mixins.theme-color($theme, text-primary);
+        background: linear-gradient(135deg, rgba(74, 210, 149, 0.1) 0%, rgba(53, 204, 208, 0.1) 100%);
+        border: 2px solid rgba(74, 210, 149, 0.2);
       }
+    }
+
+    .ticket-id-label {
+      font-weight: 600;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .ticket-id-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #4ad295;
     }
   }
 
   .btn-close-success {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
     border: none;
     background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 210, 149, 0.3);
 
     &::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-      opacity: 0;
-      filter: blur(8px);
-      transition: opacity 0.3s;
-      z-index: -1;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
     }
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(74, 210, 149, 0.4), 0 0 30px rgba(74, 210, 149, 0.3);
 
       &::before {
-        opacity: 0.5;
+        width: 300px;
+        height: 300px;
       }
     }
   }
 }
 
-@keyframes modal-appear {
+// Animations
+@keyframes overlay-fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gradient-slide {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes icon-float {
+  0%, 100% {
     transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
 
+@keyframes error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes file-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes success-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes success-bounce {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive Design
 @media (max-width: 768px) {
   .modal-container {
     width: 95%;
     max-height: 95vh;
+    border-radius: 16px;
   }
 
   .modal-header {
-    padding: 16px;
+    padding: 20px;
 
     .header-content {
-      gap: 12px;
+      gap: 16px;
 
       .header-icon {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
       }
 
       h3 {
-        font-size: 1.125rem;
+        font-size: 1.25rem;
       }
     }
   }
 
   .modal-content {
-    padding: 16px;
+    padding: 20px;
   }
 
   .form-actions {
@@ -1059,17 +1348,9 @@ export default defineComponent({
       justify-content: center;
     }
   }
-}
-.Icons {
-  width: 30px;
-}
 
-.Close-Icon {
-  width: 20px;
-  position: absolute;
-}
-
-.Icons-Big {
-  width: 50px;
+  .file-upload-area {
+    padding: 24px;
+  }
 }
 </style>

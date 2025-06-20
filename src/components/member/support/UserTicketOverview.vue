@@ -8,16 +8,16 @@
         <p class="header-subtitle">Hier finden Sie alle Ihre Support-Anfragen und deren Status</p>
       </div>
       <button class="btn-new-ticket" @click="showCreateModal = true">
-        <PlusIcon class="w-5 h-5 Icons" />
+        <PlusIcon class="icon-size" />
         Neues Ticket
       </button>
     </div>
 
     <!-- Quick Stats -->
     <div class="quick-stats">
-      <div class="stat-card">
+      <div class="stat-card stat-open">
         <div class="stat-icon">
-          <ExclamationCircleIcon class="w-5 h-5" />
+          <ExclamationCircleIcon class="icon-size" />
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ openTicketsCount }}</div>
@@ -25,9 +25,9 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card stat-progress">
         <div class="stat-icon">
-          <ClockIcon class="w-5 h-5 Icons" />
+          <ClockIcon class="icon-size" />
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ inProgressTicketsCount }}</div>
@@ -35,9 +35,9 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card stat-total">
         <div class="stat-icon">
-          <TicketIcon class="w-5 h-5 Icons" />
+          <TicketIcon class="icon-size" />
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ totalTicketsCount }}</div>
@@ -59,7 +59,7 @@
             <option value="RESOLVED">Gelöst</option>
             <option value="CLOSED">Geschlossen</option>
           </select>
-          <ChevronDownIcon class="select-icon" />
+          <ChevronDownIcon class="select-icon icon-size-sm" />
         </div>
       </div>
 
@@ -74,14 +74,14 @@
             <option value="REPORT">Inhalte melden</option>
             <option value="OTHER">Sonstiges</option>
           </select>
-          <ChevronDownIcon class="select-icon" />
+          <ChevronDownIcon class="select-icon icon-size-sm" />
         </div>
       </div>
 
       <div class="filter-item search">
         <label for="search-filter">Suche:</label>
         <div class="search-wrapper">
-          <MagnifyingGlassIcon class="search-icon w-5 h-5 Icons" />
+          <MagnifyingGlassIcon class="search-icon icon-size-sm" />
           <input
             type="text"
             id="search-filter"
@@ -102,7 +102,7 @@
     <!-- Empty State -->
     <div v-else-if="filteredTickets.length === 0 && !isLoading" class="empty-state">
       <div class="empty-icon">
-        <ChatBubbleLeftRightIcon class="w-16 h-16" />
+        <ChatBubbleLeftRightIcon class="icon-size-xl" />
       </div>
       <h3>
         {{ searchQuery || statusFilter || categoryFilter ? "Keine Tickets gefunden" : "Noch keine Support-Tickets" }}
@@ -152,7 +152,7 @@
           <div class="ticket-id">ID: {{ ticket.id }}</div>
           <div class="ticket-indicators">
             <div v-if="ticket.messageCount && ticket.messageCount > 0" class="message-count" title="Nachrichten">
-              <ChatBubbleLeftRightIcon class="w-4 h-4 Icons" />
+              <ChatBubbleLeftRightIcon class="icon-size-xs" />
               {{ ticket.messageCount }}
             </div>
             <div v-if="ticket.hasUnreadMessages" class="unread-indicator" title="Ungelesene Nachrichten">
@@ -339,6 +339,8 @@ export default defineComponent({
       return {
         "status-open": status === TicketStatus.OPEN,
         "status-progress": status === TicketStatus.IN_PROGRESS,
+        "status-waiting": status === TicketStatus.WAITING,
+        "status-resolved": status === TicketStatus.RESOLVED,
         "status-closed": status === TicketStatus.CLOSED,
       };
     };
@@ -378,6 +380,32 @@ export default defineComponent({
 @use "@/style/base/variables" as vars;
 @use "@/style/base/mixins" as mixins;
 
+// Icon Size Classes
+.icon-size-xs {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.icon-size-sm {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.icon-size {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.icon-size-lg {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.icon-size-xl {
+  width: 30px !important;
+  height: 30px !important;
+}
+
 .user-ticket-overview {
   max-width: 1200px;
   margin: 0 auto;
@@ -395,12 +423,22 @@ export default defineComponent({
   .header-content {
     h2 {
       margin: 0 0 8px 0;
-      font-size: 1.75rem;
-      font-weight: 600;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-primary);
+          @if $theme == "light" {
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+          } @else {
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+          }
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
       }
     }
@@ -408,6 +446,7 @@ export default defineComponent({
     .header-subtitle {
       margin: 0;
       font-size: 1rem;
+      line-height: 1.6;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -420,54 +459,64 @@ export default defineComponent({
   .btn-new-ticket {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: 500;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
     color: white;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 210, 149, 0.3);
 
     &::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-      opacity: 0;
-      filter: blur(8px);
-      transition: opacity 0.3s;
-      z-index: -1;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
     }
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(74, 210, 149, 0.4), 0 0 30px rgba(74, 210, 149, 0.3);
 
       &::before {
-        opacity: 0.5;
+        width: 300px;
+        height: 300px;
       }
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 }
 
 .quick-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
   margin-bottom: 32px;
 
   .stat-card {
-    padding: 20px;
-    border-radius: 12px;
+    padding: 24px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    transition: all 0.2s;
+    gap: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
@@ -476,32 +525,62 @@ export default defineComponent({
       }
     }
 
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #4ad295, transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 15px rgba(74, 210, 149, 0.1);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1), 0 0 20px rgba(74, 210, 149, 0.15);
+
+      &::before {
+        transform: translateX(100%);
+      }
+
+      .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
+
+    &.stat-open .stat-icon {
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.1) 0%, rgba(255, 149, 0, 0.1) 100%);
+      color: #ff3b30;
+    }
+
+    &.stat-progress .stat-icon {
+      background: linear-gradient(135deg, rgba(255, 204, 0, 0.1) 0%, rgba(255, 149, 0, 0.1) 100%);
+      color: #ffcc00;
+    }
+
+    &.stat-total .stat-icon {
+      background: linear-gradient(135deg, rgba(74, 210, 149, 0.1) 0%, rgba(53, 204, 208, 0.1) 100%);
+      color: #4ad295;
     }
 
     .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, rgba(74, 210, 149, 0.1) 0%, rgba(53, 204, 208, 0.1) 100%);
-      color: #4ad295;
-      transition: all 0.2s;
-    }
-
-    &:hover .stat-icon {
-      box-shadow: 0 0 15px rgba(74, 210, 149, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .stat-info {
       .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: 1.75rem;
+        font-weight: 800;
         margin-bottom: 4px;
+        letter-spacing: -0.02em;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -512,6 +591,7 @@ export default defineComponent({
 
       .stat-label {
         font-size: 0.875rem;
+        font-weight: 500;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -526,36 +606,39 @@ export default defineComponent({
 .tickets-filter {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  border-radius: 12px;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding: 24px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
   }
 
   .filter-item {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 150px;
+    gap: 8px;
+    min-width: 160px;
 
     &.search {
       flex: 1;
-      min-width: 200px;
+      min-width: 240px;
 
       .search-wrapper {
         position: relative;
 
         .search-icon {
           position: absolute;
-          left: 12px;
+          left: 16px;
           top: 50%;
           transform: translateY(-50%);
+          transition: color 0.2s;
 
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
@@ -565,14 +648,19 @@ export default defineComponent({
         }
 
         input {
-          padding-left: 40px;
+          padding-left: 48px;
+          
+          &:focus ~ .search-icon {
+            color: #4ad295;
+          }
         }
       }
     }
 
     label {
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.02em;
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
@@ -581,37 +669,34 @@ export default defineComponent({
       }
     }
 
-    // Custom Select Styling
     .custom-select {
       position: relative;
 
       select {
         width: 100%;
-        padding: 8px 36px 8px 12px;
-        border-radius: 6px;
-        border: 1px solid;
-        font-size: 0.875rem;
+        padding: 12px 40px 12px 16px;
+        border-radius: 10px;
+        border: 2px solid;
+        font-size: 0.9rem;
+        font-weight: 500;
         appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
         cursor: pointer;
+        transition: all 0.2s;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, primary-bg);
-            border-color: mixins.theme-color($theme, border-medium);
+            border-color: mixins.theme-color($theme, border-light);
             color: mixins.theme-color($theme, text-primary);
+
+            &:hover {
+              border-color: mixins.theme-color($theme, border-medium);
+            }
 
             &:focus {
               outline: none;
               border-color: #4ad295;
-              box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
-            }
-
-            option {
-              background-color: mixins.theme-color($theme, primary-bg);
-              color: mixins.theme-color($theme, text-primary);
-              padding: 8px;
+              box-shadow: 0 0 0 4px rgba(74, 210, 149, 0.1);
             }
           }
         }
@@ -619,12 +704,11 @@ export default defineComponent({
 
       .select-icon {
         position: absolute;
-        right: 8px;
+        right: 12px;
         top: 50%;
         transform: translateY(-50%);
-        width: 20px;
-        height: 20px;
         pointer-events: none;
+        transition: color 0.2s;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -632,173 +716,279 @@ export default defineComponent({
           }
         }
       }
+    }
 
-      select,
-      input {
-        padding: 8px 12px;
-        border-radius: 6px;
-        border: 1px solid;
-        font-size: 0.875rem;
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, primary-bg);
+          border-color: mixins.theme-color($theme, border-light);
+          color: mixins.theme-color($theme, text-primary);
+
+          &:hover {
+            border-color: mixins.theme-color($theme, border-medium);
+          }
+
+          &:focus {
+            outline: none;
+            border-color: #4ad295;
+            box-shadow: 0 0 0 4px rgba(74, 210, 149, 0.1);
+          }
+
+          &::placeholder {
+            color: mixins.theme-color($theme, text-tertiary);
+          }
+        }
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(74, 210, 149, 0.1);
+    border-left: 4px solid #4ad295;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 15px rgba(74, 210, 149, 0.5));
+  }
+
+  p {
+    margin: 0;
+    font-weight: 500;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+
+  .empty-icon {
+    margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-tertiary);
+        filter: drop-shadow(0 0 20px rgba(74, 210, 149, 0.3));
+      }
+    }
+  }
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+      }
+    }
+  }
+
+  p {
+    margin: 0 0 32px 0;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-secondary);
+      }
+    }
+  }
+
+  .btn-create-first {
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 210, 149, 0.3);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(74, 210, 149, 0.4), 0 0 30px rgba(74, 210, 149, 0.3);
+
+      &::before {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  }
+}
+
+.tickets-list {
+  display: grid;
+  gap: 20px;
+
+  .ticket-card {
+    padding: 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, card-bg);
+        border: 2px solid mixins.theme-color($theme, border-light);
+
+        &:hover {
+          border-color: #4ad295;
+          box-shadow: 0 8px 24px rgba(74, 210, 149, 0.15), 0 0 30px rgba(74, 210, 149, 0.1);
+          transform: translateY(-3px) scale(1.01);
+        }
+      }
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: radial-gradient(circle, rgba(74, 210, 149, 0.05) 0%, transparent 70%);
+      transition: transform 0.6s;
+      transform: scale(0);
+    }
+
+    &:hover::before {
+      transform: scale(1);
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 16px;
+
+      .ticket-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background-color: mixins.theme-color($theme, primary-bg);
-            border-color: mixins.theme-color($theme, border-medium);
             color: mixins.theme-color($theme, text-primary);
-
-            &:focus {
-              outline: none;
-              border-color: #4ad295;
-              box-shadow: 0 0 0 3px rgba(74, 210, 149, 0.1);
-            }
-
-            &::placeholder {
-              color: mixins.theme-color($theme, text-tertiary);
-            }
           }
         }
       }
-    }
-  }
 
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 64px 0;
+      .ticket-status {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        text-transform: uppercase;
+        transition: all 0.2s;
 
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(74, 210, 149, 0.1);
-      border-left: 4px solid #4ad295;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-      filter: drop-shadow(0 0 10px rgba(74, 210, 149, 0.4));
-    }
+        &.status-open {
+          background: linear-gradient(135deg, rgba(255, 59, 48, 0.15) 0%, rgba(255, 149, 0, 0.15) 100%);
+          color: #ff3b30;
+          box-shadow: 0 0 15px rgba(255, 59, 48, 0.2);
+        }
 
-    p {
-      margin: 0;
+        &.status-progress {
+          background: linear-gradient(135deg, rgba(255, 204, 0, 0.15) 0%, rgba(255, 149, 0, 0.15) 100%);
+          color: #ffcc00;
+          box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        }
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary);
+        &.status-waiting {
+          background: linear-gradient(135deg, rgba(0, 122, 255, 0.15) 0%, rgba(0, 199, 255, 0.15) 100%);
+          color: #007aff;
+          box-shadow: 0 0 15px rgba(0, 122, 255, 0.2);
+        }
+
+        &.status-resolved {
+          background: linear-gradient(135deg, rgba(52, 199, 89, 0.15) 0%, rgba(74, 210, 149, 0.15) 100%);
+          color: #34c759;
+          box-shadow: 0 0 15px rgba(52, 199, 89, 0.2);
+        }
+
+        &.status-closed {
+          background: linear-gradient(135deg, rgba(142, 142, 147, 0.15) 0%, rgba(174, 174, 178, 0.15) 100%);
+          color: #8e8e93;
+          box-shadow: 0 0 15px rgba(142, 142, 147, 0.2);
         }
       }
     }
-  }
 
-  .empty-state {
-    text-align: center;
-    padding: 64px 0;
-
-    .empty-icon {
+    .ticket-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
       margin-bottom: 20px;
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-tertiary);
-          filter: drop-shadow(0 0 8px rgba(74, 210, 149, 0.2));
-        }
-      }
-    }
+      .meta-item {
+        display: flex;
+        gap: 8px;
 
-    h3 {
-      margin: 0 0 12px 0;
-      font-size: 1.25rem;
+        .meta-label {
+          font-size: 0.875rem;
+          font-weight: 600;
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-primary);
-        }
-      }
-    }
-
-    p {
-      margin: 0 0 24px 0;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.5;
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, text-secondary);
-        }
-      }
-    }
-
-    .btn-create-first {
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-      color: white;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-
-      &::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #4ad295 0%, #35ccd0 100%);
-        opacity: 0;
-        filter: blur(8px);
-        transition: opacity 0.3s;
-        z-index: -1;
-      }
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(74, 210, 149, 0.3), 0 0 20px rgba(74, 210, 149, 0.2);
-
-        &::before {
-          opacity: 0.5;
-        }
-      }
-    }
-  }
-
-  .tickets-list {
-    display: grid;
-    gap: 16px;
-
-    .ticket-card {
-      padding: 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, card-bg);
-          border: 1px solid mixins.theme-color($theme, border-light);
-
-          &:hover {
-            border-color: #4ad295;
-            box-shadow: 0 4px 12px rgba(74, 210, 149, 0.1), 0 0 20px rgba(74, 210, 149, 0.1);
-            transform: translateY(-2px);
+          @each $theme in ("light", "dark") {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, text-secondary);
+            }
           }
         }
-      }
 
-      .ticket-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-        gap: 16px;
-
-        .ticket-title {
-          font-size: 1.125rem;
-          font-weight: 600;
-          line-height: 1.4;
+        .meta-value {
+          font-size: 0.875rem;
+          font-weight: 500;
 
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
@@ -806,174 +996,144 @@ export default defineComponent({
             }
           }
         }
+      }
+    }
 
-        .ticket-status {
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          white-space: nowrap;
-          background-color: rgba(74, 210, 149, 0.1);
-          color: #4ad295;
-          box-shadow: 0 0 8px rgba(74, 210, 149, 0.15);
+    .ticket-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 2px solid;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          border-color: mixins.theme-color($theme, border-light);
         }
       }
 
-      .ticket-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 12px;
-        margin-bottom: 16px;
-
-        .meta-item {
-          display: flex;
-          gap: 8px;
-
-          .meta-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-secondary);
-              }
-            }
-          }
-
-          .meta-value {
-            font-size: 0.875rem;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-primary);
-              }
-            }
-          }
-        }
-      }
-
-      .ticket-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 12px;
-        border-top: 1px solid;
+      .ticket-id {
+        font-size: 0.8rem;
+        font-family: "SF Mono", Monaco, monospace;
+        font-weight: 600;
+        letter-spacing: 0.02em;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            border-color: mixins.theme-color($theme, border-light);
+            color: mixins.theme-color($theme, text-tertiary);
           }
         }
+      }
 
-        .ticket-id {
-          font-size: 0.75rem;
-          font-family: monospace;
+      .ticket-indicators {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .message-count {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 6px;
+          transition: all 0.2s;
 
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
-              color: mixins.theme-color($theme, text-tertiary);
+              background-color: rgba(74, 210, 149, 0.1);
+              color: #4ad295;
             }
           }
         }
 
-        .ticket-indicators {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-
-          .message-count {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.75rem;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                color: mixins.theme-color($theme, text-secondary);
-              }
-            }
-          }
-
-          .unread-indicator {
-            .unread-dot {
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              background-color: #4ad295;
-              animation: pulse 2s infinite;
-              box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
-            }
+        .unread-indicator {
+          .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #4ad295 0%, #35ccd0 100%);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
           }
         }
       }
     }
   }
+}
 
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+    box-shadow: 0 0 30px rgba(74, 210, 149, 1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .user-ticket-overview {
+    padding: 16px;
+  }
+
+  .tickets-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn-new-ticket {
+      width: 100%;
+      justify-content: center;
     }
   }
 
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-      box-shadow: 0 0 10px rgba(74, 210, 149, 0.6);
-    }
-    50% {
-      opacity: 0.5;
-      box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
+  .quick-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .tickets-filter {
+    .filter-item {
+      min-width: 100%;
+
+      &.search {
+        min-width: 100%;
+      }
     }
   }
 
-  @media (max-width: 768px) {
-    .user-ticket-overview {
-      padding: 16px;
-    }
-
-    .tickets-header {
+  .ticket-card {
+    .ticket-header {
       flex-direction: column;
       align-items: flex-start;
-
-      .btn-new-ticket {
-        width: 100%;
-        justify-content: center;
-      }
+      gap: 12px;
     }
 
-    .quick-stats {
+    .ticket-meta {
       grid-template-columns: 1fr;
     }
-
-    .tickets-filter {
-      .filter-item {
-        min-width: 100%;
-
-        &.search {
-          min-width: 100%;
-        }
-      }
-    }
-
-    .ticket-card {
-      .ticket-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      .ticket-meta {
-        grid-template-columns: 1fr;
-      }
-    }
-  }
-
-  .Icons {
-    width: 30px;
   }
 }
 </style>

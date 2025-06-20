@@ -6,21 +6,17 @@
       <p>Verbinde dich mit anderen Eltern und tausche dich über Erfahrungen aus</p>
     </div>
 
-    <!-- Freunde-Statistik-Karten -->
-    <friends-stats :friends-count="friendsCount" :pending-requests-count="pendingRequestsCount" />
-
-    <!-- Tabs für Freunde, Anfragen -->
-    <friends-tabs
-      :tabs="tabs"
-      :active-tab="activeTab"
+    <!-- Freunde-Statistik-Karten (Jetzt klickbar für Navigation) -->
+    <friends-stats
+      :friends-count="friendsCount"
       :pending-requests-count="pendingRequestsCount"
-      :unread-messages-count="unreadMessagesCount"
-      @update:active-tab="activeTab = $event"
+      :active-view="activeView"
+      @change-view="activeView = $event"
     />
 
-    <!-- Suchleiste -->
+    <!-- Suchleiste (nur bei Freunde-Ansicht) -->
     <search-section
-      v-if="activeTab === 'friends'"
+      v-if="activeView === 'friends'"
       :search-query="searchQuery"
       :sent-requests="sentRequests"
       @update:search-query="searchQuery = $event"
@@ -44,25 +40,30 @@
       <button @click="loadData" class="retry-button">Erneut versuchen</button>
     </div>
 
-    <!-- Freunde-Liste -->
-    <friends-list
-      v-else-if="activeTab === 'friends'"
-      :filtered-friends="filteredFriends"
-      :search-query="searchQuery"
-      @unfriend="unfriend"
-      @clear-search="clearSearch"
-      @show-invite-modal="showInviteModal = true"
-      @open-chat="openChat"
-    />
+    <!-- Content Area -->
+    <transition name="content-fade" mode="out-in">
+      <!-- Freunde-Liste -->
+      <friends-list
+        v-if="!isLoading && !error && activeView === 'friends'"
+        key="friends"
+        :filtered-friends="filteredFriends"
+        :search-query="searchQuery"
+        @unfriend="unfriend"
+        @clear-search="clearSearch"
+        @show-invite-modal="showInviteModal = true"
+        @open-chat="openChat"
+      />
 
-    <!-- Anfragen-Liste -->
-    <requests-list
-      v-else-if="activeTab === 'requests'"
-      :pending-requests="pendingRequests"
-      @accept-request="acceptRequest"
-      @decline-request="declineRequest"
-      @show-invite-modal="showInviteModal = true"
-    />
+      <!-- Anfragen-Liste -->
+      <requests-list
+        v-else-if="!isLoading && !error && activeView === 'requests'"
+        key="requests"
+        :pending-requests="pendingRequests"
+        @accept-request="acceptRequest"
+        @decline-request="declineRequest"
+        @show-invite-modal="showInviteModal = true"
+      />
+    </transition>
 
     <!-- Einladungs-Modal -->
     <invite-modal
@@ -72,6 +73,7 @@
       @update:is-visible="showInviteModal = $event"
       @update:invite-email="inviteEmail = $event"
       @update:invite-message="inviteMessage = $event"
+      @send-invite="sendInvite"
     />
 
     <!-- Chat-Modal -->
@@ -80,7 +82,6 @@
       :friend-id="selectedFriend?.friendId || selectedFriend?.id || ''"
       :friend-name="selectedFriend?.name || selectedFriend?.username || ''"
       :is-online="selectedFriend?.isOnline || false"
-      :friend-profile-image="selectedFriend?.profileImage || ''"
       @send-message="handleSendMessage"
       @show-toast="showToast"
     />
@@ -89,7 +90,7 @@
     <div v-if="toast.show" class="toast-notification" :class="toast.type">
       <div class="toast-content">
         <span class="toast-icon">
-          {{ toast.type === "success" ? "✅" : toast.type === "error" ? "❌" : "ℹ️" }}
+          {{ toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️' }}
         </span>
         <span class="toast-message">{{ toast.message }}</span>
         <button class="toast-close" @click="toast.show = false">×</button>
@@ -99,10 +100,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import {
   FriendsStats,
-  FriendsTabs,
   SearchSection,
   FriendsList,
   RequestsList,
@@ -110,22 +110,20 @@ import {
   ChatModal,
 } from "@/components/pages/DashboardPages/Friends";
 import friendService from "@/services/friend.service";
-import type {
-  Friend,
-  FriendRequest,
-  Tab,
+import chatService from "@/services/chat.service";
+import type { 
+  Friend, 
+  FriendRequest, 
   Toast,
   SentRequest,
   FriendRequestEvent,
-  ChatMessageEvent,
+  ChatMessageEvent
 } from "@/types/Friends.types";
-import chatService from "@/services/chat.service";
 
 export default defineComponent({
   name: "FriendsDashboard",
   components: {
     FriendsStats,
-    FriendsTabs,
     SearchSection,
     FriendsList,
     RequestsList,
@@ -134,7 +132,7 @@ export default defineComponent({
   },
   setup() {
     // Reactive States
-    const activeTab = ref("friends");
+    const activeView = ref<'friends' | 'requests'>('friends');
     const searchQuery = ref("");
     const showInviteModal = ref(false);
     const showChatModal = ref(false);
@@ -153,15 +151,9 @@ export default defineComponent({
     // Toast-Benachrichtigungen
     const toast = ref<Toast>({
       show: false,
-      message: "",
-      type: "success",
+      message: '',
+      type: 'success'
     });
-
-    // Tabs
-    const tabs = ref<Tab[]>([
-      { id: "friends", name: "Meine Freunde" },
-      { id: "requests", name: "Anfragen" },
-    ]);
 
     // Computed Properties
     const friendsCount = computed(() => friends.value.length);
@@ -179,23 +171,28 @@ export default defineComponent({
       );
     });
 
-    // Ungelesene Nachrichten laden - KORRIGIERTE VERSION
+    // Watch für View-Wechsel
+    watch(activeView, (newView) => {
+      // Reset search when switching views
+      if (newView === 'requests') {
+        searchQuery.value = '';
+      }
+    });
+
+    // Ungelesene Nachrichten laden
     const loadUnreadMessagesCount = async () => {
       try {
-        // Verwende die getTotalUnreadMessagesCount Methode vom friendService
         const totalUnread = await friendService.getTotalUnreadMessagesCount();
         unreadMessagesCount.value = totalUnread;
-
+        
         // Event für MemberSidebar senden
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("unread-messages-updated", {
-              detail: { count: totalUnread },
-            })
-          );
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('unread-messages-updated', { 
+            detail: { count: totalUnread } 
+          }));
         }
       } catch (error) {
-        console.error("Fehler beim Laden der ungelesenen Nachrichten:", error);
+        console.error('Fehler beim Laden der ungelesenen Nachrichten:', error);
         unreadMessagesCount.value = 0;
       }
     };
@@ -206,7 +203,7 @@ export default defineComponent({
     const startUnreadMessagesPolling = () => {
       // Initial laden
       loadUnreadMessagesCount();
-
+      
       // Alle 30 Sekunden aktualisieren
       unreadMessagesInterval = setInterval(() => {
         loadUnreadMessagesCount();
@@ -221,9 +218,9 @@ export default defineComponent({
     };
 
     // Toast-Helper
-    const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
       toast.value = { show: true, message, type };
-
+      
       // Auto-hide nach 5 Sekunden
       setTimeout(() => {
         toast.value.show = false;
@@ -231,18 +228,12 @@ export default defineComponent({
     };
 
     const onFriendRequestSent = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, "success");
-      console.log("Friend request sent to:", data.displayName);
-
-      // Reload sent requests to update UI
+      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, 'success');
       await loadSentRequests();
     };
 
     const onFriendRequestCancelled = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, "info");
-      console.log("Friend request cancelled for:", data.displayName);
-
-      // Reload sent requests to update UI
+      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, 'info');
       await loadSentRequests();
     };
 
@@ -250,16 +241,16 @@ export default defineComponent({
     const loadFriends = async () => {
       try {
         const response = await friendService.getAllFriendsOfUser();
-        friends.value = response.data.map((friend) => ({
+        friends.value = response.data.map(friend => ({
           id: friend.id,
           friendId: friend.friendId,
-          name: friend.username, // Falls kein displayName vorhanden
+          name: friend.username,
           username: friend.username,
           avatar: friend.profileImage,
           profileImage: friend.profileImage,
-          bio: "Neu hinzugefügter Freund", // Placeholder
+          bio: "Neu hinzugefügter Freund",
           friendSince: new Date().toLocaleDateString("de-DE"),
-          isOnline: Math.random() > 0.5, // Random für Demo
+          isOnline: Math.random() > 0.5,
           sharedInterests: Math.floor(Math.random() * 5),
         }));
       } catch (err: any) {
@@ -270,7 +261,7 @@ export default defineComponent({
     const loadPendingRequests = async () => {
       try {
         const response = await friendService.getAllPendingRequests();
-        pendingRequests.value = response.data.map((request) => ({
+        pendingRequests.value = response.data.map(request => ({
           id: request.id,
           senderId: request.senderId,
           name: request.username,
@@ -289,22 +280,9 @@ export default defineComponent({
     const loadSentRequests = async () => {
       try {
         const requests = await friendService.getMySentRequests();
-        sentRequests.value = requests.map((req: any) => ({
-          id: req.id,
-          receiverId: req.receiverId,
-          status: req.status,
-          receiver: {
-            id: req.receiver?.id,
-            username: req.receiver?.username,
-            profilePicture: req.receiver?.profilePicture ?? null,
-          },
-          createdAt: req.createdAt,
-          responsedAt: req.responsedAt,
-          message: req.message,
-        }));
+        sentRequests.value = requests;
       } catch (err: any) {
-        console.error("Fehler beim Laden der gesendeten Anfragen:", err);
-        // Kein Toast hier, da es nicht kritisch ist
+        console.error('Fehler beim Laden der gesendeten Anfragen:', err);
       }
     };
 
@@ -313,23 +291,24 @@ export default defineComponent({
       error.value = null;
 
       try {
-        // Lade Daten parallel, aber mit individueller Fehlerbehandlung
-        const results = await Promise.allSettled([loadFriends(), loadPendingRequests(), loadSentRequests()]);
+        const results = await Promise.allSettled([
+          loadFriends(),
+          loadPendingRequests(),
+          loadSentRequests()
+        ]);
 
-        // Prüfe auf Fehler
-        const failedOperations = results.filter((result) => result.status === "rejected");
-
+        const failedOperations = results.filter(result => result.status === 'rejected');
+        
         if (failedOperations.length > 0) {
-          console.error("Some operations failed:", failedOperations);
-          // Zeige Warnung, aber lade trotzdem was funktioniert hat
-          showToast("Einige Daten konnten nicht geladen werden", "info");
+          console.error('Some operations failed:', failedOperations);
+          showToast('Einige Daten konnten nicht geladen werden', 'info');
         }
 
-        // Starte ungelesene Nachrichten Polling nach dem Laden der Freunde
         startUnreadMessagesPolling();
+        
       } catch (err: any) {
-        error.value = err.message || "Unbekannter Fehler beim Laden der Daten";
-        showToast("Fehler beim Laden der Daten", "error");
+        error.value = err.message || 'Unbekannter Fehler beim Laden der Daten';
+        showToast('Fehler beim Laden der Daten', 'error');
       } finally {
         isLoading.value = false;
       }
@@ -352,9 +331,9 @@ export default defineComponent({
         try {
           await friendService.removeFriend(friendId);
           friends.value = friends.value.filter((f) => f.id !== friendId && f.friendId !== friendId);
-          showToast(`Freundschaft mit ${friend.name} wurde beendet.`, "info");
+          showToast(`Freundschaft mit ${friend.name} wurde beendet.`, 'info');
         } catch (err: any) {
-          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", "error");
+          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", 'error');
         }
       }
     };
@@ -362,15 +341,13 @@ export default defineComponent({
     const acceptRequest = async (requestId: string | number) => {
       try {
         await friendService.acceptFriendRequest(requestId.toString());
-
-        // Request aus der Liste entfernen
+        
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         if (request) {
           pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-
-          // Als neuen Freund hinzufügen
+          
           const newFriend: Friend = {
-            id: `friend_${Date.now()}`, // Temporäre ID
+            id: `friend_${Date.now()}`,
             friendId: request.senderId,
             name: request.name,
             username: request.username,
@@ -382,52 +359,66 @@ export default defineComponent({
             sharedInterests: 0,
           };
           friends.value.push(newFriend);
-
-          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, "success");
+          
+          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, 'success');
+          
+          // Wechsle automatisch zur Freunde-Ansicht
+          activeView.value = 'friends';
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", "error");
+        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", 'error');
       }
     };
 
     const declineRequest = async (requestId: string | number) => {
       try {
         await friendService.rejectFriendRequest(requestId.toString());
-
+        
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-
+        
         if (request) {
-          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, "info");
+          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, 'info');
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", "error");
+        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", 'error');
+      }
+    };
+
+    const sendInvite = async () => {
+      if (!inviteEmail.value.trim()) {
+        showToast("Bitte gib eine E-Mail-Adresse ein.", 'error');
+        return;
+      }
+
+      try {
+        await friendService.sendEmailInvite(inviteEmail.value, inviteMessage.value);
+        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, 'success');
+        
+        inviteEmail.value = "";
+        inviteMessage.value = "";
+        showInviteModal.value = false;
+      } catch (err: any) {
+        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", 'error');
       }
     };
 
     // Chat-Funktionen
     const openChat = (friend: Friend) => {
-      console.log("Opening chat with friend:", friend); // DEBUG
       selectedFriend.value = friend;
       showChatModal.value = true;
-      console.log("Chat modal should be visible:", showChatModal.value); // DEBUG
-      console.log("Selected friend:", selectedFriend.value); // DEBUG
     };
 
     const handleSendMessage = async (data: ChatMessageEvent) => {
       try {
-        // Verwende Chat-Service für direktere Kommunikation
         const conversation = await chatService.createOrGetConversation(data.friendId.toString());
         await chatService.sendMessage(conversation.id, data.message);
-
-        console.log("Message sent successfully to:", data.friendId);
-        showToast("Nachricht erfolgreich gesendet!", "success");
-
-        // Aktualisiere ungelesene Nachrichten
+        
+        showToast('Nachricht erfolgreich gesendet!', 'success');
         loadUnreadMessagesCount();
       } catch (error) {
-        console.error("Error sending message:", error);
-        showToast("Fehler beim Senden der Nachricht", "error");
+        console.error('Error sending message:', error);
+        showToast('Fehler beim Senden der Nachricht', 'error');
       }
     };
 
@@ -442,7 +433,7 @@ export default defineComponent({
 
     return {
       // State
-      activeTab,
+      activeView,
       searchQuery,
       showInviteModal,
       showChatModal,
@@ -452,19 +443,18 @@ export default defineComponent({
       error,
       toast,
       selectedFriend,
-
+      
       // Data
-      tabs,
       friends,
       pendingRequests,
       sentRequests,
       unreadMessagesCount,
-
+      
       // Computed
       friendsCount,
       pendingRequestsCount,
       filteredFriends,
-
+      
       // Methods
       loadData,
       filterFriends,
@@ -472,11 +462,12 @@ export default defineComponent({
       unfriend,
       acceptRequest,
       declineRequest,
+      sendInvite,
       openChat,
       handleSendMessage,
       onFriendRequestSent,
       onFriendRequestCancelled,
-      showToast,
+      showToast
     };
   },
 });
@@ -520,6 +511,22 @@ export default defineComponent({
         }
       }
     }
+  }
+
+  // Content Fade Transition
+  .content-fade-enter-active,
+  .content-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .content-fade-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .content-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 
   // Loading State
@@ -611,7 +618,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-3px);
-            @include mixins.shadow("medium", $theme);
+            @include mixins.shadow('medium', $theme);
           }
         }
       }
@@ -629,12 +636,12 @@ export default defineComponent({
     min-width: 300px;
     max-width: 500px;
     @include animations.fade-in(0.3s);
-    @include mixins.shadow("large", "light");
+    @include mixins.shadow('large', 'light');
 
     &.success {
       background-color: rgba(76, 175, 80, 0.95);
       color: white;
-      border-left: 4px solid #4caf50;
+      border-left: 4px solid #4CAF50;
     }
 
     &.error {
@@ -646,7 +653,7 @@ export default defineComponent({
     &.info {
       background-color: rgba(33, 150, 243, 0.95);
       color: white;
-      border-left: 4px solid #2196f3;
+      border-left: 4px solid #2196F3;
     }
 
     .toast-content {

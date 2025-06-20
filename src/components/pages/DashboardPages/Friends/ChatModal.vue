@@ -2,21 +2,16 @@
 <template>
   <div v-if="isVisible" class="modal-backdrop" @click="closeModal">
     <div class="modal-content" @click.stop>
-      <!-- Header -->
-      <header class="chat-header">
-        <div class="user-info">
-          <div class="avatar">
-            <img
-              v-if="friendProfileImage"
-              :src="friendProfileImage"
-              :alt="`${friendName}'s Avatar`"
-              class="avatar-image"
-            />
-            <span v-else class="avatar-text">{{ getInitials(friendName) }}</span>
-            <div v-if="isOnline" class="online-status"></div>
+      <header class="modal-header">
+        <div class="chat-user-info">
+          <div class="chat-avatar">
+            <img v-if="friendProfileImage" :src="friendProfileImage" :alt="`${friendName}'s Avatar`"
+              class="avatar-image" />
+            <span v-else class="avatar-placeholder">{{ getInitials(friendName) }}</span>
+            <span v-if="isOnline" class="online-indicator"></span>
           </div>
           <div class="user-details">
-            <h3 class="user-name">{{ friendName }}</h3>
+            <h3 class="modal-title">{{ friendName }}</h3>
             <span class="user-status">{{ isOnline ? "Online" : "Zuletzt aktiv vor 2h" }}</span>
           </div>
         </div>
@@ -25,15 +20,13 @@
         </button>
       </header>
 
-      <!-- Messages Container -->
-      <div class="messages-container" ref="chatContainer">
-        <!-- Loading -->
-        <div v-if="isLoading" class="loading-state">
+      <div class="chat-container" ref="chatContainer" @scroll="handleScroll">
+        <!-- Loading indicator -->
+        <div v-if="isLoading" class="loading-indicator">
           <div class="loading-spinner"></div>
           <span>Nachrichten werden geladen...</span>
         </div>
 
-        <!-- Messages -->
         <div v-else class="messages-list">
           <!-- Empty state -->
           <div v-if="messages.length === 0" class="empty-chat">
@@ -42,77 +35,68 @@
             <p>Schreibe die erste Nachricht!</p>
           </div>
 
-          <!-- Message bubbles -->
-          <div
-            v-else
-            v-for="message in messages"
-            :key="message.id"
-            :class="[
-              'message-wrapper',
-              {
-                'own-message': isOwnMessage(message),
-                'friend-message': !isOwnMessage(message),
-                editing: editingMessageId === message.id,
-              },
-            ]"
-          >
-            <!-- Edit Mode -->
-            <div v-if="editingMessageId === message.id" class="edit-container">
-              <div
-                ref="editRichText"
-                class="edit-input"
-                contenteditable="true"
-                @input="handleEditInput"
-                @keydown.escape="cancelEdit"
-                @keydown.enter.ctrl="saveEdit"
-                @keydown.enter.exact.prevent="saveEdit"
-              ></div>
-              <div class="edit-actions">
-                <button @click="cancelEdit" class="edit-btn cancel">
-                  <XMarkIcon class="btn-icon" />
+          <!-- Messages -->
+          <div v-else v-for="message in messages" :key="message.id" :class="['message', {
+            'own-message': isOwnMessage(message),
+            'friend-message': !isOwnMessage(message),
+            'deleted-message': message.content === 'Die Nachricht wurde gelöscht',
+            'editing': editingMessageId === message.id
+          }]" @mouseenter="hoveredMessageId = message.id" @mouseleave="hoveredMessageId = null">
+            <div class="message-content">
+              <!-- Message Actions (nur bei Hover anzeigen) -->
+              <div v-if="hoveredMessageId === message.id && message.content !== 'Die Nachricht wurde gelöscht'"
+                class="message-actions">
+                <!-- Bearbeiten (nur eigene Nachrichten) -->
+                <button v-if="isOwnMessage(message) && canEditMessage(message)" @click="startEditing(message)"
+                  class="action-btn edit" title="Nachricht bearbeiten">
+                  <PencilIcon class="action-icon" />
                 </button>
-                <button @click="saveEdit" class="edit-btn save" :disabled="!editingContent.trim()">
-                  <CheckIcon class="btn-icon" />
+
+                <!-- Löschen (alle Nachrichten) -->
+                <button @click="deleteMessageConfirm(message)" class="action-btn delete" title="Nachricht löschen">
+                  <TrashIcon class="action-icon" />
                 </button>
               </div>
-            </div>
 
-            <!-- Normal Message -->
-            <div v-else class="message-bubble" @dblclick="startEdit(message)">
-              <!-- Deleted message -->
-              <div v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-message">
-                <TrashIcon class="deleted-icon" />
-                <em>Diese Nachricht wurde gelöscht</em>
-              </div>
-              <!-- Normal message mit Rich-Text -->
-              <div v-else v-html="parseMessageContent(message.content)" class="message-text"></div>
-
-              <!-- Attachment (if any) -->
-              <div v-if="message.attachmentUrl" class="message-attachment">
-                <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
-                  <PaperClipIcon class="attachment-icon" />
-                  Datei anhang
-                </a>
-              </div>
-
-              <!-- Message footer -->
-              <div class="message-footer">
-                <span v-if="message.isEdited" class="edited-label">(bearbeitet)</span>
-                <span class="message-time">{{ formatTime(message.createdAt) }}</span>
-
-                <!-- Message actions -->
-                <div
-                  v-if="isOwnMessage(message) && message.content !== 'Die Nachricht wurde gelöscht'"
-                  class="message-actions"
-                >
-                  <button @click="startEdit(message)" class="action-btn" title="Bearbeiten">
-                    <PencilIcon class="action-icon" />
+              <!-- Edit Mode -->
+              <div v-if="editingMessageId === message.id" class="edit-mode">
+                <div ref="editEditor" class="edit-input" contenteditable="true" @keydown.enter.prevent="saveEdit"
+                  @keydown.esc="cancelEdit" @input="handleEditInput">{{ editingContent }}</div>
+                <div class="edit-actions">
+                  <button @click="cancelEdit" class="edit-btn cancel">
+                    <XMarkIcon class="edit-action-icon" />
                   </button>
-                  <button @click="deleteMessage(message)" class="action-btn" title="Löschen">
-                    <TrashIcon class="action-icon" />
+                  <button @click="saveEdit" class="edit-btn save" :disabled="!editingContent.trim()">
+                    <CheckIcon class="edit-action-icon" />
                   </button>
                 </div>
               </div>
+
+              <!-- Normal Message Display -->
+              <template v-else>
+                <!-- Deleted message -->
+                <p v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-text">
+                  <em>Diese Nachricht wurde gelöscht</em>
+                </p>
+
+                <!-- Normal message mit Rich-Text -->
+                <div v-else v-html="parseMessageContent(message.content)" class="message-text"></div>
+
+                <!-- Attachment (if any) -->
+                <div v-if="message.attachmentUrl" class="message-attachment">
+                  <a :href="message.attachmentUrl" target="_blank" rel="noopener noreferrer">
+                    <PaperClipIcon class="attachment-icon" />
+                    Datei anhang
+                  </a>
+                </div>
+              </template>
+
+              <span class="message-time">
+                {{ formatTime(message.createdAt) }}
+                <span v-if="message.updatedAt !== message.createdAt" class="edited-indicator">
+                  (bearbeitet)
+                </span>
+              </span>
             </div>
           </div>
 
@@ -136,36 +120,31 @@
             <span class="typing-text">{{ friendName }} schreibt...</span>
           </div>
         </div>
+
+        <!-- Scroll to bottom button -->
+        <transition name="fade">
+          <button v-if="!isAtBottom" @click="scrollToBottom(true)" class="scroll-to-bottom" title="Nach unten scrollen">
+            <ChevronDownIcon class="scroll-icon" />
+          </button>
+        </transition>
       </div>
 
       <!-- Rich Text Editor -->
       <div class="message-editor">
         <!-- Formatting Toolbar -->
         <div class="formatting-toolbar">
-          <button
-            type="button"
-            @click="toggleFormat('bold')"
-            :class="['format-button', { active: activeFormats.bold }]"
-            title="Fett (Strg+B)"
-          >
+          <button type="button" @click="toggleFormat('bold')" :class="['format-button', { active: activeFormats.bold }]"
+            title="Fett (Strg+B)">
             <strong>B</strong>
           </button>
 
-          <button
-            type="button"
-            @click="toggleFormat('italic')"
-            :class="['format-button', { active: activeFormats.italic }]"
-            title="Kursiv (Strg+I)"
-          >
+          <button type="button" @click="toggleFormat('italic')"
+            :class="['format-button', { active: activeFormats.italic }]" title="Kursiv (Strg+I)">
             <em>I</em>
           </button>
 
-          <button
-            type="button"
-            @click="toggleFormat('underline')"
-            :class="['format-button', { active: activeFormats.underline }]"
-            title="Unterstreichen (Strg+U)"
-          >
+          <button type="button" @click="toggleFormat('underline')"
+            :class="['format-button', { active: activeFormats.underline }]" title="Unterstreichen (Strg+U)">
             <u>U</u>
           </button>
 
@@ -179,13 +158,8 @@
             <!-- Emoji Picker -->
             <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
               <div class="emoji-grid">
-                <button
-                  v-for="emoji in availableEmojis"
-                  :key="emoji"
-                  @click="insertEmoji(emoji)"
-                  class="emoji-item"
-                  type="button"
-                >
+                <button v-for="emoji in availableEmojis" :key="emoji" @click="insertEmoji(emoji)" class="emoji-item"
+                  type="button">
                   {{ emoji }}
                 </button>
               </div>
@@ -195,29 +169,26 @@
 
         <!-- Rich Text Input -->
         <div class="message-input-wrapper">
-          <div
-            ref="messageEditor"
-            class="message-input"
-            contenteditable="true"
-            @input="handleInput"
-            @keyup="handleInput"
-            @keydown="handleKeyDown"
-            @paste="handlePaste"
-            @focus="updateActiveFormats"
-            @click="updateActiveFormats"
-            @blur="handleInput"
-            :data-placeholder="'Nachricht schreiben...'"
-          ></div>
+          <div ref="messageEditor" class="message-input" contenteditable="true" @input="handleInput"
+            @keyup="handleInput" @keydown="handleKeyDown" @paste="handlePaste" @focus="updateActiveFormats"
+            @click="updateActiveFormats" @blur="handleInput" :data-placeholder="'Nachricht schreiben...'"></div>
 
-          <button
-            type="button"
-            @click.prevent="sendMessage"
-            class="send-button"
-            :disabled="!canSendMessage"
-            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`"
-          >
+          <button type="button" @click.prevent="sendMessage" class="send-button" :disabled="!canSendMessage"
+            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`">
             <PaperAirplaneIcon class="icon-size" />
           </button>
+        </div>
+      </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div v-if="showDeleteConfirm" class="delete-confirm-modal" @click.stop>
+        <div class="delete-confirm-content">
+          <h4>Nachricht löschen?</h4>
+          <p>Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          <div class="confirm-actions">
+            <button @click="cancelDelete" class="confirm-btn cancel">Abbrechen</button>
+            <button @click="confirmDelete" class="confirm-btn delete">Löschen</button>
+          </div>
         </div>
       </div>
     </div>
@@ -225,49 +196,57 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from "vue";
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue';
 import {
   XMarkIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
   FaceSmileIcon,
   ChatBubbleLeftRightIcon,
-} from "@heroicons/vue/24/outline";
-import chatService, { type ChatMessage } from "@/services/chat.service";
-import { authService } from "@/services/auth.service";
+  PencilIcon,
+  TrashIcon,
+  CheckIcon,
+  ChevronDownIcon
+} from '@heroicons/vue/24/outline';
+import chatService, { type ChatMessage } from '@/services/chat.service';
+import { authService } from '@/services/auth.service';
 
 export default defineComponent({
-  name: "ChatModal",
+  name: 'ChatModal',
   components: {
     XMarkIcon,
     PaperAirplaneIcon,
     PaperClipIcon,
     FaceSmileIcon,
     ChatBubbleLeftRightIcon,
+    PencilIcon,
+    TrashIcon,
+    CheckIcon,
+    ChevronDownIcon
   },
   props: {
     isVisible: {
       type: Boolean,
-      required: true,
+      required: true
     },
     friendId: {
       type: [String, Number],
-      required: true,
+      required: true
     },
     friendName: {
       type: String,
-      required: true,
+      required: true
     },
     isOnline: {
       type: Boolean,
-      default: false,
+      default: false
     },
     friendProfileImage: {
       type: String,
-      default: "",
-    },
+      default: ''
+    }
   },
-  emits: ["update:isVisible", "send-message", "show-toast"],
+  emits: ['update:isVisible', 'send-message', 'show-toast'],
   setup(props, { emit }) {
     // State
     const messages = ref<ChatMessage[]>([]);
@@ -276,76 +255,42 @@ export default defineComponent({
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
     const messageEditor = ref<HTMLDivElement>();
-    const currentConversationId = ref<string>("");
-    const currentUserId = ref<string>("");
+    const editEditor = ref<HTMLDivElement>();
+    const currentConversationId = ref<string>('');
+    const currentUserId = ref<string>('');
     const isUserTyping = ref(false);
     const showEmojiPicker = ref(false);
-    const editorContent = ref(""); // Neue reaktive Variable für Content
+    const editorContent = ref('');
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    // Edit/Delete State
+    const hoveredMessageId = ref<string | null>(null);
+    const editingMessageId = ref<string | null>(null);
+    const editingContent = ref('');
+    const showDeleteConfirm = ref(false);
+    const messageToDelete = ref<ChatMessage | null>(null);
+    const isAtBottom = ref(true);
 
     // Active formats tracking
     const activeFormats = ref({
       bold: false,
       italic: false,
-      underline: false,
+      underline: false
     });
 
     // 50 verschiedene Emojis
     const availableEmojis = [
-      "😀",
-      "😃",
-      "😄",
-      "😁",
-      "😆",
-      "😅",
-      "🤣",
-      "😂",
-      "🙂",
-      "😊",
-      "😇",
-      "🥰",
-      "😍",
-      "🤩",
-      "😘",
-      "😗",
-      "😚",
-      "😙",
-      "😋",
-      "😛",
-      "😜",
-      "🤪",
-      "😝",
-      "🤗",
-      "🤭",
-      "🤫",
-      "🤔",
-      "😐",
-      "😑",
-      "😶",
-      "🙄",
-      "😏",
-      "😣",
-      "😥",
-      "😮",
-      "🤐",
-      "😯",
-      "😪",
-      "😫",
-      "😴",
-      "😌",
-      "😓",
-      "😔",
-      "😕",
-      "🙃",
-      "🤑",
-      "😲",
-      "😢",
-      "😭",
-      "😤",
+      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
+      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛',
+      '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶',
+      '🙄', '😏', '😣', '😥', '😮', '🤐', '😯', '😪', '😫', '😴',
+      '😌', '😓', '😔', '😕', '🙃', '🤑', '😲', '😢', '😭', '😤'
     ];
 
     // Computed
-    const hasContent = computed(() => editorContent.value.trim().length > 0);
+    const hasContent = computed(() => {
+      return editorContent.value.trim().length > 0;
+    });
 
     const canSendMessage = computed(() => hasContent.value && !isSending.value);
 
@@ -357,7 +302,7 @@ export default defineComponent({
           currentUserId.value = userData.sub;
         }
       } catch (error) {
-        console.error("Fehler beim Laden der User-Daten:", error);
+        console.error('Fehler beim Laden der User-Daten:', error);
       }
     };
 
@@ -370,9 +315,20 @@ export default defineComponent({
         const conversation = await chatService.createOrGetConversation(props.friendId.toString());
         currentConversationId.value = conversation.id;
         messages.value = [...(conversation.messages || [])].reverse();
-        scrollToBottom();
+
+        // Beim initialen Laden sind wir "am Ende"
+        isAtBottom.value = true;
+
+        // Scroll zur letzten Nachricht ohne Animation beim ersten Laden
+        await nextTick();
+        scrollToBottom(false);
+
+        // Zusätzlicher Scroll-Versuch nach kurzer Verzögerung mit Animation
+        setTimeout(() => {
+          scrollToBottom(true);
+        }, 100);
       } catch (error) {
-        console.error("Fehler beim Laden der Nachrichten:", error);
+        console.error('Fehler beim Laden der Nachrichten:', error);
         messages.value = [];
       } finally {
         isLoading.value = false;
@@ -381,9 +337,9 @@ export default defineComponent({
 
     const getInitials = (name: string) => {
       return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
+        .split(' ')
+        .map(n => n[0])
+        .join('')
         .toUpperCase()
         .slice(0, 2);
     };
@@ -397,39 +353,171 @@ export default defineComponent({
     };
 
     const parseMessageContent = (content: string | null): string => {
-      if (!content) return "";
-      // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
+      if (!content) return '';
+      // Behandle speziell gelöschte Nachrichten
+      if (content === 'Die Nachricht wurde gelöscht') {
+        return content;
+      }
       let parsed = chatService.parseMessageContent(content);
-      parsed = parsed.replace(/<em>/g, "<i>").replace(/<\/em>/g, "</i>");
+      // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
+      parsed = parsed.replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>');
+      // Stelle sicher, dass Zeilenumbrüche erhalten bleiben
+      parsed = parsed.replace(/\n/g, '<br>');
       return parsed;
     };
 
-    const scrollToBottom = () => {
+    const scrollToBottom = (smooth = true) => {
       nextTick(() => {
         if (chatContainer.value) {
-          chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+          // Verwende requestAnimationFrame für optimale Performance
+          requestAnimationFrame(() => {
+            if (chatContainer.value) {
+              const scrollOptions: ScrollToOptions = {
+                top: chatContainer.value.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
+              };
+              chatContainer.value.scrollTo(scrollOptions);
+              isAtBottom.value = true;
+            }
+          });
         }
       });
     };
 
-    // Rich Text Editor Functions
-    const updateActiveFormats = () => {
-      activeFormats.value.bold = document.queryCommandState("bold");
-      activeFormats.value.italic = document.queryCommandState("italic");
-      activeFormats.value.underline = document.queryCommandState("underline");
+    const checkIfAtBottom = () => {
+      if (chatContainer.value) {
+        const threshold = 50; // Pixel-Toleranz
+        const { scrollTop, scrollHeight, clientHeight } = chatContainer.value;
+        isAtBottom.value = scrollTop + clientHeight >= scrollHeight - threshold;
+      }
     };
 
-    const toggleFormat = (format: "bold" | "italic" | "underline") => {
+    const handleScroll = () => {
+      checkIfAtBottom();
+    };
+
+    // Edit/Delete Functions
+    const canEditMessage = (message: ChatMessage): boolean => {
+      // Nachrichten können nur innerhalb von 5 Minuten bearbeitet werden
+      const messageAge = Date.now() - new Date(message.createdAt).getTime();
+      return messageAge < 5 * 60 * 1000; // 5 Minuten
+    };
+
+    const startEditing = (message: ChatMessage) => {
+      editingMessageId.value = message.id;
+      // Extrahiere Text aus HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = message.content || '';
+      editingContent.value = tempDiv.textContent || '';
+
+      nextTick(() => {
+        if (editEditor.value) {
+          editEditor.value.focus();
+          // Setze Cursor ans Ende
+          const range = document.createRange();
+          const selection = window.getSelection();
+          if (selection) {
+            range.selectNodeContents(editEditor.value);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
+      });
+    };
+
+    const handleEditInput = (event: Event) => {
+      const target = event.target as HTMLDivElement;
+      editingContent.value = target.textContent || '';
+    };
+
+    const cancelEdit = () => {
+      editingMessageId.value = null;
+      editingContent.value = '';
+    };
+
+    const saveEdit = async () => {
+      if (!editingMessageId.value || !editingContent.value.trim()) return;
+
+      try {
+        // Update message via service
+        await chatService.updateMessage(editingMessageId.value, editingContent.value.trim());
+
+        // Update local message
+        const messageIndex = messages.value.findIndex(m => m.id === editingMessageId.value);
+        if (messageIndex !== -1) {
+          messages.value[messageIndex] = {
+            ...messages.value[messageIndex],
+            content: editingContent.value.trim(),
+            updatedAt: new Date().toISOString()
+          };
+        }
+
+        emit('show-toast', 'Nachricht wurde bearbeitet', 'success');
+        cancelEdit();
+        // Behalte die aktuelle Scroll-Position
+      } catch (error: any) {
+        console.error('Fehler beim Bearbeiten der Nachricht:', error);
+        const errorMessage = error.response?.data?.message || 'Fehler beim Bearbeiten der Nachricht';
+        emit('show-toast', errorMessage, 'error');
+      }
+    };
+
+    const deleteMessageConfirm = (message: ChatMessage) => {
+      messageToDelete.value = message;
+      showDeleteConfirm.value = true;
+    };
+
+    const cancelDelete = () => {
+      messageToDelete.value = null;
+      showDeleteConfirm.value = false;
+    };
+
+    const confirmDelete = async () => {
+      if (!messageToDelete.value) return;
+
+      try {
+        await chatService.deleteMessage(messageToDelete.value.id);
+
+        // Update local message
+        const messageIndex = messages.value.findIndex(m => m.id === messageToDelete.value?.id);
+        if (messageIndex !== -1) {
+          messages.value[messageIndex] = {
+            ...messages.value[messageIndex],
+            content: 'Die Nachricht wurde gelöscht',
+            attachmentUrl: null
+          };
+        }
+
+        emit('show-toast', 'Nachricht wurde gelöscht', 'success');
+        // Behalte die aktuelle Scroll-Position
+      } catch (error: any) {
+        console.error('Fehler beim Löschen der Nachricht:', error);
+        const errorMessage = error.response?.data?.message || 'Fehler beim Löschen der Nachricht';
+        emit('show-toast', errorMessage, 'error');
+      } finally {
+        cancelDelete();
+      }
+    };
+
+    // Rich Text Editor Functions
+    const updateActiveFormats = () => {
+      activeFormats.value.bold = document.queryCommandState('bold');
+      activeFormats.value.italic = document.queryCommandState('italic');
+      activeFormats.value.underline = document.queryCommandState('underline');
+    };
+
+    const toggleFormat = (format: 'bold' | 'italic' | 'underline') => {
       messageEditor.value?.focus();
 
-      // Stelle sicher, dass eine Selection existiert
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         document.execCommand(format, false);
         updateActiveFormats();
 
-        // Update content after formatting
-        nextTick(() => handleInput());
+        nextTick(() => {
+          handleInput();
+        });
       }
     };
 
@@ -443,7 +531,6 @@ export default defineComponent({
         const textNode = document.createTextNode(emoji);
         range.insertNode(textNode);
 
-        // Cursor nach dem Emoji positionieren
         range.setStartAfter(textNode);
         range.setEndAfter(textNode);
         selection.removeAllRanges();
@@ -452,8 +539,9 @@ export default defineComponent({
 
       showEmojiPicker.value = false;
 
-      // Update content manually
-      nextTick(() => handleInput());
+      nextTick(() => {
+        handleInput();
+      });
     };
 
     const toggleEmojiPicker = () => {
@@ -461,54 +549,47 @@ export default defineComponent({
     };
 
     const handleInput = () => {
-      // Update editor content
       if (messageEditor.value) {
-        // Get text content and clean it
-        let text = messageEditor.value.textContent || "";
+        let text = messageEditor.value.textContent || '';
+        const html = messageEditor.value.innerHTML || '';
 
-        // Also check innerHTML for cases where only formatting tags exist
-        const html = messageEditor.value.innerHTML || "";
-
-        // If there's only a <br> tag or empty formatting tags, consider it empty
-        if (html === "<br>" || html.match(/^<[^>]+><\/[^>]+>$/)) {
-          text = "";
+        if (html === '<br>' || html.match(/^<[^>]+><\/[^>]+>$/)) {
+          text = '';
         }
 
         editorContent.value = text;
       }
 
-      // Update active formats
       updateActiveFormats();
 
-      // Typing indicator
       isUserTyping.value = true;
 
-      if (typingTimeout) clearTimeout(typingTimeout);
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
 
-      typingTimeout = setTimeout(() => (isUserTyping.value = false), 2000);
+      typingTimeout = setTimeout(() => {
+        isUserTyping.value = false;
+      }, 2000);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Strg+B für Fett
-      if (event.ctrlKey && event.key === "b") {
+      if (event.ctrlKey && event.key === 'b') {
         event.preventDefault();
-        toggleFormat("bold");
+        toggleFormat('bold');
       }
 
-      // Strg+I für Kursiv
-      if (event.ctrlKey && event.key === "i") {
+      if (event.ctrlKey && event.key === 'i') {
         event.preventDefault();
-        toggleFormat("italic");
+        toggleFormat('italic');
       }
 
-      // Strg+U für Unterstreichen
-      if (event.ctrlKey && event.key === "u") {
+      if (event.ctrlKey && event.key === 'u') {
         event.preventDefault();
-        toggleFormat("underline");
+        toggleFormat('underline');
       }
 
-      // Enter zum Senden (Shift+Enter für neue Zeile)
-      if (event.key === "Enter" && !event.shiftKey) {
+      if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
       }
@@ -516,35 +597,23 @@ export default defineComponent({
 
     const handlePaste = (event: ClipboardEvent) => {
       event.preventDefault();
-      const text = event.clipboardData?.getData("text/plain") || "";
-      document.execCommand("insertText", false, text);
+      const text = event.clipboardData?.getData('text/plain') || '';
+      document.execCommand('insertText', false, text);
 
-      // Update content after paste
-      nextTick(() => handleInput());
+      nextTick(() => {
+        handleInput();
+      });
     };
 
     const sendMessage = async () => {
-      // Debug-Logs
-      console.log("SendMessage called:", {
-        canSendMessage: canSendMessage.value,
-        hasContent: hasContent.value,
-        isSending: isSending.value,
-        editorContent: editorContent.value,
-        currentConversationId: currentConversationId.value,
-        textContent: messageEditor.value?.textContent,
-        innerHTML: messageEditor.value?.innerHTML,
-      });
-
       if (!canSendMessage.value || !currentConversationId.value) {
         return;
       }
 
-      // Hole Text und HTML-Inhalt
-      const messageText = messageEditor.value?.textContent?.trim() || "";
-      let htmlContent = messageEditor.value?.innerHTML || "";
+      const messageText = messageEditor.value?.textContent?.trim() || '';
+      let htmlContent = messageEditor.value?.innerHTML || '';
 
-      // Prüfe nochmal ob wirklich Inhalt vorhanden ist
-      if (!messageText && !htmlContent.replace(/<[^>]*>/g, "").trim()) {
+      if (!messageText && !htmlContent.replace(/<[^>]*>/g, '').trim()) {
         return;
       }
 
@@ -557,43 +626,44 @@ export default defineComponent({
       }
 
       try {
-        // Konvertiere i-Tags zurück zu em-Tags für konsistentes Speichern
-        htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
+        htmlContent = htmlContent.replace(/<i>/g, '<em>').replace(/<\/i>/g, '</em>');
 
-        // Sende Nachricht über Chat-Service (erstmal auskommentiert, da sonst 2x gesendet wird)
-        // const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
 
-        // Erstelle lokale Nachricht für sofortige Anzeige
         const localMessage: ChatMessage = {
-          id: /* response.message.id ||  */ Date.now().toString(),
+          id: response.message.id || Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: htmlContent,
-          messageType: "TEXT",
+          messageType: 'TEXT',
           attachmentUrl: null,
           isRead: true,
-          isEdited: false,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
 
         messages.value.push(localMessage);
 
-        // Clear editor
         if (messageEditor.value) {
-          messageEditor.value.innerHTML = "";
-          editorContent.value = "";
+          messageEditor.value.innerHTML = '';
+          editorContent.value = '';
           updateActiveFormats();
         }
 
-        scrollToBottom();
+        // Warte auf DOM-Update bevor gescrollt wird
+        await nextTick();
+        // Beim Senden immer nach unten scrollen
+        isAtBottom.value = true;
+        scrollToBottom(true);
 
-        emit("send-message", {
+        emit('send-message', {
           friendId: props.friendId,
-          message: messageText,
+          message: messageText
         });
+
       } catch (error) {
-        console.error("Fehler beim Senden der Nachricht:", error);
+        console.error('Fehler beim Senden der Nachricht:', error);
+        emit('show-toast', 'Fehler beim Senden der Nachricht', 'error');
       } finally {
         isSending.value = false;
       }
@@ -601,14 +671,15 @@ export default defineComponent({
 
     const closeModal = () => {
       showEmojiPicker.value = false;
-      emit("update:isVisible", false);
+      cancelEdit();
+      cancelDelete();
+      emit('update:isVisible', false);
     };
 
     const focusEditor = () => {
       nextTick(() => {
         if (messageEditor.value) {
           messageEditor.value.focus();
-          // Setze Cursor ans Ende
           const range = document.createRange();
           const selection = window.getSelection();
           if (selection) {
@@ -618,109 +689,109 @@ export default defineComponent({
             selection.addRange(range);
           }
 
-          // Initial content check
           handleInput();
         }
       });
     };
 
-    // Click outside emoji picker
+    // Click outside handlers
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (showEmojiPicker.value && !target.closest(".emoji-picker-container")) {
+      if (showEmojiPicker.value && !target.closest('.emoji-picker-container')) {
         showEmojiPicker.value = false;
       }
     };
 
-    // Selection change handler für Format-Updates
     const handleSelectionChange = () => {
       if (messageEditor.value && document.activeElement === messageEditor.value) {
         updateActiveFormats();
       }
     };
 
-    // Debug helper
-    const debugSendButton = () => {
-      console.log("Debug Send Button:", {
-        canSendMessage: canSendMessage.value,
-        hasContent: hasContent.value,
-        isSending: isSending.value,
-        editorContent: editorContent.value,
-        editorHTML: messageEditor.value?.innerHTML,
-        editorText: messageEditor.value?.textContent,
-        conversationId: currentConversationId.value,
-      });
-    };
+    // Watchers
+    watch(() => props.isVisible, (visible) => {
+      if (visible) {
+        loadCurrentUser();
+        loadMessages();
+        focusEditor();
+        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('selectionchange', handleSelectionChange);
+      } else {
+        // Reset state
+        messages.value = [];
+        currentConversationId.value = '';
+        editorContent.value = '';
+        if (messageEditor.value) {
+          messageEditor.value.innerHTML = '';
+        }
+        isTyping.value = false;
+        isUserTyping.value = false;
+        showEmojiPicker.value = false;
+        hoveredMessageId.value = null;
+        isAtBottom.value = true;
+        cancelEdit();
+        cancelDelete();
+        activeFormats.value = {
+          bold: false,
+          italic: false,
+          underline: false
+        };
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('selectionchange', handleSelectionChange);
 
-    // Watcher für editorContent
-    watch(editorContent, (newValue) => {
-      console.log("Editor content changed:", newValue, "Can send:", canSendMessage.value);
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+          typingTimeout = null;
+        }
+      }
     });
 
-    // Watchers
-    watch(
-      () => props.isVisible,
-      (visible) => {
-        if (visible) {
-          loadCurrentUser();
-          loadMessages();
-          focusEditor();
-          document.addEventListener("click", handleClickOutside);
-          document.addEventListener("selectionchange", handleSelectionChange);
-        } else {
-          // Reset state
-          messages.value = [];
-          currentConversationId.value = "";
-          editorContent.value = "";
-          if (messageEditor.value) {
-            messageEditor.value.innerHTML = "";
-          }
-          isTyping.value = false;
-          isUserTyping.value = false;
-          showEmojiPicker.value = false;
-          activeFormats.value = {
-            bold: false,
-            italic: false,
-            underline: false,
-          };
-          document.removeEventListener("click", handleClickOutside);
-          document.removeEventListener("selectionchange", handleSelectionChange);
+    watch(() => props.friendId, () => {
+      if (props.isVisible && props.friendId) {
+        loadMessages();
+      }
+    });
 
-          if (typingTimeout) {
-            clearTimeout(typingTimeout);
-            typingTimeout = null;
-          }
+    // Automatisches Scrollen bei neuen Nachrichten
+    watch(() => messages.value.length, (newLength, oldLength) => {
+      // Nur scrollen wenn eine neue Nachricht hinzugefügt wurde
+      if (newLength > oldLength) {
+        const lastMessage = messages.value[messages.value.length - 1];
+        // Scrolle immer bei eigenen Nachrichten oder wenn bereits am Ende
+        if (lastMessage && (isOwnMessage(lastMessage) || isAtBottom.value)) {
+          nextTick(() => {
+            scrollToBottom(true);
+          });
         }
       }
-    );
-
-    watch(
-      () => props.friendId,
-      () => {
-        if (props.isVisible && props.friendId) {
-          loadMessages();
-        }
-      }
-    );
+    });
 
     // Keyboard shortcuts
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && props.isVisible) {
-        closeModal();
+      if (event.key === 'Escape') {
+        if (showDeleteConfirm.value) {
+          cancelDelete();
+        } else if (editingMessageId.value) {
+          cancelEdit();
+        } else if (props.isVisible) {
+          closeModal();
+        }
       }
     };
 
     onMounted(() => {
-      document.addEventListener("keydown", handleGlobalKeyDown);
+      document.addEventListener('keydown', handleGlobalKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener("keydown", handleGlobalKeyDown);
-      document.removeEventListener("click", handleClickOutside);
-      document.removeEventListener("selectionchange", handleSelectionChange);
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('selectionchange', handleSelectionChange);
 
-      if (typingTimeout) clearTimeout(typingTimeout);
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
     });
 
     return {
@@ -734,10 +805,16 @@ export default defineComponent({
       availableEmojis,
       activeFormats,
       editorContent,
+      hoveredMessageId,
+      editingMessageId,
+      editingContent,
+      showDeleteConfirm,
+      isAtBottom,
 
       // Refs
       chatContainer,
       messageEditor,
+      editEditor,
 
       // Computed
       hasContent,
@@ -754,26 +831,35 @@ export default defineComponent({
       handleInput,
       handleKeyDown,
       handlePaste,
+      handleScroll,
       sendMessage,
       closeModal,
       updateActiveFormats,
-      debugSendButton,
+      canEditMessage,
+      startEditing,
+      handleEditInput,
+      cancelEdit,
+      saveEdit,
+      deleteMessageConfirm,
+      cancelDelete,
+      confirmDelete,
+      scrollToBottom
     };
-  },
+  }
 });
 </script>
 
 <style lang="scss" scoped>
-@use "sass:map";
-@use "@/style/base/variables" as vars;
-@use "@/style/base/mixins" as mixins;
-@use "@/style/base/animations" as animations;
+@use 'sass:map';
+@use '@/style/base/variables' as vars;
+@use '@/style/base/mixins' as mixins;
+@use '@/style/base/animations' as animations;
 
 // Einheitliche Icon-Größe
 .icon-size {
   width: 20px !important;
-  height: 20px !important;
   position: absolute;
+  height: 20px !important;
 }
 
 .modal-backdrop {
@@ -782,7 +868,7 @@ export default defineComponent({
   left: 0;
   right: 0;
   bottom: 0;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(15px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -792,321 +878,160 @@ export default defineComponent({
 }
 
 .modal-content {
-  // Desktop: Große, feste Größe
   width: 100%;
   max-width: 1200px;
   height: 80vh;
-  max-height: 800px;
-  min-height: 600px;
+  max-height: 700px;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
-  overflow: hidden;
+  border-radius: map.get(map.get(vars.$layout, border-radius), large);
+  position: relative;
   @include animations.fade-in(0.3s);
 
-  @each $theme in ("light", "dark") {
+  @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
-      border: 1px solid mixins.theme-color($theme, border-light);
-      @include mixins.shadow("large", $theme);
+      border: 1px solid mixins.theme-color($theme, border-subtle);
+      @include mixins.shadow('large', $theme);
+      transition: all 0.4s ease-out;
     }
-  }
-
-  // Mobile: Vollbild-Layout
-  @media (max-width: 640px) {
-    width: 100vw;
-    height: 100vh;
-    max-width: none;
-    max-height: none;
-    min-height: 100vh;
-    border-radius: 0;
-
-    // Mindestbreite für sehr kleine Geräte
-    min-width: 370px;
-  }
-
-  // Tablet: Angepasste Größe
-  @media (min-width: 641px) and (max-width: 1024px) {
-    width: 95vw;
-    height: 85vh;
-    max-width: 600px;
-    max-height: 700px;
-    min-height: 500px;
-    border-radius: 16px;
-  }
-
-  // Große Desktop-Bildschirme
-  @media (min-width: 1400px) {
-    max-width: 1400px;
-    max-height: 900px;
   }
 }
 
-.chat-header {
+.modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: map.get(vars.$spacing, l);
   border-bottom: 1px solid;
-  flex-shrink: 0;
 
-  @each $theme in ("light", "dark") {
+  @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, secondary-bg);
       border-color: mixins.theme-color($theme, border-light);
+      transition: border-color 0.4s ease-out;
     }
   }
 
-  // Mobile: Kompakterer Header
-  @media (max-width: 640px) {
-    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, s);
-    min-height: 60px;
-  }
-
-  // Tablet: Mittlere Größe
-  @media (min-width: 641px) and (max-width: 1024px) {
-    padding: map.get(vars.$spacing, m);
-  }
-
-  .user-info {
+  .chat-user-info {
     display: flex;
     align-items: center;
     gap: map.get(vars.$spacing, m);
-    min-width: 0; // Ermöglicht Text-Overflow
 
-    // Mobile: Weniger Gap
-    @media (max-width: 640px) {
-      gap: map.get(vars.$spacing, s);
-    }
-
-    .avatar {
-      position: relative;
-      width: 44px;
-      height: 44px;
+    .chat-avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, secondary-bg);
+          border: 2px solid mixins.theme-color($theme, accent-teal);
+          transition: all 0.4s ease-out;
+        }
+      }
 
       .avatar-image {
         width: 100%;
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
-        transition: all 0.2s ease;
       }
 
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background: mixins.theme-gradient($theme, primary);
-        }
-      }
-
-      // Mobile: Kleinerer Avatar
-      @media (max-width: 640px) {
-        width: 36px;
-        height: 36px;
-      }
-
-      .avatar-text {
+      .avatar-placeholder {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        color: white;
 
-        // Mobile: Kleinere Schrift
-        @media (max-width: 640px) {
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+            transition: color 0.4s ease-out;
+          }
         }
       }
 
-      .online-status {
+      .online-indicator {
         position: absolute;
         bottom: 2px;
         right: 2px;
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background-color: #4caf50;
+        background-color: #4CAF50;
         border: 2px solid white;
-
-        // Mobile: Kleinerer Indikator
-        @media (max-width: 640px) {
-          width: 10px;
-          height: 10px;
-          border-width: 1px;
-        }
       }
     }
 
     .user-details {
-      min-width: 0; // Für Text-Overflow
-      flex: 1;
-
-      .user-name {
+      .modal-title {
         font-size: map.get(map.get(vars.$fonts, sizes), large);
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        margin: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-weight: map.get(map.get(vars.$fonts, weights), semibold);
+        margin: 0 0 map.get(vars.$spacing, xxs) 0;
 
-        @each $theme in ("light", "dark") {
+        @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
+            transition: color 0.4s ease-out;
           }
-        }
-
-        // Mobile: Kleinere Schrift
-        @media (max-width: 640px) {
-          font-size: map.get(map.get(vars.$fonts, sizes), medium);
         }
       }
 
       .user-status {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
 
-        @each $theme in ("light", "dark") {
+        @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
+            transition: color 0.4s ease-out;
           }
-        }
-
-        // Mobile: Noch kleinere Schrift
-        @media (max-width: 640px) {
-          font-size: map.get(map.get(vars.$fonts, sizes), xs);
         }
       }
     }
   }
 
-  .close-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+  .close-button {
+    width: 32px;
+    height: 32px;
+    border-radius: map.get(map.get(vars.$layout, border-radius), small);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     border: none;
-    transition: all 0.2s ease;
     flex-shrink: 0;
+    transition: all 0.2s ease;
 
-    @each $theme in ("light", "dark") {
+    @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         background-color: transparent;
         color: mixins.theme-color($theme, text-secondary);
 
         &:hover {
-          background-color: mixins.theme-color($theme, hover-color);
+          background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
         }
-      }
-    }
 
-    // Mobile: Kleinerer Button
-    @media (max-width: 640px) {
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  .debug-info {
-    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
-    font-size: map.get(map.get(vars.$fonts, sizes), xs);
-
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, secondary-bg);
-        color: mixins.theme-color($theme, text-secondary);
-      }
-    }
-
-    button {
-      margin-top: map.get(vars.$spacing, xs);
-      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-      font-size: map.get(map.get(vars.$fonts, sizes), xs);
-      border-radius: map.get(map.get(vars.$layout, border-radius), small);
-      border: 1px solid;
-      cursor: pointer;
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, card-bg);
-          border-color: mixins.theme-color($theme, border-light);
-          color: mixins.theme-color($theme, text-primary);
-
-          &:hover {
-            background-color: mixins.theme-color($theme, hover-color);
-          }
+        &:active {
+          transform: scale(0.95);
         }
       }
     }
   }
 }
 
-.messages-container {
+.chat-container {
   flex: 1;
   overflow-y: auto;
-  padding: map.get(vars.$spacing, s);
+  padding: map.get(vars.$spacing, m);
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
   position: relative;
-  min-height: 0; // Wichtig für Flex-Layout
-
-  // Mobile: Weniger Padding
-  @media (max-width: 640px) {
-    padding: map.get(vars.$spacing, xs);
-  }
-
-  // Texturierter Hintergrund wie WhatsApp/Telegram
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.03;
-    z-index: 0;
-    background-image: radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(120, 120, 120, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 60% 30%, rgba(120, 120, 120, 0.2) 0%, transparent 50%);
-    background-size: 200px 200px, 150px 150px, 180px 180px, 220px 220px;
-    background-position: 0 0, 50px 50px, 100px 25px, 150px 75px;
-
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        @if $theme == "dark" {
-          background-image: radial-gradient(circle at 20% 50%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(200, 200, 200, 0.02) 0%, transparent 50%),
-            radial-gradient(circle at 60% 30%, rgba(200, 200, 200, 0.01) 0%, transparent 50%);
-        } @else {
-          background-image: radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(120, 120, 120, 0.04) 0%, transparent 50%),
-            radial-gradient(circle at 60% 30%, rgba(120, 120, 120, 0.03) 0%, transparent 50%);
-        }
-      }
-    }
-  }
-
-  // Alle Child-Elemente über dem Hintergrund
-  > * {
-    position: relative;
-    z-index: 1;
-  }
 
   &::-webkit-scrollbar {
-    width: 6px;
-
-    // Mobile: Dünnere Scrollbar
-    @media (max-width: 640px) {
-      width: 3px;
-    }
+    width: 8px;
   }
 
   &::-webkit-scrollbar-track {
@@ -1114,15 +1039,65 @@ export default defineComponent({
   }
 
   &::-webkit-scrollbar-thumb {
-    @each $theme in ("light", "dark") {
+    border-radius: 4px;
+
+    @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, border-medium);
-        border-radius: 3px;
+        background-color: mixins.theme-color($theme, border-light);
+
+        &:hover {
+          background-color: mixins.theme-color($theme, border-medium);
+        }
       }
     }
   }
 
-  .loading-state {
+  .scroll-to-bottom {
+    position: absolute;
+    bottom: map.get(vars.$spacing, m);
+    right: map.get(vars.$spacing, m);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    z-index: 10;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, card-bg);
+        border: 1px solid mixins.theme-color($theme, border-light);
+        @include mixins.shadow('small', $theme);
+
+        &:hover {
+          background-color: mixins.theme-color($theme, hover-color);
+          transform: translateY(-2px);
+          @include mixins.shadow('medium', $theme);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+
+    .scroll-icon {
+      width: 20px;
+      height: 20px;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+  }
+
+  .loading-indicator {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1130,19 +1105,14 @@ export default defineComponent({
     padding: map.get(vars.$spacing, xl);
     gap: map.get(vars.$spacing, m);
 
-    // Mobile: Weniger Padding
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, l);
-    }
-
     .loading-spinner {
-      width: 24px;
-      height: 24px;
-      border: 2px solid;
+      width: 32px;
+      height: 32px;
+      border: 3px solid;
       border-radius: 50%;
       animation: spin 1s linear infinite;
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
           border-top-color: mixins.theme-color($theme, accent-teal);
@@ -1153,7 +1123,7 @@ export default defineComponent({
     span {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1161,7 +1131,7 @@ export default defineComponent({
     }
   }
 
-  .empty-state {
+  .empty-chat {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1175,7 +1145,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       opacity: 0.6;
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1185,7 +1155,7 @@ export default defineComponent({
     p {
       margin: map.get(vars.$spacing, xs) 0;
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1194,7 +1164,7 @@ export default defineComponent({
       &:first-of-type {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ("light", "dark") {
+        @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -1206,37 +1176,20 @@ export default defineComponent({
   .messages-list {
     display: flex;
     flex-direction: column;
-    gap: map.get(vars.$spacing, s);
-    padding: map.get(vars.$spacing, s);
+    gap: map.get(vars.$spacing, m);
 
-    // Mobile: Weniger Padding und Gap
-    @media (max-width: 640px) {
-      padding: map.get(vars.$spacing, xs);
-      gap: map.get(vars.$spacing, xs);
-    }
-
-    .message-wrapper {
+    .message {
       display: flex;
-      flex-direction: column;
-      max-width: 75%;
-
-      // Mobile: Größere maximale Breite
-      @media (max-width: 640px) {
-        max-width: 85%;
-      }
-
-      // Tablet: Mittlere Breite
-      @media (min-width: 641px) and (max-width: 1024px) {
-        max-width: 80%;
-      }
+      max-width: 80%;
+      position: relative;
 
       &.own-message {
         align-self: flex-end;
 
-        .message-bubble {
-          @each $theme in ("light", "dark") {
+        .message-content {
+          @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              background-color: darken(mixins.theme-color($theme, accent-teal), 10%);
+              background: mixins.theme-gradient($theme, primary);
               color: white;
             }
           }
@@ -1246,120 +1199,165 @@ export default defineComponent({
       &.friend-message {
         align-self: flex-start;
 
-        .message-bubble {
-          @each $theme in ("light", "dark") {
+        .message-content {
+          @each $theme in ('light', 'dark') {
             .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, primary-bg);
+              background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
+              transition: all 0.4s ease-out;
             }
           }
         }
       }
 
-      .edit-container {
-        display: flex;
-        flex-direction: column;
-        gap: map.get(vars.$spacing, s);
+      &.deleted-message {
+        .message-content {
+          opacity: 0.6;
 
-        .edit-input {
-          padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-          border-radius: 18px;
-          min-height: 40px;
-          max-height: 120px;
-          overflow-y: auto;
-          outline: none;
-          font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          line-height: 1.4;
+          .deleted-text {
+            font-style: italic;
 
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: mixins.theme-color($theme, hover-color);
-              color: mixins.theme-color($theme, text-primary);
-              border: 2px solid mixins.theme-color($theme, accent-teal);
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                color: mixins.theme-color($theme, text-secondary);
+              }
             }
           }
+        }
+      }
 
-          // Mobile: Kompakterer Edit-Input
-          @media (max-width: 640px) {
-            padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
-            min-height: 36px;
-            max-height: 100px;
-            border-radius: 16px;
+      &.editing {
+        .message-content {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              box-shadow: 0 0 0 2px mixins.theme-color($theme, accent-teal);
+            }
           }
         }
+      }
 
-        .edit-actions {
+      .message-content {
+        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        position: relative;
+        min-width: 100px;
+
+        .message-actions {
+          position: absolute;
+          top: -30px;
+          right: 0;
           display: flex;
           gap: map.get(vars.$spacing, xs);
-          justify-content: flex-end;
+          background-color: rgba(0, 0, 0, 0.8);
+          padding: 4px;
+          border-radius: map.get(map.get(vars.$layout, border-radius), small);
+          @include animations.fade-in(0.2s);
 
-          .edit-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+          .action-btn {
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: none;
+            background: none;
             cursor: pointer;
+            border-radius: 4px;
             transition: all 0.2s ease;
 
-            // Mobile: Kleinere Buttons
-            @media (max-width: 640px) {
-              width: 28px;
-              height: 28px;
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.1);
             }
 
-            .btn-icon {
+            &.edit {
+              color: #35ccd0;
+            }
+
+            &.delete {
+              color: #ff6b6b;
+            }
+
+            .action-icon {
               width: 16px;
+              position: absolute;
               height: 16px;
-
-              // Mobile: Kleinere Icons
-              @media (max-width: 640px) {
-                width: 14px;
-                height: 14px;
-              }
             }
+          }
+        }
 
-            &.cancel {
-              @each $theme in ("light", "dark") {
-                .theme-#{$theme} & {
-                  background-color: mixins.theme-color($theme, secondary-bg);
-                  color: mixins.theme-color($theme, text-secondary);
+        .edit-mode {
+          display: flex;
+          gap: map.get(vars.$spacing, s);
+          align-items: flex-start;
 
-                  &:hover {
-                    background-color: mixins.theme-color($theme, hover-color);
-                  }
-                }
-              }
-            }
+          .edit-input {
+            flex: 1;
+            min-height: 24px;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: map.get(vars.$spacing, xs);
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
+            outline: none;
+            line-height: 1.4;
 
-            &.save {
-              @each $theme in ("light", "dark") {
-                .theme-#{$theme} & {
-                  background-color: mixins.theme-color($theme, accent-teal);
-                  color: white;
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
 
-                  &:hover:not(:disabled) {
-                    background-color: darken(mixins.theme-color($theme, accent-teal), 10%);
-                  }
-
-                  &:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                  }
+                &:focus {
+                  border-color: rgba(255, 255, 255, 0.4);
                 }
               }
             }
           }
-        }
-      }
 
-      .message-bubble {
-        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-        border-radius: 18px;
-        position: relative;
+          .edit-actions {
+            display: flex;
+            gap: map.get(vars.$spacing, xxs);
+
+            .edit-btn {
+              width: 24px;
+              height: 24px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+
+              &.cancel {
+                background-color: rgba(255, 107, 107, 0.2);
+                color: #ff6b6b;
+
+                &:hover {
+                  background-color: rgba(255, 107, 107, 0.3);
+                }
+              }
+
+              &.save {
+                background-color: rgba(76, 175, 80, 0.2);
+                color: #4CAF50;
+
+                &:hover:not(:disabled) {
+                  background-color: rgba(76, 175, 80, 0.3);
+                }
+
+                &:disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                }
+              }
+
+              .edit-action-icon {
+                width: 14px;
+                height: 14px;
+                position: absolute;
+              }
+            }
+          }
+        }
 
         .message-text {
           margin: 0 0 map.get(vars.$spacing, xs) 0;
@@ -1367,7 +1365,6 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           word-wrap: break-word;
 
-          // Styles für Rich-Text
           :deep(b),
           :deep(strong) {
             font-weight: map.get(map.get(vars.$fonts, weights), bold);
@@ -1383,248 +1380,123 @@ export default defineComponent({
           }
         }
 
-        .deleted-message {
-          display: flex;
-          align-items: center;
-          gap: map.get(vars.$spacing, xs);
-          font-style: italic;
-          opacity: 0.6;
-
-          .deleted-icon {
-            width: 14px;
-            height: 14px;
-
-            // Mobile: Kleineres Icon
-            @media (max-width: 640px) {
-              width: 12px;
-              height: 12px;
-            }
-          }
-        }
-
-        .message-text {
-          font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          line-height: 1.4;
-          word-wrap: break-word;
-
-          // Mobile: Kleinere Schrift
-          @media (max-width: 640px) {
-            font-size: map.get(map.get(vars.$fonts, sizes), small);
-            line-height: 1.5;
-          }
-
-          :deep(strong) {
-            font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          }
-
-          :deep(em) {
-            font-style: italic;
-          }
-
-          :deep(u) {
-            text-decoration: underline;
-          }
-        }
-
-        .attachment {
-          margin-top: map.get(vars.$spacing, s);
-          padding: map.get(vars.$spacing, s);
-          border-radius: 12px;
-
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background-color: rgba(255, 255, 255, 0.1);
-            }
-          }
-
-          // Mobile: Kompakterer Attachment
-          @media (max-width: 640px) {
-            margin-top: map.get(vars.$spacing, xs);
-            padding: map.get(vars.$spacing, xs);
-            border-radius: 8px;
-          }
+        .message-attachment {
+          margin: map.get(vars.$spacing, xs) 0;
 
           a {
-            color: inherit;
-            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: map.get(vars.$spacing, xs);
+            padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
+            border-radius: map.get(map.get(vars.$layout, border-radius), small);
             font-size: map.get(map.get(vars.$fonts, sizes), small);
+            text-decoration: none;
+            transition: all 0.2s ease;
 
-            // Mobile: Kleinere Schrift
-            @media (max-width: 640px) {
-              font-size: map.get(map.get(vars.$fonts, sizes), xs);
+            @each $theme in ('light', 'dark') {
+              .theme-#{$theme} & {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: inherit;
+
+                &:hover {
+                  background-color: rgba(255, 255, 255, 0.2);
+                }
+              }
             }
 
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.2);
+            .attachment-icon {
+              width: 16px;
+              height: 16px;
             }
           }
         }
 
-        .attachment-icon {
-          width: 16px;
-          height: 16px;
+        .message-time {
+          font-size: map.get(map.get(vars.$fonts, sizes), xs);
+          opacity: 0.7;
+
+          .edited-indicator {
+            font-style: italic;
+            opacity: 0.8;
+          }
         }
       }
     }
 
-    .message-time {
-      font-size: map.get(map.get(vars.$fonts, sizes), xs);
-      opacity: 0.7;
-
-      // Mobile: Noch kleinere Schrift
-      @media (max-width: 640px) {
-        font-size: 10px;
-      }
-    }
-
-    .message-actions {
+    .typing-indicator {
+      align-self: flex-start;
       display: flex;
-      gap: map.get(vars.$spacing, xxs);
-      opacity: 0;
-      transition: opacity 0.2s ease;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
+      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-      // Mobile: Immer sichtbar für bessere Zugänglichkeit
-      @media (max-width: 640px) {
-        opacity: 0.7;
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background-color: mixins.theme-color($theme, secondary-bg);
+          transition: all 0.4s ease-out;
+        }
       }
 
-      .action-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
+      &.own-typing {
+        align-self: flex-end;
 
-        @each $theme in ("light", "dark") {
+        @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
-            background-color: rgba(0, 0, 0, 0.1);
-            color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+            border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+          }
+        }
 
-            &:hover {
-              background-color: rgba(0, 0, 0, 0.2);
-              color: white;
+        .typing-text {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              color: mixins.theme-color($theme, accent-teal);
+              font-style: italic;
             }
           }
         }
+      }
 
-        // Mobile: Größere Touch-Targets
-        @media (max-width: 640px) {
-          width: 28px;
-          height: 28px;
+      .typing-dots {
+        display: flex;
+        gap: 4px;
+
+        span {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: #666;
+          animation: typing 1.4s infinite;
+
+          &:nth-child(2) {
+            animation-delay: 0.2s;
+          }
+
+          &:nth-child(3) {
+            animation-delay: 0.4s;
+          }
         }
+      }
 
-        .action-icon {
-          width: 12px;
-          height: 12px;
-          position: absolute;
+      .typing-text {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-          // Mobile: Etwas größere Icons
-          @media (max-width: 640px) {
-            width: 14px;
-            height: 14px;
+        @each $theme in ('light', 'dark') {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-secondary);
           }
         }
       }
     }
   }
-
-  &:hover .message-actions {
-    opacity: 1;
-  }
 }
 
-.typing-indicator {
-  align-self: flex-start;
-  display: flex;
-  align-items: center;
-  gap: map.get(vars.$spacing, s);
-  padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-  border-radius: 18px;
-
-  @each $theme in ("light", "dark") {
-    .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, secondary-bg);
-    }
-  }
-
-  // Mobile: Kompakterer Typing-Indikator
-  @media (max-width: 640px) {
-    padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, s);
-    gap: map.get(vars.$spacing, xs);
-    border-radius: 16px;
-  }
-
-  &.own-typing {
-    align-self: flex-end;
-
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
-        border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
-      }
-    }
-
-    .typing-text {
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          color: mixins.theme-color($theme, accent-teal);
-          font-style: italic;
-        }
-      }
-    }
-  }
-
-  .typing-dots {
-    display: flex;
-    gap: 3px;
-
-    span {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: #888;
-      animation: typing 1.4s infinite;
-
-      // Mobile: Kleinere Dots
-      @media (max-width: 640px) {
-        width: 5px;
-        height: 5px;
-      }
-
-      &:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-
-      &:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-    }
-  }
-
-  .typing-text {
-    font-size: map.get(map.get(vars.$fonts, sizes), small);
-
-    @each $theme in ("light", "dark") {
-      .theme-#{$theme} & {
-        color: mixins.theme-color($theme, text-secondary);
-      }
-    }
-
-    // Mobile: Kleinere Schrift
-    @media (max-width: 640px) {
-      font-size: map.get(map.get(vars.$fonts, sizes), xs);
-    }
-  }
-}
 // Rich Text Editor
 .message-editor {
   border-top: 1px solid;
 
-  @each $theme in ("light", "dark") {
+  @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -1649,7 +1521,7 @@ export default defineComponent({
       transition: all 0.2s ease;
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: transparent;
           color: mixins.theme-color($theme, text-secondary);
@@ -1672,7 +1544,7 @@ export default defineComponent({
       height: 24px;
       margin: 0 map.get(vars.$spacing, xs);
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, border-light);
         }
@@ -1694,11 +1566,11 @@ export default defineComponent({
         @include animations.fade-in(0.2s);
         z-index: 100;
 
-        @each $theme in ("light", "dark") {
+        @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            @include mixins.shadow("medium", $theme);
+            @include mixins.shadow('medium', $theme);
           }
         }
 
@@ -1721,7 +1593,7 @@ export default defineComponent({
             border-radius: map.get(map.get(vars.$layout, border-radius), small);
             transition: all 0.2s ease;
 
-            @each $theme in ("light", "dark") {
+            @each $theme in ('light', 'dark') {
               .theme-#{$theme} & {
                 &:hover {
                   background-color: mixins.theme-color($theme, secondary-bg);
@@ -1752,11 +1624,10 @@ export default defineComponent({
       outline: none;
       line-height: 1.5;
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background-color: mixins.theme-color($theme, hover-color);
-          color: mixins.theme-color($theme, text-primary);
-          border: 1px solid mixins.theme-color($theme, border-light);
+          @include mixins.form-element($theme);
+          transition: all 0.4s ease-out;
 
           &:focus {
             border-color: mixins.theme-color($theme, accent-teal);
@@ -1772,7 +1643,6 @@ export default defineComponent({
         }
       }
 
-      // Rich-Text Styles
       :deep(b),
       :deep(strong) {
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
@@ -1788,31 +1658,120 @@ export default defineComponent({
       }
     }
 
-    .send-btn {
-      width: 40px;
-      height: 40px;
+    .send-button {
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: none;
       cursor: pointer;
+      border: none;
       transition: all 0.2s ease;
-      flex-shrink: 0;
 
-      @each $theme in ("light", "dark") {
+      @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
 
           &:hover:not(:disabled) {
             transform: scale(1.05);
+            @include mixins.shadow('small', $theme);
           }
 
           &:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Delete Confirmation Modal
+.delete-confirm-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  @include animations.fade-in(0.2s);
+
+  .delete-confirm-content {
+    padding: map.get(vars.$spacing, xl);
+    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+    text-align: center;
+    max-width: 400px;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background-color: mixins.theme-color($theme, card-bg);
+        border: 1px solid mixins.theme-color($theme, border-subtle);
+        @include mixins.shadow('medium', $theme);
+      }
+    }
+
+    h4 {
+      margin: 0 0 map.get(vars.$spacing, m) 0;
+      font-size: map.get(map.get(vars.$fonts, sizes), large);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+
+    p {
+      margin-bottom: map.get(vars.$spacing, l);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: map.get(vars.$spacing, m);
+      justify-content: center;
+
+      .confirm-btn {
+        padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+        border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.cancel {
+          @each $theme in ('light', 'dark') {
+            .theme-#{$theme} & {
+              background-color: mixins.theme-color($theme, secondary-bg);
+              color: mixins.theme-color($theme, text-primary);
+
+              &:hover {
+                background-color: mixins.theme-color($theme, hover-color);
+              }
+            }
+          }
+        }
+
+        &.delete {
+          background-color: #ff6b6b;
+          color: white;
+
+          &:hover {
+            background-color: #ff5252;
+            transform: translateY(-1px);
           }
         }
       }
@@ -1831,6 +1790,7 @@ export default defineComponent({
 }
 
 @keyframes typing {
+
   0%,
   60%,
   100% {
@@ -1839,109 +1799,31 @@ export default defineComponent({
   }
 
   30% {
-    transform: translateY(-6px);
+    transform: translateY(-10px);
     opacity: 1;
   }
 }
 
-// Spezielle Behandlung für sehr kleine Bildschirme (370px Minimum)
-@media (max-width: 380px) {
-  .modal-content {
-    min-width: 370px;
-    overflow-x: auto; // Falls Content zu breit wird
-  }
-
-  .chat-header {
-    .user-info {
-      .user-details {
-        .user-name {
-          font-size: map.get(map.get(vars.$fonts, sizes), small);
-        }
-
-        .user-status {
-          font-size: 10px;
-        }
-      }
-    }
-  }
-
-  .messages-container {
-    .messages-list {
-      .message-wrapper {
-        max-width: 90%;
-
-        .message-bubble {
-          .message-text {
-            font-size: 12px;
-          }
-
-          .message-footer {
-            .message-time,
-            .edited-label {
-              font-size: 9px;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .emoji-picker {
-    .emoji-grid {
-      grid-template-columns: repeat(7, 1fr);
-
-      .emoji-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
-      }
-    }
-  }
-
-  .input-area {
-    .formatting-toolbar {
-      .format-btn {
-        width: 26px;
-        height: 26px;
-
-        .format-icon {
-          font-size: 10px;
-        }
-
-        &.emoji-btn {
-          font-size: 12px;
-        }
-      }
-    }
-
-    .input-form {
-      .input-wrapper {
-        .rich-input {
-          font-size: 12px;
-          min-height: 32px;
-          max-height: 70px;
-          padding: 6px 12px;
-        }
-      }
-
-      .send-btn {
-        width: 32px;
-        height: 32px;
-
-        .send-icon {
-          width: 14px;
-          height: 14px;
-        }
-      }
-    }
-  }
+// Transition für Scroll-Button
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-// Landscape-Modus für Mobile
-@media (max-width: 640px) and (orientation: landscape) {
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+// Responsive Design
+@media (max-width: 640px) {
   .modal-content {
-    height: 100vh;
-    max-height: none;
+    height: 90vh;
+    margin: map.get(vars.$spacing, s);
+  }
+
+  .modal-header {
+    padding: map.get(vars.$spacing, m);
   }
 
   .chat-container {

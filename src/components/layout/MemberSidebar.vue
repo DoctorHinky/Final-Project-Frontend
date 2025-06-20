@@ -81,14 +81,7 @@
           </span>
           <span class="nav-text">{{ item.text }}</span>
 
-          <!-- Badge für ungelesene Nachrichten bei Freunde -->
-          <span
-            v-if="item.id === 'friends' && unreadMessagesCount > 0"
-            class="nav-badge"
-            :title="`${unreadMessagesCount} ungelesene Nachricht${unreadMessagesCount === 1 ? '' : 'en'}`"
-          >
-            {{ unreadMessagesCount > 99 ? "99+" : unreadMessagesCount }}
-          </span>
+
 
           <!-- Badge für ungelesene Benachrichtigungen -->
           <span
@@ -192,7 +185,6 @@ export default defineComponent({
     const userData = ref<User | null>(null);
     const isImageLoaded = ref(true);
     const fallbackImageUrl = "/src/assets/images/AvatarIcon1.webp";
-    const unreadMessagesCount = ref(0);
     const openTicketsCount = ref(0);
     const notificationCount = ref(0);
 
@@ -504,11 +496,6 @@ export default defineComponent({
       updateNotificationCount(count);
     };
 
-    // Event-Listener für ungelesene Nachrichten
-    const handleUnreadMessagesUpdate = (event: CustomEvent) => {
-      unreadMessagesCount.value = event.detail.count || 0;
-    };
-
     // Support-Tickets laden
     const loadOpenTickets = async () => {
       try {
@@ -549,9 +536,8 @@ export default defineComponent({
       loadOpenTickets();
       loadMenuOrder();
 
-      // Event-Listener für ungelesene Nachrichten registrieren
+      // Event-Listener für verschiedene Updates registrieren
       if (typeof window !== "undefined") {
-        window.addEventListener("unread-messages-updated", handleUnreadMessagesUpdate as EventListener);
         window.addEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
 
@@ -562,7 +548,6 @@ export default defineComponent({
     onUnmounted(() => {
       // Event-Listener entfernen
       if (typeof window !== "undefined") {
-        window.removeEventListener("unread-messages-updated", handleUnreadMessagesUpdate as EventListener);
         window.removeEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
 
@@ -598,7 +583,6 @@ export default defineComponent({
       userProfileImage,
       isCustomProfileImage,
       isImageLoaded,
-      unreadMessagesCount,
       notificationCount,
       openTicketsCount,
 
@@ -627,6 +611,7 @@ export default defineComponent({
 });
 </script>
 
+<!-- Der Style-Block bleibt unverändert -->
 <style lang="scss" scoped>
 @use "sass:map";
 @use "@/style/base/variables" as vars;
