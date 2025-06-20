@@ -1,6 +1,6 @@
 // src/services/user.service.ts
-import api from './axiosInstance';
-import type { User } from '@/types/dtos/User.types';
+import api from "./axiosInstance";
+import type { User } from "@/types/dtos/User.types";
 
 export interface UserUpdateData {
   firstName?: string;
@@ -19,7 +19,6 @@ export interface PasswordUpdateData {
   newPassword: string;
 }
 
-
 export interface ProfileImageUploadResponse {
   url: string;
   public_id: string;
@@ -35,29 +34,29 @@ export interface CloudinaryUploadResponse {
 export const userService = {
   // Benutzerdaten abrufen
   async getCurrentUser(): Promise<User> {
-    const response = await api.get('/user/getMe');
+    const response = await api.get("/user/getMe");
     return response.data;
   },
 
   // Benutzerdaten aktualisieren
   async updateUser(userData: UserUpdateData): Promise<User> {
-    const response = await api.patch('/user/updateMe', userData);
+    const response = await api.patch("/user/updateMe", userData);
     return response.data;
   },
 
   // Passwort ändern
   async updatePassword(passwordData: PasswordUpdateData): Promise<void> {
-    await api.patch('/user/updatePassword', passwordData);
+    await api.patch("/user/updatePassword", passwordData);
   },
 
   // Konto deaktivieren
   async deactivateAccount(password: string): Promise<void> {
-    await api.patch('/user/deactivateMyAccount', { password });
+    await api.patch("/user/deactivateMyAccount", { password });
   },
 
   // Konto reaktivieren
   async reactivateAccount(password: string): Promise<void> {
-    await api.patch('/user/reactivateMyAccount', { password });
+    await api.patch("/user/reactivateMyAccount", { password });
   },
 
   // Konto löschen
@@ -66,11 +65,11 @@ export const userService = {
     if (deleteReason && deleteReason.trim().length >= 8) {
       requestBody.deleteReason = deleteReason.trim();
     }
-    await api.patch('/user/deleteMyAccount', requestBody);
+    await api.patch("/user/deleteMyAccount", requestBody);
   },
 
   // === PROFILBILD-FUNKTIONEN ===
-  
+
   /**
    * Profilbild zu Cloudinary hochladen (über Backend)
    * @param file - Die Bild-Datei
@@ -79,19 +78,19 @@ export const userService = {
   async uploadProfileImageToCloudinary(file: File): Promise<CloudinaryUploadResponse> {
     // Datei-Validierung
     this.validateImageFile(file);
-    
+
     const formData = new FormData();
-    formData.append('file', file); // Backend erwartet 'file' als field name
-    
-    const response = await api.post('/cloud', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    formData.append("file", file); // Backend erwartet 'file' als field name
+
+    const response = await api.post("/cloud", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    
+
     // Backend-Response anpassen
     return {
-      message: response.data.message || 'Upload erfolgreich',
+      message: response.data.message || "Upload erfolgreich",
       url: response.data.url,
-      public_id: response.data.public_id || `profile_${Date.now()}`
+      public_id: response.data.public_id || `profile_${Date.now()}`,
     };
   },
 
@@ -104,28 +103,28 @@ export const userService = {
     // Data-URL zu Blob konvertieren
     const response = await fetch(dataUrl);
     const blob = await response.blob();
-    
+
     // Blob zu File konvertieren für bessere Kompatibilität
-    const file = new File([blob], 'profile-image.jpg', { 
-      type: blob.type || 'image/jpeg',
-      lastModified: Date.now()
+    const file = new File([blob], "profile-image.jpg", {
+      type: blob.type || "image/jpeg",
+      lastModified: Date.now(),
     });
-    
+
     // Validierung
     this.validateImageFile(file);
-    
+
     const formData = new FormData();
-    formData.append('file', file); // Backend erwartet 'file' als field name
-    
-    const uploadResponse = await api.post('/cloud', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    formData.append("file", file); // Backend erwartet 'file' als field name
+
+    const uploadResponse = await api.post("/cloud", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    
+
     // Backend-Response anpassen
     return {
-      message: uploadResponse.data.message || 'Upload erfolgreich',
+      message: uploadResponse.data.message || "Upload erfolgreich",
       url: uploadResponse.data.url,
-      public_id: uploadResponse.data.public_id || `profile_${Date.now()}`
+      public_id: uploadResponse.data.public_id || `profile_${Date.now()}`,
     };
   },
 
@@ -138,22 +137,9 @@ export const userService = {
   async updateProfileImage(profilePicture: string, publicId?: string): Promise<User> {
     const updateData: UserUpdateData = {
       profilePicture,
-      publicid_picture: publicId || `profile_${Date.now()}`
+      publicid_picture: publicId || `profile_${Date.now()}`,
     };
-    
-    return this.updateUser(updateData);
-  },
 
-  /**
-   * Profilbild entfernen (aus DB und optional aus Cloudinary)
-   * @returns Aktualisierte Benutzerdaten
-   */
-  async removeProfileImage(): Promise<User> {
-    const updateData: UserUpdateData = {
-      profilePicture: null,
-      publicid_picture: null
-    };
-    
     return this.updateUser(updateData);
   },
 
@@ -166,19 +152,16 @@ export const userService = {
     try {
       // 1. Bild zu Cloudinary hochladen
       const uploadResponse = await this.uploadProfileImageToCloudinary(file);
-      
+
       // 2. Profilbild in der Datenbank aktualisieren
-      const updatedUser = await this.updateProfileImage(
-        uploadResponse.url, 
-        uploadResponse.public_id
-      );
-      
+      const updatedUser = await this.updateProfileImage(uploadResponse.url, uploadResponse.public_id);
+
       // 3. Event für andere Komponenten triggern
       this.triggerProfileUpdateEvent();
-      
+
       return updatedUser;
     } catch (error) {
-      console.error('Fehler beim Profilbild-Upload:', error);
+      console.error("Fehler beim Profilbild-Upload:", error);
       throw error;
     }
   },
@@ -192,45 +175,16 @@ export const userService = {
     try {
       // 1. Data-URL zu Cloudinary hochladen
       const uploadResponse = await this.uploadProfileImageFromDataUrl(dataUrl);
-      
-      // 2. Profilbild in der Datenbank aktualisieren
-      const updatedUser = await this.updateProfileImage(
-        uploadResponse.url, 
-        uploadResponse.public_id
-      );
-      
-      // 3. Event für andere Komponenten triggern
-      this.triggerProfileUpdateEvent();
-      
-      return updatedUser;
-    } catch (error) {
-      console.error('Fehler beim Profilbild-Upload aus Data-URL:', error);
-      throw error;
-    }
-  },
 
-  /**
-   * Kompletter Profilbild-Entfernungs-Workflow
-   * @returns Aktualisierte Benutzerdaten ohne Profilbild
-   */
-  async removeAndClearProfileImage(): Promise<User> {
-    try {
-      // Aktueller User für Public-ID
-      const currentUser = await this.getCurrentUser();
-      
-      // 1. Profilbild aus der Datenbank entfernen
-      const updatedUser = await this.removeProfileImage();
-      
-      // 2. Optional: Bild aus Cloudinary entfernen (falls Public-ID vorhanden)
-      // HINWEIS: Cloudinary-Cleanup wird normalerweise vom Backend verwaltet
-      // Hier könnten wir einen separaten API-Call machen, falls nötig
-      
+      // 2. Profilbild in der Datenbank aktualisieren
+      const updatedUser = await this.updateProfileImage(uploadResponse.url, uploadResponse.public_id);
+
       // 3. Event für andere Komponenten triggern
       this.triggerProfileUpdateEvent();
-      
+
       return updatedUser;
     } catch (error) {
-      console.error('Fehler beim Entfernen des Profilbilds:', error);
+      console.error("Fehler beim Profilbild-Upload aus Data-URL:", error);
       throw error;
     }
   },
@@ -239,8 +193,8 @@ export const userService = {
    * Event triggern für Profilbild-Updates (für andere Komponenten)
    */
   triggerProfileUpdateEvent(): void {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('profile-updated'));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("profile-updated"));
     }
   },
 
@@ -254,24 +208,24 @@ export const userService = {
    */
   validateImageFile(file: File): boolean {
     if (!file) {
-      throw new Error('Keine Datei ausgewählt.');
+      throw new Error("Keine Datei ausgewählt.");
     }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     const maxSize = 5 * 1024 * 1024; // 5MB
-    
+
     if (!validTypes.includes(file.type)) {
-      throw new Error('Ungültiger Dateityp. Nur JPG, PNG und WebP sind erlaubt.');
+      throw new Error("Ungültiger Dateityp. Nur JPG, PNG und WebP sind erlaubt.");
     }
-    
+
     if (file.size > maxSize) {
-      throw new Error('Datei ist zu groß. Maximum 5MB erlaubt.');
+      throw new Error("Datei ist zu groß. Maximum 5MB erlaubt.");
     }
 
     if (file.size === 0) {
-      throw new Error('Datei ist leer.');
+      throw new Error("Datei ist leer.");
     }
-    
+
     return true;
   },
 
@@ -281,20 +235,21 @@ export const userService = {
    * @returns true wenn benutzerdefiniertes Bild vorhanden
    */
   hasCustomProfileImage(user: User): boolean {
-    return !!(user.profilePicture && 
-              user.profilePicture !== '/src/assets/images/AvatarIcon1.webp' &&
-              !user.profilePicture.includes('AvatarIcon'));
+    return !!(
+      user.profilePicture &&
+      user.profilePicture !== "/src/assets/images/AvatarIcon1.webp" &&
+      !user.profilePicture.includes("AvatarIcon")
+    );
   },
 
   /**
    * Generiert eine Fallback-URL für Profilbilder
-   * @param username - Benutzername (optional)
    * @returns Fallback-URL
    */
-  getProfileImageFallback(username?: string): string {
+  getProfileImageFallback(): string {
     // Könnte später durch einen Gravatar oder Initials-Generator ersetzt werden
-    return '/src/assets/images/AvatarIcon1.webp';
-  }
+    return "/src/assets/images/AvatarIcon1.webp";
+  },
 };
 
 export default userService;

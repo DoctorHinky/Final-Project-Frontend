@@ -11,12 +11,20 @@
       </select>
     </div>
     <div class="view-mode-toggle">
-      <button class="view-button" :class="{ active: viewMode === 'grid' }" @click="switchViewMode('grid')"
-        title="Rasteransicht">
+      <button
+        class="view-button"
+        :class="{ active: viewMode === 'grid' }"
+        @click="switchViewMode('grid')"
+        title="Rasteransicht"
+      >
         ■ ■
       </button>
-      <button class="view-button" :class="{ active: viewMode === 'list' }" @click="switchViewMode('list')"
-        title="Listenansicht">
+      <button
+        class="view-button"
+        :class="{ active: viewMode === 'list' }"
+        @click="switchViewMode('list')"
+        title="Listenansicht"
+      >
         ≡
       </button>
     </div>
@@ -24,56 +32,62 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
-  name: 'ViewOptions',
+  name: "ViewOptions",
   props: {
     sortOption: {
       type: String,
-      required: true
+      required: true,
     },
     viewMode: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:sortOption', 'update:viewMode'],
+  emits: ["update:sortOption", "update:viewMode"],
   setup(props, { emit }) {
     const sortOptionValue = ref(props.sortOption);
     const viewModeValue = ref(props.viewMode);
 
-    watch(() => props.sortOption, (newValue) => {
-      sortOptionValue.value = newValue;
-    });
+    watch(
+      () => props.sortOption,
+      (newValue) => {
+        sortOptionValue.value = newValue;
+      }
+    );
 
-    watch(() => props.viewMode, (newValue) => {
-      viewModeValue.value = newValue;
-    });
+    watch(
+      () => props.viewMode,
+      (newValue) => {
+        viewModeValue.value = newValue;
+      }
+    );
 
     const onSortChange = () => {
-      emit('update:sortOption', sortOptionValue.value);
+      emit("update:sortOption", sortOptionValue.value);
     };
 
     const switchViewMode = (mode: string) => {
-      emit('update:viewMode', mode);
+      emit("update:viewMode", mode);
       // Speichere Benutzereinstellung lokal
-      localStorage.setItem('articleViewMode', mode);
+      localStorage.setItem("articleViewMode", mode);
     };
 
     return {
       sortOptionValue,
       onSortChange,
-      switchViewMode
+      switchViewMode,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 .view-options {
   display: flex;
@@ -100,7 +114,7 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), small);
       white-space: nowrap;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -116,7 +130,7 @@ export default defineComponent({
         flex: 1;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-primary);
@@ -154,7 +168,7 @@ export default defineComponent({
         height: 32px;
       }
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);

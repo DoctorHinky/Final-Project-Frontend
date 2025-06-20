@@ -4,7 +4,7 @@
   [ ] Anzeige zu Anfragen ist richtig
   [ ] Freunde badge entfernen (zeigt immer 8 an)
   [ ] Oben die Großen menu punkte sind nicht anklickbar (wenn gewollte hovereffect weg)
-  [ ] Bilder werden bei Freunden nicht angezeigt
+  [x] Bilder werden bei Freunden nicht angezeigt
   [ ] bei neuen Freunden sollten bestehen Freunde nicht gezeigt werden ODER?
 
 ---
@@ -12,7 +12,7 @@
 - Chat Modal
   [ ] riesiges Icon beim leeren Chat
   [ ] Chat lädt die schriftformatierung nicht
-  [ ] Nachrichten werden 2 mal gesendet
+  [x] Nachrichten werden 2 mal gesendet
   [ ] sender name?
   [ ] chat sollte ganz unten anfangen (der zeit bei erster Nachricht)
 

@@ -116,17 +116,17 @@
           <div class="action-info">
             <ExclamationCircleIcon class="w-4 h-4 Icons" />
             <span v-if="ticket.status === 'CLOSED'">
-              Dieses Ticket ist geschlossen. Sie können es nicht mehr bearbeiten.
+              Dieses Ticket ist geschlossen. Falls sie noch fragen haben können sie es wieder eröffnen.
             </span>
-            <span v-else-if="ticket.status === 'RESOLVED'">
+            <!-- <span v-else-if="ticket.status === 'RESOLVED'">
               Dieses Ticket wurde als gelöst markiert. Falls Sie weitere Fragen haben, können Sie es wieder öffnen.
-            </span>
+            </span> -->
             <span v-else> Unser Support-Team wird sich baldmöglichst bei Ihnen melden. </span>
           </div>
 
           <div class="action-buttons">
             <button
-              v-if="ticket.status !== 'CLOSED' && ticket.status !== 'RESOLVED'"
+              v-if="ticket.status !== 'CLOSED'"
               class="btn-action close-ticket"
               @click="confirmCloseTicket"
               :disabled="isSubmitting"
@@ -202,9 +202,7 @@ export default defineComponent({
 
     // Computed
     const canReply = computed(() => {
-      return (
-        props.ticket && props.ticket.status !== TicketStatus.CLOSED && props.ticket.status !== TicketStatus.RESOLVED
-      );
+      return props.ticket && props.ticket.status !== TicketStatus.CLOSED;
     });
 
     const canSendReply = computed(() => {
@@ -284,8 +282,8 @@ export default defineComponent({
       return {
         "status-open": status === TicketStatus.OPEN,
         "status-progress": status === TicketStatus.IN_PROGRESS,
-        "status-waiting": status === TicketStatus.WAITING,
-        "status-resolved": status === TicketStatus.RESOLVED,
+        // "status-waiting": status === TicketStatus.WAITING,
+        // "status-resolved": status === TicketStatus.RESOLVED,
         "status-closed": status === TicketStatus.CLOSED,
       };
     };
@@ -294,8 +292,8 @@ export default defineComponent({
       return {
         "icon-open": status === TicketStatus.OPEN,
         "icon-progress": status === TicketStatus.IN_PROGRESS,
-        "icon-waiting": status === TicketStatus.WAITING,
-        "icon-resolved": status === TicketStatus.RESOLVED,
+        // "icon-waiting": status === TicketStatus.WAITING,
+        // "icon-resolved": status === TicketStatus.RESOLVED,
         "icon-closed": status === TicketStatus.CLOSED,
       };
     };

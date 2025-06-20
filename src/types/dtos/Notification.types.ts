@@ -3,15 +3,17 @@
 /**
  * Benachrichtigungstypen basierend auf dem Prisma Schema
  */
-export enum NotificationType {
-  FRIEND_REQUEST = "FRIEND_REQUEST", // Freundschaftsanfrage
-  FRIENDSHIP_ACCEPTED = "FRIENDSHIP_ACCEPTED", // Freundschaft angenommen
-  COMMENT = "COMMENT", // Antwort auf Kommentar / Kommentar auf Post
-  NEW_MESSAGE = "NEW_MESSAGE", // Neue Nachricht mit Freunden etc
-  APPLICATION_STATUS_CHANGE = "APPLICATION_STATUS_CHANGE", // Statusänderung der Bewerbung
-  TICKET_UPDATE = "TICKET_UPDATE", // Status, neue Nachricht im Ticket
-  SYSTEM = "SYSTEM", // Alles was Admins machen etc
-}
+export const NotificationType = {
+  FRIEND_REQUEST: "FRIEND_REQUEST", // Freundschaftsanfrage
+  FRIENDSHIP_ACCEPTED: "FRIENDSHIP_ACCEPTED", // Freundschaft angenommen
+  COMMENT: "COMMENT", // Antwort auf Kommentar / Kommentar auf Post
+  NEW_MESSAGE: "NEW_MESSAGE", // Neue Nachricht mit Freunden etc
+  APPLICATION_STATUS_CHANGE: "APPLICATION_STATUS_CHANGE", // Statusänderung der Bewerbung
+  TICKET_UPDATE: "TICKET_UPDATE", // Status, neue Nachricht im Ticket
+  SYSTEM: "SYSTEM", // Alles was Admins machen etc
+} as const;
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 
 /**
  * Hauptbenachrichtigungs-Interface basierend auf Prisma Model

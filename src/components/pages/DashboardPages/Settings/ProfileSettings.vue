@@ -196,10 +196,9 @@ import {
   ArrowUturnLeftIcon,
   CloudArrowUpIcon,
 } from "@heroicons/vue/24/outline";
-import { cloudinaryUpload, cloudinaryDelete } from "@/services/cloudinaryService";
 import api from "@/services/axiosInstance";
 
-interface ProfileForm {
+export interface ProfileForm {
   firstname: string;
   lastname: string;
   username: string;

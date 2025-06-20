@@ -183,23 +183,27 @@ export interface InviteData {
 /**
  * Enum für Freundschaftsanfrage-Status
  */
-export enum FriendRequestStatus {
-  PENDING = "PENDING",
-  ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  CANCELED = "CANCELED",
-  BLOCKED = "BLOCKED",
-}
+export const FriendRequestStatus = {
+  PENDING: "PENDING",
+  ACCEPTED: "ACCEPTED",
+  REJECTED: "REJECTED",
+  CANCELED: "CANCELED",
+  BLOCKED: "BLOCKED",
+} as const;
+
+export type FriendRequestStatusType = (typeof FriendRequestStatus)[keyof typeof FriendRequestStatus];
 
 /**
  * Enum für Message-Typen
  */
-export enum MessageType {
-  TEXT = "TEXT",
-  FILE = "FILE",
-  COMBINED = "COMBINED",
-  SYSTEM = "SYSTEM",
-}
+export const MessageType = {
+  TEXT: "TEXT",
+  FILE: "FILE",
+  COMBINED: "COMBINED",
+  SYSTEM: "SYSTEM",
+} as const;
+
+type MessageType = (typeof MessageType)[keyof typeof MessageType];
 
 /**
  * Type Guards für Type-Safety

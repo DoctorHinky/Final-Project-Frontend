@@ -86,14 +86,14 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 
-interface CookieOptions {
+export interface CookieOptions {
   necessary: boolean;
   preferences: boolean;
   statistics: boolean;
   marketing: boolean;
 }
 
-interface PrivacySetting {
+export interface PrivacySetting {
   id: string;
   name: string;
   description: string;

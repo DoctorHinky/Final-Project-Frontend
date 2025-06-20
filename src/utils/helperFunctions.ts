@@ -20,3 +20,23 @@ export const formatDateTime = (dateString: string) => {
     minute: "2-digit",
   }).format(date);
 };
+
+export function formatDateOnly(date: string | Date | null, defaultReturn?: any): string {
+  console.log("datum", date);
+  if (!date || date === null) return defaultReturn || "";
+
+  console.log(
+    "converted to: ",
+    new Date(date).toLocaleDateString("de-DE", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    })
+  );
+
+  return new Date(date).toLocaleDateString("de-DE", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  });
+}

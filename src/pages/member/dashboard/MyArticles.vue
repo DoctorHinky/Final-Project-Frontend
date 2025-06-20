@@ -37,7 +37,7 @@
         <div class="error-icon">⚠️</div>
         <h3>Fehler beim Laden</h3>
         <p>{{ error }}</p>
-        <button @click="loadArticles" class="retry-button">Erneut versuchen</button>
+        <button @click="loadArticles()" class="retry-button">Erneut versuchen</button>
       </div>
 
       <!-- Artikelliste -->
@@ -89,6 +89,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import ArticleReader from "@/components/member/article/ArticleReader.vue";
+import { mapPostCategoryToGerman } from "@/utils/postCategory";
 import { SearchSection, ArticlesTabs, ArticlesList, EmptyState } from "@/components/pages/DashboardPages/MyArticles";
 import { historyService, type HistoryItem } from "@/services/history.service";
 import type { MyArticleItem, MyArticleTab } from "@/types/MyArticles.types";
@@ -168,20 +169,21 @@ export default defineComponent({
         // History-Daten
         historyId: historyItem.id,
         readAt: historyItem.readAt,
-        solvedAt: historyItem.solvedAt,
 
         // Post-Daten (aus History-Response)
         id: historyItem.postId,
         title: historyItem.postTitle,
+        image: historyItem.postImage ?? null,
         quickDescription: historyItem.postQuickDescription,
-        author: historyItem.postAuthor,
+        author: {
+          username: historyItem.author.username ?? "unbekannt",
+        },
 
         // Dummy-Werte (werden später durch echte Post-Daten ersetzt)
-        image: null,
-        category: "OTHER" as any,
-        tags: [],
+        category: mapPostCategoryToGerman(historyItem.postCategory),
+        tags: historyItem.postTags.slice(0, 3) ?? [],
         createdAt: historyItem.readAt,
-        isCertifiedAuthor: false,
+        isCertifiedAuthor: historyItem.author.isPedagogicalAuthor ?? false,
 
         // Computed Felder
         lastRead: formatLastRead(historyItem.readAt),
@@ -232,7 +234,7 @@ export default defineComponent({
           (article) =>
             article.title.toLowerCase().includes(query) ||
             article.quickDescription.toLowerCase().includes(query) ||
-            (article.author && article.author.toLowerCase().includes(query)) ||
+            (article.author && article.author.username.toLowerCase().includes(query)) ||
             article.tags.some((tag) => tag.toLowerCase().includes(query))
         );
       }

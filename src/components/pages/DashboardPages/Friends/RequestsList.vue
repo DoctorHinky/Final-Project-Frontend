@@ -4,7 +4,8 @@
     <div v-if="pendingRequests.length > 0" class="requests-grid">
       <div v-for="request in pendingRequests" :key="request.id" class="request-card">
         <div class="request-avatar">
-          <span class="avatar-placeholder">{{ getInitials(request.name) }}</span>
+          <img v-if="request.profileImage" :src="request.profileImage" alt="user profilbild" />
+          <span v-else class="avatar-placeholder">{{ getInitials(request.name) }}</span>
         </div>
         <div class="request-info">
           <h3>{{ request.name }}</h3>
@@ -131,6 +132,13 @@ export default defineComponent({
     justify-content: center;
     position: relative;
     flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {

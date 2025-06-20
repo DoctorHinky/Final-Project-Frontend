@@ -2,22 +2,24 @@
 import api from "@/services/axiosInstance";
 
 // Ticket-Status-Typen
-export enum TicketStatus {
-  OPEN = "OPEN",
-  IN_PROGRESS = "IN_PROGRESS",
-  WAITING = "WAITING",
-  RESOLVED = "RESOLVED",
-  CLOSED = "CLOSED",
-}
+export const TicketStatus = {
+  OPEN: "OPEN",
+  IN_PROGRESS: "IN_PROGRESS",
+  CLOSED: "CLOSED",
+} as const;
+
+export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus];
 
 // Ticket-Kategorie
-export enum TicketCategory {
-  ACCOUNT = "ACCOUNT",
-  TECHNICAL = "TECHNICAL",
-  WEBSITE_BUG = "WEBSITE_BUG",
-  REPORT = "REPORT",
-  OTHER = "OTHER",
-}
+export const TicketCategory = {
+  ACCOUNT: "ACCOUNT",
+  TECHNICAL: "TECHNICAL",
+  WEBSITE_BUG: "WEBSITE_BUG",
+  REPORT: "REPORT",
+  OTHER: "OTHER",
+} as const;
+
+export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
 // Ticket-Interface für User
 export interface UserTicket {
@@ -90,7 +92,8 @@ const mockUserTickets: FullTicket[] = [
   {
     id: "usr_ticket_001",
     title: "Problem beim Einloggen",
-    description: "Ich kann mich seit gestern nicht mehr in meinen Account einloggen. Die Passwort-Reset-E-Mail kommt nicht an.",
+    description:
+      "Ich kann mich seit gestern nicht mehr in meinen Account einloggen. Die Passwort-Reset-E-Mail kommt nicht an.",
     status: TicketStatus.OPEN,
     category: TicketCategory.ACCOUNT,
     createdAt: "2025-06-15T14:30:00Z",
@@ -98,7 +101,7 @@ const mockUserTickets: FullTicket[] = [
     messageCount: 1,
     hasUnreadMessages: false,
     _count: {
-      messages: 1
+      messages: 1,
     },
     messages: [
       {
@@ -107,22 +110,25 @@ const mockUserTickets: FullTicket[] = [
         userId: "currentUser",
         userName: "Max Mustermann",
         userRole: "user",
-        message: "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
-        content: "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
+        message:
+          "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
+        content:
+          "Ich habe bereits versucht, das Passwort über 'Passwort vergessen' zurückzusetzen, aber die E-Mail kommt nicht an. Auch im Spam-Ordner ist nichts.",
         createdAt: "2025-06-15T14:35:00Z",
         isStaff: false,
         author: {
           username: "Max Mustermann",
           id: "currentUser",
-          role: "USER"
-        }
-      }
-    ]
+          role: "USER",
+        },
+      },
+    ],
   },
   {
     id: "usr_ticket_002",
     title: "Artikel wird nicht gespeichert",
-    description: "Wenn ich versuche, meinen Artikel zu speichern, bekomme ich eine Fehlermeldung und die Änderungen gehen verloren.",
+    description:
+      "Wenn ich versuche, meinen Artikel zu speichern, bekomme ich eine Fehlermeldung und die Änderungen gehen verloren.",
     status: TicketStatus.IN_PROGRESS,
     category: TicketCategory.TECHNICAL,
     createdAt: "2025-06-14T09:15:00Z",
@@ -130,12 +136,12 @@ const mockUserTickets: FullTicket[] = [
     messageCount: 3,
     hasUnreadMessages: true,
     _count: {
-      messages: 3
+      messages: 3,
     },
     workedBy: {
       id: "support_001",
       username: "Sarah Schmidt",
-      email: "sarah@support.com"
+      email: "sarah@support.com",
     },
     messages: [
       {
@@ -144,14 +150,16 @@ const mockUserTickets: FullTicket[] = [
         userId: "currentUser",
         userName: "Max Mustermann",
         userRole: "user",
-        message: "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
-        content: "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
+        message:
+          "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
+        content:
+          "Das Problem tritt besonders bei längeren Artikeln auf. Die Fehlermeldung lautet: 'Zeitüberschreitung beim Speichern'.",
         createdAt: "2025-06-14T09:20:00Z",
         isStaff: false,
         author: {
           username: "Max Mustermann",
-          role: "USER"
-        }
+          role: "USER",
+        },
       },
       {
         id: "msg_003",
@@ -159,14 +167,16 @@ const mockUserTickets: FullTicket[] = [
         userId: "support_001",
         userName: "Sarah Schmidt",
         userRole: "support",
-        message: "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
-        content: "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
+        message:
+          "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
+        content:
+          "Hallo Max, vielen Dank für Ihre Meldung. Wir haben das Problem identifiziert und arbeiten an einer Lösung. Können Sie uns bitte die ungefähre Länge Ihres Artikels mitteilen?",
         createdAt: "2025-06-14T15:45:00Z",
         isStaff: true,
         author: {
           username: "Sarah Schmidt",
-          role: "ADMIN"
-        }
+          role: "ADMIN",
+        },
       },
       {
         id: "msg_004",
@@ -174,34 +184,37 @@ const mockUserTickets: FullTicket[] = [
         userId: "support_001",
         userName: "Sarah Schmidt",
         userRole: "support",
-        message: "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
-        content: "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
+        message:
+          "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
+        content:
+          "Update: Wir haben einen Fix implementiert. Bitte versuchen Sie es erneut und lassen Sie uns wissen, ob das Problem weiterhin besteht.",
         createdAt: "2025-06-15T11:20:00Z",
         isStaff: true,
         author: {
           username: "Sarah Schmidt",
-          role: "ADMIN"
-        }
-      }
-    ]
+          role: "ADMIN",
+        },
+      },
+    ],
   },
   {
     id: "usr_ticket_003",
     title: "Profilbild kann nicht hochgeladen werden",
-    description: "Das Hochladen meines Profilbildes funktioniert nicht. Es wird immer 'Datei zu groß' angezeigt, obwohl die Datei nur 1MB hat.",
-    status: TicketStatus.RESOLVED,
+    description:
+      "Das Hochladen meines Profilbildes funktioniert nicht. Es wird immer 'Datei zu groß' angezeigt, obwohl die Datei nur 1MB hat.",
+    status: TicketStatus.OPEN,
     category: TicketCategory.TECHNICAL,
     createdAt: "2025-06-10T16:45:00Z",
     updatedAt: "2025-06-12T10:30:00Z",
     messageCount: 4,
     hasUnreadMessages: false,
     _count: {
-      messages: 4
+      messages: 4,
     },
     workedBy: {
       id: "support_002",
       username: "Tech Support",
-      email: "tech@support.com"
+      email: "tech@support.com",
     },
     messages: [
       {
@@ -216,8 +229,8 @@ const mockUserTickets: FullTicket[] = [
         isStaff: false,
         author: {
           username: "Max Mustermann",
-          role: "USER"
-        }
+          role: "USER",
+        },
       },
       {
         id: "msg_006",
@@ -225,14 +238,16 @@ const mockUserTickets: FullTicket[] = [
         userId: "support_002",
         userName: "Tech Support",
         userRole: "support",
-        message: "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
-        content: "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
+        message:
+          "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
+        content:
+          "Danke für die Details. Wir haben einen Bug in der Dateigröße-Überprüfung gefunden. Dieser wird mit dem nächsten Update behoben.",
         createdAt: "2025-06-11T09:15:00Z",
         isStaff: true,
         author: {
           username: "Tech Support",
-          role: "ADMIN"
-        }
+          role: "ADMIN",
+        },
       },
       {
         id: "msg_007",
@@ -246,8 +261,8 @@ const mockUserTickets: FullTicket[] = [
         isStaff: true,
         author: {
           username: "Tech Support",
-          role: "ADMIN"
-        }
+          role: "ADMIN",
+        },
       },
       {
         id: "msg_008",
@@ -261,28 +276,28 @@ const mockUserTickets: FullTicket[] = [
         isStaff: false,
         author: {
           username: "Max Mustermann",
-          role: "USER"
-        }
-      }
-    ]
-  }
+          role: "USER",
+        },
+      },
+    ],
+  },
 ];
 
 export const memberTicketService = {
   // ===== USER TICKET FUNKTIONEN =====
-  
+
   // Ticket für User erstellen
   async createTicket(formData: FormData): Promise<CreateTicketResponse> {
     try {
       // Im Entwicklungsmodus: Mock-Verhalten
       if (import.meta.env.DEV) {
         await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulierte Verzögerung
-        
+
         const mockTicketId = `usr_ticket_${Date.now()}`;
-        const title = formData.get('title') as string;
-        const description = formData.get('description') as string;
-        const category = formData.get('category') as TicketCategory;
-        
+        const title = formData.get("title") as string;
+        const description = formData.get("description") as string;
+        const category = formData.get("category") as TicketCategory;
+
         // Mock-Ticket zu den bestehenden hinzufügen
         const newTicket: FullTicket = {
           id: mockTicketId,
@@ -296,32 +311,32 @@ export const memberTicketService = {
           hasUnreadMessages: false,
           messages: [],
           _count: {
-            messages: 0
-          }
+            messages: 0,
+          },
         };
-        
+
         mockUserTickets.unshift(newTicket);
-        
+
         return {
           message: "Ihr Support-Ticket wurde erfolgreich erstellt",
           ticketId: mockTicketId,
           id: mockTicketId,
-          success: true
+          success: true,
         };
       } else {
         // Im Produktionsmodus: API-Aufruf
         const response = await api.post(`/tickets/create`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         });
-        
+
         // Response normalisieren
         return {
           ticketId: response.data.id || response.data.ticketId,
           id: response.data.id || response.data.ticketId,
           message: response.data.message || "Ticket erfolgreich erstellt",
-          success: true
+          success: true,
         };
       }
     } catch (error) {
@@ -338,7 +353,7 @@ export const memberTicketService = {
         await new Promise((resolve) => setTimeout(resolve, 800)); // Simulierte Verzögerung
 
         // Vereinfachte Ticket-Daten für die Übersicht
-        const userTickets: UserTicket[] = mockUserTickets.map(ticket => ({
+        const userTickets: UserTicket[] = mockUserTickets.map((ticket) => ({
           id: ticket.id,
           title: ticket.title,
           status: ticket.status,
@@ -347,7 +362,7 @@ export const memberTicketService = {
           updatedAt: ticket.updatedAt,
           messageCount: ticket.messageCount || 0,
           hasUnreadMessages: ticket.hasUnreadMessages || false,
-          _count: ticket._count
+          _count: ticket._count,
         }));
 
         return userTickets;
@@ -373,20 +388,20 @@ export const memberTicketService = {
       // Im Entwicklungsmodus: Mock-Daten verwenden
       if (import.meta.env.DEV) {
         await new Promise((resolve) => setTimeout(resolve, 500)); // Simulierte Verzögerung
-        
-        const ticket = mockUserTickets.find(t => t.id === id);
+
+        const ticket = mockUserTickets.find((t) => t.id === id);
         if (ticket) {
           // Simuliere "gelesen" Status-Update
           ticket.hasUnreadMessages = false;
-          
+
           // Stelle sicher, dass messages im richtigen Format sind
           if (ticket.messages) {
-            ticket.messages = ticket.messages.map(msg => ({
+            ticket.messages = ticket.messages.map((msg) => ({
               ...msg,
-              message: msg.message || msg.content || '',
-              content: msg.content || msg.message || '',
-              userName: msg.userName || msg.author?.username || 'Unbekannt',
-              isStaff: msg.isStaff || (msg.author?.role === 'ADMIN' || msg.author?.role === 'MODERATOR')
+              message: msg.message || msg.content || "",
+              content: msg.content || msg.message || "",
+              userName: msg.userName || msg.author?.username || "Unbekannt",
+              isStaff: msg.isStaff || msg.author?.role === "ADMIN" || msg.author?.role === "MODERATOR",
             }));
           }
         }
@@ -395,18 +410,21 @@ export const memberTicketService = {
         // Im Produktionsmodus: API-Aufruf
         const response = await api.get(`/tickets/${id}`);
         const ticketData = response.data;
-        
+
         // Response normalisieren
         if (ticketData && ticketData.messages) {
           ticketData.messages = ticketData.messages.map((msg: any) => ({
             ...msg,
-            message: msg.message || msg.content || '',
-            content: msg.content || msg.message || '',
-            userName: msg.userName || msg.author?.username || 'Unbekannt',
-            isStaff: msg.isStaff !== undefined ? msg.isStaff : (msg.author?.role === 'ADMIN' || msg.author?.role === 'MODERATOR')
+            message: msg.message || msg.content || "",
+            content: msg.content || msg.message || "",
+            userName: msg.userName || msg.author?.username || "Unbekannt",
+            isStaff:
+              msg.isStaff !== undefined
+                ? msg.isStaff
+                : msg.author?.role === "ADMIN" || msg.author?.role === "MODERATOR",
           }));
         }
-        
+
         return ticketData;
       }
     } catch (error) {
@@ -422,7 +440,7 @@ export const memberTicketService = {
       if (import.meta.env.DEV) {
         await new Promise((resolve) => setTimeout(resolve, 700)); // Simulierte Verzögerung
 
-        const ticket = mockUserTickets.find(t => t.id === ticketId);
+        const ticket = mockUserTickets.find((t) => t.id === ticketId);
         if (!ticket) {
           throw new Error("Ticket nicht gefunden");
         }
@@ -439,8 +457,8 @@ export const memberTicketService = {
           isStaff: false,
           author: {
             username: "Max Mustermann",
-            role: "USER"
-          }
+            role: "USER",
+          },
         };
 
         if (!ticket.messages) {
@@ -457,7 +475,7 @@ export const memberTicketService = {
       } else {
         // Im Produktionsmodus: API-Aufruf
         await api.post(`/tickets/${ticketId}/message`, {
-          message: message.trim()
+          message: message.trim(),
         });
         return;
       }
@@ -474,11 +492,11 @@ export const memberTicketService = {
       if (import.meta.env.DEV) {
         await new Promise((resolve) => setTimeout(resolve, 500)); // Simulierte Verzögerung
 
-        const ticket = mockUserTickets.find(t => t.id === ticketId);
+        const ticket = mockUserTickets.find((t) => t.id === ticketId);
         if (ticket) {
           ticket.status = TicketStatus.CLOSED;
           ticket.updatedAt = new Date().toISOString();
-          
+
           // Automatische Abschluss-Nachricht hinzufügen
           const closeMessage: TicketMessage = {
             id: `msg_close_${Date.now()}`,
@@ -492,10 +510,10 @@ export const memberTicketService = {
             isStaff: true,
             author: {
               username: "System",
-              role: "SYSTEM"
-            }
+              role: "SYSTEM",
+            },
           };
-          
+
           if (!ticket.messages) {
             ticket.messages = [];
           }
@@ -524,12 +542,12 @@ export const memberTicketService = {
       // Im Entwicklungsmodus: Mock-Verhalten
       if (import.meta.env.DEV) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        
-        const ticket = mockUserTickets.find(t => t.id === ticketId);
+
+        const ticket = mockUserTickets.find((t) => t.id === ticketId);
         if (ticket) {
           ticket.status = TicketStatus.OPEN;
           ticket.updatedAt = new Date().toISOString();
-          
+
           // Automatische Wiedereröffnungs-Nachricht
           const reopenMessage: TicketMessage = {
             id: `msg_reopen_${Date.now()}`,
@@ -543,10 +561,10 @@ export const memberTicketService = {
             isStaff: true,
             author: {
               username: "System",
-              role: "SYSTEM"
-            }
+              role: "SYSTEM",
+            },
           };
-          
+
           if (!ticket.messages) {
             ticket.messages = [];
           }
@@ -556,7 +574,7 @@ export const memberTicketService = {
             ticket._count.messages = ticket.messages.length;
           }
         }
-        
+
         return;
       } else {
         // Im Produktionsmodus: API-Aufruf
@@ -570,15 +588,13 @@ export const memberTicketService = {
   },
 
   // ===== UTILITY FUNCTIONS =====
-  
+
   // Status-Formatierung für UI
   formatStatus(status: TicketStatus): string {
     const statusMap: Record<TicketStatus, string> = {
-      [TicketStatus.OPEN]: 'Offen',
-      [TicketStatus.IN_PROGRESS]: 'In Bearbeitung',
-      [TicketStatus.WAITING]: 'Wartend',
-      [TicketStatus.RESOLVED]: 'Gelöst',
-      [TicketStatus.CLOSED]: 'Geschlossen'
+      [TicketStatus.OPEN]: "Offen",
+      [TicketStatus.IN_PROGRESS]: "In Bearbeitung",
+      [TicketStatus.CLOSED]: "Geschlossen",
     };
     return statusMap[status] || status;
   },
@@ -586,11 +602,11 @@ export const memberTicketService = {
   // Kategorie-Formatierung für UI
   formatCategory(category: TicketCategory): string {
     const categoryMap: Record<TicketCategory, string> = {
-      [TicketCategory.ACCOUNT]: 'Konto & Anmeldung',
-      [TicketCategory.TECHNICAL]: 'Technisches Problem',
-      [TicketCategory.WEBSITE_BUG]: 'Website-Fehler',
-      [TicketCategory.REPORT]: 'Inhalte melden',
-      [TicketCategory.OTHER]: 'Sonstiges'
+      [TicketCategory.ACCOUNT]: "Konto & Anmeldung",
+      [TicketCategory.TECHNICAL]: "Technisches Problem",
+      [TicketCategory.WEBSITE_BUG]: "Website-Fehler",
+      [TicketCategory.REPORT]: "Inhalte melden",
+      [TicketCategory.OTHER]: "Sonstiges",
     };
     return categoryMap[category] || category;
   },
@@ -599,37 +615,35 @@ export const memberTicketService = {
   getTicketStats(tickets: UserTicket[]) {
     return {
       total: tickets.length,
-      open: tickets.filter(t => t.status === TicketStatus.OPEN).length,
-      inProgress: tickets.filter(t => t.status === TicketStatus.IN_PROGRESS).length,
-      waiting: tickets.filter(t => t.status === TicketStatus.WAITING).length,
-      resolved: tickets.filter(t => t.status === TicketStatus.RESOLVED).length,
-      closed: tickets.filter(t => t.status === TicketStatus.CLOSED).length,
-      unread: tickets.filter(t => t.hasUnreadMessages).length
+      open: tickets.filter((t) => t.status === TicketStatus.OPEN).length,
+      inProgress: tickets.filter((t) => t.status === TicketStatus.IN_PROGRESS).length,
+      closed: tickets.filter((t) => t.status === TicketStatus.CLOSED).length,
+      unread: tickets.filter((t) => t.hasUnreadMessages).length,
     };
   },
 
   // Ticket-Priorität bestimmen (basierend auf Status und Alter)
-  getTicketPriority(ticket: UserTicket): 'high' | 'medium' | 'low' {
+  getTicketPriority(ticket: UserTicket): "high" | "medium" | "low" {
     const daysSinceCreation = (Date.now() - new Date(ticket.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-    
+
     if (ticket.status === TicketStatus.OPEN && daysSinceCreation > 3) {
-      return 'high';
+      return "high";
     } else if (ticket.status === TicketStatus.IN_PROGRESS) {
-      return 'medium';
+      return "medium";
     } else {
-      return 'low';
+      return "low";
     }
   },
 
   // Kann User auf Ticket antworten?
   canReplyToTicket(ticket: UserTicket | FullTicket): boolean {
-    return ticket.status !== TicketStatus.CLOSED && ticket.status !== TicketStatus.RESOLVED;
+    return ticket.status !== TicketStatus.CLOSED;
   },
 
   // Kann User Ticket schließen?
   canCloseTicket(ticket: UserTicket | FullTicket): boolean {
-    return ticket.status !== TicketStatus.CLOSED && ticket.status !== TicketStatus.RESOLVED;
-  }
+    return ticket.status !== TicketStatus.CLOSED;
+  },
 };
 
 export default memberTicketService;

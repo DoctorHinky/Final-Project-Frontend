@@ -285,7 +285,6 @@ export default defineComponent({
     const headerRef = ref<HTMLElement>();
     const subtitleRef = ref<HTMLElement>();
     const authorsGrid = ref<HTMLElement>();
-    const authorCards = ref<HTMLElement[]>([]);
 
     const createFloatingParticles = () => {
       const container = document.querySelector(".floating-particles");

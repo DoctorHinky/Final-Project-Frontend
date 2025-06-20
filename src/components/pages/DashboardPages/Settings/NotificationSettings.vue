@@ -45,7 +45,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 
-interface NotificationSetting {
+export interface NotificationSetting {
   id: string;
   name: string;
   description: string;

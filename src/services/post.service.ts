@@ -1,4 +1,5 @@
 // src/services/post.service.ts
+import type { Chapter } from "@/types/dtos";
 import axiosInstance from "./axiosInstance";
 import type { Article as FullPost, Article } from "@/types/dtos/Article.types";
 
@@ -354,7 +355,6 @@ class PostService {
       isCertifiedAuthor: preview.isCertifiedAuthor,
       createdAt: preview.createdAt,
       // Dummy-Werte für nicht verfügbare Felder
-      publicId_image: "",
       forKids: false,
       ageRestriction: 0,
       authorId: null,
@@ -379,7 +379,6 @@ class PostService {
       title: post.title,
       quickDescription: post.quickDescription,
       image: post.image || "",
-      publicId_image: post.publicId_image || "",
       tags: post.tags,
       forKids: post.forKids,
       ageRestriction: post.ageRestriction,
@@ -396,6 +395,8 @@ class PostService {
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       popularityScore: post.popularityScore,
+      quiz: post.quiz,
+      chapters: post.chapters,
     };
   }
 
@@ -424,7 +425,7 @@ class PostService {
    * Lesezeit basierend auf Kapiteln schätzen
    */
   private estimateReadingTime(chapters: Chapter[]): number {
-    const wordsPerMinute = 200; // Durchschnittliche Lesegeschwindigkeit
+    const wordsPerMinute = 120; // Durchschnittliche Lesegeschwindigkeit
     let totalWords = 0;
 
     chapters.forEach((chapter) => {

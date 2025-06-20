@@ -46,7 +46,7 @@
 
           <span
             v-if="
-              !passwordsAreDiffrent &&
+              !passwordsAreDifferent &&
               passwordForm.currentPassword &&
               passwordForm.newPassword &&
               !passwordErrors.newPassword
@@ -102,7 +102,7 @@
               type="button"
               class="password-toggle"
               @click="showPasswords.confirm = !showPasswords.confirm"
-              :disabled="isChangingPassword || !canSubmitPassword"
+              :disabled="isChangingPassword"
             >
               <EyeIcon v-if="!showPasswords.confirm" class="icon" />
               <EyeSlashIcon v-else class="icon" />
@@ -492,12 +492,12 @@ export default defineComponent({
         passwordForm.value.currentPassword &&
         passwordForm.value.newPassword &&
         passwordForm.value.confirmPassword &&
-        !passwordsAreDiffrent.value &&
+        passwordsAreDifferent.value &&
         passwordsMatch.value &&
         passwordStrength.value !== "weak"
     );
 
-    const passwordsAreDiffrent = computed(() => passwordForm.value.currentPassword !== passwordForm.value.newPassword);
+    const passwordsAreDifferent = computed(() => passwordForm.value.currentPassword !== passwordForm.value.newPassword);
 
     // Methods
     const validatePasswordStrength = () => {
@@ -798,7 +798,7 @@ export default defineComponent({
       passwordStrengthText,
       passwordsMatch,
       canSubmitPassword,
-      passwordsAreDiffrent,
+      passwordsAreDifferent,
 
       // Methods
       validatePasswordStrength,

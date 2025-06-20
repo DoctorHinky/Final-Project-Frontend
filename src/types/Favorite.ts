@@ -1,8 +1,8 @@
 export interface Favorite {
-  id: number;
+  id: string;
   title: string;
   preview: string;
   category: string;
-  author: string;
+  author: { username: string };
   date: string;
 }

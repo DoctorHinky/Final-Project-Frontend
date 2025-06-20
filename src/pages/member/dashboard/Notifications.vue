@@ -107,7 +107,7 @@ export default defineComponent({
     const isLoading = ref(true);
     const errorMessage = ref("");
     const successMessage = ref("");
-    const activeFilter = ref("all");
+    const activeFilter = ref("unread");
     const showSettings = ref(false);
     const showConfirmDialog = ref(false);
     const confirmDialogTitle = ref("");
@@ -184,9 +184,8 @@ export default defineComponent({
 
     // Benachrichtigungen vom Backend laden
     const loadNotifications = async (showLoader = true) => {
-      if (showLoader) {
-        isLoading.value = true;
-      }
+      if (showLoader) isLoading.value = true;
+
       try {
         notifications.value = await notificationService.getNotifications();
         updateFilterCounts();
@@ -220,21 +219,13 @@ export default defineComponent({
     };
 
     // Berechnete Werte für Status
-    const unreadCount = computed(() => {
-      return notifications.value.filter((n) => !n.isRead).length;
-    });
+    const unreadCount = computed(() => notifications.value.filter((n) => !n.isRead).length);
 
-    const totalCount = computed(() => {
-      return notifications.value.length;
-    });
+    const totalCount = computed(() => notifications.value.length);
 
-    const hasUnread = computed(() => {
-      return unreadCount.value > 0;
-    });
+    const hasUnread = computed(() => unreadCount.value > 0);
 
-    const hasNotifications = computed(() => {
-      return totalCount.value > 0;
-    });
+    const hasNotifications = computed(() => totalCount.value > 0);
 
     // Benachrichtigung als gelesen markieren
     const markAsRead = async (id: string) => {

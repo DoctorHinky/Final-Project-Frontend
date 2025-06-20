@@ -40,15 +40,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import { authService } from "@/services/auth.service";
-import {
-  overviewService,
-  type DashboardStats,
-  type RecentActivityArticle,
-  type RecommendedArticle,
-} from "@/services/overview.service";
-
+import { overviewService, type RecentActivityArticle } from "@/services/overview.service";
+import { useRouter } from "vue-router";
 // Import der modularen Komponenten
 import {
   WelcomeSection,
@@ -57,21 +51,7 @@ import {
   RecommendedArticles,
   AuthorApplicationModal,
 } from "@/components/pages/DashboardPages/Overview";
-
-interface Article {
-  id: string;
-  title: string;
-  preview?: string;
-  category?: string;
-  author?: string;
-  date?: string;
-  status?: string;
-  currentChapter?: number;
-  totalChapters?: number;
-  lastRead?: string;
-  readingTime?: string;
-  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
-}
+import type { RecommendedArticle } from "@/types/Overview.types";
 
 export default defineComponent({
   name: "OverviewDashboard",
@@ -83,8 +63,8 @@ export default defineComponent({
     AuthorApplicationModal,
   },
   setup() {
-    const router = useRouter();
     const userName = ref("Mitglied");
+    const router = useRouter();
 
     // Loading states
     const isLoading = ref(true);
@@ -168,9 +148,7 @@ export default defineComponent({
     };
 
     // Modal öffnen/schließen
-    const toggleAuthorModal = () => {
-      showAuthorModal.value = !showAuthorModal.value;
-    };
+    const toggleAuthorModal = () => (showAuthorModal.value = !showAuthorModal.value);
 
     // Formular absenden
     const submitAuthorApplication = async (data: any) => {
@@ -183,22 +161,20 @@ export default defineComponent({
 
     // Artikel öffnen
     const openArticle = () => {
-      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
+      router.push({ name: "MemberDashboard", query: { tab: "my-articles" } });
     };
 
     // Navigation zu anderen Dashboardbereichen
     const goToMyArticles = () => {
-      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
+      router.push({ name: "MemberDashboard", query: { tab: "my-articles" } });
     };
 
     const goToDiscovery = () => {
-      window.location.href = "http://localhost:5173/member/dashboard?tab=my-articles";
+      router.push({ name: "MemberDashboard", query: { tab: "my-articles" } });
     };
 
     // Daten neu laden
-    const refreshDashboard = async () => {
-      await loadAllDashboardData();
-    };
+    const refreshDashboard = async () => await loadAllDashboardData();
 
     // Benutzerdaten und Dashboard-Daten beim Mounten laden
     onMounted(async () => {

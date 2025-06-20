@@ -9,7 +9,7 @@
       Es gibt keine Benachrichtigungen in dieser Kategorie.
       <button @click="$emit('update:activeFilter', 'all')" class="switch-filter">Alle anzeigen</button>
     </p>
-    <p v-else>Du hast zurzeit keine Benachrichtigungen. Wir werden dich über wichtige Aktivitäten informieren.</p>
+    <p v-else>Du hast zurzeit keine neuen Benachrichtigungen. Wir werden dich über wichtige Aktivitäten informieren.</p>
   </div>
 </template>
 
