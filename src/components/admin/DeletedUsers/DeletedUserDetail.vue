@@ -295,11 +295,83 @@
         </div>
       </div>
     </div>
+
+    <!-- Restore Confirm Modal -->
+    <div v-if="showRestoreConfirm" class="inner-modal-overlay" @click="showRestoreConfirm = false">
+      <div class="inner-modal-dialog confirm-dialog" @click.stop>
+        <div class="inner-modal-header">
+          <h4>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+              <path d="M21 3v5h-5"></path>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+              <path d="M8 16H3v5"></path>
+            </svg>
+            Benutzer wiederherstellen
+          </h4>
+          <button class="close-button" @click="showRestoreConfirm = false">×</button>
+        </div>
+        <div class="inner-modal-body">
+          <p>Möchten Sie den Benutzer "<strong>{{ getUserDisplayName(user) }}</strong>" wirklich wiederherstellen?</p>
+          <p class="info-text">Der Benutzer kann sich nach der Wiederherstellung wieder anmelden.</p>
+        </div>
+        <div class="inner-modal-footer">
+          <button class="btn-cancel" @click="showRestoreConfirm = false">Abbrechen</button>
+          <button class="btn-restore" @click="confirmRestore">Wiederherstellen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div v-if="showDeleteConfirm" class="inner-modal-overlay" @click="showDeleteConfirm = false">
+      <div class="inner-modal-dialog danger-dialog" @click.stop>
+        <div class="inner-modal-header danger-header">
+          <h4>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Endgültig löschen
+          </h4>
+          <button class="close-button" @click="showDeleteConfirm = false">×</button>
+        </div>
+        <div class="inner-modal-body">
+          <p class="warning-text">⚠️ ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!</p>
+          <p>Möchten Sie den Benutzer "<strong>{{ getUserDisplayName(user) }}</strong>" wirklich ENDGÜLTIG löschen?</p>
+          <p class="info-text">Alle Daten dieses Benutzers werden unwiderruflich gelöscht.</p>
+        </div>
+        <div class="inner-modal-footer">
+          <button class="btn-cancel" @click="showDeleteConfirm = false">Abbrechen</button>
+          <button class="btn-danger" @click="confirmPermanentDelete">Endgültig löschen</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, ref, type PropType } from "vue";
 import { formatDate } from "@/utils/helperFunctions";
 import { getReasonText, getReasonClass, getUserInitials } from "./deletedUsers.helper";
 import type { DeletedUser } from "@/types";
@@ -314,6 +386,10 @@ export default defineComponent({
   },
   emits: ["close", "restore", "permanent-delete"],
   setup(props, { emit }) {
+    // Modal States
+    const showRestoreConfirm = ref(false);
+    const showDeleteConfirm = ref(false);
+
     function getUserDisplayName(user: DeletedUser): string {
       if (user.firstname && user.lastname) {
         return `${user.firstname} ${user.lastname}`;
@@ -333,24 +409,26 @@ export default defineComponent({
     }
 
     const restoreUser = () => {
-      if (confirm(`Möchten Sie den Benutzer "${getUserDisplayName(props.user)}" wirklich wiederherstellen?`)) {
-        emit("restore", props.user);
-      }
+      showRestoreConfirm.value = true;
+    };
+
+    const confirmRestore = () => {
+      showRestoreConfirm.value = false;
+      emit("restore", props.user);
     };
 
     const permanentDeleteUser = () => {
-      if (
-        confirm(
-          `ACHTUNG: Diese Aktion kann nicht rückgängig gemacht werden!\n\nMöchten Sie den Benutzer "${getUserDisplayName(
-            props.user
-          )}" wirklich ENDGÜLTIG löschen?`
-        )
-      ) {
-        emit("permanent-delete", props.user);
-      }
+      showDeleteConfirm.value = true;
+    };
+
+    const confirmPermanentDelete = () => {
+      showDeleteConfirm.value = false;
+      emit("permanent-delete", props.user);
     };
 
     return {
+      showRestoreConfirm,
+      showDeleteConfirm,
       getUserInitials,
       getUserDisplayName,
       getReasonText,
@@ -369,7 +447,9 @@ export default defineComponent({
         return roleMap[role] || role;
       },
       restoreUser,
+      confirmRestore,
       permanentDeleteUser,
+      confirmPermanentDelete,
     };
   },
 });
@@ -794,6 +874,170 @@ export default defineComponent({
     background: linear-gradient(135deg, #c62828, #8b0000);
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(214, 48, 49, 0.4);
+  }
+}
+
+// Inner Modal Styles (für Modals innerhalb eines Modals)
+.inner-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  backdrop-filter: blur(2px);
+}
+
+.inner-modal-dialog {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid #444;
+  animation: modal-appear 0.3s ease-out;
+
+  &.confirm-dialog {
+    .inner-modal-header h4 {
+      color: #2ecc71;
+    }
+  }
+
+  &.danger-dialog {
+    .inner-modal-header {
+      background-color: rgba(244, 67, 54, 0.1);
+      border-bottom-color: rgba(244, 67, 54, 0.3);
+
+      h4 {
+        color: #f44336;
+      }
+    }
+  }
+}
+
+.inner-modal-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+
+  h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  }
+}
+
+.inner-modal-body {
+  padding: 24px;
+
+  p {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+    color: #e0e0e0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: #fff;
+    }
+  }
+
+  .warning-text {
+    color: #f44336;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .info-text {
+    color: #888;
+    font-size: 0.9rem;
+  }
+}
+
+.inner-modal-footer {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #333;
+
+  .btn-cancel {
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ccc;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #444;
+      color: #fff;
+    }
+  }
+
+  .btn-restore {
+    padding: 10px 20px;
+    background-color: #2ecc71;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #27ae60;
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-danger {
+    padding: 10px 20px;
+    background-color: #f44336;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #d32f2f;
+      transform: translateY(-1px);
+    }
   }
 }
 

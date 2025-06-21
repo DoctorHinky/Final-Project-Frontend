@@ -51,7 +51,7 @@
         <TicketDetail
           :ticket="selectedTicket"
           @close="closeTicketDetail"
-          @updated="refreshTickets"
+          @updated="handleTicketUpdate"
           @deleted="handleTicketDeleted"
         />
       </div>
@@ -184,7 +184,7 @@ export default defineComponent({
     const selectTicket = async (ticket: Ticket) => {
       try {
         const res = await ticketService.getTicketById(ticket.id);
-        console.log("respone ", res);
+        console.log("Ticket detail response:", res);
 
         if (res !== null) {
           selectedTicket.value = res;
@@ -211,20 +211,37 @@ export default defineComponent({
       }
     };
 
-    // Tickets aktualisieren
-    const refreshTickets = async () => {
-      await loadTickets();
-      if (selectedTicket.value) {
-        // Ausgewähltes Ticket aktualisieren
-        const updated = tickets.value.find((t) => t.id === selectedTicket.value!.id);
-        if (updated) {
-          selectedTicket.value = updated;
+    // Ticket Update Handler
+    const handleTicketUpdate = async (updatedTicket?: Ticket) => {
+      // Wenn ein aktualisiertes Ticket übergeben wurde, verwende es direkt
+      if (updatedTicket) {
+        selectedTicket.value = updatedTicket;
+        // Aktualisiere auch die Ticket-Liste
+        const index = tickets.value.findIndex(t => t.id === updatedTicket.id);
+        if (index !== -1) {
+          tickets.value[index] = updatedTicket;
+        }
+      } else {
+        // Ansonsten lade das Ticket neu
+        if (selectedTicket.value) {
+          const updated = await ticketService.getTicketById(selectedTicket.value.id);
+          if (updated) {
+            selectedTicket.value = updated;
+            // Aktualisiere auch die Ticket-Liste
+            const index = tickets.value.findIndex(t => t.id === updated.id);
+            if (index !== -1) {
+              tickets.value[index] = updated;
+            }
+          }
         }
       }
     };
 
     // Ticket gelöscht
-    const handleTicketDeleted = () => closeTicketDetail();
+    const handleTicketDeleted = () => {
+      closeTicketDetail();
+      loadTickets(); // Liste neu laden
+    };
 
     // Beim Mounten
     onMounted(() => loadTickets());
@@ -244,9 +261,8 @@ export default defineComponent({
       selectTicket,
       closeTicketDetail,
       closeNewTicketForm,
-      refreshTickets,
+      handleTicketUpdate,
       handleTicketDeleted,
-      // handleBulkAction,
     };
   },
 });
