@@ -298,8 +298,9 @@ export default defineComponent({
     const loadCurrentUser = () => {
       try {
         const userData = authService.getUserData();
-        if (userData?.sub) {
-          currentUserId.value = userData.sub;
+        if (userData?.userId) {
+          currentUserId.value = userData.userId;
+          console.log('Current User ID gesetzt:', currentUserId.value);
         }
       } catch (error) {
         console.error('Fehler beim Laden der User-Daten:', error);
@@ -1029,6 +1030,31 @@ export default defineComponent({
   scroll-behavior: smooth;
   overscroll-behavior: contain;
   position: relative;
+
+  // Sanfter texturierter Chat-Hintergrund
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, card-bg);
+      background-image:
+        repeating-linear-gradient(
+          135deg,
+          rgba(mixins.theme-color($theme, accent-teal), 0.04) 0px,
+          rgba(mixins.theme-color($theme, accent-teal), 0.04) 2px,
+          transparent 2px,
+          transparent 8px
+        ),
+        repeating-linear-gradient(
+          45deg,
+          rgba(mixins.theme-color($theme, accent-teal), 0.03) 0px,
+          rgba(mixins.theme-color($theme, accent-teal), 0.03) 1.5px,
+          transparent 1.5px,
+          transparent 6px
+        );
+      background-blend-mode: lighten;
+      // Optional: für noch weicheren Effekt
+      // filter: blur(0.1px);
+    }
+  }
 
   &::-webkit-scrollbar {
     width: 8px;

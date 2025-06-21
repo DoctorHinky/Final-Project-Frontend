@@ -166,19 +166,6 @@ export default defineComponent({
         description: "Mache dein Profil für andere Benutzer sichtbar.",
         enabled: true,
       },
-      {
-        id: "activity_tracking",
-        name: "Aktivitätsverfolgung",
-        description:
-          "Erlaube uns, deine Aktivitäten auf der Plattform zu verfolgen, um personalisierte Empfehlungen zu geben.",
-        enabled: true,
-      },
-      {
-        id: "third_party_sharing",
-        name: "Datenweitergabe an Dritte",
-        description: "Erlaube die Weitergabe deiner Daten an vertrauenswürdige Drittanbieter.",
-        enabled: false,
-      },
     ]);
 
     // Datenschutzeinstellungen speichern

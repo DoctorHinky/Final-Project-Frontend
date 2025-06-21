@@ -5,194 +5,194 @@
     <div class="ticket-header">
       <div class="header-left">
         <button class="btn-back" @click="$emit('close')">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
+          <!-- Hero Icon: Arrow Left -->
+          <svg class="icon-back" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
           Zurück
         </button>
         <h2 class="ticket-title">{{ ticket.title }}</h2>
       </div>
+      <div class="header-right">
+        <span class="ticket-id">#{{ ticket.id }}</span>
+      </div>
     </div>
 
     <!-- Ticket Info Box -->
     <div class="ticket-info-box">
-      <div class="info-section">
-        <div class="info-label">Ticket-ID</div>
-        <div class="info-value">{{ ticket.id }}</div>
-      </div>
-      <div class="info-section">
-        <div class="info-label">Erstellt am:</div>
-        <div class="info-value">{{ formatDate(ticket.createdAt) }}</div>
-      </div>
-      <div class="info-section">
-        <div class="info-label">Aktualisiert</div>
-        <div class="info-value">{{ formatDate(ticket.updatedAt) }}</div>
-      </div>
-      <div class="info-section">
-        <div class="info-label">Kategorie</div>
-        <div class="info-value">
-          <select v-model="currentCategory" @change="updateTicketCategory" class="category-select">
-            <option v-for="category in availableCategories" :key="category" :value="category">
-              {{ formatCategory(category) }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="info-section">
-        <div class="info-label">Zugewiesen an</div>
-        <div class="info-value">{{ ticket.workedBy?.username || "nicht zugewiesen" }}</div>
-
-        <div class="info-value">
-          <div>
-            <button v-if="canTakeTicket" class="btn-primary" @click="takeTicket">Ticket übernehmen</button>
+      <div class="info-grid">
+        <div class="info-section">
+          <div class="info-label">Status</div>
+          <div class="info-value">
+            <span class="status-badge" :class="'status-' + ticket.status.toLowerCase()">
+              {{ formatStatus(ticket.status) }}
+            </span>
           </div>
-          <button v-if="canCloseTicket" class="btn-secondary" @click="closeTicket">Ticket schließen</button>
-          <button v-if="canCancelTicket" class="btn-danger" @click="cancelTicket">Ticket stornieren</button>
-          <form @submit.prevent="submitMessage" class="message-form">
-            <textarea v-model="newMessage" placeholder="Nachricht eingeben..." required />
-            <button type="submit" :disabled="isSending">
-              <span v-if="isSending">Senden...</span>
-              <span v-else>Nachricht senden</span>
-            </button>
-          </form>
+        </div>
+        <div class="info-section">
+          <div class="info-label">Kategorie</div>
+          <div class="info-value">
+            <select v-model="currentCategory" @change="updateTicketCategory" class="category-select">
+              <option v-for="category in availableCategories" :key="category" :value="category">
+                {{ formatCategory(category) }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">Erstellt am</div>
+          <div class="info-value">{{ formatDate(ticket.createdAt) }}</div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">Aktualisiert</div>
+          <div class="info-value">{{ formatDate(ticket.updatedAt) }}</div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">Zugewiesen an</div>
+          <div class="info-value">
+            {{ ticket.workedBy?.username || "Nicht zugewiesen" }}
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-label">Ersteller</div>
+          <div class="info-value">{{ ticket.author?.username || "Unbekannt" }}</div>
         </div>
       </div>
+    </div>
+
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar">
+      <button v-if="canTakeTicket" class="btn-action take" @click="takeTicket">
+        <!-- Hero Icon: User Plus -->
+        <svg class="icon-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+        </svg>
+        Ticket übernehmen
+      </button>
+      
+      <button v-if="canCloseTicket" class="btn-action close" @click="closeTicket">
+        <!-- Hero Icon: Check Circle -->
+        <svg class="icon-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        Ticket schließen
+      </button>
+      
+      <button v-if="currentStatus === TicketStatus.CLOSED" class="btn-action reopen" @click="reopenTicket">
+        <!-- Hero Icon: Arrow Path -->
+        <svg class="icon-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Wieder öffnen
+      </button>
+      
+      <button v-if="canCancelTicket" class="btn-action cancel" @click="cancelTicket">
+        <!-- Hero Icon: X Circle -->
+        <svg class="icon-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        Stornieren
+      </button>
+      
+      <button class="btn-action delete" @click="confirmDeleteTicket">
+        <!-- Hero Icon: Trash -->
+        <svg class="icon-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+        Löschen
+      </button>
     </div>
 
     <!-- Ticket Description -->
     <div class="ticket-description-box">
-      <h3 class="box-title">Beschreibung</h3>
+      <h3 class="box-title">
+        <!-- Hero Icon: Document Text -->
+        <svg class="icon-title" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+        Beschreibung
+      </h3>
       <p class="description-text">{{ ticket.description }}</p>
     </div>
 
     <!-- Message Timeline -->
-    <div class="message-timeline" v-if="ticket.messages && ticket.messages.length > 0">
-      <h3 class="box-title">Nachrichtenverlauf</h3>
-      <div class="timeline">
+    <div class="message-section">
+      <h3 class="box-title">
+        <!-- Hero Icon: Chat Bubble -->
+        <svg class="icon-title" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+        </svg>
+        Kommunikation
+        <span class="sort-indicator">
+          <!-- Hero Icon: Arrow Down -->
+          <svg class="icon-sort" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25 12 21m0 0-3.75-3.75M12 21V3" />
+          </svg>
+          Neueste zuerst
+        </span>
+      </h3>
+
+      <!-- Message Form -->
+      <form @submit.prevent="submitMessage" class="message-form">
+        <textarea 
+          v-model="newMessage" 
+          placeholder="Nachricht an den Nutzer eingeben..." 
+          required
+          rows="3"
+        />
+        <button type="submit" :disabled="isSending || !newMessage.trim()">
+          <span v-if="isSending">
+            <!-- Hero Icon: Loading spinner -->
+            <svg class="icon-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Senden...
+          </span>
+          <span v-else>
+            <!-- Hero Icon: Paper Airplane -->
+            <svg class="icon-send" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+            Nachricht senden
+          </span>
+        </button>
+      </form>
+
+      <!-- Messages Timeline -->
+      <div class="message-timeline" v-if="sortedMessages && sortedMessages.length > 0">
         <div
-          v-for="message in ticket.messages"
+          v-for="(message, index) in sortedMessages"
           :key="message.id"
           class="timeline-item"
-          :class="{ 'is-staff': message.isStaff }"
+          :class="{ 
+            'is-staff': isMessageFromStaff(message),
+            'is-newest': index === 0
+          }"
         >
-          <div class="timeline-icon" :class="{ 'staff-icon': message.isStaff }">
-            <svg
-              v-if="message.isStaff"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
+          <div class="timeline-icon" :class="{ 'staff-icon': isMessageFromStaff(message) }">
+            <!-- Hero Icon: User -->
+            <svg class="icon-user" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
             </svg>
           </div>
           <div class="timeline-content">
             <div class="message-header">
               <div class="message-author">
                 {{ message.author?.username || "Unbekannt" }}
+                <span v-if="isMessageFromStaff(message)" class="staff-badge">Team</span>
+                <span v-if="index === 0" class="newest-badge">Neueste</span>
               </div>
               <div class="message-time">
-                {{ formatDate(message.createdAt) }}
+                {{ index === 0 ? formatRelativeTime(message.createdAt) : formatDate(message.createdAt) }}
               </div>
             </div>
             <div class="message-body">{{ message.content }}</div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Action Bar -->
-    <div class="action-bar">
-      <button class="btn-action delete" @click="confirmDeleteTicket">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          <line x1="10" y1="11" x2="10" y2="17"></line>
-          <line x1="14" y1="11" x2="14" y2="17"></line>
-        </svg>
-        Ticket löschen
-      </button>
-
-      <div v-if="currentStatus === TicketStatus.CLOSED">
-        <button class="btn-action reopen" @click="reopenTicket">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M3 12h18"></path>
-            <path d="M3 6h18"></path>
-            <path d="M3 18h18"></path>
-          </svg>
-          Ticket wieder öffnen
-        </button>
-      </div>
-      <div v-else>
-        <button class="btn-action close" @click="cancelTicket">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-          Ticket schließen
-        </button>
+      <div v-else class="no-messages">
+        <p>Noch keine Nachrichten vorhanden.</p>
       </div>
     </div>
 
@@ -200,8 +200,19 @@
     <div v-if="showDeleteConfirm" class="modal-overlay" @click="cancelDelete">
       <div class="confirm-dialog" @click.stop>
         <div class="confirm-header">
-          <h3>Ticket löschen</h3>
-          <button class="close-button" @click="cancelDelete">×</button>
+          <h3>
+            <!-- Hero Icon: Exclamation Triangle -->
+            <svg class="icon-warning" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            Ticket löschen
+          </h3>
+          <button class="close-button" @click="cancelDelete">
+            <!-- Hero Icon: X Mark -->
+            <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         <div class="confirm-content">
           <p>
@@ -210,7 +221,7 @@
         </div>
         <div class="confirm-actions">
           <button class="btn-cancel" @click="cancelDelete">Abbrechen</button>
-          <button class="btn-delete" @click="deleteTicket">Löschen</button>
+          <button class="btn-delete" @click="deleteTicket">Endgültig löschen</button>
         </div>
       </div>
     </div>
@@ -249,41 +260,47 @@ export default defineComponent({
       try {
         await ticketService.addMessage(props.ticket.id, newMessage.value);
         newMessage.value = "";
-        emit("updated");
+        // Ticket neu laden um die Messages zu aktualisieren
+        const updatedTicket = await ticketService.getTicketById(props.ticket.id);
+        if (updatedTicket) {
+          emit("updated", updatedTicket);
+          // Nach kurzer Verzögerung zur neuesten Nachricht scrollen
+          setTimeout(() => {
+            const timeline = document.querySelector('.message-timeline');
+            if (timeline) {
+              timeline.scrollTop = 0;
+            }
+          }, 100);
+        }
       } catch (e) {
         console.error("Fehler beim Senden der Nachricht", e);
       } finally {
         isSending.value = false;
       }
     };
+    
     const takeTicket = async () => {
       await ticketService.takeTicket(props.ticket.id);
       emit("updated");
     };
+    
     const userdata = authService.getUserData();
-    /*     const isString = (value: any) => {
-      if (value === null) {
-        return "";
-      }
-      if (typeof value === "string") {
-        return value.trim();
-      } else {
-        return "";
-      }
-    }; */
+    
     const canTakeTicket = computed(() => {
       if (userdata === null) {
         return false;
       }
       return userdata.role === "ADMIN" && !props.ticket.workedBy?.username;
     });
+    
     const canCloseTicket = computed(() => props.ticket.status === TicketStatus.IN_PROGRESS);
     const canCancelTicket = computed(() => props.ticket.status === TicketStatus.OPEN);
-    // const isStaff = userdata?.role === "ADMIN" || userdata?.role === "MODERATOR";
+    
     const cancelTicket = async () => {
       await ticketService.cancelTicket(props.ticket.id);
       emit("deleted", props.ticket.id);
     };
+    
     // Löschen-Dialog
     const showDeleteConfirm = ref(false);
 
@@ -348,6 +365,7 @@ export default defineComponent({
         console.error("Fehler beim Senden der Antwort:", error);
       }
     };
+    
     // Antwortformular zurücksetzen
     const resetReplyForm = () => (replyMessage.value = "");
 
@@ -381,6 +399,23 @@ export default defineComponent({
         hour: "2-digit",
         minute: "2-digit",
       }).format(date);
+    };
+
+    // Relative Zeit für die neueste Nachricht
+    const formatRelativeTime = (dateString: string) => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return "Gerade eben";
+      if (diffMins < 60) return `vor ${diffMins} Minute${diffMins > 1 ? 'n' : ''}`;
+      if (diffHours < 24) return `vor ${diffHours} Stunde${diffHours > 1 ? 'n' : ''}`;
+      if (diffDays < 7) return `vor ${diffDays} Tag${diffDays > 1 ? 'en' : ''}`;
+      
+      return formatDate(dateString);
     };
 
     const formatStatus = (status: TicketStatus) => {
@@ -422,8 +457,46 @@ export default defineComponent({
       }
     };
 
+    // Sortierte Messages (neueste zuerst)
+    const sortedMessages = computed(() => {
+      if (!props.ticket.messages || props.ticket.messages.length === 0) {
+        return [];
+      }
+      // Kopiere das Array und sortiere es nach Datum absteigend (neueste zuerst)
+      return [...props.ticket.messages].sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    });
+
+    // Prüfen ob Nachricht vom Staff ist
+    const isMessageFromStaff = (message: any) => {
+      // Wenn kein author vorhanden, nicht als Staff markieren
+      if (!message.author?.id) return false;
+      
+      // Prüfen ob die Nachricht NICHT vom Ticket-Ersteller ist
+      // Das Ticket hat eine userFile mit user Property vom Backend
+      const ticketOwnerId = (props.ticket as any).userFile?.user?.id || (props.ticket as any).author?.id;
+      
+      // Wenn der Author der Nachricht nicht der Ticket-Ersteller ist, ist es Staff
+      return message.author.id !== ticketOwnerId;
+    };
+
     // Beim Mounten der Komponente
-    onMounted(() => loadAvailableAdmins());
+    onMounted(() => {
+      loadAvailableAdmins();
+      // Debug: Ticket-Struktur prüfen
+      console.log("=== TICKET DETAIL DEBUG ===");
+      console.log("Full ticket object:", props.ticket);
+      console.log("Messages array:", props.ticket.messages);
+      console.log("Messages count:", props.ticket.messages?.length || 0);
+      if (props.ticket.messages && props.ticket.messages.length > 0) {
+        console.log("First message:", props.ticket.messages[0]);
+        console.log("Message author:", props.ticket.messages[0].author);
+      }
+      console.log("UserFile:", (props.ticket as any).userFile);
+      console.log("Ticket owner ID:", (props.ticket as any).userFile?.user?.id);
+      console.log("=== END DEBUG ===");
+    });
 
     return {
       // Reaktive States
@@ -445,15 +518,20 @@ export default defineComponent({
       TicketStatus,
       TicketCategory,
       formatDate,
+      formatRelativeTime,
       formatStatus,
       formatCategory,
 
       // Computed
       canSendReply,
       canTakeTicket,
+      canCloseTicket,
+      canCancelTicket,
+      sortedMessages,
 
       // Methoden – Änderungen
       updateTicketCategory,
+      isMessageFromStaff,
 
       // Methoden – Aktionen
       closeTicket,
@@ -477,24 +555,77 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .ticket-detail {
-  max-width: 1000px;
-  margin: 0px auto;
-  padding: 24px;
-  overflow-x: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
+/* Icon Styles */
+.icon-back,
+.icon-action,
+.icon-title,
+.icon-user,
+.icon-warning,
+.icon-close,
+.icon-send {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.icon-title {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-user {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-warning {
+  width: 24px;
+  height: 24px;
+  color: #f44336;
+}
+
+.icon-spinner {
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Header */
 .ticket-header {
+  padding: 20px 24px;
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #333;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
 
   .header-left {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-right {
+    flex-shrink: 0;
   }
 
   .btn-back {
@@ -504,67 +635,53 @@ export default defineComponent({
     padding: 8px 12px;
     background-color: #333;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #fff;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    flex-shrink: 0;
 
     &:hover {
       background-color: #444;
-    }
-
-    svg {
-      transition: transform 0.2s;
-    }
-
-    &:hover svg {
       transform: translateX(-2px);
     }
   }
 
   .ticket-title {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
     color: #f0f0f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .ticket-status {
-    .status-switcher {
-      .status-select {
-        padding: 8px 12px;
-        border-radius: 4px;
-        background-color: #333;
-        border: 1px solid #444;
-        color: #fff;
-        font-weight: 500;
-        cursor: pointer;
-        min-width: 160px;
-
-        &:focus {
-          outline: none;
-          border-color: #ff9800;
-        }
-
-        option {
-          background-color: #222;
-          color: #fff;
-        }
-      }
-    }
+  .ticket-id {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+    padding: 4px 12px;
+    background-color: #333;
+    border-radius: 16px;
   }
 }
 
+/* Info Box */
 .ticket-info-box {
+  padding: 24px;
   background-color: #2a2a2a;
+  margin: 20px;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
   border: 1px solid #333;
+  flex-shrink: 0;
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
 
   .info-section {
     .info-label {
@@ -575,19 +692,45 @@ export default defineComponent({
     }
 
     .info-value {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #f0f0f0;
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.875rem;
+        font-weight: 600;
+
+        &.status-open {
+          background-color: rgba(33, 150, 243, 0.15);
+          color: #42a5f5;
+        }
+
+        &.status-in_progress {
+          background-color: rgba(156, 39, 176, 0.15);
+          color: #ba68c8;
+        }
+
+        &.status-closed,
+        &.status-canceled {
+          background-color: rgba(158, 158, 158, 0.15);
+          color: #bdbdbd;
+        }
+      }
 
       .category-select {
         width: 100%;
         padding: 8px 12px;
-        border-radius: 4px;
+        border-radius: 6px;
         background-color: #333;
         border: 1px solid #444;
         color: #fff;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
+        font-size: 0.95rem;
 
         &:focus {
           outline: none;
@@ -600,150 +743,101 @@ export default defineComponent({
           color: #fff;
         }
       }
-
-      // Styling für die Buttons im info-value Bereich
-      .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background-color: #ff9800;
-        border: none;
-        border-radius: 4px;
-        color: #fff;
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-right: 8px;
-        margin-bottom: 8px;
-
-        &:hover {
-          background-color: #f57c00;
-          transform: translateY(-1px);
-        }
-      }
-
-      .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background-color: #4caf50;
-        border: none;
-        border-radius: 4px;
-        color: #fff;
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-right: 8px;
-        margin-bottom: 8px;
-
-        &:hover {
-          background-color: #388e3c;
-          transform: translateY(-1px);
-        }
-      }
-
-      .btn-danger {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background-color: #f44336;
-        border: none;
-        border-radius: 4px;
-        color: #fff;
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-right: 8px;
-        margin-bottom: 8px;
-
-        &:hover {
-          background-color: #d32f2f;
-          transform: translateY(-1px);
-        }
-      }
     }
   }
 }
 
-// Message Form Styling
-.message-form {
-  width: 100%;
-  margin-top: 16px;
-  padding: 16px;
-  background-color: #333;
-  border-radius: 6px;
-  border: 1px solid #444;
+/* Quick Actions Bar */
+.quick-actions-bar {
+  padding: 0 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 
-  textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 12px;
-    border-radius: 4px;
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    color: #fff;
-    resize: vertical;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    font-family: inherit;
-    margin-bottom: 12px;
-    transition: all 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #ff9800;
-      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
-    }
-
-    &::placeholder {
-      color: #888;
-    }
-  }
-
-  button {
-    padding: 10px 20px;
-    background-color: #ff9800;
+  .btn-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
     border: none;
-    border-radius: 4px;
-    color: #fff;
+    border-radius: 6px;
     font-weight: 500;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 0.95rem;
 
-    &:hover:not(:disabled) {
-      background-color: #f57c00;
+    &:hover {
       transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    &:disabled {
-      background-color: #555;
-      color: #888;
-      cursor: not-allowed;
-      transform: none;
+    &.take {
+      background-color: #ff9800;
+      color: #fff;
+
+      &:hover {
+        background-color: #f57c00;
+      }
+    }
+
+    &.close {
+      background-color: #4caf50;
+      color: #fff;
+
+      &:hover {
+        background-color: #388e3c;
+      }
+    }
+
+    &.reopen {
+      background-color: #2196f3;
+      color: #fff;
+
+      &:hover {
+        background-color: #1976d2;
+      }
+    }
+
+    &.cancel {
+      background-color: #ff5722;
+      color: #fff;
+
+      &:hover {
+        background-color: #e64a19;
+      }
+    }
+
+    &.delete {
+      background-color: transparent;
+      color: #f44336;
+      border: 1px solid #f44336;
+
+      &:hover {
+        background-color: rgba(244, 67, 54, 0.1);
+      }
     }
   }
 }
 
-.box-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #f0f0f0;
-  margin: 0 0 16px 0;
-}
-
+/* Description Box */
 .ticket-description-box {
+  margin: 20px;
+  padding: 20px;
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
   border: 1px solid #333;
+  flex-shrink: 0;
+
+  .box-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin: 0 0 16px 0;
+  }
 
   .description-text {
     margin: 0;
@@ -753,272 +847,300 @@ export default defineComponent({
   }
 }
 
-.message-timeline {
+/* Message Section */
+.message-section {
+  flex: 1;
+  margin: 0 20px 20px;
+  padding: 20px;
   background-color: #2a2a2a;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
   border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
-  .timeline {
+  .box-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin: 0 0 16px 0;
+    flex-shrink: 0;
+
+    .sort-indicator {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: #888;
+      font-weight: 400;
+
+      .icon-sort {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  .message-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background-color: #333;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      resize: vertical;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      font-family: inherit;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #ff9800;
+        box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+      }
+
+      &::placeholder {
+        color: #888;
+      }
+    }
+
+    button {
+      align-self: flex-end;
+      padding: 10px 20px;
+      background-color: #ff9800;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &:hover:not(:disabled) {
+        background-color: #f57c00;
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        background-color: #555;
+        color: #888;
+        cursor: not-allowed;
+        transform: none;
+      }
+    }
+  }
+
+  .message-timeline {
+    flex: 1;
+    overflow-y: auto;
     position: relative;
+    padding-right: 8px;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #333;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 4px;
+
+      &:hover {
+        background-color: #666;
+      }
+    }
 
     &:before {
       content: "";
       position: absolute;
-      top: 0;
+      top: 30px;
       bottom: 0;
       left: 24px;
       width: 2px;
-      background: linear-gradient(to bottom, #444, #666, #444);
-    }
-  }
-
-  .timeline-item {
-    position: relative;
-    padding-left: 60px;
-    margin-bottom: 24px;
-
-    &:last-child {
-      margin-bottom: 0;
+      background: linear-gradient(to bottom, #2196f3, #666, #444);
     }
 
-    &.is-staff {
-      .timeline-content {
-        background-color: rgba(255, 152, 0, 0.08);
-        border-left: 3px solid #ff9800;
+    .timeline-item {
+      position: relative;
+      padding-left: 60px;
+      margin-bottom: 24px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &.is-staff {
+        .timeline-content {
+          background-color: rgba(255, 152, 0, 0.08);
+          border-left: 3px solid #ff9800;
+        }
+
+        &.is-newest {
+        .timeline-content {
+          background-color: rgba(33, 150, 243, 0.08);
+          border: 2px solid rgba(33, 150, 243, 0.3);
+          box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+          animation: pulse-newest 2s ease-in-out;
+        }
+
+        .timeline-icon {
+          background-color: #2196f3;
+          box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
+          animation: pulse-icon 1.5s ease-in-out;
+        }
+      }
+
+      @keyframes pulse-newest {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+        }
+        50% {
+          transform: scale(1.02);
+          box-shadow: 0 6px 16px rgba(33, 150, 243, 0.25);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+        }
+      }
+
+      @keyframes pulse-icon {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
       }
 
       .timeline-icon {
-        background-color: #ff9800;
-        box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+          background-color: #ff9800;
+          box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+        }
+      }
+
+      .timeline-icon {
+        position: absolute;
+        left: 12px;
+        top: 0;
+        width: 24px;
+        height: 24px;
+        background-color: #444;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        border: 2px solid #2a2a2a;
+        z-index: 1;
+
+        &.staff-icon {
+          background-color: #ff9800;
+        }
+      }
+
+      .timeline-content {
+        background-color: #333;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border: 1px solid #444;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: #555;
+          transform: translateY(-1px);
+        }
+
+        .message-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+
+          .message-author {
+            font-weight: 600;
+            color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .staff-badge {
+              font-size: 0.75rem;
+              padding: 2px 8px;
+              background-color: #ff9800;
+              color: #fff;
+              border-radius: 12px;
+              font-weight: 500;
+            }
+
+            .newest-badge {
+              font-size: 0.75rem;
+              padding: 2px 8px;
+              background-color: #2196f3;
+              color: #fff;
+              border-radius: 12px;
+              font-weight: 500;
+              margin-left: 8px;
+              animation: pulse-badge 1.5s ease-in-out infinite;
+            }
+
+            @keyframes pulse-badge {
+              0%, 100% {
+                opacity: 1;
+              }
+              50% {
+                opacity: 0.7;
+              }
+            }
+          }
+
+          .message-time {
+            font-size: 0.875rem;
+            color: #888;
+          }
+        }
+
+        .message-body {
+          line-height: 1.6;
+          white-space: pre-line;
+          color: #e0e0e0;
+        }
       }
     }
   }
 
-  .timeline-icon {
-    position: absolute;
-    left: 12px;
-    top: 0;
-    width: 24px;
-    height: 24px;
-    background-color: #444;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    border: 2px solid #2a2a2a;
-    z-index: 1;
-
-    &.staff-icon {
-      background-color: #ff9800;
-    }
-  }
-
-  .timeline-content {
-    background-color: #333;
-    border-radius: 6px;
-    padding: 16px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border: 1px solid #444;
-    transition: all 0.2s;
-
-    &:hover {
-      border-color: #555;
-      transform: translateY(-1px);
-    }
-  }
-
-  .message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-
-    .message-author {
-      font-weight: 600;
-      color: #f0f0f0;
-
-      .author-role {
-        font-weight: normal;
-        color: #888;
-        font-size: 0.875rem;
-        margin-left: 8px;
-      }
-    }
-
-    .message-time {
-      font-size: 0.875rem;
-      color: #888;
-    }
-  }
-
-  .message-body {
-    line-height: 1.6;
-    white-space: pre-line;
-    color: #e0e0e0;
+  .no-messages {
+    text-align: center;
+    padding: 40px;
+    color: #888;
   }
 }
 
-.reply-form {
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-  border: 1px solid #333;
-
-  .reply-input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    background-color: #333;
-    border: 1px solid #444;
-    color: #fff;
-    resize: vertical;
-    font-size: 1rem;
-    line-height: 1.5;
-    min-height: 100px;
-    transition: all 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #ff9800;
-      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
-    }
-
-    &::placeholder {
-      color: #888;
-    }
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .btn-cancel {
-    padding: 10px 20px;
-    background-color: transparent;
-    border: 1px solid #555;
-    border-radius: 4px;
-    color: #ccc;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: #444;
-      color: #fff;
-      border-color: #666;
-    }
-  }
-
-  .btn-submit {
-    padding: 10px 20px;
-    background-color: #ff9800;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover:not(:disabled) {
-      background-color: #f57c00;
-      transform: translateY(-1px);
-    }
-
-    &:disabled {
-      background-color: #555;
-      color: #888;
-      cursor: not-allowed;
-      transform: none;
-    }
-  }
-}
-
-.action-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 32px;
-  padding: 20px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  border: 1px solid #333;
-
-  > div {
-    display: flex;
-    gap: 12px;
-  }
-}
-
-.btn-action {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.95rem;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
-
-  &.delete {
-    background-color: #461e1e;
-    color: #f44336;
-    border: 1px solid #5a2a2a;
-
-    &:hover {
-      background-color: #5a2a2a;
-      border-color: #6a3a3a;
-    }
-  }
-
-  &.resolve {
-    background-color: #1e4620;
-    color: #4caf50;
-    border: 1px solid #2a5a2a;
-
-    &:hover {
-      background-color: #2a5a2a;
-      border-color: #3a6a3a;
-    }
-  }
-
-  &.close {
-    background-color: #333;
-    color: #ccc;
-    border: 1px solid #444;
-
-    &:hover {
-      background-color: #444;
-      color: #fff;
-      border-color: #555;
-    }
-  }
-
-  &.reopen {
-    background-color: #1e3a46;
-    color: #42a5f5;
-    border: 1px solid #2a4a5a;
-
-    &:hover {
-      background-color: #2a4a5a;
-      border-color: #3a5a6a;
-    }
-  }
-}
-
-/* Confirmation Dialog - Verbesserter Abstand und Styling */
+/* Confirmation Dialog */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1031,7 +1153,7 @@ export default defineComponent({
   align-items: center;
   z-index: 1100;
   backdrop-filter: blur(4px);
-  padding: 20px; /* Besserer Abstand zu den Rändern */
+  padding: 20px;
 }
 
 .confirm-dialog {
@@ -1043,94 +1165,95 @@ export default defineComponent({
   overflow: hidden;
   animation: modal-appear 0.3s ease-out;
   border: 1px solid #333;
-  margin: 20px; /* Zusätzlicher Abstand */
-}
 
-.confirm-header {
-  padding: 20px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #262626;
-
-  h3 {
-    margin: 0;
-    color: #f44336;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
+  .confirm-header {
+    padding: 20px 24px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
+    border-bottom: 1px solid #333;
+    background-color: #262626;
 
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
+    h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #f44336;
+      font-size: 1.25rem;
+      font-weight: 600;
     }
-  }
-}
 
-.confirm-content {
-  padding: 24px;
+    .close-button {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
 
-  p {
-    margin: 0;
-    line-height: 1.6;
-    color: #e0e0e0;
-    font-size: 1rem;
-  }
-}
-
-.confirm-actions {
-  padding: 20px 24px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  border-top: 1px solid #333;
-  background-color: #262626;
-
-  .btn-cancel {
-    padding: 10px 20px;
-    background-color: transparent;
-    border: 1px solid #555;
-    border-radius: 4px;
-    color: #ccc;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: #444;
-      color: #fff;
-      border-color: #666;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
     }
   }
 
-  .btn-delete {
-    padding: 10px 20px;
-    background-color: #f44336;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
+  .confirm-content {
+    padding: 24px;
 
-    &:hover {
-      background-color: #d32f2f;
-      transform: translateY(-1px);
+    p {
+      margin: 0;
+      line-height: 1.6;
+      color: #e0e0e0;
+      font-size: 1rem;
+    }
+  }
+
+  .confirm-actions {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #333;
+    background-color: #262626;
+
+    .btn-cancel {
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid #555;
+      border-radius: 6px;
+      color: #ccc;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #444;
+        color: #fff;
+        border-color: #666;
+      }
+    }
+
+    .btn-delete {
+      padding: 10px 20px;
+      background-color: #f44336;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #d32f2f;
+        transform: translateY(-1px);
+      }
     }
   }
 }
@@ -1146,104 +1269,97 @@ export default defineComponent({
   }
 }
 
-/* Responsive Anpassungen */
+/* Responsive */
 @media (max-width: 768px) {
-  .ticket-detail {
-    padding: 16px;
-  }
-
   .ticket-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
 
     .header-left {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
       width: 100%;
     }
 
-    .ticket-title {
-      font-size: 1.3rem;
+    .header-right {
+      width: 100%;
     }
 
-    .ticket-status {
-      width: 100%;
-
-      .status-switcher {
-        .status-select {
-          width: 100%;
-        }
-      }
+    .ticket-id {
+      display: inline-block;
     }
   }
 
   .ticket-info-box {
-    grid-template-columns: 1fr;
-    padding: 16px;
-  }
-
-  .action-bar {
-    flex-direction: column;
-    gap: 16px;
+    margin: 16px;
     padding: 16px;
 
-    > div {
-      width: 100%;
-      justify-content: space-between;
+    .info-grid {
+      grid-template-columns: 1fr;
     }
   }
 
-  .timeline-item {
-    padding-left: 50px;
+  .quick-actions-bar {
+    padding: 0 16px;
+
+    .btn-action {
+      flex: 1;
+      justify-content: center;
+    }
   }
 
-  .timeline:before {
-    left: 20px;
+  .ticket-description-box,
+  .message-section {
+    margin: 16px;
+    padding: 16px;
   }
 
-  .timeline-icon {
-    left: 8px;
+  .message-timeline {
+    .timeline-item {
+      padding-left: 50px;
+    }
+
+    &:before {
+      left: 20px;
+    }
+
+    .timeline-icon {
+      left: 8px;
+    }
   }
 
   .confirm-dialog {
-    margin: 10px;
-    max-width: none;
-  }
+    .confirm-actions {
+      flex-direction: column-reverse;
+      gap: 8px;
 
-  .confirm-header,
-  .confirm-content,
-  .confirm-actions {
-    padding: 16px 20px;
-  }
-
-  .confirm-actions {
-    flex-direction: column-reverse;
-    gap: 8px;
-
-    .btn-cancel,
-    .btn-delete {
-      width: 100%;
-      justify-content: center;
+      .btn-cancel,
+      .btn-delete {
+        width: 100%;
+        justify-content: center;
+      }
     }
   }
 }
 
 @media (max-width: 480px) {
-  .ticket-detail {
-    padding: 12px;
+  .ticket-header {
+    padding: 16px;
+
+    .ticket-title {
+      font-size: 1.1rem;
+    }
   }
 
-  .ticket-info-box,
-  .ticket-description-box,
-  .message-timeline,
-  .action-bar {
-    padding: 12px;
-  }
+  .quick-actions-bar {
+    .btn-action {
+      padding: 8px 12px;
+      font-size: 0.85rem;
 
-  .btn-action {
-    padding: 10px 14px;
-    font-size: 0.9rem;
+      .icon-action {
+        width: 18px;
+        height: 18px;
+      }
+    }
   }
 }
 </style>

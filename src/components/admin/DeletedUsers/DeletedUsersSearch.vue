@@ -262,6 +262,113 @@
         </ul>
       </div>
     </div>
+
+    <!-- Confirm Modal -->
+    <Teleport to="body">
+      <div v-if="showConfirmModal" class="modal-overlay" @click="showConfirmModal = false">
+        <div class="modal-dialog confirm-dialog" @click.stop>
+          <div class="modal-header">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M8 16H3v5"></path>
+              </svg>
+              Bestätigung
+            </h3>
+            <button class="close-button" @click="showConfirmModal = false">×</button>
+          </div>
+          <div class="modal-body">
+            <p>{{ confirmMessage }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel" @click="showConfirmModal = false">Abbrechen</button>
+            <button class="btn-confirm" @click="confirmAction && confirmAction()">Wiederherstellen</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Error Modal -->
+    <Teleport to="body">
+      <div v-if="showErrorModal" class="modal-overlay" @click="showErrorModal = false">
+        <div class="modal-dialog error-dialog" @click.stop>
+          <div class="modal-header error-header">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Fehler
+            </h3>
+            <button class="close-button" @click="showErrorModal = false">×</button>
+          </div>
+          <div class="modal-body">
+            <p>{{ errorMessage }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary" @click="showErrorModal = false">OK</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Export Modal -->
+    <Teleport to="body">
+      <div v-if="showExportModal" class="modal-overlay" @click="showExportModal = false">
+        <div class="modal-dialog info-dialog" @click.stop>
+          <div class="modal-header">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export
+            </h3>
+            <button class="close-button" @click="showExportModal = false">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Die Export-Funktion wird in Kürze implementiert. Sie werden dann die Suchergebnisse als CSV-Datei herunterladen können.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary" @click="showExportModal = false">OK</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -271,6 +378,7 @@ import type { DeletedUser, SearchCriteria } from "@/types";
 import { getReasonText, getReasonClass } from "./deletedUsers.helper";
 import { formatDate } from "@/utils/helperFunctions";
 import userService from "@/services/user.service";
+
 export default defineComponent({
   name: "DeletedUsersSearch",
   emits: ["user-selected", "user-restored"],
@@ -278,6 +386,14 @@ export default defineComponent({
     const isLoading = ref(false);
     const hasSearched = ref(false);
     const searchResults = ref<DeletedUser[]>([]);
+    
+    // Modal States
+    const showConfirmModal = ref(false);
+    const showErrorModal = ref(false);
+    const showExportModal = ref(false);
+    const confirmAction = ref<(() => void) | null>(null);
+    const confirmMessage = ref("");
+    const errorMessage = ref("");
 
     const searchCriteria = reactive<SearchCriteria>({
       name: "",
@@ -289,42 +405,6 @@ export default defineComponent({
       dateTo: "",
       hasNotes: "",
     });
-
-    // Dummy-Daten für die Demonstration
-    /*     const allDeletedUsers: DeletedUser[] = [
-      {
-        id: "del_001",
-        username: "Max Mustermann",
-        email: "max.mustermann@example.com",
-        deleteReason: "VIOLATION",
-        deletedAt: new Date("2024-01-15T14:30:00"),
-        deletedBy: "Admin Schmidt",
-        additionalInfo: "Mehrfache Verstöße gegen die Community-Richtlinien",
-        role: "",
-        isDeleted: false,
-      },
-      {
-        id: "del_002",
-        username: "Erika Beispiel",
-        email: "erika.beispiel@example.com",
-        deleteReason: "SELF_DELETION",
-        deletedAt: new Date("2024-02-20T09:15:00"),
-        deletedBy: "System",
-        role: "",
-        isDeleted: false,
-      },
-      {
-        id: "del_003",
-        username: "Klaus Tester",
-        email: "klaus.tester@example.com",
-        deleteReason: "INACTIVITY",
-        deletedAt: new Date("2024-03-01T00:00:00"),
-        deletedBy: "System",
-        additionalInfo: "Automatische Löschung nach 2 Jahren Inaktivität",
-        role: "",
-        isDeleted: false,
-      },
-    ]; */
 
     const resetSearch = () => {
       searchCriteria.name = "";
@@ -389,22 +469,26 @@ export default defineComponent({
     };
 
     const restoreUser = async (user: DeletedUser) => {
-      if (confirm(`Möchten Sie den Benutzer "${user.username}" wirklich wiederherstellen?`)) {
+      confirmMessage.value = `Möchten Sie den Benutzer "${user.username}" wirklich wiederherstellen?`;
+      confirmAction.value = async () => {
         try {
           // TODO: API-Aufruf implementieren
           searchResults.value = searchResults.value.filter((u) => u.id !== user.id);
           emit("user-restored", user);
-          alert("Benutzer wurde erfolgreich wiederhergestellt.");
+          showConfirmModal.value = false;
         } catch (error) {
           console.error("Fehler beim Wiederherstellen:", error);
-          alert("Fehler beim Wiederherstellen des Benutzers.");
+          showConfirmModal.value = false;
+          errorMessage.value = "Fehler beim Wiederherstellen des Benutzers. Bitte versuchen Sie es später erneut.";
+          showErrorModal.value = true;
         }
-      }
+      };
+      showConfirmModal.value = true;
     };
 
     const exportResults = () => {
       // TODO: Export-Funktionalität implementieren
-      alert("Export-Funktion wird implementiert...");
+      showExportModal.value = true;
     };
 
     return {
@@ -412,6 +496,12 @@ export default defineComponent({
       hasSearched,
       searchResults,
       searchCriteria,
+      showConfirmModal,
+      showErrorModal,
+      showExportModal,
+      confirmAction,
+      confirmMessage,
+      errorMessage,
       resetSearch,
       performSearch,
       viewUserDetails,
@@ -803,6 +893,174 @@ export default defineComponent({
   &.other {
     background-color: rgba(155, 89, 182, 0.2);
     color: #9b59b6;
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-dialog {
+  background-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid #333;
+  animation: modal-appear 0.3s ease-out;
+
+  &.confirm-dialog {
+    .modal-header h3 {
+      color: #2ecc71;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  &.error-dialog {
+    .modal-header {
+      background-color: rgba(244, 67, 54, 0.1);
+      border-bottom-color: rgba(244, 67, 54, 0.3);
+
+      h3 {
+        color: #f44336;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+    }
+  }
+
+  &.info-dialog {
+    .modal-header h3 {
+      color: #3498db;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #fff;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  }
+}
+
+.modal-body {
+  padding: 24px;
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+    color: #e0e0e0;
+  }
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #333;
+
+  .btn-cancel {
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ccc;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #444;
+      color: #fff;
+    }
+  }
+
+  .btn-confirm {
+    padding: 10px 20px;
+    background-color: #2ecc71;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #27ae60;
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #ff9800;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f57c00;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
