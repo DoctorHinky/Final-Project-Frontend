@@ -1,6 +1,5 @@
 // src/types/MyArticles.types.ts
 import type { PostCategory } from "./dtos/Post.Category.types";
-import type { BaseArticleItem } from "./BaseArticle.types";
 
 /**
  * Erweiterte History-Response vom Backend
@@ -9,6 +8,14 @@ import type { BaseArticleItem } from "./BaseArticle.types";
 export interface ExtendedHistoryItem {
   // Standard History-Felder
   id: string;
+  title: string;
+  quickDescription: string;
+  image: string | null; // Cloudinary-URL
+  author: {
+    id?: string | null;
+    username: string;
+    isPedagogicalAuthor?: boolean;
+  };
   readAt: string;
   solvedAt: string | null;
   postId: string;
@@ -18,10 +25,8 @@ export interface ExtendedHistoryItem {
 
   // Erweiterte Post-Daten (für Bild-Support)
   postImage?: string | null; // Cloudinary-URL
-  postPublicIdImage?: string | null; // Cloudinary Public ID
   postTags?: string[]; // Post-Tags
-  postCategory?: PostCategory; // Post-Kategorie
-  postIsCertifiedAuthor?: boolean; // Zertifizierter Autor
+  category?: PostCategory; // Post-Kategorie
   postCreatedAt?: string; // Original-Erstellungsdatum
   postPopularityScore?: number; // Popularitätsscore
 }
@@ -30,10 +35,8 @@ export interface ExtendedHistoryItem {
  * Artikel-Daten kombiniert mit History-Informationen für MyArticles
  * Implementiert BaseArticleItem für ArticleReader-Kompatibilität
  */
-export interface MyArticleItem extends BaseArticleItem {
+export interface MyArticleItem {
   // History-Daten (required für MyArticles)
-  readAt: string;
-  solvedAt: string | null;
 
   // Post-Daten (required overrides von BaseArticleItem)
   id: string;
@@ -45,18 +48,19 @@ export interface MyArticleItem extends BaseArticleItem {
     username: string;
     profilePicture?: string | null;
   };
-  category: PostCategory;
+  category: PostCategory | string;
   tags: string[];
   createdAt: string;
   isCertifiedAuthor: boolean;
+  readAt: string;
+  historyId?: string; // ID des History-Eintrags
 
   // Computed Felder für UI (required für MyArticles)
   lastRead: string; // formatiertes Datum für Anzeige
   status: "reading" | "completed"; // basierend auf solvedAt
 
   // Erweiterte Felder (optional)
-  publicIdImage?: string | null; // Cloudinary Public ID für Optimierung
-  popularityScore: number; // Popularitätsscore
+  popularityScore?: number; // Popularitätsscore
 }
 
 /**

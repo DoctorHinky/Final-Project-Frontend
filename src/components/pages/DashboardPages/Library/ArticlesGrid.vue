@@ -58,17 +58,12 @@ export default defineComponent({
   },
   emits: ["open-article", "toggle-bookmark", "add-tag"],
   setup(_, { emit }) {
-    const openArticle = (article: LibraryArticle) => {
-      emit("open-article", article);
-    };
+    const openArticle = (article: LibraryArticle) => emit("open-article", article);
 
-    const toggleBookmark = (article: LibraryArticle) => {
-      emit("toggle-bookmark", article);
-    };
+    const toggleBookmark = (article: LibraryArticle) => emit("toggle-bookmark", article);
 
-    const addTag = (tag: string) => {
-      emit("add-tag", tag);
-    };
+    const addTag = (tag: string) => emit("add-tag", tag);
+
     return {
       openArticle,
       toggleBookmark,

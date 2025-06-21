@@ -13,7 +13,7 @@
         </div>
         <div class="stat-trend" v-if="stat.trend">
           <span class="trend-icon" :class="stat.trend > 0 ? 'positive' : 'negative'">
-            {{ stat.trend > 0 ? '↑' : '↓' }}
+            {{ stat.trend > 0 ? "↑" : "↓" }}
           </span>
           <span class="trend-value">{{ Math.abs(stat.trend) }}%</span>
         </div>
@@ -23,9 +23,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from "vue";
 
-interface StatCard {
+export interface StatCard {
   icon: string;
   label: string;
   value: string;
@@ -34,20 +34,20 @@ interface StatCard {
 }
 
 export default defineComponent({
-  name: 'StatsCards',
+  name: "StatsCards",
   props: {
     stats: {
       type: Array as PropType<StatCard[]>,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 // Statistik-Karten Grid
 .stats-cards {
@@ -72,17 +72,15 @@ export default defineComponent({
     overflow: hidden;
     user-select: none;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
         &:hover {
           transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
-                      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           border-color: transparent;
 
           .stat-background {
@@ -113,7 +111,7 @@ export default defineComponent({
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
         }
@@ -149,7 +147,7 @@ export default defineComponent({
 
         .icon-emoji {
           font-size: 1.8rem;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 
           @media (max-width: 768px) {
             font-size: 1.5rem;
@@ -172,7 +170,7 @@ export default defineComponent({
             font-size: map.get(map.get(vars.$fonts, sizes), xl);
           }
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -194,7 +192,7 @@ export default defineComponent({
           margin: 0;
           font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -217,25 +215,25 @@ export default defineComponent({
 
         .trend-icon {
           font-size: 0.8rem;
-          
+
           &.positive {
-            color: #4AD295;
+            color: #4ad295;
           }
-          
+
           &.negative {
             color: #ff6b6b;
           }
         }
 
         .trend-value {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
           }
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, secondary-bg);
           }

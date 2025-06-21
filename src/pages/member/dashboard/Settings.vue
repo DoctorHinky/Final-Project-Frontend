@@ -8,52 +8,57 @@
 
     <!-- Einstellungen-Tabs -->
     <div class="settings-tabs">
-      <button v-for="(tab, index) in tabs" :key="index" class="tab-button" :class="{ active: activeTab === tab.id }"
-        @click="activeTab = tab.id">
+      <button
+        v-for="(tab, index) in tabs"
+        :key="index"
+        class="tab-button"
+        :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id"
+      >
         <component :is="tab.icon" class="tab-icon" />
         <span>{{ tab.name }}</span>
       </button>
     </div>
 
     <!-- Einzelne Einstellungs-Komponenten -->
-    <profile-settings 
-      v-if="activeTab === 'profile'" 
-      :showSuccess="saveSuccess" 
-      :showError="saveError" 
+    <profile-settings
+      v-if="activeTab === 'profile'"
+      :showSuccess="saveSuccess"
+      :showError="saveError"
       :errorMsg="errorMessage"
       @reset-form="resetProfileForm"
       @save-profile="saveProfileSettings"
     />
-    
-    <account-settings 
-      v-if="activeTab === 'account'" 
-      :showSuccess="saveSuccess" 
-      :showError="saveError" 
+
+    <account-settings
+      v-if="activeTab === 'account'"
+      :showSuccess="saveSuccess"
+      :showError="saveError"
       :errorMsg="errorMessage"
       @delete-account="confirmDeleteAccount"
       @change-password="changePassword"
     />
-    
-    <notification-settings 
-      v-if="activeTab === 'notifications'" 
-      :showSuccess="saveSuccess" 
-      :showError="saveError" 
+
+    <notification-settings
+      v-if="activeTab === 'notifications'"
+      :showSuccess="saveSuccess"
+      :showError="saveError"
       :errorMsg="errorMessage"
       @save-notifications="saveNotificationSettings"
     />
-    
-    <appearance-settings 
-      v-if="activeTab === 'appearance'" 
-      :showSuccess="saveSuccess" 
-      :showError="saveError" 
+
+    <appearance-settings
+      v-if="activeTab === 'appearance'"
+      :showSuccess="saveSuccess"
+      :showError="saveError"
       :errorMsg="errorMessage"
       @save-appearance="saveAppearanceSettings"
     />
-    
-    <privacy-settings 
-      v-if="activeTab === 'privacy'" 
-      :showSuccess="saveSuccess" 
-      :showError="saveError" 
+
+    <privacy-settings
+      v-if="activeTab === 'privacy'"
+      :showSuccess="saveSuccess"
+      :showError="saveError"
       :errorMsg="errorMessage"
       @save-privacy="savePrivacySettings"
     />
@@ -75,15 +80,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { 
-  UserIcon, 
-  KeyIcon, 
-  BellIcon, 
-  PaintBrushIcon, 
-  ShieldCheckIcon 
-} from '@heroicons/vue/24/outline';
+import { defineComponent, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { UserIcon, KeyIcon, BellIcon, PaintBrushIcon, ShieldCheckIcon } from "@heroicons/vue/24/outline";
 
 // Import der neuen Komponenten - alle aus der Barrel-Datei
 import {
@@ -91,29 +90,30 @@ import {
   AccountSettings,
   NotificationSettings,
   AppearanceSettings,
-  PrivacySettings
-} from '@/components/pages/DashboardPages/Settings';
+  PrivacySettings,
+} from "@/components/pages/DashboardPages/Settings";
+import userService from "@/services/userMD.services";
 
 // Dummy auth service für TypeScript-Kompatibilität
 const authService = {
   logout: () => {
     // Dummy-Funktion
-    console.log('User logged out');
+    console.log("User logged out");
   },
   getUserData: (): { name?: string } | null => {
     // Dummy-Funktion
-    return { name: 'Max Mustermann' };
-  }
+    return { name: "Max Mustermann" };
+  },
 };
 
 // Interface-Definitionen
-interface TabItem {
+export interface TabItem {
   id: string;
   name: string;
   icon: string;
 }
 
-interface ProfileForm {
+export interface ProfileForm {
   firstName: string;
   lastName: string;
   username: string;
@@ -122,13 +122,13 @@ interface ProfileForm {
   bio: string;
 }
 
-interface PasswordForm {
+export interface PasswordForm {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 }
 
-interface AppearanceSettings {
+export interface AppearanceSettings {
   theme: string;
   fontSize: number;
 }
@@ -136,7 +136,7 @@ interface AppearanceSettings {
 type ActionFunction = () => void;
 
 export default defineComponent({
-  name: 'SettingsDashboardNew',
+  name: "SettingsDashboardNew",
   components: {
     ProfileSettings,
     AccountSettings,
@@ -147,26 +147,26 @@ export default defineComponent({
     KeyIcon,
     BellIcon,
     PaintBrushIcon,
-    ShieldCheckIcon
+    ShieldCheckIcon,
   },
   setup() {
     const router = useRouter();
 
     // Aktiver Tab
-    const activeTab = ref('profile');
+    const activeTab = ref("profile");
     const tabs = ref<TabItem[]>([
-      { id: 'profile', name: 'Profil', icon: 'UserIcon' },
-      { id: 'account', name: 'Konto', icon: 'KeyIcon' },
-      { id: 'notifications', name: 'Benachrichtigungen', icon: 'BellIcon' },
-      { id: 'appearance', name: 'Design', icon: 'PaintBrushIcon' },
-      { id: 'privacy', name: 'Datenschutz', icon: 'ShieldCheckIcon' }
+      { id: "profile", name: "Profil", icon: "UserIcon" },
+      { id: "account", name: "Konto", icon: "KeyIcon" },
+      { id: "notifications", name: "Benachrichtigungen", icon: "BellIcon" },
+      { id: "appearance", name: "Design", icon: "PaintBrushIcon" },
+      { id: "privacy", name: "Datenschutz", icon: "ShieldCheckIcon" },
     ]);
 
     // Bestätigungsdialog Funktionalität
     const showConfirmDialog = ref(false);
-    const confirmDialogTitle = ref('');
-    const confirmDialogMessage = ref('');
-    const confirmDialogAction = ref('');
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAction = ref("");
     const confirmDangerAction = ref(false);
     const pendingAction = ref<ActionFunction | null>(null);
 
@@ -174,16 +174,16 @@ export default defineComponent({
     const isSaving = ref(false);
     const saveSuccess = ref(false);
     const saveError = ref(false);
-    const errorMessage = ref('');
+    const errorMessage = ref("");
 
     // Original-Daten
     const originalProfileForm = ref<ProfileForm>({
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      username: 'max.mustermann',
-      email: 'max@example.com',
-      phone: '+49 123 456789',
-      bio: 'Vater von zwei Kindern (4 und 7 Jahre). Interesse an Erziehungsmethoden und kindlicher Entwicklung.'
+      firstName: "Max",
+      lastName: "Mustermann",
+      username: "max.mustermann",
+      email: "max@example.com",
+      phone: "+49 123 456789",
+      bio: "Vater von zwei Kindern (4 und 7 Jahre). Interesse an Erziehungsmethoden und kindlicher Entwicklung.",
     });
 
     // Profilformular laden
@@ -192,29 +192,24 @@ export default defineComponent({
         // In einem echten Szenario: Daten vom Server laden
         const userData = authService.getUserData();
         if (userData && userData.name) {
-          const nameParts = userData.name.split(' ');
+          const nameParts = userData.name.split(" ");
           if (nameParts.length > 1) {
             // In der neuen Struktur nicht direkt verfügbar
             // stattdessen würden wir Events verwenden
           }
         }
       } catch (error) {
-        console.error('Fehler beim Laden der Profildaten:', error);
-        errorMessage.value = 'Profildaten konnten nicht geladen werden.';
+        console.error("Fehler beim Laden der Profildaten:", error);
+        errorMessage.value = "Profildaten konnten nicht geladen werden.";
       }
     };
 
     // Profilformular zurücksetzen
     const resetProfileForm = (): void => {
-      confirmDialog(
-        'Änderungen verwerfen',
-        'Möchtest du wirklich alle Änderungen verwerfen?',
-        'Verwerfen',
-        () => {
-          // Wird jetzt in der ProfileSettings-Komponente behandelt
-          console.log('Formular zurückgesetzt');
-        }
-      );
+      confirmDialog("Änderungen verwerfen", "Möchtest du wirklich alle Änderungen verwerfen?", "Verwerfen", () => {
+        // Wird jetzt in der ProfileSettings-Komponente behandelt
+        console.log("Formular zurückgesetzt");
+      });
     };
 
     // Profil speichern
@@ -229,7 +224,7 @@ export default defineComponent({
         // await userService.updateProfile(profileForm.value);
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Erfolgsfall
         originalProfileForm.value = { ...profileData };
@@ -237,13 +232,12 @@ export default defineComponent({
         setTimeout(() => {
           saveSuccess.value = false;
         }, 3000);
-
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Profil konnte nicht gespeichert werden.';
+          errorMessage.value = "Profil konnte nicht gespeichert werden.";
         }
       } finally {
         isSaving.value = false;
@@ -259,23 +253,21 @@ export default defineComponent({
         // Validierung wird in der Unterkomponente durchgeführt
 
         // In einem echten Szenario: Passwort ändern
-        // await userService.changePassword(passwordForm.value);
+        await userService.changePassword(passwordForm.value);
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Erfolgsanzeige
         saveSuccess.value = true;
         setTimeout(() => {
           saveSuccess.value = false;
         }, 3000);
-
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Passwort konnte nicht geändert werden.';
+          errorMessage.value = "Passwort konnte nicht geändert werden.";
         }
       } finally {
         isSaving.value = false;
@@ -292,20 +284,19 @@ export default defineComponent({
         // await userService.updateNotificationSettings(notificationSettings.value);
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Erfolgsanzeige
         saveSuccess.value = true;
         setTimeout(() => {
           saveSuccess.value = false;
         }, 3000);
-
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Benachrichtigungseinstellungen konnten nicht gespeichert werden.';
+          errorMessage.value = "Benachrichtigungseinstellungen konnten nicht gespeichert werden.";
         }
       } finally {
         isSaving.value = false;
@@ -319,11 +310,11 @@ export default defineComponent({
         saveError.value = false;
 
         // Theme im localStorage speichern
-        localStorage.setItem('theme', appearanceSettings.theme);
+        localStorage.setItem("theme", appearanceSettings.theme);
 
         // Event senden, um das Theme in der App zu ändern
-        const event = new CustomEvent('theme-changed', {
-          detail: { theme: appearanceSettings.theme }
+        const event = new CustomEvent("theme-changed", {
+          detail: { theme: appearanceSettings.theme },
         });
         window.dispatchEvent(event);
 
@@ -331,20 +322,19 @@ export default defineComponent({
         // await userService.updateAppearanceSettings(appearanceSettings.value);
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Erfolgsanzeige
         saveSuccess.value = true;
         setTimeout(() => {
           saveSuccess.value = false;
         }, 3000);
-
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Design-Einstellungen konnten nicht gespeichert werden.';
+          errorMessage.value = "Design-Einstellungen konnten nicht gespeichert werden.";
         }
       } finally {
         isSaving.value = false;
@@ -352,7 +342,7 @@ export default defineComponent({
     };
 
     // Datenschutzeinstellungen speichern
-    const savePrivacySettings = async (privacySettings: any): Promise<void> => {
+    const savePrivacySettings = async (): Promise<void> => {
       try {
         isSaving.value = true;
         saveError.value = false;
@@ -361,20 +351,19 @@ export default defineComponent({
         // await userService.updatePrivacySettings(privacySettings.value);
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Erfolgsanzeige
         saveSuccess.value = true;
         setTimeout(() => {
           saveSuccess.value = false;
         }, 3000);
-
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Datenschutzeinstellungen konnten nicht gespeichert werden.';
+          errorMessage.value = "Datenschutzeinstellungen konnten nicht gespeichert werden.";
         }
       } finally {
         isSaving.value = false;
@@ -384,9 +373,9 @@ export default defineComponent({
     // Konto löschen bestätigen
     const confirmDeleteAccount = (): void => {
       confirmDialog(
-        'Konto löschen',
-        'Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden und alle deine Daten werden permanent gelöscht.',
-        'Konto löschen',
+        "Konto löschen",
+        "Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden und alle deine Daten werden permanent gelöscht.",
+        "Konto löschen",
         deleteAccount,
         true
       );
@@ -401,18 +390,17 @@ export default defineComponent({
         // await userService.deleteAccount();
 
         // Für Beispielzwecke: Simulation einer API-Antwort
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Benutzer ausloggen und zur Startseite weiterleiten
         authService.logout();
-        router.push('/');
-
+        router.push("/");
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {
           errorMessage.value = error.message;
         } else {
-          errorMessage.value = 'Konto konnte nicht gelöscht werden.';
+          errorMessage.value = "Konto konnte nicht gelöscht werden.";
         }
         isSaving.value = false;
       }
@@ -474,18 +462,18 @@ export default defineComponent({
       savePrivacySettings,
       confirmDeleteAccount,
       confirmAction,
-      cancelAction
+      cancelAction,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:color';
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:color";
+@use "@/style/base/animations" as animations;
 
 .settings-dashboard {
   @include animations.fade-in(0.5s);
@@ -501,7 +489,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
           transition: all 0.4s ease-out;
@@ -512,7 +500,7 @@ export default defineComponent({
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
           transition: all 0.4s ease-out;
@@ -540,7 +528,7 @@ export default defineComponent({
       align-items: center;
       gap: map.get(vars.$spacing, s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           color: mixins.theme-color($theme, text-secondary);
@@ -585,11 +573,11 @@ export default defineComponent({
       position: relative;
       @include animations.fade-in(0.3s);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           transition: all 0.4s ease-out;
-          @include mixins.shadow('large', $theme);
+          @include mixins.shadow("large", $theme);
         }
       }
 
@@ -597,7 +585,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         margin-bottom: map.get(vars.$spacing, m);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             transition: all 0.4s ease-out;
             color: mixins.theme-color($theme, text-primary);
@@ -608,7 +596,7 @@ export default defineComponent({
       p {
         margin-bottom: map.get(vars.$spacing, l);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: all 0.4s ease-out;
@@ -629,7 +617,7 @@ export default defineComponent({
           border: none;
 
           &.cancel-button {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: mixins.theme-color($theme, secondary-bg);
                 color: mixins.theme-color($theme, text-primary);
@@ -640,7 +628,7 @@ export default defineComponent({
           }
 
           &.confirm-button {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: mixins.theme-gradient($theme, primary);
                 color: white;

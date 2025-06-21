@@ -60,7 +60,7 @@
             <div class="article-meta">
               <span class="meta-category">{{ article.category }}</span>
               <span class="meta-separator">•</span>
-              <span class="meta-author">{{ article.author || "Unbekannt" }}</span>
+              <span class="meta-author">{{ article.author.username || "Unbekannt" }}</span>
               <span class="meta-separator">•</span>
               <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
             </div>
@@ -134,7 +134,7 @@
             <!-- Hauptbild -->
             <img
               v-else
-              :src="getImageUrl(article)"
+              :src="getImageUrl(article) ?? undefined"
               :alt="article.title"
               @error="handleImageError($event, article.id)"
               @load="handleImageLoad($event, article.id)"
@@ -185,6 +185,7 @@
 import { defineComponent, onMounted, type PropType, ref } from "vue";
 import { EyeIcon, CheckCircleIcon, BookOpenIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import ViewOptions from "./ViewOptions.vue";
+import { formatDate } from "@/utils/helperFunctions";
 import type { MyArticleItem } from "@/types/MyArticles.types";
 import { postService } from "@/services/post.service";
 
@@ -225,15 +226,6 @@ export default defineComponent({
     const removeArticle = (articleId: string) => emit("remove-article", articleId);
 
     const addFilterTag = (tag: string) => emit("add-filter-tag", tag);
-
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    };
 
     // Artikel-Bilder von Post-API nachladen
     const loadArticleImage = async (postId: string): Promise<string | null> => {

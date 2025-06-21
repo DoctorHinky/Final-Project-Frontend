@@ -39,7 +39,7 @@
             </span>
             <span class="author">
               <UserIcon class="meta-icon" />
-              {{ article.author }}
+              {{ article.author?.username }}
             </span>
             <span class="reading-time">
               <ClockIcon class="meta-icon" />
@@ -98,12 +98,13 @@ import {
   ArrowRightIcon,
 } from "@heroicons/vue/24/outline";
 
-interface Article {
+export interface RecentArticle {
   id: string;
   title: string;
-  preview?: string;
   category?: string;
-  author?: string;
+  author?: {
+    username: string;
+  };
   date?: string;
   status?: string;
   currentChapter?: number;
@@ -125,7 +126,7 @@ export default defineComponent({
   },
   props: {
     articles: {
-      type: Array as PropType<Article[]>,
+      type: Array as PropType<RecentArticle[]>,
       required: true,
     },
   },

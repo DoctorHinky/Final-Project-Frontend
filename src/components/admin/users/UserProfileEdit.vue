@@ -51,20 +51,7 @@
                   </select>
                 </div>
               </div>
-
-              <div v-if="formData.role === 'author'" class="form-section">
-                <h4 class="section-title">Autoreninformationen</h4>
-                <div class="form-group">
-                  <label for="expertise">Fachgebiet</label>
-                  <input type="text" id="expertise" v-model="formData.expertise" />
-                </div>
-                <div class="form-group">
-                  <label for="authorBio">Biografie</label>
-                  <textarea id="authorBio" v-model="formData.authorBio" rows="4"></textarea>
-                </div>
-              </div>
             </div>
-
             <div class="form-actions">
               <button type="button" class="cancel-button" @click="$emit('close')">Abbrechen</button>
               <button type="submit" class="save-button">Speichern</button>
@@ -88,7 +75,6 @@ interface User {
   phone?: string;
   status: "active" | "inactive";
   role: "user" | "author" | "moderator" | "admin";
-  expertise?: string;
   authorBio?: string;
   avatarUrl?: string;
 }
@@ -110,7 +96,6 @@ export default defineComponent({
       phone: "",
       status: "active" as "active" | "inactive",
       role: "user" as "user" | "author" | "moderator" | "admin",
-      expertise: "",
       authorBio: "",
     });
 
@@ -142,7 +127,6 @@ export default defineComponent({
         phone: user.phone || "",
         status: user.status || "active",
         role: user.role || "user",
-        expertise: user.expertise || "",
         authorBio: user.authorBio || "",
       };
 
@@ -160,16 +144,11 @@ export default defineComponent({
         phone: formData.value.phone,
         status: formData.value.status,
         role: formData.value.role,
-        expertise: formData.value.expertise,
         authorBio: formData.value.authorBio,
         avatarUrl: props.user.avatarUrl,
       };
 
       // Überflüssige Autorenfelder entfernen, wenn der Benutzer kein Autor ist
-      if (updatedUser.role !== "author") {
-        delete updatedUser.expertise;
-        delete updatedUser.authorBio;
-      }
 
       // Emit das aktualisierte Benutzerobjekt
       emit("save", updatedUser);

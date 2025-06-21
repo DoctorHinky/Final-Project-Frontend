@@ -426,9 +426,7 @@ export default defineComponent({
     };
 
     // Menüreihenfolge speichern
-    const saveMenuOrder = () => {
-      localStorage.setItem(MENU_ORDER_STORAGE_KEY, JSON.stringify(menuOrder.value));
-    };
+    const saveMenuOrder = () => localStorage.setItem(MENU_ORDER_STORAGE_KEY, JSON.stringify(menuOrder.value));
 
     // Menüreihenfolge laden
     const loadMenuOrder = () => {
@@ -452,16 +450,12 @@ export default defineComponent({
       const resetBtn = document.querySelector(".reset-button") as HTMLElement;
       if (resetBtn) {
         resetBtn.classList.add("reset-active");
-        setTimeout(() => {
-          resetBtn.classList.remove("reset-active");
-        }, 600);
+        setTimeout(() => resetBtn.classList.remove("reset-active"), 600);
       }
     };
 
     // NOTIFICATION FUNCTIONS
-    const updateNotificationCount = (count: number) => {
-      notificationCount.value = count;
-    };
+    const updateNotificationCount = (count: number) => (notificationCount.value = count);
 
     const handleNotificationCountUpdate = (event: CustomEvent) => {
       const count = event.detail.count || 0;

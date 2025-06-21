@@ -1,24 +1,27 @@
 // src/services/member.ticket.service.ts
 import api from "@/services/axiosInstance";
-import { getCurrentUserId } from '@/utils/auth.helper';
+import { getCurrentUserId } from "@/utils/auth.helper";
+import router from "@/router";
 
-// Ticket-Status-Typen (angepasst an Backend)
-export enum TicketStatus {
-  OPEN = "OPEN",
-  IN_PROGRESS = "IN_PROGRESS",
-  CLOSED = "CLOSED",
-  CANCELED = "CANCELED",
-  RESOLVED = "RESOLVED"
-}
+// Ticket-Status-Typen
+export const TicketStatus = {
+  OPEN: "OPEN",
+  IN_PROGRESS: "IN_PROGRESS",
+  CLOSED: "CLOSED",
+} as const;
+
+export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus];
 
 // Ticket-Kategorie
-export enum TicketCategory {
-  ACCOUNT = "ACCOUNT",
-  TECHNICAL = "TECHNICAL",
-  WEBSITE_BUG = "WEBSITE_BUG",
-  REPORT = "REPORT",
-  OTHER = "OTHER",
-}
+export const TicketCategory = {
+  ACCOUNT: "ACCOUNT",
+  TECHNICAL: "TECHNICAL",
+  WEBSITE_BUG: "WEBSITE_BUG",
+  REPORT: "REPORT",
+  OTHER: "OTHER",
+} as const;
+
+export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
 // Ticket-Interface für User
 export interface UserTicket {
@@ -95,27 +98,29 @@ export interface CreateTicketResponse {
 
 export const memberTicketService = {
   // ===== USER TICKET FUNKTIONEN =====
-  
+
   // Ticket für User erstellen
   async createTicket(formData: FormData): Promise<CreateTicketResponse> {
     try {
       const response = await api.post(`/tickets/create`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      
+
       // Response normalisieren
       return {
         ticketId: response.data.ticketId || response.data.id,
         id: response.data.ticketId || response.data.id,
         message: response.data.message || "Ticket erfolgreich erstellt",
-        success: true
+        success: true,
       };
     } catch (error: any) {
       console.error("Fehler beim Erstellen des Support-Tickets:", error);
       console.error("Error details:", error.response?.data);
-      throw new Error(error.response?.data?.message || "Ticket konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.");
+      throw new Error(
+        error.response?.data?.message || "Ticket konnte nicht erstellt werden. Bitte versuchen Sie es später erneut."
+      );
     }
   },
 
@@ -124,25 +129,25 @@ export const memberTicketService = {
     try {
       const userId = getCurrentUserId();
       if (!userId) {
-        console.error('User nicht eingeloggt');
+        console.error("User nicht eingeloggt");
         return [];
       }
-      
-      console.log('Fetching tickets for user:', userId);
-      
+
+      console.log("Fetching tickets for user:", userId);
+
       // Nutze die by-user Route statt myTickets
       const response = await api.get(`/tickets/by-user/${userId}`);
-      
+
       // Backend gibt String zurück wenn keine Tickets vorhanden
-      if (typeof response.data === 'string') {
-        console.log('No tickets message:', response.data);
+      if (typeof response.data === "string") {
+        console.log("No tickets message:", response.data);
         return [];
       }
-      
+
       // Response-Daten normalisieren
       const tickets = Array.isArray(response.data) ? response.data : [];
-      console.log('Tickets found:', tickets.length);
-      
+      console.log("Tickets found:", tickets.length);
+
       return tickets.map((ticket: any) => ({
         id: ticket.id,
         title: ticket.title,
@@ -154,19 +159,19 @@ export const memberTicketService = {
         messageCount: ticket._count?.messages || 0,
         hasUnreadMessages: false,
         _count: ticket._count,
-        workedBy: ticket.workedBy
+        workedBy: ticket.workedBy,
       }));
     } catch (error: any) {
       console.error("Fehler beim Abrufen der Tickets:", error);
       console.error("Error response:", error.response?.data);
-      
+
       // Bei Authentifizierungsfehler
       if (error.response?.status === 401) {
         console.error("Nicht authentifiziert - bitte neu anmelden");
-        // Optional: Redirect to login
         // window.location.href = '/login';
+        router.push("/login");
       }
-      
+
       return [];
     }
   },
@@ -176,32 +181,33 @@ export const memberTicketService = {
     try {
       const response = await api.get(`/tickets/${id}`);
       const ticketData = response.data;
-      
+
       if (!ticketData) return null;
-      
+
       // Messages normalisieren
       if (ticketData.messages) {
         ticketData.messages = ticketData.messages.map((msg: any) => {
-          const isStaff = msg.author?.role === 'ADMIN' || 
-                          msg.author?.role === 'MODERATOR' ||
-                          msg.author?.id === ticketData.workedBy?.id;
-          
+          const isStaff =
+            msg.author?.role === "ADMIN" ||
+            msg.author?.role === "MODERATOR" ||
+            msg.author?.id === ticketData.workedBy?.id;
+
           return {
             ...msg,
             isStaff,
-            userName: msg.author?.username || 'Unbekannt',
-            userRole: msg.author?.role || 'USER',
+            userName: msg.author?.username || "Unbekannt",
+            userRole: msg.author?.role || "USER",
             message: msg.content, // Frontend erwartet "message"
-            content: msg.content
+            content: msg.content,
           };
         });
       }
-      
+
       // Files/files normalisieren
       if (ticketData.Files) {
         ticketData.files = ticketData.Files;
       }
-      
+
       return ticketData;
     } catch (error: any) {
       console.error(`Fehler beim Abrufen des Tickets mit ID ${id}:`, error);
@@ -219,7 +225,7 @@ export const memberTicketService = {
   async addMessageToTicket(ticketId: string, message: string): Promise<void> {
     try {
       await api.post(`/tickets/${ticketId}/message`, {
-        message: message.trim()
+        message: message.trim(),
       });
     } catch (error: any) {
       console.error(`Fehler beim Hinzufügen einer Nachricht zum Ticket ${ticketId}:`, error);
@@ -246,12 +252,12 @@ export const memberTicketService = {
     } catch (error: any) {
       console.error(`Fehler beim Wiedereröffnen des Tickets ${ticketId}:`, error);
       console.error("Error details:", error.response?.data);
-      
+
       // Wenn User keine Berechtigung hat
       if (error.response?.status === 403) {
         throw new Error("Sie haben keine Berechtigung, dieses Ticket wieder zu öffnen.");
       }
-      
+
       throw new Error(error.response?.data?.message || "Ticket konnte nicht wieder geöffnet werden.");
     }
   },
@@ -260,13 +266,13 @@ export const memberTicketService = {
   async getTicketsByUserId(userId: string): Promise<UserTicket[]> {
     try {
       const response = await api.get(`/tickets/by-user/${userId}`);
-      
-      if (typeof response.data === 'string') {
+
+      if (typeof response.data === "string") {
         return [];
       }
-      
+
       const tickets = Array.isArray(response.data) ? response.data : [];
-      
+
       return tickets.map((ticket: any) => ({
         id: ticket.id,
         title: ticket.title,
@@ -278,7 +284,7 @@ export const memberTicketService = {
         messageCount: ticket._count?.messages || 0,
         hasUnreadMessages: false,
         _count: ticket._count,
-        workedBy: ticket.workedBy
+        workedBy: ticket.workedBy,
       }));
     } catch (error: any) {
       console.error(`Fehler beim Abrufen der Tickets für User ${userId}:`, error);
@@ -287,15 +293,13 @@ export const memberTicketService = {
   },
 
   // ===== UTILITY FUNCTIONS =====
-  
+
   // Status-Formatierung für UI
   formatStatus(status: TicketStatus): string {
     const statusMap: Record<TicketStatus, string> = {
-      [TicketStatus.OPEN]: 'Offen',
-      [TicketStatus.IN_PROGRESS]: 'In Bearbeitung',
-      [TicketStatus.CLOSED]: 'Geschlossen',
-      [TicketStatus.CANCELED]: 'Abgebrochen',
-      [TicketStatus.RESOLVED]: 'Gelöst'
+      [TicketStatus.OPEN]: "Offen",
+      [TicketStatus.IN_PROGRESS]: "In Bearbeitung",
+      [TicketStatus.CLOSED]: "Geschlossen",
     };
     return statusMap[status] || status;
   },
@@ -303,11 +307,11 @@ export const memberTicketService = {
   // Kategorie-Formatierung für UI
   formatCategory(category: TicketCategory): string {
     const categoryMap: Record<TicketCategory, string> = {
-      [TicketCategory.ACCOUNT]: 'Konto & Anmeldung',
-      [TicketCategory.TECHNICAL]: 'Technisches Problem',
-      [TicketCategory.WEBSITE_BUG]: 'Website-Fehler',
-      [TicketCategory.REPORT]: 'Inhalte melden',
-      [TicketCategory.OTHER]: 'Sonstiges'
+      [TicketCategory.ACCOUNT]: "Konto & Anmeldung",
+      [TicketCategory.TECHNICAL]: "Technisches Problem",
+      [TicketCategory.WEBSITE_BUG]: "Website-Fehler",
+      [TicketCategory.REPORT]: "Inhalte melden",
+      [TicketCategory.OTHER]: "Sonstiges",
     };
     return categoryMap[category] || category;
   },
@@ -316,54 +320,49 @@ export const memberTicketService = {
   getTicketStats(tickets: UserTicket[]) {
     return {
       total: tickets.length,
-      open: tickets.filter(t => t.status === TicketStatus.OPEN).length,
-      inProgress: tickets.filter(t => t.status === TicketStatus.IN_PROGRESS).length,
-      closed: tickets.filter(t => t.status === TicketStatus.CLOSED).length,
-      canceled: tickets.filter(t => t.status === TicketStatus.CANCELED).length,
-      resolved: tickets.filter(t => t.status === TicketStatus.RESOLVED).length,
-      unread: tickets.filter(t => t.hasUnreadMessages).length
+      open: tickets.filter((t) => t.status === TicketStatus.OPEN).length,
+      inProgress: tickets.filter((t) => t.status === TicketStatus.IN_PROGRESS).length,
+      closed: tickets.filter((t) => t.status === TicketStatus.CLOSED).length,
+      unread: tickets.filter((t) => t.hasUnreadMessages).length,
     };
   },
 
   // Ticket-Priorität bestimmen (basierend auf Status und Alter)
-  getTicketPriority(ticket: UserTicket): 'high' | 'medium' | 'low' {
+  getTicketPriority(ticket: UserTicket): "high" | "medium" | "low" {
     const daysSinceCreation = (Date.now() - new Date(ticket.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-    
+
     if (ticket.status === TicketStatus.OPEN && daysSinceCreation > 3) {
-      return 'high';
+      return "high";
     } else if (ticket.status === TicketStatus.IN_PROGRESS) {
-      return 'medium';
+      return "medium";
     } else {
-      return 'low';
+      return "low";
     }
   },
 
   // Kann User auf Ticket antworten?
   canReplyToTicket(ticket: UserTicket | FullTicket): boolean {
-    return ticket.status !== TicketStatus.CLOSED && 
-           ticket.status !== TicketStatus.CANCELED &&
-           ticket.status !== TicketStatus.RESOLVED;
+    return ticket.status !== TicketStatus.CLOSED;
   },
 
   // Kann User Ticket schließen?
   canCloseTicket(ticket: UserTicket | FullTicket): boolean {
-    return ticket.status !== TicketStatus.CLOSED &&
-           ticket.status !== TicketStatus.CANCELED;
+    return ticket.status !== TicketStatus.CLOSED;
   },
 
   // Debug-Funktion für Entwicklung
   async testConnection(): Promise<void> {
     try {
-      console.log('Testing ticket service connection...');
+      console.log("Testing ticket service connection...");
       const userId = getCurrentUserId();
-      console.log('Current user ID:', userId);
-      
+      console.log("Current user ID:", userId);
+
       const tickets = await this.getMyTickets();
-      console.log('Connection successful, tickets:', tickets);
+      console.log("Connection successful, tickets:", tickets);
     } catch (error) {
-      console.error('Connection test failed:', error);
+      console.error("Connection test failed:", error);
     }
-  }
+  },
 };
 
 export default memberTicketService;

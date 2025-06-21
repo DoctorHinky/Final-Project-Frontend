@@ -116,6 +116,7 @@ import {
 import { postService, type PostPreviewItem } from "@/services/post.service";
 import { historyService } from "@/services/history.service";
 import type { LibraryArticle } from "@/types/dtos";
+import { mapPostCategoryToGerman } from "@/utils/postCategory";
 
 export default defineComponent({
   name: "LibraryDashboard",
@@ -180,14 +181,14 @@ export default defineComponent({
         id: item.id,
         title: item.title,
         quickDescription: item.quickDescription,
-        category: item.category,
+        category: mapPostCategoryToGerman(item.category),
         author: {
           id: item.author.id,
           username: item.author.username,
           profilePicture: item.author.profilePicture,
         },
         publishedAt: formatDate(item.createdAt),
-        tags: item.tags,
+        tags: item.tags.slice(0, 3),
         image: item.image,
         isCertifiedAuthor: item.isCertifiedAuthor,
         createdAt: item.createdAt,

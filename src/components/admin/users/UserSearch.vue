@@ -134,7 +134,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;

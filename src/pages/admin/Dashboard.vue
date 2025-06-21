@@ -515,7 +515,7 @@ export default defineComponent({
     };
 
     // NEU: Navigation zu Bewerbungen mit Filter
-    const navigateToApplications = (filter: string) => {
+    const navigateToApplications = (_filter: string) => {
       router.push({
         path: route.path,
         query: { tab: "applications" },
@@ -552,16 +552,11 @@ export default defineComponent({
     };
 
     // NEU: Application Update Handler
-    const handleApplicationUpdated = () => {
-      // Statistiken neu laden wenn eine Bewerbung aktualisiert wurde
-      loadDashboardStats();
-    };
+    const handleApplicationUpdated = () => loadDashboardStats();
 
     // Beim Mounten Stats laden
     onMounted(() => {
-      if (activeTab.value === "overview") {
-        loadDashboardStats();
-      }
+      if (activeTab.value === "overview") loadDashboardStats();
     });
 
     // Stats neu laden wenn zu Overview gewechselt wird
@@ -584,22 +579,20 @@ export default defineComponent({
     // Cleanup
     onMounted(() => {
       return () => {
-        if (refreshInterval) {
-          clearInterval(refreshInterval);
-        }
+        if (refreshInterval) clearInterval(refreshInterval);
       };
     });
 
     return {
       activeTab,
-      // Application Subtabs - NEU
+      // Application Subtabs
       activeApplicationSubtab,
       applicationSubtabs,
       // Modal States
       showUserDetails,
       selectedUserId,
-      showApplicationDetails, // NEU
-      selectedApplicationId, // NEU
+      showApplicationDetails,
+      selectedApplicationId,
       // Stats & Loading
       stats,
       isLoading,

@@ -39,14 +39,7 @@
       <h4>Schriftgröße</h4>
       <div class="font-size-selection">
         <div class="font-size-slider">
-          <input 
-            type="range" 
-            min="1" 
-            max="5" 
-            step="1" 
-            v-model="appearanceSettings.fontSize"
-            @input="previewFontSize"
-          />
+          <input type="range" min="1" max="5" step="1" v-model="appearanceSettings.fontSize" @input="previewFontSize" />
           <div class="font-size-labels">
             <span>A</span>
             <span>A</span>
@@ -61,20 +54,8 @@
       </div>
 
       <div class="form-actions">
-        <button 
-          type="button" 
-          class="reset-button" 
-          @click="resetToDefaults"
-          :disabled="isSaving"
-        >
-          Zurücksetzen
-        </button>
-        <button 
-          type="button" 
-          class="save-button" 
-          @click="saveAppearanceSettings" 
-          :disabled="isSaving"
-        >
+        <button type="button" class="reset-button" @click="resetToDefaults" :disabled="isSaving">Zurücksetzen</button>
+        <button type="button" class="save-button" @click="saveAppearanceSettings" :disabled="isSaving">
           <span v-if="isSaving" class="loading-spinner"></span>
           <span v-else>Speichern</span>
         </button>
@@ -84,63 +65,73 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, onUnmounted } from 'vue';
-import { themeService } from '@/services/theme.service';
+import { defineComponent, ref, watch, onMounted, onUnmounted } from "vue";
+import { themeService } from "@/services/theme.service";
 
-interface AppearanceSettings {
-  theme: 'light' | 'dark';
+export interface AppearanceSettings {
+  theme: "light" | "dark";
   fontSize: number;
 }
 
 export default defineComponent({
-  name: 'AppearanceSettings',
+  name: "AppearanceSettings",
   props: {
     showSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showError: {
       type: Boolean,
-      default: false
+      default: false,
     },
     errorMsg: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  emits: ['save-appearance', 'update:showSuccess', 'update:showError'],
+  emits: ["save-appearance", "update:showSuccess", "update:showError"],
   setup(props, { emit }) {
     // Status für Formularprozesse
     const isSaving = ref(false);
     const saveSuccess = ref(props.showSuccess);
     const saveError = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
-    
+
     // Ursprüngliche Einstellungen für Preview-Rückgängigmachung
     const originalSettings = ref<AppearanceSettings | null>(null);
-    
-    // Props watchen
-    watch(() => props.showSuccess, (newVal) => {
-      saveSuccess.value = newVal;
-    });
-    
-    watch(() => props.showError, (newVal) => {
-      saveError.value = newVal;
-    });
-    
-    watch(() => props.errorMsg, (newVal) => {
-      errorMessage.value = newVal;
-    });
 
-    // Erscheinungsbild-Einstellungen vom Service laden
-    const appearanceSettings = ref<AppearanceSettings>(
-      themeService.getAppearanceSettings()
+    // Props watchen
+    watch(
+      () => props.showSuccess,
+      (newVal) => {
+        saveSuccess.value = newVal;
+      }
     );
 
+    watch(
+      () => props.showError,
+      (newVal) => {
+        saveError.value = newVal;
+      }
+    );
+
+    watch(
+      () => props.errorMsg,
+      (newVal) => {
+        errorMessage.value = newVal;
+      }
+    );
+
+    // Erscheinungsbild-Einstellungen vom Service laden
+    const appearanceSettings = ref<AppearanceSettings>(themeService.getAppearanceSettings());
+
     // Theme-Änderungen in Echtzeit anwenden (Preview)
-    watch(() => appearanceSettings.value.theme, (newTheme) => {
-      themeService.setThemeByName(newTheme);
-    });
+    watch(
+      () => appearanceSettings.value.theme,
+      (newTheme) => {
+        themeService.setThemeByName(newTheme);
+      }
+    );
 
     // Schriftgröße Preview
     const previewFontSize = () => {
@@ -149,14 +140,8 @@ export default defineComponent({
 
     // Schriftgrößen-Label
     const getFontSizeLabel = (size: number): string => {
-      const labels = [
-        'Sehr klein',
-        'Klein', 
-        'Normal',
-        'Groß',
-        'Sehr groß'
-      ];
-      return labels[size - 1] || 'Normal';
+      const labels = ["Sehr klein", "Klein", "Normal", "Groß", "Sehr groß"];
+      return labels[size - 1] || "Normal";
     };
 
     // Design-Einstellungen speichern
@@ -164,28 +149,27 @@ export default defineComponent({
       isSaving.value = true;
       saveSuccess.value = false;
       saveError.value = false;
-      
+
       try {
         // Settings im Service speichern
         themeService.setAppearanceSettings(appearanceSettings.value);
-        
+
         // Parent-Komponente informieren
-        emit('save-appearance', appearanceSettings.value);
-        
+        emit("save-appearance", appearanceSettings.value);
+
         // Erfolg anzeigen
         saveSuccess.value = true;
-        emit('update:showSuccess', true);
-        
+        emit("update:showSuccess", true);
+
         // Erfolg nach 3 Sekunden ausblenden
         setTimeout(() => {
           saveSuccess.value = false;
-          emit('update:showSuccess', false);
+          emit("update:showSuccess", false);
         }, 3000);
-        
       } catch (error) {
         saveError.value = true;
-        errorMessage.value = 'Einstellungen konnten nicht gespeichert werden.';
-        emit('update:showError', true);
+        errorMessage.value = "Einstellungen konnten nicht gespeichert werden.";
+        emit("update:showError", true);
       } finally {
         setTimeout(() => {
           isSaving.value = false;
@@ -196,8 +180,8 @@ export default defineComponent({
     // Auf Standardwerte zurücksetzen
     const resetToDefaults = () => {
       appearanceSettings.value = {
-        theme: 'light',
-        fontSize: 3
+        theme: "light",
+        fontSize: 3,
       };
       themeService.setAppearanceSettings(appearanceSettings.value);
     };
@@ -228,16 +212,16 @@ export default defineComponent({
       saveAppearanceSettings,
       resetToDefaults,
       previewFontSize,
-      getFontSizeLabel
+      getFontSizeLabel,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
 
 .settings-section {
   margin-bottom: map.get(vars.$spacing, xxl);
@@ -247,7 +231,7 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin-bottom: map.get(vars.$spacing, xs);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -258,7 +242,7 @@ export default defineComponent({
     margin-bottom: map.get(vars.$spacing, l);
     font-size: var(--font-base);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         transition: all 0.4s ease-out;
@@ -285,7 +269,7 @@ export default defineComponent({
     background-color: rgba(46, 204, 113, 0.1);
     border-left: 4px solid #2ecc71;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -297,7 +281,7 @@ export default defineComponent({
     background-color: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -312,7 +296,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl);
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
@@ -324,7 +308,7 @@ export default defineComponent({
     font-size: var(--font-large);
     margin-bottom: map.get(vars.$spacing, m);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
         transition: all 0.4s ease-out;
@@ -350,8 +334,8 @@ export default defineComponent({
     input[type="radio"] {
       display: none;
 
-      &:checked+.theme-preview {
-        @each $theme in ('light', 'dark') {
+      &:checked + .theme-preview {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             border-color: mixins.theme-color($theme, accent-green);
             box-shadow: 0 0 0 3px rgba(mixins.theme-color($theme, accent-green), 0.3);
@@ -370,7 +354,7 @@ export default defineComponent({
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
       transition: all 0.3s;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border: 2px solid mixins.theme-color($theme, border-light);
           transition: all 0.4s ease-out;
@@ -378,11 +362,11 @@ export default defineComponent({
       }
 
       &.light-theme {
-        background-color: mixins.theme-color('light', card-bg);
+        background-color: mixins.theme-color("light", card-bg);
       }
 
       &.dark-theme {
-        background-color: mixins.theme-color('dark', card-bg);
+        background-color: mixins.theme-color("dark", card-bg);
       }
 
       .theme-icon {
@@ -390,8 +374,8 @@ export default defineComponent({
         margin-bottom: map.get(vars.$spacing, s);
       }
 
-
-      .theme-label, .theme-label-dark {
+      .theme-label,
+      .theme-label-dark {
         font-size: var(--font-base);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         background-color: rgba(0, 0, 0, 0.29);
@@ -401,11 +385,10 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
         width: 100px;
-        height: 30px;   
+        height: 30px;
         border: 1px solid white;
 
-
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: white;
             transition: all 0.4s ease-out;
@@ -432,7 +415,7 @@ export default defineComponent({
       border-radius: 2px;
       margin-bottom: map.get(vars.$spacing, m);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, border-light);
           transition: all 0.4s ease-out;
@@ -465,7 +448,7 @@ export default defineComponent({
 
       span {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
+
         &:nth-child(1) {
           font-size: 0.8rem;
         }
@@ -486,7 +469,7 @@ export default defineComponent({
           font-size: 1.2rem;
         }
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
             transition: all 0.4s ease-out;
@@ -501,7 +484,7 @@ export default defineComponent({
     font-size: var(--font-small);
     margin-top: map.get(vars.$spacing, s);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
       }
@@ -526,7 +509,7 @@ export default defineComponent({
     transition: all 0.3s ease;
     background: transparent;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
         border-color: mixins.theme-color($theme, border-medium);
@@ -553,7 +536,7 @@ export default defineComponent({
     border: none;
     transition: all 0.3s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
@@ -561,7 +544,7 @@ export default defineComponent({
 
         &:hover:not(:disabled) {
           transform: translateY(-3px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
 
         &:disabled {

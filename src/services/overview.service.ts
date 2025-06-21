@@ -1,7 +1,9 @@
 // src/services/overview.service.ts
-import { historyService } from "./history.service";
+import { historyService, type HistoryItem } from "./history.service";
 import { postService, type PostPreviewItem } from "./post.service";
 import friendService from "./friend.service";
+import { mapPostCategoryToGerman } from "@/utils/postCategory";
+import type { RecommendedArticle } from "@/types/Overview.types";
 
 export interface DashboardStats {
   readArticles: number;
@@ -10,7 +12,7 @@ export interface DashboardStats {
 }
 
 export interface RecentActivityArticle {
-  id: number;
+  id: string;
   title: string;
   preview?: string;
   category?: string;
@@ -26,24 +28,6 @@ export interface RecentActivityArticle {
   lastRead?: string;
   readingTime?: string;
   difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
-}
-
-export interface RecommendedArticle {
-  id: number;
-  title: string;
-  preview?: string;
-  category?: string;
-  author?: {
-    username: string;
-    profileImage?: string | null;
-    id?: string;
-  };
-  date?: string;
-  image?: string;
-  coverImage?: string;
-  readingTime?: string;
-  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
-  tags?: string[];
 }
 
 class OverviewService {
@@ -135,19 +119,16 @@ class OverviewService {
   /**
    * Konvertiert History-Item zu Recent Activity Format
    */
-  private convertHistoryToRecentActivity(historyItem: any): RecentActivityArticle {
+  private convertHistoryToRecentActivity(historyItem: HistoryItem): RecentActivityArticle {
     const status = historyItem.solvedAt ? "almost-done" : "in-progress";
     const totalChapters = 6;
     const currentChapter = status === "almost-done" ? totalChapters - 1 : Math.floor(Math.random() * totalChapters) + 1;
 
     return {
-      id: parseInt(historyItem.postId),
+      id: historyItem.postId,
       title: historyItem.postTitle,
-      preview: historyItem.postQuickDescription,
-      category: historyItem.postCategory || "Allgemein",
-      author: {
-        username: historyItem.postAuthor || "Unbekannt",
-      },
+      category: mapPostCategoryToGerman(historyItem.postCategory),
+      author: { username: historyItem.author.username || "Unbekannt" },
       date: historyItem.readAt,
       status,
       currentChapter,
@@ -163,16 +144,15 @@ class OverviewService {
    */
   private convertPostToRecommended(post: PostPreviewItem): RecommendedArticle {
     return {
-      id: parseInt(post.id),
+      id: post.id,
       title: post.title,
-      preview: post.quickDescription,
-      category: post.category,
+      quickDescription: post.quickDescription,
+      publishedAt: post.publishedAt,
+      category: mapPostCategoryToGerman(post.category),
       author: post.author,
-      date: this.formatGermanDate(post.createdAt),
       image: post.image ?? undefined,
-      readingTime: this.estimateReadingTime(post.quickDescription),
       difficulty: this.mapCategoryToDifficulty(post.category),
-      tags: Array.isArray(post.tags) ? post.tags : [],
+      tags: Array.isArray(post.tags) ? post.tags.slice(0, 3) : [],
     };
   }
 
@@ -194,18 +174,6 @@ class OverviewService {
     } else {
       return "vor einer Woche";
     }
-  }
-
-  /**
-   * Formatiert Datum im deutschen Format
-   */
-  private formatGermanDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
   }
 
   /**

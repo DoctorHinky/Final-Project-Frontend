@@ -26,7 +26,7 @@
         v-for="(article, index) in articles"
         :key="article.id"
         :class="['preview-card', `flip-${getFlipDirection(index)}`]"
-        @click="handleCardClick(article)"
+        @click="handleCardClick()"
       >
         <!-- Article Image -->
         <div class="card-image">
@@ -133,7 +133,7 @@
           </div>
 
           <!-- Read Button -->
-          <button class="read-button" @click.stop="handleCardClick(article)">
+          <button class="read-button" @click.stop="handleCardClick()">
             <span>Artikel lesen</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -222,10 +222,11 @@ export default defineComponent({
             quickDescription:
               "Entdecke aufregende Geschichten und lehrreiche Inhalte, die Kinder und Erwachsene gleichermaßen begeistern. Von magischen Welten bis hin zu wissenschaftlichen Wundern.",
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop",
-            author: "Familie Müller",
+            author: { username: "Familie Müller" },
             category: "FAMILY",
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Gestern
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(), // Gestern
             tags: ["Familie", "Abenteuer", "Lernen"],
+            publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(), // Gestern
             isCertifiedAuthor: true,
           },
           {
@@ -234,8 +235,9 @@ export default defineComponent({
             quickDescription:
               "Verwandle langweilige Nachmittage in kreative Workshops. Mit einfachen Materialien entstehen wunderbare Kunstwerke und unvergessliche Erinnerungen.",
             image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=500&h=300&fit=crop",
-            author: "Anna Schmidt",
+            author: { username: "Anna Schmidt" },
             category: "EDUCATION",
+            publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Gestern
             createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // Vor 2 Tagen
             tags: ["Basteln", "Kreativität", "DIY"],
             isCertifiedAuthor: false,
@@ -246,9 +248,10 @@ export default defineComponent({
             quickDescription:
               "Wie du deinen Kindern gesunde Ernährung schmackhaft machst. Praktische Tipps, leckere Rezepte und spielerische Ansätze für mehr Freude am Essen.",
             image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&h=300&fit=crop",
-            author: "Dr. Sarah Weber",
+            author: { username: "Dr. Sarah Weber" },
+            publishedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // Vor 3 Tagen
             category: "HEALTH",
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // Vor 3 Tagen
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // Vor 3 Tagen
             tags: ["Gesundheit", "Ernährung", "Kinder"],
             isCertifiedAuthor: true,
           },
@@ -285,9 +288,7 @@ export default defineComponent({
 
       // Section beobachten
       const section = document.querySelector(".preview-section");
-      if (section) {
-        observer.observe(section);
-      }
+      if (section) observer.observe(section);
     };
 
     // Get flip direction für unterschiedliche Animationen
@@ -297,15 +298,10 @@ export default defineComponent({
     };
 
     // Handle card click → redirect to login
-    const handleCardClick = (article: PostPreviewItem) => {
-      console.log("Card clicked:", article.title);
-      redirectToLogin();
-    };
+    const handleCardClick = () => redirectToLogin();
 
     // Redirect to login
-    const redirectToLogin = () => {
-      router.push("/login-register");
-    };
+    const redirectToLogin = () => router.push("/login-register");
 
     // Handle image error
     const handleImageError = (event: Event, articleId: string) => {
@@ -375,9 +371,7 @@ export default defineComponent({
     });
 
     onBeforeUnmount(() => {
-      if (observer) {
-        observer.disconnect();
-      }
+      if (observer) observer.disconnect();
     });
 
     return {

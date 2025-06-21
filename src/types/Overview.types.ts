@@ -6,7 +6,7 @@ export interface StatCard {
   label: string;
   value: string;
   color: string;
-  animation?: 'pulse' | 'float' | 'bounce';
+  animation?: "pulse" | "float" | "bounce";
   trend?: number; // Positive/negative trend in %
 }
 
@@ -20,15 +20,15 @@ export interface OverviewArticle {
   date: string;
   image?: string;
   tags?: string[];
-  
+
   // Reading Status
-  status: 'reading' | 'completed' | 'just-started' | 'almost-done';
+  status: "reading" | "completed" | "just-started" | "almost-done";
   currentChapter?: number;
   totalChapters?: number;
   lastRead: string;
   readingTime: string;
-  difficulty: 'Einfach' | 'Mittel' | 'Fortgeschritten';
-  
+  difficulty: "Einfach" | "Mittel" | "Fortgeschritten";
+
   // Quiz Info (falls vorhanden)
   hasQuiz?: boolean;
   quizCompleted?: boolean;
@@ -39,15 +39,15 @@ export interface OverviewArticle {
 export interface RecommendedArticle {
   id: string;
   title: string;
-  preview: string;
+  quickDescription: string;
   category: string;
-  author: string;
-  date: string;
+  author: {
+    username: string;
+  };
+  publishedAt: string;
   image?: string;
   tags?: string[];
-  readingTime: string;
-  difficulty: 'Einfach' | 'Mittel' | 'Fortgeschritten';
-  coverImage?: string;
+  difficulty: "Einfach" | "Mittel" | "Fortgeschritten";
 }
 
 // Stats Dashboard Interface
@@ -141,7 +141,7 @@ export interface FriendStats {
   pendingRequests: number;
 }
 
-// Reading Statistics  
+// Reading Statistics
 export interface ReadingStats {
   totalArticles: number;
   completedArticles: number;

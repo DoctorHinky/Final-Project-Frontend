@@ -40,9 +40,9 @@
           <p class="article-preview">{{ article.quickDescription }}</p>
 
           <div class="article-meta">
-            <span class="meta-author">{{ article.author.username || "Unbekannt" }}</span>
+            <span class="meta-author">{{ article.author?.username || "Unbekannt" }}</span>
             <span class="meta-separator">•</span>
-            <span class="meta-date">{{ formatDate(article.publishedAt, "") }}</span>
+            <span class="meta-date">{{ formatDateOnly(article.publishedAt, "") }}</span>
           </div>
 
           <div class="article-footer">
@@ -72,21 +72,21 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import type { Article } from "@/types/dtos";
-import { formatDate } from "@/utils/helperFunctions";
+import { formatDateOnly } from "@/utils/helperFunctions";
+import type { RecommendedArticle } from "@/types/Overview.types";
 
 export default defineComponent({
   name: "RecommendedArticles",
   props: {
     articles: {
-      type: Array as PropType<Article[]>,
+      type: Array as PropType<RecommendedArticle[]>,
       required: true,
     },
   },
   emits: ["open-article"],
   setup() {
     // Bildquelle ermitteln
-    const getImageUrl = (article: Article): string | undefined => {
+    const getImageUrl = (article: RecommendedArticle): string | undefined => {
       if (article.image && article.image.trim() !== "") {
         return article.image;
       }
@@ -109,7 +109,7 @@ export default defineComponent({
     return {
       getImageUrl,
       handleImageError,
-      formatDate,
+      formatDateOnly,
     };
   },
 });

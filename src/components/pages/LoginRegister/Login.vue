@@ -10,11 +10,11 @@
     <form @submit.prevent="handleLogin">
       <div class="form-group">
         <label for="login-identifier">E-Mail oder Benutzername</label>
-        <input 
-          type="text" 
-          id="login-identifier" 
-          v-model="loginForm.identifier" 
-          placeholder="E-Mail oder Benutzername" 
+        <input
+          type="text"
+          id="login-identifier"
+          v-model="loginForm.identifier"
+          placeholder="E-Mail oder Benutzername"
           required
         />
       </div>
@@ -62,7 +62,6 @@
 import { defineComponent, ref, reactive } from "vue";
 import { authService } from "@/services/auth.service";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
-import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "Login",
@@ -70,11 +69,10 @@ export default defineComponent({
     EyeIcon,
     EyeSlashIcon,
   },
-  
-  emits: ['login-success'],
+
+  emits: ["login-success"],
 
   setup(_, { emit }) {
-    const route = useRoute();
     const isLoading = ref(false);
     const showLoginPassword = ref(false);
 
@@ -95,7 +93,7 @@ export default defineComponent({
         loginStatus.message = "";
 
         const identifier = loginForm.identifier.trim();
-        
+
         if (!identifier) {
           loginStatus.success = false;
           loginStatus.message = "Bitte gib deine E-Mail-Adresse oder deinen Benutzernamen ein.";
@@ -105,11 +103,11 @@ export default defineComponent({
 
         // Prüfe ob es eine Email ist
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-        
+
         // Login-Daten für AuthService vorbereiten
         const loginPayload: any = {
           password: loginForm.password,
-          rememberMe: loginForm.rememberMe
+          rememberMe: loginForm.rememberMe,
         };
 
         if (isEmail) {
@@ -124,14 +122,9 @@ export default defineComponent({
         if (result.success) {
           loginStatus.success = true;
           loginStatus.message = "Anmeldung erfolgreich! Du wirst weitergeleitet...";
-          
-          // Event an Parent-Komponente senden
-          emit('login-success');
 
-          // Zum Dashboard weiterleiten
-          setTimeout(() => {
-            window.location.href = (route.query.redirect as string) || "/member/dashboard";
-          }, 100);
+          // Event an Parent-Komponente senden
+          emit("login-success");
         } else {
           loginStatus.success = false;
           loginStatus.message = "Benutzername/E-Mail oder Passwort ist falsch.";

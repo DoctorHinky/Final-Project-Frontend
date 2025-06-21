@@ -241,7 +241,6 @@ import { defineComponent, ref, reactive, onMounted, onBeforeUnmount, computed, w
 import api from "@/services/axiosInstance";
 import { usePasswordStrength, usePasswordMatch } from "@/composables/usePasswordUtils";
 import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/solid";
-import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Register",
@@ -255,7 +254,6 @@ export default defineComponent({
   emits: ["register-success"],
 
   setup(_, { emit }) {
-    const router = useRouter();
     const isLoading = ref(false);
     const showRegisterPassword = ref(false);
     const showRegisterPasswordConfirm = ref(false);
@@ -488,9 +486,7 @@ export default defineComponent({
       return isValid;
     };
 
-    const clearFieldError = (fieldName: string) => {
-      fieldErrors[fieldName] = "";
-    };
+    const clearFieldError = (fieldName: string) => (fieldErrors[fieldName] = "");
 
     const clearAllErrors = () => {
       Object.keys(fieldErrors).forEach((key) => {
@@ -511,9 +507,7 @@ export default defineComponent({
 
         // Fokussiere das Input-Feld
         const input = firstErrorField.querySelector("input, .dropdown-selected");
-        if (input) {
-          (input as HTMLElement).focus();
-        }
+        if (input) (input as HTMLElement).focus();
       }
     };
 
@@ -551,8 +545,8 @@ export default defineComponent({
         isLoading.value = true;
 
         // Datum formatieren (falls nötig)
-        const formattedDate = registerForm.dob ? new Date(registerForm.dob).toISOString() : '';
-        
+        const formattedDate = registerForm.dob ? new Date(registerForm.dob).toISOString() : "";
+
         const registerData = {
           firstname: registerForm.firstName.trim(),
           lastname: registerForm.lastName.trim(),
@@ -565,9 +559,7 @@ export default defineComponent({
         };
 
         const response = await api.post("/auth/local/register", registerData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
         registerStatus.message = "Registrierung erfolgreich!";
         registerStatus.success = true;
@@ -579,8 +571,6 @@ export default defineComponent({
 
         // Event an Parent-Komponente senden
         emit("register-success");
-
-        await router.push("/member/dashboard");
       } catch (error: any) {
         registerStatus.success = false;
 
@@ -614,19 +604,14 @@ export default defineComponent({
           // Allgemeiner Fehler - zeige oben an
           registerStatus.message = "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.";
         }
-
       } finally {
         isLoading.value = false;
       }
     };
 
-    onMounted(() => {
-      document.addEventListener("click", handleClickOutside);
-    });
+    onMounted(() => document.addEventListener("click", handleClickOutside));
 
-    onBeforeUnmount(() => {
-      document.removeEventListener("click", handleClickOutside);
-    });
+    onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside));
 
     return {
       registerForm,

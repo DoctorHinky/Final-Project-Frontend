@@ -1,5 +1,5 @@
 // src/services/history.service.ts
-import axiosInstance from './axiosInstance';
+import axiosInstance from "./axiosInstance";
 
 export interface HistoryItem {
   id: string;
@@ -8,14 +8,15 @@ export interface HistoryItem {
   solvedAt: string | null;
   postTitle: string;
   postQuickDescription: string;
-  postAuthor: string | null;
-  // ✅ ERWEITERT für Bild-Support:
-  postImage?: string | null;              // Bild-URL vom Backend
-  postPublicIdImage?: string | null;      // Cloudinary Public ID
-  postCategory?: string;                  // Kategorie  
-  postTags?: string[];                    // Tags
-  postIsCertifiedAuthor?: boolean;        // Zertifizierter Autor
-  postCreatedAt?: string;                 // Original-Erstellungsdatum
+  author: {
+    username: string | null;
+    isPedagogicalAuthor?: boolean;
+  };
+  postImage?: string | null; // Bild-URL vom Backend
+  postCategory?: string; // Kategorie
+  postTags: string[] | []; // Tags
+  postIsCertifiedAuthor: boolean; // Zertifizierter Autor
+  postCreatedAt?: string; // Original-Erstellungsdatum
 }
 
 export interface HistoryResponse {
@@ -64,24 +65,23 @@ export const convertHistoryToMyArticle = (historyItem: HistoryItem): any => {
     historyId: historyItem.id,
     readAt: historyItem.readAt,
     solvedAt: historyItem.solvedAt,
-    
+
     // Post-Daten (von den neuen Backend-Feldern)
     id: historyItem.postId,
     title: historyItem.postTitle,
     quickDescription: historyItem.postQuickDescription,
-    image: historyItem.postImage || null,              // ← JETZT VERFÜGBAR!
-    author: historyItem.postAuthor || 'Unbekannt',
-    category: historyItem.postCategory || 'OTHER',
+    image: historyItem.postImage || null, // ← JETZT VERFÜGBAR!
+    author: historyItem.author.username || "Unbekannt",
+    category: historyItem.postCategory || "OTHER",
     tags: historyItem.postTags || [],
     createdAt: historyItem.postCreatedAt || historyItem.readAt,
     isCertifiedAuthor: historyItem.postIsCertifiedAuthor || false,
-    
+
     // Computed Felder
     lastRead: formatDateForMyArticles(historyItem.readAt),
-    status: historyItem.solvedAt ? 'completed' : 'reading',
-    
+    status: historyItem.solvedAt ? "completed" : "reading",
+
     // Zusätzliche Felder
-    publicIdImage: historyItem.postPublicIdImage
   };
 };
 
@@ -90,25 +90,26 @@ const formatDateForMyArticles = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-  
+
   if (diffInHours < 1) {
-    return 'Gerade eben';
+    return "Gerade eben";
   } else if (diffInHours < 24) {
-    return `vor ${diffInHours} Stunde${diffInHours > 1 ? 'n' : ''}`;
-  } else if (diffInHours < 168) { // 7 Tage
+    return `vor ${diffInHours} Stunde${diffInHours > 1 ? "n" : ""}`;
+  } else if (diffInHours < 168) {
+    // 7 Tage
     const days = Math.floor(diffInHours / 24);
-    return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
+    return `vor ${days} Tag${days > 1 ? "en" : ""}`;
   } else {
-    return date.toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   }
 };
 
 class HistoryService {
-  private readonly baseUrl = '/history';
+  private readonly baseUrl = "/history";
 
   /**
    * Benutzer-Lesehistorie abrufen (paginiert)
@@ -116,19 +117,22 @@ class HistoryService {
   async getHistory(page: number = 1, limit: number = 10): Promise<HistoryResponse> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}`, {
-        params: { page, limit }
+        params: { page, limit },
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching history:', error);
-      throw new Error('Fehler beim Laden der Lesehistorie');
+      console.error("Error fetching history:", error);
+      throw new Error("Fehler beim Laden der Lesehistorie");
     }
   }
 
   /**
    * ✅ NEU: Geschichte für MyArticles abrufen (mit Converter)
    */
-  async getHistoryForMyArticles(page: number = 1, limit: number = 10): Promise<{
+  async getHistoryForMyArticles(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
     articles: any[];
     meta: {
       page: number;
@@ -139,17 +143,17 @@ class HistoryService {
   }> {
     try {
       const historyResponse = await this.getHistory(page, limit);
-      
+
       // Konvertiere History-Items zu MyArticle-Format
       const articles = historyResponse.data.map(convertHistoryToMyArticle);
-      
+
       return {
         articles,
-        meta: historyResponse.meta
+        meta: historyResponse.meta,
       };
     } catch (error) {
-      console.error('Error fetching history for MyArticles:', error);
-      throw new Error('Fehler beim Laden der Artikel-Historie');
+      console.error("Error fetching history for MyArticles:", error);
+      throw new Error("Fehler beim Laden der Artikel-Historie");
     }
   }
 
@@ -161,21 +165,22 @@ class HistoryService {
       const response = await axiosInstance.post(`${this.baseUrl}/add/${postId}`);
       return response.data;
     } catch (error) {
-      console.error('Error marking post as read:', error);
-      throw new Error('Fehler beim Markieren als gelesen');
+      console.error("Error marking post as read:", error);
+      throw new Error("Fehler beim Markieren als gelesen");
     }
   }
 
   /**
    * Artikel aus Historie entfernen
    */
-  async removeFromHistory(historyId: string): Promise<{ message: string }> {
+  async removeFromHistory(historyId?: string): Promise<{ message: string } | void> {
+    if (historyId) return;
     try {
       const response = await axiosInstance.patch(`${this.baseUrl}/remove/${historyId}`);
       return response.data;
     } catch (error) {
-      console.error('Error removing from history:', error);
-      throw new Error('Fehler beim Entfernen aus der Historie');
+      console.error("Error removing from history:", error);
+      throw new Error("Fehler beim Entfernen aus der Historie");
     }
   }
 
@@ -187,8 +192,8 @@ class HistoryService {
       const response = await axiosInstance.delete(`${this.baseUrl}/clearHistory`);
       return response.data;
     } catch (error) {
-      console.error('Error clearing history:', error);
-      throw new Error('Fehler beim Löschen der Historie');
+      console.error("Error clearing history:", error);
+      throw new Error("Fehler beim Löschen der Historie");
     }
   }
 
@@ -205,7 +210,7 @@ class HistoryService {
       if (error.response?.status === 404) {
         return null; // Noch nicht gelesen
       }
-      console.error('Error fetching reading progress:', error);
+      console.error("Error fetching reading progress:", error);
       return null;
     }
   }
@@ -223,13 +228,13 @@ class HistoryService {
       const response = await axiosInstance.put(`${this.baseUrl}/progress/${postId}`, {
         currentChapter,
         readingProgress,
-        timeSpent
+        timeSpent,
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error updating reading progress:', error);
+      console.error("Error updating reading progress:", error);
       // Nicht kritisch - sollte den Reader nicht blockieren
-      return { success: false, message: 'Fortschritt konnte nicht gespeichert werden' };
+      return { success: false, message: "Fortschritt konnte nicht gespeichert werden" };
     }
   }
 
@@ -241,7 +246,7 @@ class HistoryService {
       const response = await axiosInstance.get(`${this.baseUrl}/hasRead/${postId}`);
       return response.data.hasRead || false;
     } catch (error: any) {
-      console.error('Error checking if article was read:', error);
+      console.error("Error checking if article was read:", error);
       return false;
     }
   }
@@ -252,12 +257,12 @@ class HistoryService {
   async markQuizSolved(postId: string, score?: number): Promise<{ success: boolean; message?: string }> {
     try {
       const response = await axiosInstance.post(`${this.baseUrl}/quizSolved/${postId}`, {
-        score
+        score,
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error marking quiz as solved:', error);
-      throw new Error(error.response?.data?.message || 'Fehler beim Speichern des Quiz-Ergebnisses');
+      console.error("Error marking quiz as solved:", error);
+      throw new Error(error.response?.data?.message || "Fehler beim Speichern des Quiz-Ergebnisses");
     }
   }
 
@@ -270,7 +275,7 @@ class HistoryService {
       const response = await this.getHistory(1, limit);
       return response.data || [];
     } catch (error: any) {
-      console.error('Error fetching recently read:', error);
+      console.error("Error fetching recently read:", error);
       return [];
     }
   }
@@ -283,14 +288,14 @@ class HistoryService {
       const response = await axiosInstance.get(`${this.baseUrl}/stats`);
       return response.data.stats;
     } catch (error: any) {
-      console.error('Error fetching reading stats:', error);
+      console.error("Error fetching reading stats:", error);
       return {
         totalArticlesRead: 0,
         totalReadingTime: 0,
         articlesThisWeek: 0,
         articlesThisMonth: 0,
         averageReadingTime: 0,
-        readingStreak: 0
+        readingStreak: 0,
       };
     }
   }
@@ -303,7 +308,7 @@ class HistoryService {
       const response = await axiosInstance.get(`${this.baseUrl}/todayTime`);
       return response.data.readingTime || 0;
     } catch (error: any) {
-      console.error('Error fetching today reading time:', error);
+      console.error("Error fetching today reading time:", error);
       return 0;
     }
   }
@@ -311,54 +316,48 @@ class HistoryService {
   /**
    * Historie nach Kategorie filtern
    */
-  async getHistoryByCategory(
-    category: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<HistoryResponse> {
+  async getHistoryByCategory(category: string, page: number = 1, limit: number = 10): Promise<HistoryResponse> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/category/${category}`, {
-        params: { page, limit }
+        params: { page, limit },
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error fetching history by category:', error);
-      throw new Error('Fehler beim Laden der gefilterten Historie');
+      console.error("Error fetching history by category:", error);
+      throw new Error("Fehler beim Laden der gefilterten Historie");
     }
   }
 
   /**
    * Historie durchsuchen
    */
-  async searchHistory(
-    query: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<HistoryResponse> {
+  async searchHistory(query: string, page: number = 1, limit: number = 10): Promise<HistoryResponse> {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/search`, {
-        params: { query, page, limit }
+        params: { query, page, limit },
       });
       return response.data;
     } catch (error: any) {
-      console.error('Error searching history:', error);
-      throw new Error('Fehler bei der Suche in der Historie');
+      console.error("Error searching history:", error);
+      throw new Error("Fehler bei der Suche in der Historie");
     }
   }
 
   /**
    * Wöchentliche Aktivität abrufen (für Statistiken)
    */
-  async getWeeklyActivity(): Promise<Array<{
-    date: string;
-    articlesRead: number;
-    readingTime: number;
-  }>> {
+  async getWeeklyActivity(): Promise<
+    Array<{
+      date: string;
+      articlesRead: number;
+      readingTime: number;
+    }>
+  > {
     try {
       const response = await axiosInstance.get(`${this.baseUrl}/weeklyActivity`);
       return response.data.activity || [];
     } catch (error: any) {
-      console.error('Error fetching weekly activity:', error);
+      console.error("Error fetching weekly activity:", error);
       return [];
     }
   }
@@ -371,8 +370,8 @@ class HistoryService {
       const response = await axiosInstance.get(`${this.baseUrl}/export`);
       return response.data.history || [];
     } catch (error: any) {
-      console.error('Error exporting history:', error);
-      throw new Error('Fehler beim Exportieren der Historie');
+      console.error("Error exporting history:", error);
+      throw new Error("Fehler beim Exportieren der Historie");
     }
   }
 
@@ -388,11 +387,11 @@ class HistoryService {
       quickDescription: historyItem.postQuickDescription,
       image: historyItem.postImage, // ✅ Jetzt mit Bild-Support
       author: {
-        username: historyItem.postAuthor || 'Unbekannt'
+        username: historyItem.author.username || "Unbekannt",
       },
       hasRead: true,
       readAt: historyItem.readAt,
-      quizSolved: !!historyItem.solvedAt
+      quizSolved: !!historyItem.solvedAt,
     };
   }
 
@@ -411,11 +410,11 @@ class HistoryService {
       return `${seconds} Sekunden`;
     } else if (seconds < 3600) {
       const minutes = Math.floor(seconds / 60);
-      return `${minutes} Minute${minutes !== 1 ? 'n' : ''}`;
+      return `${minutes} Minute${minutes !== 1 ? "n" : ""}`;
     } else {
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
-      return `${hours} Stunde${hours !== 1 ? 'n' : ''} ${minutes > 0 ? `${minutes} Min` : ''}`;
+      return `${hours} Stunde${hours !== 1 ? "n" : ""} ${minutes > 0 ? `${minutes} Min` : ""}`;
     }
   }
 }
