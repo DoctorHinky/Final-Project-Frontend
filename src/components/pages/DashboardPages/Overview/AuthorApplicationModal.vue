@@ -470,7 +470,6 @@ export default defineComponent({
   .author-modal {
     width: 100%;
     min-height: 100vh;
-    overflow-y: auto;
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     padding: 1rem;
     position: relative;

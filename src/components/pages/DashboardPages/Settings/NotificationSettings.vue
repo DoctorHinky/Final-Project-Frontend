@@ -106,12 +106,6 @@ export default defineComponent({
         enabled: true,
       },
       {
-        id: "browser_notifications",
-        name: "Browser-Benachrichtigungen",
-        description: "Erlaube Benachrichtigungen im Browser.",
-        enabled: false,
-      },
-      {
         id: "article_recommendations",
         name: "Artikelempfehlungen",
         description: "Benachrichtigungen für personalisierte Artikelempfehlungen.",
