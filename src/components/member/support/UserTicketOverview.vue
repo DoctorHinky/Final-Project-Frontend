@@ -339,8 +339,6 @@ export default defineComponent({
       return {
         "status-open": status === TicketStatus.OPEN,
         "status-progress": status === TicketStatus.IN_PROGRESS,
-        "status-waiting": status === TicketStatus.WAITING,
-        "status-resolved": status === TicketStatus.RESOLVED,
         "status-closed": status === TicketStatus.CLOSED,
       };
     };
@@ -428,6 +426,7 @@ export default defineComponent({
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
 
       @each $theme in ("light", "dark") {
@@ -437,6 +436,7 @@ export default defineComponent({
           } @else {
             background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
           }
+          background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -649,7 +649,7 @@ export default defineComponent({
 
         input {
           padding-left: 48px;
-          
+
           &:focus ~ .search-icon {
             color: #4ad295;
           }
@@ -1073,7 +1073,8 @@ export default defineComponent({
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
     box-shadow: 0 0 20px rgba(74, 210, 149, 0.8);
@@ -1086,7 +1087,8 @@ export default defineComponent({
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {

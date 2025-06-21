@@ -85,14 +85,10 @@ class FriendService {
    */
   async getMySentRequests(): Promise<SentRequestResponse[]> {
     try {
-      // TODO: Backend sollte einen Endpoint /friends/mySentRequests implementieren
-      // Temporärer Workaround: Leeres Array zurückgeben
       console.warn("Endpoint für gesendete Anfragen für normale User fehlt im Backend");
-      return [];
 
-      // Wenn Backend-Endpoint implementiert ist:
-      // const response = await api.get('/friends/mySentRequests');
-      // return response.data;
+      const response = await api.get("/friends/pendingRequestsOfMe");
+      return response.data;
     } catch (error) {
       console.error("Alle Fallbacks für gesendete Anfragen fehlgeschlagen:", error);
       return [];

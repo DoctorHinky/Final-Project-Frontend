@@ -80,7 +80,7 @@
     <chat-modal
       v-model:is-visible="showChatModal"
       :friend-id="selectedFriend?.friendId || selectedFriend?.id || ''"
-      :friend-name="selectedFriend?.name || selectedFriend?.username || ''"
+      :friend-name="selectedFriend?.username || ''"
       :is-online="selectedFriend?.isOnline || false"
       @send-message="handleSendMessage"
       @show-toast="showToast"
@@ -90,7 +90,7 @@
     <div v-if="toast.show" class="toast-notification" :class="toast.type">
       <div class="toast-content">
         <span class="toast-icon">
-          {{ toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️' }}
+          {{ toast.type === "success" ? "✅" : toast.type === "error" ? "❌" : "ℹ️" }}
         </span>
         <span class="toast-message">{{ toast.message }}</span>
         <button class="toast-close" @click="toast.show = false">×</button>
@@ -111,14 +111,9 @@ import {
 } from "@/components/pages/DashboardPages/Friends";
 import friendService from "@/services/friend.service";
 import chatService from "@/services/chat.service";
-import type { 
-  Friend, 
-  FriendRequest, 
-  Toast,
-  SentRequest,
-  FriendRequestEvent,
-  ChatMessageEvent
-} from "@/types/Friends.types";
+import type { Friend, FriendRequest, Toast, FriendRequestEvent, ChatMessageEvent } from "@/types/Friends.types";
+import type { SentRequestResponse } from "@/services/friend.service";
+import api from "@/services/axiosInstance";
 
 export default defineComponent({
   name: "FriendsDashboard",
@@ -132,7 +127,7 @@ export default defineComponent({
   },
   setup() {
     // Reactive States
-    const activeView = ref<'friends' | 'requests'>('friends');
+    const activeView = ref<"friends" | "requests">("friends");
     const searchQuery = ref("");
     const showInviteModal = ref(false);
     const showChatModal = ref(false);
@@ -145,14 +140,14 @@ export default defineComponent({
     // Data
     const friends = ref<Friend[]>([]);
     const pendingRequests = ref<FriendRequest[]>([]);
-    const sentRequests = ref<SentRequest[]>([]);
+    const sentRequests = ref<SentRequestResponse[]>([]);
     const unreadMessagesCount = ref(0);
 
     // Toast-Benachrichtigungen
     const toast = ref<Toast>({
       show: false,
-      message: '',
-      type: 'success'
+      message: "",
+      type: "success",
     });
 
     // Computed Properties
@@ -164,37 +159,45 @@ export default defineComponent({
 
       const query = searchQuery.value.toLowerCase();
       return friends.value.filter(
-        (friend) =>
-          friend.name?.toLowerCase().includes(query) ||
-          friend.username?.toLowerCase().includes(query) ||
-          friend.bio?.toLowerCase().includes(query)
+        (friend) => friend.username?.toLowerCase().includes(query) || friend.bio?.toLowerCase().includes(query)
       );
     });
 
     // Watch für View-Wechsel
     watch(activeView, (newView) => {
       // Reset search when switching views
-      if (newView === 'requests') {
-        searchQuery.value = '';
+      if (newView === "requests") {
+        searchQuery.value = "";
       }
     });
 
     // Ungelesene Nachrichten laden
     const loadUnreadMessagesCount = async () => {
       try {
+        const totalUnread = await api.get("conversation/count");
+
+        unreadMessagesCount.value = totalUnread.data;
+      } catch (error) {
+        unreadMessagesCount.value = 0;
+        console.error("Fehler beim Laden der ungelesenen Nachrichten:", error);
+      }
+
+      /* try {
         const totalUnread = await friendService.getTotalUnreadMessagesCount();
         unreadMessagesCount.value = totalUnread;
-        
+
         // Event für MemberSidebar senden
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('unread-messages-updated', { 
-            detail: { count: totalUnread } 
-          }));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("unread-messages-updated", {
+              detail: { count: totalUnread },
+            })
+          );
         }
       } catch (error) {
-        console.error('Fehler beim Laden der ungelesenen Nachrichten:', error);
+        console.error("Fehler beim Laden der ungelesenen Nachrichten:", error);
         unreadMessagesCount.value = 0;
-      }
+      } */
     };
 
     // Polling für ungelesene Nachrichten
@@ -203,11 +206,9 @@ export default defineComponent({
     const startUnreadMessagesPolling = () => {
       // Initial laden
       loadUnreadMessagesCount();
-      
+
       // Alle 30 Sekunden aktualisieren
-      unreadMessagesInterval = setInterval(() => {
-        loadUnreadMessagesCount();
-      }, 30000);
+      unreadMessagesInterval = setInterval(() => loadUnreadMessagesCount(), 30000);
     };
 
     const stopUnreadMessagesPolling = () => {
@@ -218,9 +219,9 @@ export default defineComponent({
     };
 
     // Toast-Helper
-    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
       toast.value = { show: true, message, type };
-      
+
       // Auto-hide nach 5 Sekunden
       setTimeout(() => {
         toast.value.show = false;
@@ -228,12 +229,12 @@ export default defineComponent({
     };
 
     const onFriendRequestSent = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, 'success');
+      showToast(`Freundschaftsanfrage an ${data.displayName} gesendet!`, "success");
       await loadSentRequests();
     };
 
     const onFriendRequestCancelled = async (data: FriendRequestEvent) => {
-      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, 'info');
+      showToast(`Freundschaftsanfrage an ${data.displayName} zurückgezogen.`, "info");
       await loadSentRequests();
     };
 
@@ -241,10 +242,9 @@ export default defineComponent({
     const loadFriends = async () => {
       try {
         const response = await friendService.getAllFriendsOfUser();
-        friends.value = response.data.map(friend => ({
+        friends.value = response.data.map((friend) => ({
           id: friend.id,
           friendId: friend.friendId,
-          name: friend.username,
           username: friend.username,
           avatar: friend.profileImage,
           profileImage: friend.profileImage,
@@ -261,7 +261,7 @@ export default defineComponent({
     const loadPendingRequests = async () => {
       try {
         const response = await friendService.getAllPendingRequests();
-        pendingRequests.value = response.data.map(request => ({
+        pendingRequests.value = response.data.map((request) => ({
           id: request.id,
           senderId: request.senderId,
           name: request.username,
@@ -282,7 +282,7 @@ export default defineComponent({
         const requests = await friendService.getMySentRequests();
         sentRequests.value = requests;
       } catch (err: any) {
-        console.error('Fehler beim Laden der gesendeten Anfragen:', err);
+        console.error("Fehler beim Laden der gesendeten Anfragen:", err);
       }
     };
 
@@ -291,24 +291,19 @@ export default defineComponent({
       error.value = null;
 
       try {
-        const results = await Promise.allSettled([
-          loadFriends(),
-          loadPendingRequests(),
-          loadSentRequests()
-        ]);
+        const results = await Promise.allSettled([loadFriends(), loadPendingRequests(), loadSentRequests()]);
 
-        const failedOperations = results.filter(result => result.status === 'rejected');
-        
+        const failedOperations = results.filter((result) => result.status === "rejected");
+
         if (failedOperations.length > 0) {
-          console.error('Some operations failed:', failedOperations);
-          showToast('Einige Daten konnten nicht geladen werden', 'info');
+          console.error("Some operations failed:", failedOperations);
+          showToast("Einige Daten konnten nicht geladen werden", "info");
         }
 
         startUnreadMessagesPolling();
-        
       } catch (err: any) {
-        error.value = err.message || 'Unbekannter Fehler beim Laden der Daten';
-        showToast('Fehler beim Laden der Daten', 'error');
+        error.value = err.message || "Unbekannter Fehler beim Laden der Daten";
+        showToast("Fehler beim Laden der Daten", "error");
       } finally {
         isLoading.value = false;
       }
@@ -327,13 +322,13 @@ export default defineComponent({
       const friend = friends.value.find((f) => f.id === friendId || f.friendId === friendId);
       if (!friend) return;
 
-      if (confirm(`Möchtest du die Freundschaft mit ${friend.name} wirklich beenden?`)) {
+      if (confirm(`Möchtest du die Freundschaft mit ${friend.username} wirklich beenden?`)) {
         try {
           await friendService.removeFriend(friendId);
           friends.value = friends.value.filter((f) => f.id !== friendId && f.friendId !== friendId);
-          showToast(`Freundschaft mit ${friend.name} wurde beendet.`, 'info');
+          showToast(`Freundschaft mit ${friend.username} wurde beendet.`, "info");
         } catch (err: any) {
-          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", 'error');
+          showToast(err.response?.data?.message || "Fehler beim Entfernen des Freundes", "error");
         }
       }
     };
@@ -341,17 +336,15 @@ export default defineComponent({
     const acceptRequest = async (requestId: string | number) => {
       try {
         await friendService.acceptFriendRequest(requestId.toString());
-        
+
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         if (request) {
           pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-          
+
           const newFriend: Friend = {
             id: `friend_${Date.now()}`,
             friendId: request.senderId,
-            name: request.name,
             username: request.username,
-            avatar: request.avatar,
             profileImage: request.profileImage,
             bio: "Neu hinzugefügter Freund",
             friendSince: new Date().toLocaleDateString("de-DE"),
@@ -359,47 +352,47 @@ export default defineComponent({
             sharedInterests: 0,
           };
           friends.value.push(newFriend);
-          
-          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, 'success');
-          
+
+          showToast(`Freundschaftsanfrage von ${request.name} angenommen!`, "success");
+
           // Wechsle automatisch zur Freunde-Ansicht
-          activeView.value = 'friends';
+          activeView.value = "friends";
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Annehmen der Anfrage", "error");
       }
     };
 
     const declineRequest = async (requestId: string | number) => {
       try {
         await friendService.rejectFriendRequest(requestId.toString());
-        
+
         const request = pendingRequests.value.find((req) => req.id === requestId.toString());
         pendingRequests.value = pendingRequests.value.filter((req) => req.id !== requestId.toString());
-        
+
         if (request) {
-          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, 'info');
+          showToast(`Freundschaftsanfrage von ${request.name} abgelehnt.`, "info");
         }
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Ablehnen der Anfrage", "error");
       }
     };
 
     const sendInvite = async () => {
       if (!inviteEmail.value.trim()) {
-        showToast("Bitte gib eine E-Mail-Adresse ein.", 'error');
+        showToast("Bitte gib eine E-Mail-Adresse ein.", "error");
         return;
       }
 
       try {
         await friendService.sendEmailInvite(inviteEmail.value, inviteMessage.value);
-        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, 'success');
-        
+        showToast(`Einladung an ${inviteEmail.value} wurde gesendet!`, "success");
+
         inviteEmail.value = "";
         inviteMessage.value = "";
         showInviteModal.value = false;
       } catch (err: any) {
-        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", 'error');
+        showToast(err.response?.data?.message || "Fehler beim Senden der Einladung", "error");
       }
     };
 
@@ -413,12 +406,12 @@ export default defineComponent({
       try {
         const conversation = await chatService.createOrGetConversation(data.friendId.toString());
         await chatService.sendMessage(conversation.id, data.message);
-        
-        showToast('Nachricht erfolgreich gesendet!', 'success');
+
+        showToast("Nachricht erfolgreich gesendet!", "success");
         loadUnreadMessagesCount();
       } catch (error) {
-        console.error('Error sending message:', error);
-        showToast('Fehler beim Senden der Nachricht', 'error');
+        console.error("Error sending message:", error);
+        showToast("Fehler beim Senden der Nachricht", "error");
       }
     };
 
@@ -443,18 +436,18 @@ export default defineComponent({
       error,
       toast,
       selectedFriend,
-      
+
       // Data
       friends,
       pendingRequests,
       sentRequests,
       unreadMessagesCount,
-      
+
       // Computed
       friendsCount,
       pendingRequestsCount,
       filteredFriends,
-      
+
       // Methods
       loadData,
       filterFriends,
@@ -467,7 +460,7 @@ export default defineComponent({
       handleSendMessage,
       onFriendRequestSent,
       onFriendRequestCancelled,
-      showToast
+      showToast,
     };
   },
 });
@@ -618,7 +611,7 @@ export default defineComponent({
 
           &:hover {
             transform: translateY(-3px);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
       }
@@ -636,12 +629,12 @@ export default defineComponent({
     min-width: 300px;
     max-width: 500px;
     @include animations.fade-in(0.3s);
-    @include mixins.shadow('large', 'light');
+    @include mixins.shadow("large", "light");
 
     &.success {
       background-color: rgba(76, 175, 80, 0.95);
       color: white;
-      border-left: 4px solid #4CAF50;
+      border-left: 4px solid #4caf50;
     }
 
     &.error {
@@ -653,7 +646,7 @@ export default defineComponent({
     &.info {
       background-color: rgba(33, 150, 243, 0.95);
       color: white;
-      border-left: 4px solid #2196F3;
+      border-left: 4px solid #2196f3;
     }
 
     .toast-content {

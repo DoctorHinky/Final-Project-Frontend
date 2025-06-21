@@ -5,10 +5,10 @@
       <div v-for="request in pendingRequests" :key="request.id" class="request-card">
         <div class="request-avatar">
           <img v-if="request.profileImage" :src="request.profileImage" alt="user profilbild" />
-          <span v-else class="avatar-placeholder">{{ getInitials(request.name) }}</span>
+          <span v-else class="avatar-placeholder">{{ getInitials(request.username) }}</span>
         </div>
         <div class="request-info">
-          <h3>{{ request.name }}</h3>
+          <h3>{{ request.username }}</h3>
           <p class="request-message">{{ request.message || "Möchte mit dir befreundet sein." }}</p>
           <div class="request-meta">
             <span class="request-date">Angefragt am {{ request.requestDate }}</span>

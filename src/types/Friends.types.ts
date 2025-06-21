@@ -8,9 +8,7 @@ import type { TabType } from "./Tab";
 export interface Friend {
   id: string;
   friendId: string;
-  name: string;
   username: string;
-  avatar?: string | null;
   profileImage?: string | null;
   bio?: string;
   friendSince: string;
@@ -120,6 +118,7 @@ export interface ChatMessage {
   messageType: "TEXT" | "FILE" | "COMBINED" | "SYSTEM";
   attachmentUrl?: string | null;
   isRead: boolean;
+  isEdited: boolean;
   createdAt: string;
   updatedAt: string;
 }

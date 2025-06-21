@@ -77,7 +77,7 @@
                   </div>
                   <div class="message-time">{{ formatRelativeTime(message.createdAt) }}</div>
                 </div>
-                <div class="message-body">{{ message.message }}</div>
+                <div class="message-body">{{ message.content }}</div>
               </div>
             </div>
           </div>

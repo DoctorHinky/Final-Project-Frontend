@@ -5,8 +5,12 @@
       <header class="modal-header">
         <div class="chat-user-info">
           <div class="chat-avatar">
-            <img v-if="friendProfileImage" :src="friendProfileImage" :alt="`${friendName}'s Avatar`"
-              class="avatar-image" />
+            <img
+              v-if="friendProfileImage"
+              :src="friendProfileImage"
+              :alt="`${friendName}'s Avatar`"
+              class="avatar-image"
+            />
             <span v-else class="avatar-placeholder">{{ getInitials(friendName) }}</span>
             <span v-if="isOnline" class="online-indicator"></span>
           </div>
@@ -36,19 +40,35 @@
           </div>
 
           <!-- Messages -->
-          <div v-else v-for="message in messages" :key="message.id" :class="['message', {
-            'own-message': isOwnMessage(message),
-            'friend-message': !isOwnMessage(message),
-            'deleted-message': message.content === 'Die Nachricht wurde gelöscht',
-            'editing': editingMessageId === message.id
-          }]" @mouseenter="hoveredMessageId = message.id" @mouseleave="hoveredMessageId = null">
+          <div
+            v-else
+            v-for="message in messages"
+            :key="message.id"
+            :class="[
+              'message',
+              {
+                'own-message': isOwnMessage(message),
+                'friend-message': !isOwnMessage(message),
+                'deleted-message': message.content === 'Die Nachricht wurde gelöscht',
+                editing: editingMessageId === message.id,
+              },
+            ]"
+            @mouseenter="hoveredMessageId = message.id"
+            @mouseleave="hoveredMessageId = null"
+          >
             <div class="message-content">
               <!-- Message Actions (nur bei Hover anzeigen) -->
-              <div v-if="hoveredMessageId === message.id && message.content !== 'Die Nachricht wurde gelöscht'"
-                class="message-actions">
+              <div
+                v-if="hoveredMessageId === message.id && message.content !== 'Die Nachricht wurde gelöscht'"
+                class="message-actions"
+              >
                 <!-- Bearbeiten (nur eigene Nachrichten) -->
-                <button v-if="isOwnMessage(message) && canEditMessage(message)" @click="startEditing(message)"
-                  class="action-btn edit" title="Nachricht bearbeiten">
+                <button
+                  v-if="isOwnMessage(message) && canEditMessage(message)"
+                  @click="startEditing(message)"
+                  class="action-btn edit"
+                  title="Nachricht bearbeiten"
+                >
                   <PencilIcon class="action-icon" />
                 </button>
 
@@ -60,8 +80,14 @@
 
               <!-- Edit Mode -->
               <div v-if="editingMessageId === message.id" class="edit-mode">
-                <div ref="editEditor" class="edit-input" contenteditable="true" @keydown.enter.prevent="saveEdit"
-                  @keydown.esc="cancelEdit" @input="handleEditInput">{{ editingContent }}</div>
+                <div
+                  ref="editEditor"
+                  class="edit-input"
+                  contenteditable="true"
+                  @keydown.enter.prevent="saveEdit"
+                  @keydown.esc="cancelEdit"
+                  @input="handleEditInput"
+                ></div>
                 <div class="edit-actions">
                   <button @click="cancelEdit" class="edit-btn cancel">
                     <XMarkIcon class="edit-action-icon" />
@@ -93,9 +119,7 @@
 
               <span class="message-time">
                 {{ formatTime(message.createdAt) }}
-                <span v-if="message.updatedAt !== message.createdAt" class="edited-indicator">
-                  (bearbeitet)
-                </span>
+                <span v-if="message.isEdited === true" class="edited-indicator"> (bearbeitet) </span>
               </span>
             </div>
           </div>
@@ -133,18 +157,30 @@
       <div class="message-editor">
         <!-- Formatting Toolbar -->
         <div class="formatting-toolbar">
-          <button type="button" @click="toggleFormat('bold')" :class="['format-button', { active: activeFormats.bold }]"
-            title="Fett (Strg+B)">
+          <button
+            type="button"
+            @click="toggleFormat('bold')"
+            :class="['format-button', { active: activeFormats.bold }]"
+            title="Fett (Strg+B)"
+          >
             <strong>B</strong>
           </button>
 
-          <button type="button" @click="toggleFormat('italic')"
-            :class="['format-button', { active: activeFormats.italic }]" title="Kursiv (Strg+I)">
+          <button
+            type="button"
+            @click="toggleFormat('italic')"
+            :class="['format-button', { active: activeFormats.italic }]"
+            title="Kursiv (Strg+I)"
+          >
             <em>I</em>
           </button>
 
-          <button type="button" @click="toggleFormat('underline')"
-            :class="['format-button', { active: activeFormats.underline }]" title="Unterstreichen (Strg+U)">
+          <button
+            type="button"
+            @click="toggleFormat('underline')"
+            :class="['format-button', { active: activeFormats.underline }]"
+            title="Unterstreichen (Strg+U)"
+          >
             <u>U</u>
           </button>
 
@@ -158,8 +194,13 @@
             <!-- Emoji Picker -->
             <div v-if="showEmojiPicker" class="emoji-picker" @click.stop>
               <div class="emoji-grid">
-                <button v-for="emoji in availableEmojis" :key="emoji" @click="insertEmoji(emoji)" class="emoji-item"
-                  type="button">
+                <button
+                  v-for="emoji in availableEmojis"
+                  :key="emoji"
+                  @click="insertEmoji(emoji)"
+                  class="emoji-item"
+                  type="button"
+                >
                   {{ emoji }}
                 </button>
               </div>
@@ -169,12 +210,27 @@
 
         <!-- Rich Text Input -->
         <div class="message-input-wrapper">
-          <div ref="messageEditor" class="message-input" contenteditable="true" @input="handleInput"
-            @keyup="handleInput" @keydown="handleKeyDown" @paste="handlePaste" @focus="updateActiveFormats"
-            @click="updateActiveFormats" @blur="handleInput" :data-placeholder="'Nachricht schreiben...'"></div>
+          <div
+            ref="messageEditor"
+            class="message-input"
+            contenteditable="true"
+            @input="handleInput"
+            @keyup="handleInput"
+            @keydown="handleKeyDown"
+            @paste="handlePaste"
+            @focus="updateActiveFormats"
+            @click="updateActiveFormats"
+            @blur="handleInput"
+            :data-placeholder="'Nachricht schreiben...'"
+          ></div>
 
-          <button type="button" @click.prevent="sendMessage" class="send-button" :disabled="!canSendMessage"
-            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`">
+          <button
+            type="button"
+            @click.prevent="sendMessage"
+            class="send-button"
+            :disabled="!canSendMessage"
+            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`"
+          >
             <PaperAirplaneIcon class="icon-size" />
           </button>
         </div>
@@ -196,7 +252,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue';
+import { defineComponent, ref, watch, nextTick, onMounted, onUnmounted, computed } from "vue";
 import {
   XMarkIcon,
   PaperAirplaneIcon,
@@ -206,13 +262,13 @@ import {
   PencilIcon,
   TrashIcon,
   CheckIcon,
-  ChevronDownIcon
-} from '@heroicons/vue/24/outline';
-import chatService, { type ChatMessage } from '@/services/chat.service';
-import { authService } from '@/services/auth.service';
+  ChevronDownIcon,
+} from "@heroicons/vue/24/outline";
+import chatService, { type ChatMessage } from "@/services/chat.service";
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
-  name: 'ChatModal',
+  name: "ChatModal",
   components: {
     XMarkIcon,
     PaperAirplaneIcon,
@@ -222,31 +278,31 @@ export default defineComponent({
     PencilIcon,
     TrashIcon,
     CheckIcon,
-    ChevronDownIcon
+    ChevronDownIcon,
   },
   props: {
     isVisible: {
       type: Boolean,
-      required: true
+      required: true,
     },
     friendId: {
       type: [String, Number],
-      required: true
+      required: true,
     },
     friendName: {
       type: String,
-      required: true
+      required: true,
     },
     isOnline: {
       type: Boolean,
-      default: false
+      default: false,
     },
     friendProfileImage: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
-  emits: ['update:isVisible', 'send-message', 'show-toast'],
+  emits: ["update:isVisible", "send-message", "show-toast"],
   setup(props, { emit }) {
     // State
     const messages = ref<ChatMessage[]>([]);
@@ -256,17 +312,17 @@ export default defineComponent({
     const chatContainer = ref<HTMLElement>();
     const messageEditor = ref<HTMLDivElement>();
     const editEditor = ref<HTMLDivElement>();
-    const currentConversationId = ref<string>('');
-    const currentUserId = ref<string>('');
+    const currentConversationId = ref<string>("");
+    const currentUserId = ref<string>("");
     const isUserTyping = ref(false);
     const showEmojiPicker = ref(false);
-    const editorContent = ref('');
+    const editorContent = ref("");
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
     // Edit/Delete State
     const hoveredMessageId = ref<string | null>(null);
     const editingMessageId = ref<string | null>(null);
-    const editingContent = ref('');
+    const editingContent = ref("");
     const showDeleteConfirm = ref(false);
     const messageToDelete = ref<ChatMessage | null>(null);
     const isAtBottom = ref(true);
@@ -275,22 +331,65 @@ export default defineComponent({
     const activeFormats = ref({
       bold: false,
       italic: false,
-      underline: false
+      underline: false,
     });
 
     // 50 verschiedene Emojis
     const availableEmojis = [
-      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😊',
-      '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '😋', '😛',
-      '😜', '🤪', '😝', '🤗', '🤭', '🤫', '🤔', '😐', '😑', '😶',
-      '🙄', '😏', '😣', '😥', '😮', '🤐', '😯', '😪', '😫', '😴',
-      '😌', '😓', '😔', '😕', '🙃', '🤑', '😲', '😢', '😭', '😤'
+      "😀",
+      "😃",
+      "😄",
+      "😁",
+      "😆",
+      "😅",
+      "🤣",
+      "😂",
+      "🙂",
+      "😊",
+      "😇",
+      "🥰",
+      "😍",
+      "🤩",
+      "😘",
+      "😗",
+      "😚",
+      "😙",
+      "😋",
+      "😛",
+      "😜",
+      "🤪",
+      "😝",
+      "🤗",
+      "🤭",
+      "🤫",
+      "🤔",
+      "😐",
+      "😑",
+      "😶",
+      "🙄",
+      "😏",
+      "😣",
+      "😥",
+      "😮",
+      "🤐",
+      "😯",
+      "😪",
+      "😫",
+      "😴",
+      "😌",
+      "😓",
+      "😔",
+      "😕",
+      "🙃",
+      "🤑",
+      "😲",
+      "😢",
+      "😭",
+      "😤",
     ];
 
     // Computed
-    const hasContent = computed(() => {
-      return editorContent.value.trim().length > 0;
-    });
+    const hasContent = computed(() => editorContent.value.trim().length > 0);
 
     const canSendMessage = computed(() => hasContent.value && !isSending.value);
 
@@ -300,10 +399,10 @@ export default defineComponent({
         const userData = authService.getUserData();
         if (userData?.userId) {
           currentUserId.value = userData.userId;
-          console.log('Current User ID gesetzt:', currentUserId.value);
+          console.log("Current User ID gesetzt:", currentUserId.value);
         }
       } catch (error) {
-        console.error('Fehler beim Laden der User-Daten:', error);
+        console.error("Fehler beim Laden der User-Daten:", error);
       }
     };
 
@@ -325,11 +424,9 @@ export default defineComponent({
         scrollToBottom(false);
 
         // Zusätzlicher Scroll-Versuch nach kurzer Verzögerung mit Animation
-        setTimeout(() => {
-          scrollToBottom(true);
-        }, 100);
+        setTimeout(() => scrollToBottom(true), 100);
       } catch (error) {
-        console.error('Fehler beim Laden der Nachrichten:', error);
+        console.error("Fehler beim Laden der Nachrichten:", error);
         messages.value = [];
       } finally {
         isLoading.value = false;
@@ -338,32 +435,30 @@ export default defineComponent({
 
     const getInitials = (name: string) => {
       return name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     };
 
-    const formatTime = (timestamp: string) => {
-      return chatService.formatChatTime(timestamp);
-    };
+    const formatTime = (timestamp: string) => chatService.formatChatTime(timestamp);
 
     const isOwnMessage = (message: ChatMessage): boolean => {
       return chatService.isOwnMessage(message, currentUserId.value);
     };
 
     const parseMessageContent = (content: string | null): string => {
-      if (!content) return '';
+      if (!content) return "";
       // Behandle speziell gelöschte Nachrichten
-      if (content === 'Die Nachricht wurde gelöscht') {
+      if (content === "Die Nachricht wurde gelöscht") {
         return content;
       }
       let parsed = chatService.parseMessageContent(content);
       // Konvertiere em-Tags zu i-Tags für bessere Kompatibilität
-      parsed = parsed.replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>');
+      parsed = parsed.replace(/<em>/g, "<i>").replace(/<\/em>/g, "</i>");
       // Stelle sicher, dass Zeilenumbrüche erhalten bleiben
-      parsed = parsed.replace(/\n/g, '<br>');
+      parsed = parsed.replace(/\n/g, "<br>");
       return parsed;
     };
 
@@ -375,7 +470,7 @@ export default defineComponent({
             if (chatContainer.value) {
               const scrollOptions: ScrollToOptions = {
                 top: chatContainer.value.scrollHeight,
-                behavior: smooth ? 'smooth' : 'auto'
+                behavior: smooth ? "smooth" : "auto",
               };
               chatContainer.value.scrollTo(scrollOptions);
               isAtBottom.value = true;
@@ -393,9 +488,7 @@ export default defineComponent({
       }
     };
 
-    const handleScroll = () => {
-      checkIfAtBottom();
-    };
+    const handleScroll = () => checkIfAtBottom();
 
     // Edit/Delete Functions
     const canEditMessage = (message: ChatMessage): boolean => {
@@ -406,14 +499,18 @@ export default defineComponent({
 
     const startEditing = (message: ChatMessage) => {
       editingMessageId.value = message.id;
+
       // Extrahiere Text aus HTML
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = message.content || '';
-      editingContent.value = tempDiv.textContent || '';
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = message.content || "";
+      editingContent.value = tempDiv.textContent || "";
 
       nextTick(() => {
         if (editEditor.value) {
+          // Setze den Inhalt direkt in den DOM, nicht über Vue
+          editEditor.value.textContent = editingContent.value;
           editEditor.value.focus();
+
           // Setze Cursor ans Ende
           const range = document.createRange();
           const selection = window.getSelection();
@@ -429,12 +526,12 @@ export default defineComponent({
 
     const handleEditInput = (event: Event) => {
       const target = event.target as HTMLDivElement;
-      editingContent.value = target.textContent || '';
+      editingContent.value = target.textContent || "";
     };
 
     const cancelEdit = () => {
       editingMessageId.value = null;
-      editingContent.value = '';
+      editingContent.value = "";
     };
 
     const saveEdit = async () => {
@@ -445,22 +542,22 @@ export default defineComponent({
         await chatService.updateMessage(editingMessageId.value, editingContent.value.trim());
 
         // Update local message
-        const messageIndex = messages.value.findIndex(m => m.id === editingMessageId.value);
+        const messageIndex = messages.value.findIndex((m) => m.id === editingMessageId.value);
         if (messageIndex !== -1) {
           messages.value[messageIndex] = {
             ...messages.value[messageIndex],
             content: editingContent.value.trim(),
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
         }
 
-        emit('show-toast', 'Nachricht wurde bearbeitet', 'success');
+        emit("show-toast", "Nachricht wurde bearbeitet", "success");
         cancelEdit();
         // Behalte die aktuelle Scroll-Position
       } catch (error: any) {
-        console.error('Fehler beim Bearbeiten der Nachricht:', error);
-        const errorMessage = error.response?.data?.message || 'Fehler beim Bearbeiten der Nachricht';
-        emit('show-toast', errorMessage, 'error');
+        console.error("Fehler beim Bearbeiten der Nachricht:", error);
+        const errorMessage = error.response?.data?.message || "Fehler beim Bearbeiten der Nachricht";
+        emit("show-toast", errorMessage, "error");
       }
     };
 
@@ -481,21 +578,21 @@ export default defineComponent({
         await chatService.deleteMessage(messageToDelete.value.id);
 
         // Update local message
-        const messageIndex = messages.value.findIndex(m => m.id === messageToDelete.value?.id);
+        const messageIndex = messages.value.findIndex((m) => m.id === messageToDelete.value?.id);
         if (messageIndex !== -1) {
           messages.value[messageIndex] = {
             ...messages.value[messageIndex],
-            content: 'Die Nachricht wurde gelöscht',
-            attachmentUrl: null
+            content: "Die Nachricht wurde gelöscht",
+            attachmentUrl: null,
           };
         }
 
-        emit('show-toast', 'Nachricht wurde gelöscht', 'success');
+        emit("show-toast", "Nachricht wurde gelöscht", "success");
         // Behalte die aktuelle Scroll-Position
       } catch (error: any) {
-        console.error('Fehler beim Löschen der Nachricht:', error);
-        const errorMessage = error.response?.data?.message || 'Fehler beim Löschen der Nachricht';
-        emit('show-toast', errorMessage, 'error');
+        console.error("Fehler beim Löschen der Nachricht:", error);
+        const errorMessage = error.response?.data?.message || "Fehler beim Löschen der Nachricht";
+        emit("show-toast", errorMessage, "error");
       } finally {
         cancelDelete();
       }
@@ -503,12 +600,12 @@ export default defineComponent({
 
     // Rich Text Editor Functions
     const updateActiveFormats = () => {
-      activeFormats.value.bold = document.queryCommandState('bold');
-      activeFormats.value.italic = document.queryCommandState('italic');
-      activeFormats.value.underline = document.queryCommandState('underline');
+      activeFormats.value.bold = document.queryCommandState("bold");
+      activeFormats.value.italic = document.queryCommandState("italic");
+      activeFormats.value.underline = document.queryCommandState("underline");
     };
 
-    const toggleFormat = (format: 'bold' | 'italic' | 'underline') => {
+    const toggleFormat = (format: "bold" | "italic" | "underline") => {
       messageEditor.value?.focus();
 
       const selection = window.getSelection();
@@ -516,9 +613,7 @@ export default defineComponent({
         document.execCommand(format, false);
         updateActiveFormats();
 
-        nextTick(() => {
-          handleInput();
-        });
+        nextTick(() => handleInput());
       }
     };
 
@@ -540,9 +635,7 @@ export default defineComponent({
 
       showEmojiPicker.value = false;
 
-      nextTick(() => {
-        handleInput();
-      });
+      nextTick(() => handleInput());
     };
 
     const toggleEmojiPicker = () => {
@@ -551,11 +644,11 @@ export default defineComponent({
 
     const handleInput = () => {
       if (messageEditor.value) {
-        let text = messageEditor.value.textContent || '';
-        const html = messageEditor.value.innerHTML || '';
+        let text = messageEditor.value.textContent || "";
+        const html = messageEditor.value.innerHTML || "";
 
-        if (html === '<br>' || html.match(/^<[^>]+><\/[^>]+>$/)) {
-          text = '';
+        if (html === "<br>" || html.match(/^<[^>]+><\/[^>]+>$/)) {
+          text = "";
         }
 
         editorContent.value = text;
@@ -575,22 +668,22 @@ export default defineComponent({
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 'b') {
+      if (event.ctrlKey && event.key === "b") {
         event.preventDefault();
-        toggleFormat('bold');
+        toggleFormat("bold");
       }
 
-      if (event.ctrlKey && event.key === 'i') {
+      if (event.ctrlKey && event.key === "i") {
         event.preventDefault();
-        toggleFormat('italic');
+        toggleFormat("italic");
       }
 
-      if (event.ctrlKey && event.key === 'u') {
+      if (event.ctrlKey && event.key === "u") {
         event.preventDefault();
-        toggleFormat('underline');
+        toggleFormat("underline");
       }
 
-      if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
       }
@@ -598,12 +691,10 @@ export default defineComponent({
 
     const handlePaste = (event: ClipboardEvent) => {
       event.preventDefault();
-      const text = event.clipboardData?.getData('text/plain') || '';
-      document.execCommand('insertText', false, text);
+      const text = event.clipboardData?.getData("text/plain") || "";
+      document.execCommand("insertText", false, text);
 
-      nextTick(() => {
-        handleInput();
-      });
+      nextTick(() => handleInput());
     };
 
     const sendMessage = async () => {
@@ -611,10 +702,10 @@ export default defineComponent({
         return;
       }
 
-      const messageText = messageEditor.value?.textContent?.trim() || '';
-      let htmlContent = messageEditor.value?.innerHTML || '';
+      const messageText = messageEditor.value?.textContent?.trim() || "";
+      let htmlContent = messageEditor.value?.innerHTML || "";
 
-      if (!messageText && !htmlContent.replace(/<[^>]*>/g, '').trim()) {
+      if (!messageText && !htmlContent.replace(/<[^>]*>/g, "").trim()) {
         return;
       }
 
@@ -627,27 +718,27 @@ export default defineComponent({
       }
 
       try {
-        htmlContent = htmlContent.replace(/<i>/g, '<em>').replace(/<\/i>/g, '</em>');
+        htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
 
-        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        // const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
 
         const localMessage: ChatMessage = {
-          id: response.message.id || Date.now().toString(),
+          id: Date.now().toString(),
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: htmlContent,
-          messageType: 'TEXT',
+          messageType: "TEXT",
           attachmentUrl: null,
           isRead: true,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
 
         messages.value.push(localMessage);
 
         if (messageEditor.value) {
-          messageEditor.value.innerHTML = '';
-          editorContent.value = '';
+          messageEditor.value.innerHTML = "";
+          editorContent.value = "";
           updateActiveFormats();
         }
 
@@ -657,14 +748,13 @@ export default defineComponent({
         isAtBottom.value = true;
         scrollToBottom(true);
 
-        emit('send-message', {
+        emit("send-message", {
           friendId: props.friendId,
-          message: messageText
+          message: messageText,
         });
-
       } catch (error) {
-        console.error('Fehler beim Senden der Nachricht:', error);
-        emit('show-toast', 'Fehler beim Senden der Nachricht', 'error');
+        console.error("Fehler beim Senden der Nachricht:", error);
+        emit("show-toast", "Fehler beim Senden der Nachricht", "error");
       } finally {
         isSending.value = false;
       }
@@ -674,7 +764,7 @@ export default defineComponent({
       showEmojiPicker.value = false;
       cancelEdit();
       cancelDelete();
-      emit('update:isVisible', false);
+      emit("update:isVisible", false);
     };
 
     const focusEditor = () => {
@@ -698,7 +788,7 @@ export default defineComponent({
     // Click outside handlers
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (showEmojiPicker.value && !target.closest('.emoji-picker-container')) {
+      if (showEmojiPicker.value && !target.closest(".emoji-picker-container")) {
         showEmojiPicker.value = false;
       }
     };
@@ -710,66 +800,75 @@ export default defineComponent({
     };
 
     // Watchers
-    watch(() => props.isVisible, (visible) => {
-      if (visible) {
-        loadCurrentUser();
-        loadMessages();
-        focusEditor();
-        document.addEventListener('click', handleClickOutside);
-        document.addEventListener('selectionchange', handleSelectionChange);
-      } else {
-        // Reset state
-        messages.value = [];
-        currentConversationId.value = '';
-        editorContent.value = '';
-        if (messageEditor.value) {
-          messageEditor.value.innerHTML = '';
-        }
-        isTyping.value = false;
-        isUserTyping.value = false;
-        showEmojiPicker.value = false;
-        hoveredMessageId.value = null;
-        isAtBottom.value = true;
-        cancelEdit();
-        cancelDelete();
-        activeFormats.value = {
-          bold: false,
-          italic: false,
-          underline: false
-        };
-        document.removeEventListener('click', handleClickOutside);
-        document.removeEventListener('selectionchange', handleSelectionChange);
+    watch(
+      () => props.isVisible,
+      (visible) => {
+        if (visible) {
+          loadCurrentUser();
+          loadMessages();
+          focusEditor();
+          document.addEventListener("click", handleClickOutside);
+          document.addEventListener("selectionchange", handleSelectionChange);
+        } else {
+          // Reset state
+          messages.value = [];
+          currentConversationId.value = "";
+          editorContent.value = "";
+          if (messageEditor.value) {
+            messageEditor.value.innerHTML = "";
+          }
+          isTyping.value = false;
+          isUserTyping.value = false;
+          showEmojiPicker.value = false;
+          hoveredMessageId.value = null;
+          isAtBottom.value = true;
+          cancelEdit();
+          cancelDelete();
+          activeFormats.value = {
+            bold: false,
+            italic: false,
+            underline: false,
+          };
+          document.removeEventListener("click", handleClickOutside);
+          document.removeEventListener("selectionchange", handleSelectionChange);
 
-        if (typingTimeout) {
-          clearTimeout(typingTimeout);
-          typingTimeout = null;
+          if (typingTimeout) {
+            clearTimeout(typingTimeout);
+            typingTimeout = null;
+          }
         }
       }
-    });
+    );
 
-    watch(() => props.friendId, () => {
-      if (props.isVisible && props.friendId) {
-        loadMessages();
+    watch(
+      () => props.friendId,
+      () => {
+        if (props.isVisible && props.friendId) {
+          loadMessages();
+        }
       }
-    });
+    );
 
     // Automatisches Scrollen bei neuen Nachrichten
-    watch(() => messages.value.length, (newLength, oldLength) => {
-      // Nur scrollen wenn eine neue Nachricht hinzugefügt wurde
-      if (newLength > oldLength) {
-        const lastMessage = messages.value[messages.value.length - 1];
-        // Scrolle immer bei eigenen Nachrichten oder wenn bereits am Ende
-        if (lastMessage && (isOwnMessage(lastMessage) || isAtBottom.value)) {
-          nextTick(() => {
-            scrollToBottom(true);
-          });
+    watch(
+      () => messages.value.length,
+      (newLength, oldLength) => {
+        // Nur scrollen wenn eine neue Nachricht hinzugefügt wurde
+        if (newLength > oldLength) {
+          const lastMessage = messages.value[messages.value.length - 1];
+          // Scrolle immer bei eigenen Nachrichten oder wenn bereits am Ende
+          if (lastMessage && (isOwnMessage(lastMessage) || isAtBottom.value)) {
+            nextTick(() => {
+              scrollToBottom(true);
+            });
+          }
         }
       }
-    });
+    );
 
     // Keyboard shortcuts
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         if (showDeleteConfirm.value) {
           cancelDelete();
         } else if (editingMessageId.value) {
@@ -781,14 +880,14 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      document.addEventListener('keydown', handleGlobalKeyDown);
+      document.addEventListener("keydown", handleGlobalKeyDown);
       loadCurrentUser();
     });
 
     onUnmounted(() => {
-      document.removeEventListener('keydown', handleGlobalKeyDown);
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener("keydown", handleGlobalKeyDown);
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("selectionchange", handleSelectionChange);
 
       if (typingTimeout) {
         clearTimeout(typingTimeout);
@@ -844,17 +943,17 @@ export default defineComponent({
       deleteMessageConfirm,
       cancelDelete,
       confirmDelete,
-      scrollToBottom
+      scrollToBottom,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Einheitliche Icon-Größe
 .icon-size {
@@ -889,11 +988,11 @@ export default defineComponent({
   position: relative;
   @include animations.fade-in(0.3s);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-subtle);
-      @include mixins.shadow('large', $theme);
+      @include mixins.shadow("large", $theme);
       transition: all 0.4s ease-out;
     }
   }
@@ -906,7 +1005,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, l);
   border-bottom: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -927,7 +1026,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           border: 2px solid mixins.theme-color($theme, accent-teal);
@@ -946,7 +1045,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: color 0.4s ease-out;
@@ -961,7 +1060,7 @@ export default defineComponent({
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background-color: #4CAF50;
+        background-color: #4caf50;
         border: 2px solid white;
       }
     }
@@ -972,7 +1071,7 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), semibold);
         margin: 0 0 map.get(vars.$spacing, xxs) 0;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
             transition: color 0.4s ease-out;
@@ -983,7 +1082,7 @@ export default defineComponent({
       .user-status {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
             transition: color 0.4s ease-out;
@@ -1005,7 +1104,7 @@ export default defineComponent({
     flex-shrink: 0;
     transition: all 0.2s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: transparent;
         color: mixins.theme-color($theme, text-secondary);
@@ -1032,11 +1131,10 @@ export default defineComponent({
   position: relative;
 
   // Sanfter texturierter Chat-Hintergrund
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
-      background-image:
-        repeating-linear-gradient(
+      background-image: repeating-linear-gradient(
           135deg,
           rgba(mixins.theme-color($theme, accent-teal), 0.04) 0px,
           rgba(mixins.theme-color($theme, accent-teal), 0.04) 2px,
@@ -1067,7 +1165,7 @@ export default defineComponent({
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, border-light);
 
@@ -1093,16 +1191,16 @@ export default defineComponent({
     transition: all 0.3s ease;
     z-index: 10;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-light);
-        @include mixins.shadow('small', $theme);
+        @include mixins.shadow("small", $theme);
 
         &:hover {
           background-color: mixins.theme-color($theme, hover-color);
           transform: translateY(-2px);
-          @include mixins.shadow('medium', $theme);
+          @include mixins.shadow("medium", $theme);
         }
 
         &:active {
@@ -1115,7 +1213,7 @@ export default defineComponent({
       width: 20px;
       height: 20px;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1138,7 +1236,7 @@ export default defineComponent({
       border-radius: 50%;
       animation: spin 1s linear infinite;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
           border-top-color: mixins.theme-color($theme, accent-teal);
@@ -1149,7 +1247,7 @@ export default defineComponent({
     span {
       font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1171,7 +1269,7 @@ export default defineComponent({
       margin-bottom: map.get(vars.$spacing, m);
       opacity: 0.6;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1181,7 +1279,7 @@ export default defineComponent({
     p {
       margin: map.get(vars.$spacing, xs) 0;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1190,7 +1288,7 @@ export default defineComponent({
       &:first-of-type {
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -1213,7 +1311,7 @@ export default defineComponent({
         align-self: flex-end;
 
         .message-content {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-gradient($theme, primary);
               color: white;
@@ -1226,7 +1324,7 @@ export default defineComponent({
         align-self: flex-start;
 
         .message-content {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
@@ -1243,7 +1341,7 @@ export default defineComponent({
           .deleted-text {
             font-style: italic;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, text-secondary);
               }
@@ -1254,7 +1352,7 @@ export default defineComponent({
 
       &.editing {
         .message-content {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               box-shadow: 0 0 0 2px mixins.theme-color($theme, accent-teal);
             }
@@ -1326,7 +1424,7 @@ export default defineComponent({
             outline: none;
             line-height: 1.4;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: rgba(255, 255, 255, 0.1);
                 border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1364,7 +1462,7 @@ export default defineComponent({
 
               &.save {
                 background-color: rgba(76, 175, 80, 0.2);
-                color: #4CAF50;
+                color: #4caf50;
 
                 &:hover:not(:disabled) {
                   background-color: rgba(76, 175, 80, 0.3);
@@ -1419,7 +1517,7 @@ export default defineComponent({
             text-decoration: none;
             transition: all 0.2s ease;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background-color: rgba(255, 255, 255, 0.1);
                 color: inherit;
@@ -1457,7 +1555,7 @@ export default defineComponent({
       padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
       border-radius: map.get(map.get(vars.$layout, border-radius), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, secondary-bg);
           transition: all 0.4s ease-out;
@@ -1467,7 +1565,7 @@ export default defineComponent({
       &.own-typing {
         align-self: flex-end;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
             border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
@@ -1475,7 +1573,7 @@ export default defineComponent({
         }
 
         .typing-text {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
               font-style: italic;
@@ -1508,7 +1606,7 @@ export default defineComponent({
       .typing-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
           }
@@ -1522,7 +1620,7 @@ export default defineComponent({
 .message-editor {
   border-top: 1px solid;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
@@ -1547,7 +1645,7 @@ export default defineComponent({
       transition: all 0.2s ease;
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
           color: mixins.theme-color($theme, text-secondary);
@@ -1570,7 +1668,7 @@ export default defineComponent({
       height: 24px;
       margin: 0 map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, border-light);
         }
@@ -1592,11 +1690,11 @@ export default defineComponent({
         @include animations.fade-in(0.2s);
         z-index: 100;
 
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background-color: mixins.theme-color($theme, card-bg);
             border: 1px solid mixins.theme-color($theme, border-light);
-            @include mixins.shadow('medium', $theme);
+            @include mixins.shadow("medium", $theme);
           }
         }
 
@@ -1619,7 +1717,7 @@ export default defineComponent({
             border-radius: map.get(map.get(vars.$layout, border-radius), small);
             transition: all 0.2s ease;
 
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 &:hover {
                   background-color: mixins.theme-color($theme, secondary-bg);
@@ -1650,7 +1748,7 @@ export default defineComponent({
       outline: none;
       line-height: 1.5;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           @include mixins.form-element($theme);
           transition: all 0.4s ease-out;
@@ -1695,14 +1793,14 @@ export default defineComponent({
       border: none;
       transition: all 0.2s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
           color: white;
 
           &:hover:not(:disabled) {
             transform: scale(1.05);
-            @include mixins.shadow('small', $theme);
+            @include mixins.shadow("small", $theme);
           }
 
           &:disabled {
@@ -1736,11 +1834,11 @@ export default defineComponent({
     text-align: center;
     max-width: 400px;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
         border: 1px solid mixins.theme-color($theme, border-subtle);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
       }
     }
 
@@ -1748,7 +1846,7 @@ export default defineComponent({
       margin: 0 0 map.get(vars.$spacing, m) 0;
       font-size: map.get(map.get(vars.$fonts, sizes), large);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1758,7 +1856,7 @@ export default defineComponent({
     p {
       margin-bottom: map.get(vars.$spacing, l);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1779,7 +1877,7 @@ export default defineComponent({
         transition: all 0.2s ease;
 
         &.cancel {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background-color: mixins.theme-color($theme, secondary-bg);
               color: mixins.theme-color($theme, text-primary);
@@ -1816,7 +1914,6 @@ export default defineComponent({
 }
 
 @keyframes typing {
-
   0%,
   60%,
   100% {

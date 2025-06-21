@@ -7,14 +7,14 @@
           <img
             v-if="friend.profileImage"
             :src="friend.profileImage"
-            :alt="`${friend.name}'s Avatar`"
+            :alt="`${friend.username}'s Avatar`"
             class="avatar-image"
           />
-          <span v-else class="avatar-placeholder">{{ getInitials(friend.name) }}</span>
+          <span v-else class="avatar-placeholder">{{ getInitials(friend.username) }}</span>
           <span v-if="friend.isOnline" class="online-indicator"></span>
         </div>
         <div class="friend-info">
-          <h3>{{ friend.name }}</h3>
+          <h3>{{ friend.username }}</h3>
           <p class="friend-bio">{{ friend.bio }}</p>
           <div class="friend-meta">
             <span class="friend-since">Freunde seit {{ friend.friendSince }}</span>
