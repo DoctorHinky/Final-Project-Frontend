@@ -8,27 +8,13 @@
     <div class="sidebar-header">
       <!-- Dynamisches Profilbild -->
       <div class="profile-image-container" @click="goToProfileSettings">
-        <img
-          v-if="isImageLoaded && userProfileImage"
-          :src="userProfileImage"
-          :alt="'Profilbild'"
-          class="account-logo"
-          @error="handleImageError"
-        />
+        <img v-if="isImageLoaded && userProfileImage" :src="userProfileImage" :alt="'Profilbild'" class="account-logo"
+          @error="handleImageError" />
         <div v-else class="image-placeholder">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="placeholder-icon"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="placeholder-icon">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
         </div>
         <!-- Hover-Indikator für Klickbarkeit -->
@@ -53,24 +39,13 @@
     <!-- Sidebar-Navigation mit Drag & Drop -->
     <nav class="sidebar-nav" ref="navContainer">
       <transition-group name="nav-item-move" tag="div" class="nav-items-container">
-        <div
-          v-for="(item, index) in sortedMenuItems"
-          :key="item.id"
-          :data-item-id="item.id"
-          class="nav-item"
-          :class="{
-            active: activeMenu === item.id,
-            dragging: draggedItem === item.id,
-            'drag-over': dragOverIndex === index,
-          }"
-          draggable="true"
-          @click="selectMenuItem(item.id)"
-          @dragstart="handleDragStart($event, item.id, index)"
-          @dragend="handleDragEnd"
-          @dragover="handleDragOver($event, index)"
-          @dragleave="handleDragLeave"
-          @drop="handleDrop($event, index)"
-        >
+        <div v-for="(item, index) in sortedMenuItems" :key="item.id" :data-item-id="item.id" class="nav-item" :class="{
+          active: activeMenu === item.id,
+          dragging: draggedItem === item.id,
+          'drag-over': dragOverIndex === index,
+        }" draggable="true" @click="selectMenuItem(item.id)" @dragstart="handleDragStart($event, item.id, index)"
+          @dragend="handleDragEnd" @dragover="handleDragOver($event, index)" @dragleave="handleDragLeave"
+          @drop="handleDrop($event, index)">
           <!-- Drag Handle -->
           <span class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
@@ -84,11 +59,8 @@
 
 
           <!-- Badge für ungelesene Benachrichtigungen -->
-          <span
-            v-if="item.id === 'notifications' && notificationCount > 0"
-            class="nav-badge"
-            :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`"
-          >
+          <span v-if="item.id === 'notifications' && notificationCount > 0" class="nav-badge"
+            :title="`${notificationCount} ungelesene Benachrichtigung${notificationCount === 1 ? '' : 'en'}`">
             {{ notificationCount > 99 ? "99+" : notificationCount }}
           </span>
         </div>
@@ -515,7 +487,7 @@ export default defineComponent({
 
         // Polling starten (alle 30 Sekunden)
         notificationService.startPolling();
-      } catch (error) {}
+      } catch (error) { }
     };
 
     const cleanupNotificationPolling = () => {
@@ -639,7 +611,7 @@ export default defineComponent({
   user-select: none;
   // Liquid glass effect
   background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(48, 135, 31, 0.18);
   backdrop-filter: blur(24px) saturate(180%) brightness(1.15);
   -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.15);
   border-right: 1.5px solid rgba(255, 255, 255, 0.22);
@@ -647,8 +619,8 @@ export default defineComponent({
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
-      background: if($theme == "light", rgba(255, 255, 255, 0.22), rgba(30, 34, 40, 0.22));
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      background: if($theme =="light", rgba(255, 255, 255, 0.22), rgba(30, 34, 40, 0.22));
+      box-shadow: 0 8px 32px 0 rgba(31, 135, 45, 0.18);
       border-right: 1.5px solid rgba(255, 255, 255, 0.22);
       transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
@@ -656,14 +628,14 @@ export default defineComponent({
 
   &.open {
     left: 0;
-    box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.22);
+    box-shadow: 0 12px 32px 0 rgba(40, 135, 31, 0.22);
     padding-top: 2rem;
     backdrop-filter: blur(32px) saturate(200%) brightness(1.18);
     -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.18);
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
-        box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.22);
+        box-shadow: 0 12px 32px 0 rgba(34, 135, 31, 0.22);
         transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
@@ -682,7 +654,7 @@ export default defineComponent({
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-color: rgba(255, 255, 255, 0.18);
-        background: if($theme == "light", rgba(255, 255, 255, 0.1), rgba(30, 34, 40, 0.1));
+        background: if($theme =="light", rgba(255, 255, 255, 0.1), rgba(30, 34, 40, 0.1));
         transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
@@ -798,7 +770,7 @@ export default defineComponent({
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            color: if($theme == "light", #222, #fff);
+            color: if($theme =="light", #222, #fff);
             transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
           }
         }
@@ -817,7 +789,7 @@ export default defineComponent({
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            color: if($theme == "light", #444, #e0e0e0);
+            color: if($theme =="light", #444, #e0e0e0);
           }
         }
       }
@@ -850,7 +822,7 @@ export default defineComponent({
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: if($theme == "light", #222, #fff);
+          color: if($theme =="light", #222, #fff);
 
           &:hover {
             color: #fff;
@@ -891,20 +863,26 @@ export default defineComponent({
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: if($theme == "light", #222, #e0e0e0);
+          color: if($theme =="light", #222, #e0e0e0);
 
           &:hover:not(.dragging) {
             background: rgba(255, 255, 255, 0.18);
-            color: #222;
+            color: #ffffff6b;
             transform: translateX(3px) scale(1.03);
             box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
           }
 
           &.active:not(.dragging) {
-            background: linear-gradient(135deg, #e0e7ff 0%, #b2fefa 100%);
-            color: #222;
-            transform: translateX(5px) scale(1.04);
+            background: linear-gradient(135deg, #58585856 0%, #b2febf 100%);
+            color: #ffffff;
+            transform: translateX(5px);
             box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.12);
+            border-left: 2px solid #22c55e;
+
+            .nav-icon {
+              color: #22c55e;
+              filter: drop-shadow(0 2px 8px rgba(34, 197, 94, 0.18));
+            }
           }
         }
       }
@@ -975,7 +953,8 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         line-height: 1;
         margin-left: auto;
-        background: linear-gradient(135deg, #ff4757 0%, #ffb199 100%);
+        background: linear-gradient(135deg, #00000056 0%, #035f2c 100%);
+
         color: white;
         box-shadow: 0 2px 8px rgba(255, 71, 87, 0.18);
         @include animations.fade-in(0.3s);
@@ -994,7 +973,7 @@ export default defineComponent({
       left: map.get(vars.$spacing, s);
       right: map.get(vars.$spacing, s);
       height: 3px;
-      background: linear-gradient(90deg, transparent 0%, #3b82f6 20%, #3b82f6 80%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, #22c55e 20%, #22c55e 80%, transparent 100%);
       border-radius: 2px;
       opacity: 0;
       transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
@@ -1011,7 +990,7 @@ export default defineComponent({
         height: 0;
         border-style: solid;
         border-width: 6px 8px 6px 0;
-        border-color: transparent #3b82f6 transparent transparent;
+        border-color: transparent #ffffff transparent transparent;
       }
 
       &::after {
@@ -1024,7 +1003,7 @@ export default defineComponent({
         height: 0;
         border-style: solid;
         border-width: 6px 0 6px 8px;
-        border-color: transparent transparent transparent #3b82f6;
+        border-color: transparent transparent transparent #ffffff;
       }
     }
   }
@@ -1063,7 +1042,7 @@ export default defineComponent({
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: if($theme == "light", #444, #e0e0e0);
+          color: if($theme =="light", #444, #e0e0e0);
 
           &:hover {
             background: rgba(255, 255, 255, 0.18);
@@ -1073,7 +1052,7 @@ export default defineComponent({
           }
 
           &.active {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #e0e7ff56 0%, #b2febf 100%);
             color: #222;
             transform: translateX(3px) scale(1.04);
             box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.12);
@@ -1099,21 +1078,21 @@ export default defineComponent({
       }
 
       .support-badge {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
         min-width: 18px;
         height: 18px;
-        padding: 0 5px;
+        padding: 10px;
         border-radius: 50%;
         font-size: 0.625rem;
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         line-height: 1;
         margin-left: auto;
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #00000056 0%, #035f2c 100%);
         color: white;
         @include animations.fade-in(0.3s);
-        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        border: none;
         box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
       }
 
@@ -1140,7 +1119,7 @@ export default defineComponent({
 
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          color: if($theme == "light", #888, #e0e0e0);
+          color: if($theme =="light", #888, #e0e0e0);
 
           &:hover {
             color: #222;
@@ -1184,35 +1163,44 @@ export default defineComponent({
   0% {
     transform: translateY(0) scale(1, 1);
   }
+
   25% {
     transform: translateY(-20px) scale(1, 1.05);
   }
+
   40% {
     transform: translateY(-25px) scale(1.05, 0.95);
   }
+
   50% {
     transform: translateY(5px) scale(1.1, 0.8);
   }
+
   65% {
     transform: translateY(-5px) scale(0.95, 1.1);
   }
+
   75% {
     transform: translateY(0) scale(1.05, 0.95);
   }
+
   85% {
     transform: translateY(0) scale(0.98, 1.02);
   }
+
   100% {
     transform: translateY(0) scale(1, 1);
   }
 }
 
 @keyframes twinkle {
+
   0%,
   100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: scale(1.1);
@@ -1224,18 +1212,22 @@ export default defineComponent({
     transform: scale(1);
     opacity: 1;
   }
+
   25% {
     transform: scale(1.05);
     opacity: 0.9;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 1;
   }
+
   75% {
     transform: scale(1.05);
     opacity: 0.9;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -1246,6 +1238,7 @@ export default defineComponent({
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(-360deg);
   }

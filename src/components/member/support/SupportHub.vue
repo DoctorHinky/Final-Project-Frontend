@@ -158,11 +158,13 @@
     </Teleport>
 
     <!-- Create Ticket Modal -->
-    <UserTicketModal
-      :is-open="showCreateTicket"
-      @close="showCreateTicket = false"
-      @ticket-created="handleTicketCreated"
-    />
+    <Teleport to="body">
+      <UserTicketModal
+        :is-open="showCreateTicket"
+        @close="showCreateTicket = false"
+        @ticket-created="handleTicketCreated"
+      />
+    </Teleport>
   </div>
 
   <img src="../../../assets/images/Support.jpg" alt="Support IMG" class="Support-IMG" />

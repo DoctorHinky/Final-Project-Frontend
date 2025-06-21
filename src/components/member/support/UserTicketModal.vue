@@ -7,7 +7,7 @@
       <div class="modal-header">
         <div class="header-content">
           <div class="header-icon">
-            <ChatBubbleLeftRightIcon class="icon-size" />
+            <ChatBubbleLeftRightIcon class="w-4 h-4 Icons Icons" />
           </div>
           <div>
             <h3>Support kontaktieren</h3>
@@ -15,7 +15,7 @@
           </div>
         </div>
         <button class="close-button" @click="closeModal" :disabled="isSubmitting">
-          <XMarkIcon class="icon-size-sm" />
+          <XMarkIcon class="w-4 h-4 Icons Icons" />
         </button>
       </div>
 
@@ -24,7 +24,7 @@
         <!-- Success State -->
         <div v-if="showSuccess" class="success-message">
           <div class="success-icon">
-            <CheckCircleIcon class="icon-size-xl" />
+            <CheckCircleIcon class="w-4 h-4 Icons" />
           </div>
           <h4>Ticket erfolgreich erstellt!</h4>
           <p>
@@ -54,15 +54,15 @@
                 v-model="formData.title"
                 class="form-input"
                 :class="{ 'has-error': errors.title }"
-                placeholder="Beschreiben Sie Ihr Anliegen kurz"
+                placeholder="Beschreiben Sie Ihr Anliegen kurz (min. 10 Zeichen)"
                 required
                 :disabled="isSubmitting"
-                maxlength="100"
+                maxlength="50"
               />
-              <div class="input-hint">{{ formData.title.length }}/100</div>
+              <div class="input-hint">{{ formData.title.length }}/50 (min. 10)</div>
             </div>
             <div v-if="errors.title" class="form-error">
-              <ExclamationCircleIcon class="icon-size-xs" />
+              <ExclamationCircleIcon class="w-4 h-4 Icons" />
               {{ errors.title }}
             </div>
           </div>
@@ -78,7 +78,7 @@
                 <option value="REPORT">Inhalte melden</option>
                 <option value="OTHER">Sonstiges</option>
               </select>
-              <ChevronDownIcon class="select-icon icon-size-sm" />
+              <ChevronDownIcon class="select-icon w-4 h-4 Icons Icons" />
             </div>
           </div>
 
@@ -93,16 +93,16 @@
                 v-model="formData.description"
                 class="form-textarea"
                 :class="{ 'has-error': errors.description }"
-                placeholder="Beschreiben Sie Ihr Problem oder Ihre Anfrage so detailliert wie möglich..."
+                placeholder="Beschreiben Sie Ihr Problem oder Ihre Anfrage so detailliert wie möglich (min. 25 Zeichen)..."
                 rows="6"
                 required
                 :disabled="isSubmitting"
-                maxlength="2000"
+                maxlength="500"
               ></textarea>
-              <div class="input-hint">{{ formData.description.length }}/2000</div>
+              <div class="input-hint">{{ formData.description.length }}/500 (min. 25)</div>
             </div>
             <div v-if="errors.description" class="form-error">
-              <ExclamationCircleIcon class="icon-size-xs" />
+              <ExclamationCircleIcon class="w-4 h-4 Icons" />
               {{ errors.description }}
             </div>
           </div>
@@ -130,7 +130,7 @@
               />
               <div class="file-upload-content">
                 <div class="upload-icon">
-                  <CloudArrowUpIcon class="icon-size-xl" />
+                  <CloudArrowUpIcon class="w-4 h-4 Icons-up" />
                 </div>
                 <p class="upload-text">
                   <strong>Dateien hier ablegen</strong> oder <span class="upload-link">durchsuchen</span>
@@ -144,7 +144,7 @@
               <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
                 <div class="file-info">
                   <div class="file-icon">
-                    <DocumentIcon class="icon-size-sm" />
+                    <DocumentIcon class="w-4 h-4 Icons Icons" />
                   </div>
                   <div class="file-details">
                     <div class="file-name">{{ file.name }}</div>
@@ -158,7 +158,7 @@
                   :disabled="isSubmitting"
                   title="Datei entfernen"
                 >
-                  <XMarkIcon class="icon-size-xs" />
+                  <XMarkIcon class="w-4 h-4 Icons" />
                 </button>
               </div>
             </div>
@@ -175,7 +175,7 @@
                 Wird gesendet...
               </span>
               <span v-else class="btn-content">
-                <PaperAirplaneIcon class="icon-size-sm" />
+                <PaperAirplaneIcon class="w-4 h-4 Icons-send" />
                 Ticket senden
               </span>
             </button>
@@ -242,11 +242,13 @@ export default defineComponent({
       description: "",
     });
 
-    // Computed
+    // Computed - ANGEPASST AN BACKEND-VALIDIERUNG
     const canSubmit = computed(() => {
       return (
-        formData.value.title.trim().length >= 5 &&
-        formData.value.description.trim().length >= 10 &&
+        formData.value.title.trim().length >= 10 &&
+        formData.value.title.trim().length <= 50 &&
+        formData.value.description.trim().length >= 25 &&
+        formData.value.description.trim().length <= 500 &&
         selectedFiles.value.length <= 5
       );
     });
@@ -276,15 +278,21 @@ export default defineComponent({
       let isValid = true;
       errors.value = { title: "", description: "" };
 
-      // Titel validieren
-      if (formData.value.title.trim().length < 5) {
-        errors.value.title = "Der Betreff muss mindestens 5 Zeichen lang sein";
+      // Titel validieren - AN BACKEND ANGEPASST
+      if (formData.value.title.trim().length < 10) {
+        errors.value.title = "Der Betreff muss mindestens 10 Zeichen lang sein";
+        isValid = false;
+      } else if (formData.value.title.trim().length > 50) {
+        errors.value.title = "Der Betreff darf maximal 50 Zeichen lang sein";
         isValid = false;
       }
 
-      // Beschreibung validieren
-      if (formData.value.description.trim().length < 10) {
-        errors.value.description = "Die Beschreibung muss mindestens 10 Zeichen lang sein";
+      // Beschreibung validieren - AN BACKEND ANGEPASST
+      if (formData.value.description.trim().length < 25) {
+        errors.value.description = "Die Beschreibung muss mindestens 25 Zeichen lang sein";
+        isValid = false;
+      } else if (formData.value.description.trim().length > 500) {
+        errors.value.description = "Die Beschreibung darf maximal 500 Zeichen lang sein";
         isValid = false;
       }
 
@@ -322,8 +330,12 @@ export default defineComponent({
           showSuccess.value = true;
           emit("ticket-created", result);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Fehler beim Erstellen des Tickets:", error);
+        // Zeige spezifische Fehlermeldung vom Backend
+        if (error.response?.data?.message) {
+          alert(error.response.data.message);
+        }
       } finally {
         isSubmitting.value = false;
       }
@@ -411,47 +423,20 @@ export default defineComponent({
 @use "@/style/base/variables" as vars;
 @use "@/style/base/mixins" as mixins;
 
-// Icon Size Classes
-.icon-size-xs {
-  width: 16px !important;
-  height: 16px !important;
-}
-
-.icon-size-sm {
-  width: 20px !important;
-  height: 20px !important;
-}
-
-.icon-size {
-  width: 24px !important;
-  height: 24px !important;
-}
-
-.icon-size-lg {
-  width: 28px !important;
-  height: 28px !important;
-}
-
-.icon-size-xl {
-  width: 30px !important;
-  height: 30px !important;
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  animation: overlay-fade-in 0.3s ease-out;
+  backdrop-filter: blur(3px);
 }
+
 
 .modal-container {
   width: 90%;
@@ -576,7 +561,7 @@ export default defineComponent({
         border-color: mixins.theme-color($theme, border-light);
         color: mixins.theme-color($theme, text-secondary);
 
-        &:hover {
+        &:hover:not(:disabled) {
           background-color: mixins.theme-color($theme, hover-color);
           border-color: mixins.theme-color($theme, border-medium);
           color: mixins.theme-color($theme, text-primary);
@@ -596,6 +581,12 @@ export default defineComponent({
   padding: 32px;
   overflow-y: auto;
   flex: 1;
+
+  @each $theme in ("light", "dark") {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, card-bg);
+    }
+  }
 }
 
 .ticket-form {
@@ -1352,5 +1343,21 @@ export default defineComponent({
   .file-upload-area {
     padding: 24px;
   }
+}
+
+.Icons{
+  width: 24px;
+  height: 24px;
+  position: absolute;
+}
+
+.Icons-up{
+  width: 30px;
+  height: 30px;
+}
+
+.Icons-send{
+  width: 20px;
+  height: 20px;
 }
 </style>
