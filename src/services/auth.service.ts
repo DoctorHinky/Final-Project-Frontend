@@ -15,19 +15,19 @@ class AuthService {
   private accessTokenKey = "access_token";
   private refreshTokenKey = "refresh_token";
   private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private remeberMe = false;
+  private rememberMe = false;
   private isRefreshing = false;
 
   async login({
     username,
     email,
     password,
-    remeberMe = false,
+    rememberMe = false,
   }: {
     username?: string;
     email?: string;
     password: string;
-    remeberMe?: boolean;
+    rememberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
       if (!email && !username) throw new Error("Either email or username must be provided");
@@ -35,55 +35,52 @@ class AuthService {
         password,
       };
 
-      // DIESE ZEILEN FEHLEN:
-      if (email) payload.email = email;
-      if (username) payload.username = username;
+ if (email) payload.email = email;
+if (username) payload.username = username;
 
-      const response = await api.post("/auth/local/login", payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log("📍 login() Methode aufgerufen");
-      console.log("Antwort vom Server:", response.data);
-      const { access_token, refresh_token } = response.data;
-      console.log("🔐 Access:", access_token);
-      console.log("🔁 Refresh:", refresh_token);
-      this.remeberMe = remeberMe;
+const response = await api.post("/auth/local/login", payload, {
+  headers: { "Content-Type": "application/json" },
+});
+console.log("📍 login() Methode aufgerufen");
+console.log("Antwort vom Server:", response.data);
 
-      if (remeberMe) {
-        localStorage.setItem(this.accessTokenKey, access_token);
-        localStorage.setItem(this.refreshTokenKey, refresh_token);
-      } else {
-        sessionStorage.setItem(this.accessTokenKey, access_token);
-        sessionStorage.setItem(this.refreshTokenKey, refresh_token);
-      }
+const { access_token, refresh_token } = response.data;
+console.log("🔐 Access:", access_token);
+console.log("🔁 Refresh:", refresh_token);
 
-      const decoded = jwtDecode<DecodedToken>(access_token);
+this.rememberMe = rememberMe;
+const storage = this.getStorage();
+storage.setItem(this.accessTokenKey, access_token);
+storage.setItem(this.refreshTokenKey, refresh_token);
 
-      this.scheduleTokenRefresh();
-      this.startTokenCountdown();
-      return { success: true, role: decoded.role };
-    } catch (error) {
-      console.error("Login error:", error);
-      return { success: false };
-    }
+const decoded = jwtDecode<DecodedToken>(access_token);
+
+this.scheduleTokenRefresh();
+this.startTokenCountdown();
+return { success: true, role: decoded.role };
   }
+}
 
   logout(): void {
-    // Timer stoppen
+    // ⏹️ Timer stoppen
     if (this.refreshTimeoutId !== null) {
       clearTimeout(this.refreshTimeoutId);
       this.refreshTimeoutId = null;
     }
 
-    // Member-Tokens entfernen
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    sessionStorage.removeItem(this.accessTokenKey);
-    sessionStorage.removeItem(this.refreshTokenKey);
+  // 🗂️ Aktives Storage anhand von rememberMe
+  const storage = this.getStorage();
+  storage.removeItem(this.accessTokenKey);
+  storage.removeItem(this.refreshTokenKey);
 
-    // Refresh-Flag zurücksetzen
-    this.isRefreshing = false;
-  }
+  // 🔁 Sicherheitshalber auch im anderen Storage entfernen (falls sich rememberMe geändert hat)
+  const otherStorage = storage === localStorage ? sessionStorage : localStorage;
+  otherStorage.removeItem(this.accessTokenKey);
+  otherStorage.removeItem(this.refreshTokenKey);
+
+  // 🚫 Refresh-Status zurücksetzen
+  this.isRefreshing = false;
+}
 
   adminLogout(): void {
     // Admin-Tokens entfernen
@@ -151,8 +148,8 @@ class AuthService {
     return null;
   }
 
-  setAdminTokens(accessToken: string, refreshToken: string, remeberMe: boolean = false): void {
-    if (remeberMe) {
+  setAdminTokens(accessToken: string, refreshToken: string, rememberMe: boolean = false): void {
+    if (rememberMe) {
       localStorage.setItem("admin_access_token", accessToken);
       localStorage.setItem("admin_refresh_token", refreshToken);
     } else {
@@ -165,7 +162,7 @@ class AuthService {
   async adminLogin(
     emailOrUsername: string,
     password: string,
-    remeberMe: boolean = false
+    rememberMe: boolean = false
   ): Promise<{ success: boolean; role?: string }> {
     try {
       // Verwende die normale login Methode, aber prüfe danach Admin-Rechte
@@ -197,7 +194,7 @@ class AuthService {
       }
 
       // Speichere Admin-Tokens in separaten Keys
-      if (remeberMe) {
+      if (rememberMe) {
         localStorage.setItem("admin_access_token", access_token);
         localStorage.setItem("admin_refresh_token", refresh_token);
         // Auch normale Keys setzen für Kompatibilität
@@ -226,10 +223,10 @@ class AuthService {
   private getStorage(): Storage {
     // Prüfe, ob Token im localStorage vorhanden ist
     if (localStorage.getItem(this.accessTokenKey)) {
-      this.remeberMe = true;
+      this.rememberMe = true;
       return localStorage;
     }
-    this.remeberMe = false;
+    this.rememberMe = false;
     return sessionStorage;
   }
 
@@ -333,7 +330,7 @@ class AuthService {
       console.groupEnd();
 
       const response = await axios.post(
-        "http://localhost:4001/auth/refresh",
+          "auth/refresh",
         {},
         {
           headers: { Authorization: `Bearer ${refreshToken}` },
@@ -419,3 +416,7 @@ class AuthService {
 }
 
 export const authService = new AuthService();
+function logout() {
+  throw new Error("Function not implemented.");
+}
+
