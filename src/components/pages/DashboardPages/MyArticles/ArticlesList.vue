@@ -21,17 +21,12 @@
           <!-- Lösch-Kreuz oben rechts -->
           <button
             class="remove-article"
-            @click.stop="removeArticle(article.id)"
+            @click.stop="showDeleteConfirm(article)"
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
             <XMarkIcon class="remove-icon" />
           </button>
-
-          <!-- Status-Badge -->
-          <div class="status-badge" :class="article.status">
-            {{ article.status === "completed" ? "Abgeschlossen" : "Gelesen" }}
-          </div>
 
           <!-- Artikel-Bild -->
           <div class="article-image">
@@ -112,17 +107,12 @@
           <!-- Lösch-Kreuz oben rechts -->
           <button
             class="remove-article"
-            @click.stop="removeArticle(article.id)"
+            @click.stop="showDeleteConfirm(article)"
             title="Artikel aus Historie entfernen"
             aria-label="Artikel entfernen"
           >
             <XMarkIcon class="remove-icon" />
           </button>
-
-          <!-- Status-Badge -->
-          <div class="status-badge" :class="article.status">
-            {{ article.status === "completed" ? "Abgeschlossen" : "Gelesen" }}
-          </div>
 
           <!-- Artikel-Bild in Listenansicht -->
           <div class="list-item-image">
@@ -178,12 +168,72 @@
         </div>
       </div>
     </div>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <Teleport to="body">
+      <div v-if="deleteModal.show" class="modal-backdrop" @click="cancelDelete">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <ExclamationTriangleIcon class="modal-icon warning" />
+            <h3 class="modal-title">Artikel entfernen?</h3>
+          </div>
+          
+          <div class="modal-body">
+            <p>Möchtest du den Artikel <strong>"{{ deleteModal.article?.title }}"</strong> wirklich aus deiner Historie entfernen?</p>
+            <p class="modal-subtext">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          </div>
+
+          <div class="modal-actions">
+            <button class="modal-btn cancel" @click="cancelDelete">
+              Abbrechen
+            </button>
+            <button class="modal-btn confirm" @click="confirmDelete">
+              <TrashIcon class="btn-icon" />
+              Entfernen
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Custom Alert Modal -->
+    <Teleport to="body">
+      <div v-if="alertModal.show" class="modal-backdrop" @click="closeAlert">
+        <div class="modal-content alert" @click.stop>
+          <div class="modal-header">
+            <InformationCircleIcon v-if="alertModal.type === 'info'" class="modal-icon info" />
+            <CheckCircleIcon v-else-if="alertModal.type === 'success'" class="modal-icon success" />
+            <ExclamationCircleIcon v-else-if="alertModal.type === 'error'" class="modal-icon error" />
+            <h3 class="modal-title">{{ alertModal.title }}</h3>
+          </div>
+          
+          <div class="modal-body">
+            <p>{{ alertModal.message }}</p>
+          </div>
+
+          <div class="modal-actions single">
+            <button class="modal-btn primary" @click="closeAlert">
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, type PropType, ref } from "vue";
-import { EyeIcon, CheckCircleIcon, BookOpenIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { defineComponent, onMounted, type PropType, ref, reactive } from "vue";
+import { 
+  EyeIcon, 
+  CheckCircleIcon, 
+  BookOpenIcon, 
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
+  InformationCircleIcon,
+  ExclamationCircleIcon
+} from "@heroicons/vue/24/outline";
 import ViewOptions from "./ViewOptions.vue";
 import type { MyArticleItem } from "@/types/MyArticles.types";
 import { postService } from "@/services/post.service";
@@ -196,6 +246,10 @@ export default defineComponent({
     CheckCircleIcon,
     BookOpenIcon,
     XMarkIcon,
+    ExclamationTriangleIcon,
+    TrashIcon,
+    InformationCircleIcon,
+    ExclamationCircleIcon
   },
   props: {
     filteredArticles: {
@@ -219,6 +273,49 @@ export default defineComponent({
     // Cache für geladene Artikel-Bilder
     const articleImages = ref(new Map<string, string | null>());
     const loadingImages = ref(new Set<string>());
+
+    // Modal States
+    const deleteModal = reactive({
+      show: false,
+      article: null as MyArticleItem | null
+    });
+
+    const alertModal = reactive({
+      show: false,
+      title: '',
+      message: '',
+      type: 'info' as 'info' | 'success' | 'error'
+    });
+
+    // Custom Dialog Functions
+    const showDeleteConfirm = (article: MyArticleItem) => {
+      deleteModal.article = article;
+      deleteModal.show = true;
+    };
+
+    const cancelDelete = () => {
+      deleteModal.show = false;
+      deleteModal.article = null;
+    };
+
+    const confirmDelete = () => {
+      if (deleteModal.article) {
+        removeArticle(deleteModal.article.id);
+        showAlert('Artikel entfernt', `Der Artikel "${deleteModal.article.title}" wurde aus deiner Historie entfernt.`, 'success');
+      }
+      cancelDelete();
+    };
+
+    const showAlert = (title: string, message: string, type: 'info' | 'success' | 'error' = 'info') => {
+      alertModal.title = title;
+      alertModal.message = message;
+      alertModal.type = type;
+      alertModal.show = true;
+    };
+
+    const closeAlert = () => {
+      alertModal.show = false;
+    };
 
     const openArticleReader = (article: MyArticleItem) => emit("open-article", article);
 
@@ -348,6 +445,14 @@ export default defineComponent({
       loadingImages, // Für Loading-States
       loadArticleImage,
       preloadArticleImages,
+      // Modal functions
+      showDeleteConfirm,
+      cancelDelete,
+      confirmDelete,
+      showAlert,
+      closeAlert,
+      deleteModal,
+      alertModal
     };
   },
 });
@@ -424,37 +529,6 @@ export default defineComponent({
 
             .remove-article {
               opacity: 1;
-            }
-          }
-        }
-      }
-
-      // Status-Badge
-      .status-badge {
-        position: absolute;
-        top: map.get(vars.$spacing, s);
-        left: map.get(vars.$spacing, s);
-        padding: 4px 12px;
-        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-        font-size: 12px;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        z-index: 5;
-        backdrop-filter: blur(10px);
-
-        &.reading {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background: rgba(59, 130, 246, 0.9);
-              color: white;
-            }
-          }
-        }
-
-        &.completed {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background: rgba(74, 210, 149, 0.9);
-              color: white;
             }
           }
         }
@@ -867,38 +941,6 @@ export default defineComponent({
         }
       }
 
-      // Status-Badge (Listenansicht)
-      .status-badge {
-        position: absolute;
-        top: map.get(vars.$spacing, s);
-        left: map.get(vars.$spacing, s);
-        padding: 4px 12px;
-        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-        font-size: 12px;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        z-index: 5;
-
-        &.reading {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background: rgba(59, 130, 246, 0.1);
-              color: #3b82f6;
-              border: 1px solid #3b82f6;
-            }
-          }
-        }
-
-        &.completed {
-          @each $theme in ("light", "dark") {
-            .theme-#{$theme} & {
-              background: rgba(74, 210, 149, 0.1);
-              color: #4ad295;
-              border: 1px solid #4ad295;
-            }
-          }
-        }
-      }
-
       // Lösch-Kreuz (Listenansicht)
       .remove-article {
         position: absolute;
@@ -1218,6 +1260,194 @@ export default defineComponent({
   }
 }
 
+// Custom Modal Styles
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: map.get(vars.$spacing, m);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.2s ease-out;
+  
+  @each $theme in ("light", "dark") {
+    .theme-#{$theme} & {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.modal-content {
+  max-width: 450px;
+  width: 100%;
+  border-radius: map.get(map.get(vars.$layout, border-radius), large);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+  
+  @each $theme in ("light", "dark") {
+    .theme-#{$theme} & {
+      background-color: mixins.theme-color($theme, card-bg);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  &.alert {
+    max-width: 400px;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: map.get(vars.$spacing, m);
+    padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+
+      &.warning {
+        color: #f59e0b;
+      }
+
+      &.info {
+        color: #3b82f6;
+      }
+
+      &.success {
+        color: #10b981;
+      }
+
+      &.error {
+        color: #ef4444;
+      }
+    }
+
+    .modal-title {
+      font-size: map.get(map.get(vars.$fonts, sizes), xl);
+      font-weight: map.get(map.get(vars.$fonts, weights), bold);
+      margin: 0;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-primary);
+        }
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 0 map.get(vars.$spacing, xl) map.get(vars.$spacing, xl);
+
+    p {
+      margin: 0 0 map.get(vars.$spacing, m) 0;
+      line-height: 1.6;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+    }
+
+    .modal-subtext {
+      font-size: map.get(map.get(vars.$fonts, sizes), small);
+      
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: map.get(vars.$spacing, m);
+    padding: map.get(vars.$spacing, l) map.get(vars.$spacing, xl) map.get(vars.$spacing, xl);
+
+    &.single {
+      justify-content: center;
+    }
+
+    .modal-btn {
+      flex: 1;
+      height: 44px;
+      border: none;
+      border-radius: map.get(map.get(vars.$layout, border-radius), medium);
+      font-size: map.get(map.get(vars.$fonts, sizes), medium);
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: map.get(vars.$spacing, xs);
+
+      &.cancel {
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            background-color: mixins.theme-color($theme, secondary-bg);
+            color: mixins.theme-color($theme, text-primary);
+
+            &:hover {
+              background-color: mixins.theme-color($theme, hover-color);
+            }
+          }
+        }
+      }
+
+      &.confirm {
+        background-color: #dc3545;
+        color: white;
+
+        &:hover {
+          background-color: #c82333;
+          transform: translateY(-1px);
+        }
+
+        .btn-icon {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      &.primary {
+        min-width: 120px;
+        
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            background: mixins.theme-gradient($theme, primary);
+            color: white;
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 // Animationen
 @keyframes spin {
   0% {
@@ -1225,6 +1455,26 @@ export default defineComponent({
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 </style>

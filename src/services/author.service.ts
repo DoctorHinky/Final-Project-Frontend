@@ -63,6 +63,7 @@ class AuthorService {
       return "Ein Fehler ist aufgetreten";
     }
   }
+  
   // Alle Entwürfe des Autors abrufen
   async getAuthorDrafts(): Promise<DraftsResult> {
     const userData = authService.getUserData();
@@ -165,36 +166,52 @@ class AuthorService {
     });
   }
 
-  async saveUpdate(articleId: string, data: FormData, published: boolean) {
+  // WICHTIG: Korrigierte saveUpdate Methode
+  async saveUpdate(postId: string, article: FormData, published: boolean): Promise<any> {
     try {
-      let entpoint: string = `article/updateFullPost/${articleId}?published=`;
-
-      if (published) {
-        entpoint += "true";
-      } else {
-        entpoint += "false";
-      }
-
-      const response = await api.patch(entpoint, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (response.status === 200) {
+      console.log("Saving update for post:", postId, "published:", published);
+      
+      // Backend erwartet published als Query-Parameter
+      const response = await api.patch(
+        `/article/updateFullPost/${postId}?published=${published}`,
+        article,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          timeout: 30000, // 30 Sekunden Timeout für große Updates
+        }
+      );
+      
+      console.log("Update response:", response.data);
+      
+      if (response.status === 200 || response.data?.status === 'OK') {
         return {
           success: true,
-          message: "Artikel erfolgreich aktualisiert",
+          message: published ? "Artikel erfolgreich veröffentlicht" : "Entwurf erfolgreich aktualisiert",
+          data: response.data
         };
       }
 
       return {
         success: false,
-        message: "Fehler beim Aktualisieren des Artikels",
+        message: response.data?.message || "Fehler beim Aktualisieren des Artikels",
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fehler beim Aktualisieren des Artikels:", error);
+      console.error("Error response:", error.response?.data);
+      
+      // Detailliertere Fehlerbehandlung
+      if (error.response?.data?.message) {
+        return {
+          success: false,
+          message: error.response.data.message,
+        };
+      }
+      
       return {
         success: false,
-        message: "Ein Fehler ist aufgetreten",
+        message: "Ein unerwarteter Fehler ist aufgetreten",
       };
     }
   }

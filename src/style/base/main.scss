@@ -5,3 +5,8 @@
 @use "theming";
 @use "font-mixins";
 @use "scrollbar";
+
+
+*{
+  user-select: none;
+}

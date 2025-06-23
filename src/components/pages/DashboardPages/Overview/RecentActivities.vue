@@ -41,18 +41,11 @@
               <UserIcon class="meta-icon" />
               {{ article.author }}
             </span>
-            <span class="reading-time">
-              <ClockIcon class="meta-icon" />
-              {{ article.readingTime }}
-            </span>
           </div>
 
           <div class="progress-section">
             <div class="progress-info">
               <span class="chapter-info"> Kapitel {{ article.currentChapter }} von {{ article.totalChapters }} </span>
-              <span :class="['difficulty', `difficulty-${getDifficultyClass(article.difficulty)}`]">
-                {{ article.difficulty }}
-              </span>
             </div>
 
             <div class="progress-bar">
@@ -109,8 +102,6 @@ interface Article {
   currentChapter?: number;
   totalChapters?: number;
   lastRead?: string;
-  readingTime?: string;
-  difficulty?: "Einfach" | "Mittel" | "Fortgeschritten";
 }
 
 export default defineComponent({
@@ -150,15 +141,6 @@ export default defineComponent({
     isAlmostComplete(current?: number, total?: number): boolean {
       if (!current || !total) return false;
       return current / total >= 0.8;
-    },
-
-    getDifficultyClass(difficulty?: string): string {
-      const classes: Record<string, string> = {
-        Einfach: "easy",
-        Mittel: "medium",
-        Fortgeschritten: "advanced",
-      };
-      return classes[difficulty || ""] || "medium";
     },
   },
 });
@@ -459,40 +441,6 @@ export default defineComponent({
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
-            }
-          }
-        }
-
-        .difficulty {
-          padding: 3px 10px;
-          border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-          font-size: map.get(map.get(vars.$fonts, sizes), tiny);
-          font-weight: map.get(map.get(vars.$fonts, weights), medium);
-
-          &.difficulty-easy {
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, success-bg);
-                color: mixins.theme-color($theme, success);
-              }
-            }
-          }
-
-          &.difficulty-medium {
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, warning-bg);
-                color: mixins.theme-color($theme, warning);
-              }
-            }
-          }
-
-          &.difficulty-advanced {
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                background-color: mixins.theme-color($theme, error-bg);
-                color: mixins.theme-color($theme, error);
-              }
             }
           }
         }
