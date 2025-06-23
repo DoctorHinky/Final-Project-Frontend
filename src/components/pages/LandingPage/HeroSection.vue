@@ -117,7 +117,7 @@
           <!-- Central Logo with Glow -->
           <div class="central-element">
             <div class="glow-effect"></div>
-            <img src="@/assets/images/Logo.png" alt="LearnToGrow Logo" class="logo-3d" />
+            <img src="@/assets/images/Logo.webp" alt="LearnToGrow Logo" class="logo-3d" />
             <div class="pulse-ring"></div>
             <div class="pulse-ring delay"></div>
           </div>

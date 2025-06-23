@@ -167,7 +167,7 @@
     </Teleport>
   </div>
 
-  <img src="../../../assets/images/Support.jpg" alt="Support IMG" class="Support-IMG" />
+  <img src="../../../assets/images/Support.webp" alt="Support IMG" class="Support-IMG" />
 </template>
 
 <script lang="ts">
