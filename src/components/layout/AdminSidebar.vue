@@ -24,41 +24,67 @@
     </div>
 
     <!-- Sidebar-Navigation -->
-    <nav class="sidebar-nav">
-      <div class="nav-items-container">
+    <nav class="sidebar-nav" ref="navContainer">
+      <transition-group name="nav-item-move" tag="div" class="nav-items-container">
         <div
           v-for="(item, index) in menuItems"
-          :key="index"
+          :key="item.id"
+          :data-item-id="item.id"
           class="nav-item"
-          :class="{ active: isActiveItem(item.id) }"
+          :class="{ 
+            active: isActiveItem(item.id),
+            dragging: draggedItem === item.id,
+            'drag-over': dragOverIndex === index,
+          }"
+          draggable="true"
           @click="selectMenuItem(item.id)"
+          @dragstart="handleDragStart($event, item.id, index)"
+          @dragend="handleDragEnd"
+          @dragover="handleDragOver($event, index)"
+          @dragleave="handleDragLeave"
+          @drop="handleDrop($event, index)"
         >
+          <!-- Drag Handle -->
+          <span class="drag-handle" @click.stop>
+            <Bars3Icon class="h-4 w-4" />
+          </span>
+          
           <span class="nav-icon">
             <component :is="item.icon" class="h-6 w-6" />
           </span>
           <span class="nav-text">{{ item.text }}</span>
         </div>
-      </div>
+
+        <!-- Drop-Indikator Linie -->
+        <div v-if="showDropIndicator" class="drop-indicator" :style="dropIndicatorStyle"></div>
+      </transition-group>
     </nav>
 
     <!-- Sidebar-Footer mit Zurück-Button -->
     <div class="sidebar-footer">
       <div class="footer-divider"></div>
-      <button class="back-button" @click="navigateToMemberDashboard">
-        <span class="back-icon">
-          <ArrowLeftIcon class="h-5 w-5" />
-        </span>
-        <span class="back-text">Zurück zum Member-Bereich</span>
-        <span class="back-arrow">
-          <ChevronRightIcon class="h-4 w-4" />
-        </span>
-      </button>
+      <div class="footer-container">
+        <button class="back-button" @click="navigateToMemberDashboard">
+          <span class="back-icon">
+            <ArrowLeftIcon class="h-5 w-5" />
+          </span>
+          <span class="back-text">Zurück zum Member-Bereich</span>
+          <span class="back-arrow">
+            <ChevronRightIcon class="h-4 w-4" />
+          </span>
+        </button>
+
+        <!-- Reset Button -->
+        <button class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
+          <ArrowPathIcon class="h-4 w-4 Icons" />
+        </button>
+      </div>
     </div>
   </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref, onMounted, computed, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import {
   HomeIcon,
@@ -69,9 +95,14 @@ import {
   DocumentIcon,
   ArrowLeftIcon,
   ChevronRightIcon,
+  Bars3Icon,
+  ArrowPathIcon,
 } from "@heroicons/vue/24/outline";
 import userService from "@/services/userMD.services";
 import type { TokenPayload } from "@/types/dtos";
+
+// Storage Key für die Menüreihenfolge
+const MENU_ORDER_STORAGE_KEY = "admin-sidebar-menu-order";
 
 export default defineComponent({
   name: "AdminSidebar",
@@ -84,6 +115,8 @@ export default defineComponent({
     TicketIcon,
     ArrowLeftIcon,
     ChevronRightIcon,
+    Bars3Icon,
+    ArrowPathIcon,
   },
   props: {
     isOpen: {
@@ -105,8 +138,17 @@ export default defineComponent({
     const userRole = ref("");
     const userPicture = ref("");
 
-    // Menüelemente definieren mit HeroIcons
-    const menuItems = ref([
+    // Drag & Drop State - MUSS VOR COMPUTED UND FUNKTIONEN DEFINIERT WERDEN
+    const draggedItem = ref<string | null>(null);
+    const draggedIndex = ref<number | null>(null);
+    const dragOverIndex = ref<number | null>(null);
+    const showDropIndicator = ref(false);
+    const dropIndicatorStyle = ref({});
+    const navContainer = ref<HTMLElement | null>(null);
+    const menuOrder = ref<string[]>([]);
+
+    // Basis-Menüelemente
+    const baseMenuItems = ref([
       {
         id: "overview",
         text: "Überblick",
@@ -139,8 +181,38 @@ export default defineComponent({
       },
     ]);
 
+    // Sortierte Menüelemente basierend auf gespeicherter Reihenfolge
+    const menuItems = computed(() => {
+      if (menuOrder.value.length === 0) {
+        return baseMenuItems.value;
+      }
+
+      // Sortiere basierend auf der gespeicherten Reihenfolge
+      const sorted: typeof baseMenuItems.value = [];
+
+      // Füge Items in der gespeicherten Reihenfolge hinzu
+      menuOrder.value.forEach((id) => {
+        const item = baseMenuItems.value.find((i) => i.id === id);
+        if (item) {
+          sorted.push(item);
+        }
+      });
+
+      // Füge neue Items hinzu, die noch nicht in der gespeicherten Reihenfolge sind
+      baseMenuItems.value.forEach((item) => {
+        if (!sorted.find((i) => i.id === item.id)) {
+          sorted.push(item);
+        }
+      });
+
+      return sorted;
+    });
+
     // Bei Montage der Komponente die Benutzerinformationen laden
     onMounted(async () => {
+      // Load menu order first
+      loadMenuOrder();
+      
       try {
         // Token dekodieren für Benutzerinformationen
         const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
@@ -225,6 +297,148 @@ export default defineComponent({
       router.push("/member/dashboard");
     };
 
+    // Drag & Drop Handler
+    const handleDragStart = (event: DragEvent, itemId: string, index: number) => {
+      draggedItem.value = itemId;
+      draggedIndex.value = index;
+
+      // Visuelles Feedback
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/html", ""); // Für Firefox
+      }
+
+      // Füge Dragging-Klasse nach kurzer Verzögerung hinzu
+      setTimeout(() => {
+        const element = event.target as HTMLElement;
+        element.classList.add("dragging");
+      }, 0);
+    };
+
+    const handleDragEnd = (event: DragEvent) => {
+      // Cleanup
+      draggedItem.value = null;
+      draggedIndex.value = null;
+      dragOverIndex.value = null;
+      showDropIndicator.value = false;
+
+      // Entferne Dragging-Klasse
+      const element = event.target as HTMLElement;
+      element.classList.remove("dragging");
+    };
+
+    const handleDragOver = (event: DragEvent, index: number) => {
+      event.preventDefault();
+
+      if (draggedIndex.value === null || draggedIndex.value === index) {
+        return;
+      }
+
+      // Zeige Drop-Indikator
+      showDropIndicator.value = true;
+      dragOverIndex.value = index;
+
+      // Berechne Position für Drop-Indikator
+      if (navContainer.value) {
+        const items = navContainer.value.querySelectorAll(".nav-item");
+        const targetItem = items[index] as HTMLElement;
+
+        if (targetItem) {
+          const rect = targetItem.getBoundingClientRect();
+          const containerRect = navContainer.value.getBoundingClientRect();
+
+          // Position relativ zum Container
+          const relativeTop = rect.top - containerRect.top;
+
+          // Entscheide ob oben oder unten basierend auf Mausposition
+          const mouseY = event.clientY - rect.top;
+          const itemHeight = rect.height;
+
+          if (mouseY < itemHeight / 2) {
+            // Oberhalb des Items
+            dropIndicatorStyle.value = {
+              top: `${relativeTop - 2}px`,
+              opacity: 1,
+            };
+          } else {
+            // Unterhalb des Items
+            dropIndicatorStyle.value = {
+              top: `${relativeTop + itemHeight - 2}px`,
+              opacity: 1,
+            };
+          }
+        }
+      }
+    };
+
+    const handleDragLeave = () => {
+      // Verzögere das Ausblenden um Flackern zu vermeiden
+      setTimeout(() => {
+        if (dragOverIndex.value !== null) {
+          showDropIndicator.value = false;
+          dragOverIndex.value = null;
+        }
+      }, 50);
+    };
+
+    const handleDrop = (event: DragEvent, dropIndex: number) => {
+      event.preventDefault();
+
+      if (draggedIndex.value === null || draggedIndex.value === dropIndex) {
+        return;
+      }
+
+      // Erstelle neue Reihenfolge
+      const items = [...menuItems.value];
+      const draggedItemObj = items[draggedIndex.value];
+
+      // Entferne das gezogene Element
+      items.splice(draggedIndex.value, 1);
+
+      // Füge es an der neuen Position ein
+      const insertIndex = dropIndex > draggedIndex.value ? dropIndex - 1 : dropIndex;
+      items.splice(insertIndex, 0, draggedItemObj);
+
+      // Speichere neue Reihenfolge
+      menuOrder.value = items.map((item) => item.id);
+      saveMenuOrder();
+
+      // Cleanup
+      showDropIndicator.value = false;
+      dragOverIndex.value = null;
+    };
+
+    // Menüreihenfolge speichern
+    const saveMenuOrder = () => {
+      localStorage.setItem(MENU_ORDER_STORAGE_KEY, JSON.stringify(menuOrder.value));
+    };
+
+    // Menüreihenfolge laden
+    const loadMenuOrder = () => {
+      const saved = localStorage.getItem(MENU_ORDER_STORAGE_KEY);
+      if (saved) {
+        try {
+          menuOrder.value = JSON.parse(saved);
+        } catch (error) {
+          console.error("Fehler beim Laden der Menüreihenfolge:", error);
+          menuOrder.value = [];
+        }
+      }
+    };
+
+    // Menüreihenfolge zurücksetzen
+    const resetMenuOrder = () => {
+      menuOrder.value = [];
+      localStorage.removeItem(MENU_ORDER_STORAGE_KEY);
+
+      // Visuelles Feedback
+      const resetBtn = document.querySelector(".reset-button") as HTMLElement;
+      if (resetBtn) {
+        resetBtn.classList.add("reset-active");
+        setTimeout(() => resetBtn.classList.remove("reset-active"), 600);
+      }
+    };
+
     return {
       menuItems,
       selectMenuItem,
@@ -233,6 +447,19 @@ export default defineComponent({
       userName,
       userRole,
       userPicture,
+      // Drag & Drop State
+      draggedItem,
+      dragOverIndex,
+      showDropIndicator,
+      dropIndicatorStyle,
+      navContainer,
+      // Drag & Drop Methods
+      handleDragStart,
+      handleDragEnd,
+      handleDragOver,
+      handleDragLeave,
+      handleDrop,
+      resetMenuOrder,
     };
   },
 });
@@ -547,8 +774,33 @@ export default defineComponent({
         opacity: 1;
       }
 
+      // Drag & Drop Styles
+      &.dragging {
+        opacity: 0.3;
+        cursor: grabbing !important;
+        transform: scale(0.95);
+        filter: blur(2px);
+      }
+
+      .drag-handle {
+        position: absolute;
+        left: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+        cursor: grab;
+        padding: 4px;
+        color: #8fd3b5;
+      }
+
+      &:hover .drag-handle {
+        opacity: 0.5;
+      }
+
       .nav-icon {
         margin-right: 14px;
+        margin-left: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -565,6 +817,23 @@ export default defineComponent({
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         flex: 1;
       }
+    }
+
+    // Drop Indikator mit Admin-Glow
+    .drop-indicator {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #5dade2, transparent);
+      border-radius: 1.5px;
+      opacity: 0;
+      transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 
+        0 0 10px rgba(93, 173, 226, 0.8),
+        0 0 20px rgba(93, 173, 226, 0.4);
     }
   }
 
@@ -587,8 +856,14 @@ export default defineComponent({
       box-shadow: 0 0 10px rgba(93, 173, 226, 0.1);
     }
 
+    .footer-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .back-button {
-      width: 100%;
+      flex: 1;
       display: flex;
       align-items: center;
       padding: 14px 18px;
@@ -681,6 +956,42 @@ export default defineComponent({
         }
       }
     }
+
+    // Reset Button mit Glass-Effekt
+    .reset-button {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(93, 173, 226, 0.05));
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      flex-shrink: 0;
+      border: 1px solid rgba(93, 173, 226, 0.1);
+      color: #8fd3b5;
+
+      &:hover {
+        color: #c7e9d6;
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.15), rgba(93, 173, 226, 0.08));
+        transform: rotate(-45deg) scale(1.05);
+        box-shadow: 0 0 20px rgba(93, 173, 226, 0.3);
+      }
+
+      &.reset-active {
+        animation: reset-spin 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .Icons {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      }
+    }
   }
 }
 
@@ -741,6 +1052,21 @@ export default defineComponent({
     &.open {
       transform: translateX(0);
     }
+  }
+}
+
+// Transitions
+.nav-item-move-move {
+  transition: transform 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+// Animations
+@keyframes reset-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
   }
 }
 
