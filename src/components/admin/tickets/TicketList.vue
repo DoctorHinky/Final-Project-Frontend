@@ -415,7 +415,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .ticket-list-container {
   margin-top: 24px;
-  background-color: #222;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -426,7 +425,6 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: #2a2a2a;
   border-bottom: 1px solid #333;
 }
 

@@ -512,7 +512,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .user-list-container {
-  background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 24px;
