@@ -1,7 +1,8 @@
-// import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import api from "./axiosInstance"; // Importiere die konfigurierte axios Instanz
 import axios from "axios";
+
+const url = import.meta.env.VITE_BASE_URL;
 
 interface DecodedToken {
   exp?: number;
@@ -15,19 +16,25 @@ class AuthService {
   private accessTokenKey = "access_token";
   private refreshTokenKey = "refresh_token";
   private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private remeberMe = false;
+  private countdownIntervalId: ReturnType<typeof setInterval> | null = null;
+  private rememberMe = false;
   private isRefreshing = false;
+
+  constructor() {
+    const flag = localStorage.getItem("remember_me_flag");
+    this.rememberMe = flag === "true";
+  }
 
   async login({
     username,
     email,
     password,
-    remeberMe = false,
+    rememberMe = false,
   }: {
     username?: string;
     email?: string;
     password: string;
-    remeberMe?: boolean;
+    rememberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
       if (!email && !username) throw new Error("Either email or username must be provided");
@@ -35,27 +42,20 @@ class AuthService {
         password,
       };
 
-      // DIESE ZEILEN FEHLEN:
       if (email) payload.email = email;
       if (username) payload.username = username;
 
       const response = await api.post("/auth/local/login", payload, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("📍 login() Methode aufgerufen");
-      console.log("Antwort vom Server:", response.data);
-      const { access_token, refresh_token } = response.data;
-      console.log("🔐 Access:", access_token);
-      console.log("🔁 Refresh:", refresh_token);
-      this.remeberMe = remeberMe;
 
-      if (remeberMe) {
-        localStorage.setItem(this.accessTokenKey, access_token);
-        localStorage.setItem(this.refreshTokenKey, refresh_token);
-      } else {
-        sessionStorage.setItem(this.accessTokenKey, access_token);
-        sessionStorage.setItem(this.refreshTokenKey, refresh_token);
-      }
+      const { access_token, refresh_token } = response.data;
+
+      this.rememberMe = rememberMe;
+      localStorage.setItem("remember_me_flag", String(rememberMe));
+      const storage = this.getStorage();
+      storage.setItem(this.accessTokenKey, access_token);
+      storage.setItem(this.refreshTokenKey, refresh_token);
 
       const decoded = jwtDecode<DecodedToken>(access_token);
 
@@ -69,20 +69,31 @@ class AuthService {
   }
 
   logout(): void {
-    // Timer stoppen
+    // ⏹️ Timer stoppen
     if (this.refreshTimeoutId !== null) {
       clearTimeout(this.refreshTimeoutId);
       this.refreshTimeoutId = null;
     }
 
-    // Member-Tokens entfernen
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    sessionStorage.removeItem(this.accessTokenKey);
-    sessionStorage.removeItem(this.refreshTokenKey);
+    // ⏹️ Countdown stoppen
+    if (this.countdownIntervalId !== null) {
+      clearInterval(this.countdownIntervalId);
+      this.countdownIntervalId = null;
+    }
 
-    // Refresh-Flag zurücksetzen
+    // 🗂️ Aktives Storage anhand von rememberMe
+    const storage = this.getStorage();
+    storage.removeItem(this.accessTokenKey);
+    storage.removeItem(this.refreshTokenKey);
+
+    // 🔁 Sicherheitshalber auch im anderen Storage entfernen (falls sich rememberMe geändert hat)
+    const otherStorage = storage === localStorage ? sessionStorage : localStorage;
+    otherStorage.removeItem(this.accessTokenKey);
+    otherStorage.removeItem(this.refreshTokenKey);
+
+    // 🚫 Refresh-Status zurücksetzen
     this.isRefreshing = false;
+    localStorage.removeItem("remember_me_flag");
   }
 
   adminLogout(): void {
@@ -151,22 +162,19 @@ class AuthService {
     return null;
   }
 
-  setAdminTokens(accessToken: string, refreshToken: string, remeberMe: boolean = false): void {
-    if (remeberMe) {
-      localStorage.setItem("admin_access_token", accessToken);
-      localStorage.setItem("admin_refresh_token", refreshToken);
-    } else {
-      sessionStorage.setItem("admin_access_token", accessToken);
-      sessionStorage.setItem("admin_refresh_token", refreshToken);
-    }
+  setAdminTokens(accessToken: string, refreshToken: string, rememberMe: boolean = false): void {
+    const storage = rememberMe ? localStorage : sessionStorage;
+
+    sessionStorage.setItem("admin_access_token", accessToken);
+    sessionStorage.setItem("admin_refresh_token", refreshToken);
+
+    // Optional: auch normale Tokens setzen, wenn nötig
+    storage.setItem(this.accessTokenKey, accessToken);
+    storage.setItem(this.refreshTokenKey, refreshToken);
   }
 
   // Admin Login - verwendet die gleiche Logik wie normaler Login
-  async adminLogin(
-    emailOrUsername: string,
-    password: string,
-    remeberMe: boolean = false
-  ): Promise<{ success: boolean; role?: string }> {
+  async adminLogin(emailOrUsername: string, password: string): Promise<{ success: boolean; role?: string }> {
     try {
       // Verwende die normale login Methode, aber prüfe danach Admin-Rechte
       const loginData: any = { password };
@@ -195,22 +203,11 @@ class AuthService {
       if (decoded.role !== "ADMIN" && decoded.role !== "MODERATOR") {
         return { success: false };
       }
-
-      // Speichere Admin-Tokens in separaten Keys
-      if (remeberMe) {
-        localStorage.setItem("admin_access_token", access_token);
-        localStorage.setItem("admin_refresh_token", refresh_token);
-        // Auch normale Keys setzen für Kompatibilität
-        localStorage.setItem(this.accessTokenKey, access_token);
-        localStorage.setItem(this.refreshTokenKey, refresh_token);
-      } else {
-        sessionStorage.setItem("admin_access_token", access_token);
-        sessionStorage.setItem("admin_refresh_token", refresh_token);
-        // Auch normale Keys setzen für Kompatibilität
-        sessionStorage.setItem(this.accessTokenKey, access_token);
-        sessionStorage.setItem(this.refreshTokenKey, refresh_token);
-      }
-
+      sessionStorage.setItem("admin_access_token", access_token);
+      sessionStorage.setItem("admin_refresh_token", refresh_token);
+      // Auch normale Keys setzen für Kompatibilität
+      sessionStorage.setItem(this.accessTokenKey, access_token);
+      sessionStorage.setItem(this.refreshTokenKey, refresh_token);
       return { success: true, role: decoded.role };
     } catch (error: any) {
       console.error("Admin login error:", error);
@@ -224,13 +221,7 @@ class AuthService {
   }
 
   private getStorage(): Storage {
-    // Prüfe, ob Token im localStorage vorhanden ist
-    if (localStorage.getItem(this.accessTokenKey)) {
-      this.remeberMe = true;
-      return localStorage;
-    }
-    this.remeberMe = false;
-    return sessionStorage;
+    return this.rememberMe ? localStorage : sessionStorage;
   }
 
   isLoggedIn(): boolean {
@@ -293,9 +284,7 @@ class AuthService {
       // Token bereits abgelaufen oder weniger als 2 Minuten gültig
       if (timeUntilExpiry <= 120) {
         // Sofortiger Refresh, aber nur wenn nicht bereits läuft
-        if (!this.isRefreshing) {
-          this.refreshAccessToken();
-        }
+        if (!this.isRefreshing) this.refreshAccessToken();
         return;
       }
 
@@ -315,47 +304,51 @@ class AuthService {
     if (this.isRefreshing) {
       return false;
     }
-    console.log("⚙️ refreshAccessToken() wurde aufgerufen");
+
     const refreshToken = this.getRefreshToken();
 
-    /*  if (!refreshToken) {
+    if (!refreshToken) {
       this.logout();
-      // Keine automatische Weiterleitung hier - lass die App entscheiden
       return false;
-    } */
+    }
 
     this.isRefreshing = true;
 
     try {
-      console.group("bestehende token");
-      console.log("🔐 Access (alt):", this.getAccessToken());
-      console.log("🔁 Refresh (alt):", refreshToken);
-      console.groupEnd();
-
       const response = await axios.post(
-        "http://localhost:4001/auth/refresh",
+        `${url}/auth/refresh`,
         {},
         {
           headers: { Authorization: `Bearer ${refreshToken}` },
         }
       );
-      console.log("Refresh-Response", response.data);
-      const { access_token, refresh_token } = response.data;
-      console.log("🔐 Access (neu):", access_token);
-      console.log("🔁 Refresh (neu):", refresh_token);
-      const storage = this.getStorage();
-      storage.setItem(this.accessTokenKey, access_token);
 
+      const { access_token, refresh_token } = response.data;
+
+      if (!access_token) {
+        throw new Error("Kein neuer Access Token erhalten");
+      }
+
+      const storage = this.getStorage();
+
+      // Beide Tokens speichern
+      storage.setItem(this.accessTokenKey, access_token);
       if (refresh_token) {
         storage.setItem(this.refreshTokenKey, refresh_token);
+      } else {
+        console.warn("⚠️ Kein neuer Refresh Token erhalten - verwende alten weiter");
       }
+
       // Neuen Refresh planen
       this.scheduleTokenRefresh();
+
+      // Countdown für neuen Token starten
+      this.startTokenCountdown();
 
       this.isRefreshing = false;
       return true;
     } catch (e) {
-      console.error("Token konnte nicht erneuert werden:", e);
+      console.error("❌ Token konnte nicht erneuert werden:", e);
       this.isRefreshing = false;
 
       // Bei Fehler ausloggen, aber keine automatische Weiterleitung
@@ -363,7 +356,14 @@ class AuthService {
       return false;
     }
   }
+
   startTokenCountdown(): void {
+    // Vorherigen Countdown stoppen
+    if (this.countdownIntervalId !== null) {
+      clearInterval(this.countdownIntervalId);
+      this.countdownIntervalId = null;
+    }
+
     const token = this.getAccessToken();
     if (!token) {
       console.warn("❗ Kein Access Token gefunden.");
@@ -377,23 +377,24 @@ class AuthService {
         return;
       }
 
-      const interval = setInterval(() => {
+      this.countdownIntervalId = setInterval(() => {
         const now = Math.floor(Date.now() / 1000);
         const remaining = decoded.exp! - now;
 
         if (remaining <= 0) {
-          console.log("⛔ Token abgelaufen");
-          clearInterval(interval);
-        } else {
-          console.log(`⏳ Token gültig für noch ${remaining} Sekunden`);
+          if (this.countdownIntervalId) {
+            clearInterval(this.countdownIntervalId);
+            this.countdownIntervalId = null;
+          }
         }
-      }, 5000); // Alle 5 Sekunden aktualisieren
+      }, 10000); // Alle 5 Sekunden aktualisieren
     } catch (e) {
       console.error("❌ Fehler beim Dekodieren des Tokens:", e);
     }
   }
+
   isRememberMeActive(): boolean {
-    return !!localStorage.getItem(this.accessTokenKey);
+    return localStorage.getItem("remember_me_flag") === "true";
   }
 
   // Neue Methode für manuellen Token-Check mit Refresh
