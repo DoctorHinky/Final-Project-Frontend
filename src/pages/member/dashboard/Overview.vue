@@ -247,7 +247,7 @@ export default defineComponent({
   padding: map.get(vars.$spacing, xl);
   margin: 0 auto;
   width: 100%;
-  min-height: 100vh;
+  min-height: 150vh;
   overflow: hidden;
 
   @each $theme in ("light", "dark") {

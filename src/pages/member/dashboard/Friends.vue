@@ -477,6 +477,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: map.get(vars.$spacing, l);
+  min-height: 100vh;
 
   .page-header {
     margin-bottom: map.get(vars.$spacing, l);

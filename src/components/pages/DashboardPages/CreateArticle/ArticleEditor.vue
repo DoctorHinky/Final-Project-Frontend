@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="editor-header">
         <div class="header-text">
-          <h2 class="editor-title">Neuen Artikel erstellen</h2>
+          <h2 class="editor-title">{{ editMode ? "Artikel bearbeiten" : "Neuen Artikel erstellen" }}</h2>
           <p class="editor-description">Erstellen Sie Ihren Artikel in Kapiteln, um das Lesetracking zu erleichtern.</p>
         </div>
       </div>
@@ -165,6 +165,7 @@
             v-model="chapters[index]"
             :chapter-number="index + 1"
             :is-saving="isSavingChapter(index)"
+            :edit-mode="editMode"
             @save="() => saveChapter(index)"
             @remove="() => removeChapter(index, chapter.id)"
           />
@@ -195,7 +196,7 @@
         <button @click="resetForm" class="action-button reset" :disabled="isSaving">
           <ArrowPathIcon class="icon-size-sm" />
           <span v-if="editMode">Änderungen verwerfen</span>
-          <span v-else>Entwürf verwerfen</span>
+          <span v-else>Entwurf verwerfen</span>
         </button>
 
         <button @click="handleDraftClick" class="action-button draft" :disabled="isSaving">
@@ -207,13 +208,12 @@
           <span v-else>Entwurf speichern</span>
         </button>
 
-        <!-- lade animation nicht wenn man updated !?!?!?!?!? -->
         <button @click="handlePublishClick" class="action-button publish" :disabled="isSaving || !isFormValid">
           <span v-if="isSaving && savingType === 'publish'">
             <ArrowPathIcon class="icon-size-sm spinning" />
             Veröffentlichen...
           </span>
-          <span v-else-if="editMode">Updaten & veroffentlichen</span>
+          <span v-else-if="editMode">Aktualisieren & veröffentlichen</span>
           <span v-else>Veröffentlichen</span>
         </button>
       </div>
@@ -293,8 +293,8 @@ export default defineComponent({
     const chapters = ref<Chapter[]>([]);
 
     // === Artikel-Einstellungen ===
-    const forKids = ref(false); // Checkbox: Artikel ist für Kinder gedacht
-    const ageRestriction = ref(0); // 0 bedeutet keine Altersbeschränkung
+    const forKids = ref(false);
+    const ageRestriction = ref(0);
     const selectedCategory = ref("");
     const tags = ref<string[]>([]);
 
@@ -331,18 +331,7 @@ export default defineComponent({
       Andere: "OTHER",
     };
 
-    // const categoryMapReverse = Object.fromEntries(Object.entries(categoryMap).map(([de, en]) => [en, de]));
-
-    // Wenn gespeichert wird (z. B. an Backend):
-    /* function saveToLocalStorage() {
-      const englishValue = categoryMap[selectedCategory.value] || "OTHER";
-      localStorage.setItem("postCategory", englishValue);
-    } */
-
-    // Wenn du vom Backend Daten bekommst und anzeigen willst:
-    /* function setFromBackendValue(englishCategory = "OTHER") {
-      selectedCategory.value = categoryMapReverse[englishCategory] || "Andere";
-    } */
+    const categoryMapReverse = Object.fromEntries(Object.entries(categoryMap).map(([de, en]) => [en, de]));
 
     const suggestedTags = ref<string[]>(["Erziehung", "Familienalltag", "Ernährung", "Freunde", "News"]);
 
@@ -373,7 +362,7 @@ export default defineComponent({
     });
 
     // === Tracking ===
-    const deletedChapters = ref<string[]>([]); // hier werden die IDs der gelöschten Kapitel gespeichert (backend call)
+    const deletedChapters = ref<string[]>([]);
 
     // === Konstanten ===
     const LOCAL_STORAGE_KEY = "article_editor_draft";
@@ -455,6 +444,7 @@ export default defineComponent({
 
         if (parsedData.articleId && parsedData.articleId.length > 5) editMode.value = true;
         else editMode.value = false;
+
         // Artikel-Daten laden
         if (parsedData.articleTitle) articleTitle.value = parsedData.articleTitle;
         if (parsedData.articleDescription) articleDescription.value = parsedData.articleDescription;
@@ -539,13 +529,13 @@ export default defineComponent({
     };
 
     const removeChapter = (index: number, chapterId: string | undefined) => {
-      chapters.value.splice(index, 1);
-      saveToLocalStorage();
-
       if (chapterId) {
         if (!confirm("Sind Sie sicher, dass Sie dieses Kapitel löschen möchten?")) return;
         deletedChapters.value.push(chapterId);
       }
+
+      chapters.value.splice(index, 1);
+      saveToLocalStorage();
     };
 
     const saveChapter = async (index: number) => {
@@ -569,9 +559,9 @@ export default defineComponent({
     };
 
     const handlePublishClick = () => {
-      if (editMode.value == true) {
+      if (editMode.value === true) {
         console.log("handlePublishClick called, editMode:", editMode.value);
-        saveUpdate(createUpdateForm(), true);
+        saveUpdate(true);
       } else {
         console.log("handlePublishClick called, editMode:", editMode.value);
         publishArticle();
@@ -580,46 +570,49 @@ export default defineComponent({
 
     const handleDraftClick = () => {
       if (editMode.value === true) {
-        saveUpdate(createUpdateForm(), false);
+        saveUpdate(false);
       } else {
         saveAsDraft();
       }
     };
 
-    /* hier werden die daten für main post data geholt */
+    // === WICHTIG: Korrigierte Datenstruktur für Update ===
     const createUpdateForm = (): FormData => {
       const formData = new FormData();
 
-      // Post-Hauptdaten für Update
+      // Post-Hauptdaten für Update - Backend erwartet "description" statt "quickDescription"!
       const postData = {
         title: articleTitle.value,
-        description: articleDescription.value,
+        description: articleDescription.value, // WICHTIG: Backend erwartet "description"
         tags: tags.value.join(","),
         category: categoryMap[selectedCategory.value as keyof typeof categoryMap] || "OTHER",
         ageRestriction: ageRestriction.value,
         forKids: forKids.value,
         chapters: chapters.value.map((chapter, index) => ({
-          id: chapter.id || undefined, // Existing chapters have ID, new ones don't
+          id: chapter.id || undefined,
           title: chapter.title,
           content: chapter.content,
           image: chapter.image || null,
           index: index,
-          delete: false, // We handle deletions separately
+          delete: false,
         })),
-        quiz: {
-          id: articleQuiz.value.id || undefined,
-          questions: (articleQuiz.value.questions || []).map((question) => ({
-            id: question.id || undefined,
-            question: question.question,
-            answers:
-              question.answers?.map((answer) => ({
-                id: answer.id || undefined,
-                answer: answer.answer,
-                isCorrect: answer.isCorrect,
-                delete: false,
-              })) || [],
-          })),
-        },
+        quiz:
+          articleQuiz.value.id || articleQuiz.value.questions?.length > 0
+            ? {
+                id: articleQuiz.value.id || undefined,
+                questions: (articleQuiz.value.questions || []).map((question) => ({
+                  id: question.id || undefined,
+                  question: question.question,
+                  answers:
+                    question.answers?.map((answer) => ({
+                      id: answer.id || undefined,
+                      answer: answer.answer,
+                      isCorrect: answer.isCorrect,
+                      delete: false,
+                    })) || [],
+                })),
+              }
+            : null,
       };
 
       // Deleted chapters hinzufügen
@@ -631,7 +624,7 @@ export default defineComponent({
             title: "",
             content: "",
             image: null,
-            index: -1, // Index irrelevant für gelöschte Kapitel
+            index: -1,
           }))
         );
       }
@@ -684,8 +677,15 @@ export default defineComponent({
       try {
         // Bestätigung bei ungespeicherten Änderungen
         if (articleTitle.value.trim() !== "" && draft.id !== currentDraftId.value) {
-          confirm("Wenn sie einen neuen Post laden, gehen alle ungespeicherten Änderungen verloren. Sind sie sicher?");
+          if (
+            !confirm(
+              "Wenn sie einen neuen Post laden, gehen alle ungespeicherten Änderungen verloren. Sind sie sicher?"
+            )
+          ) {
+            return;
+          }
         }
+
         editMode.value = true;
 
         // Entwurf laden
@@ -696,11 +696,19 @@ export default defineComponent({
         coverImage.value = draft.image || "";
         forKids.value = draft.forKids || false;
         ageRestriction.value = draft.ageRestriction || 0;
-        selectedCategory.value = draft.category || "";
+
+        // Kategorie korrekt mappen
+        const englishCategory = draft.category || "OTHER";
+        selectedCategory.value = categoryMapReverse[englishCategory] || "Andere";
+
         tags.value = draft.tags || [];
         chapters.value = normalizeChapters(draft.chapters);
         articleQuiz.value = draft.quiz || { questions: [] };
 
+        // Deleted chapters zurücksetzen beim Laden eines neuen Drafts
+        deletedChapters.value = [];
+
+        saveToLocalStorage();
         showNotification("Entwurf wurde geladen", "success");
       } catch (error) {
         console.error("Fehler beim Laden des Entwurfs:", error);
@@ -710,28 +718,43 @@ export default defineComponent({
 
     const editDraft = (draft: Draft) => loadDraft(draft);
 
-    const saveUpdate = async (article: FormData | undefined, published: boolean = false) => {
-      if (!article) {
-        showNotification("Fehler beim Erstellen des Artikels", "error");
-        return;
-      }
+    const saveUpdate = async (published: boolean = false) => {
       try {
+        isSaving.value = true;
+        savingType.value = published ? "publish" : "draft";
+
         const postId = articleId.value;
         if (!postId || postId.length < 10) {
-          console.error("no postId found");
+          console.error("Keine gültige Post-ID gefunden");
+          showNotification("Fehler: Keine gültige Artikel-ID gefunden", "error");
           return;
         }
 
-        await authorService.saveUpdate(postId, article, published);
-        showNotification("Artikel erfolgreich aktualisiert", "success");
+        const formData = createUpdateForm();
+        console.log("Sending update for post:", postId, "published:", published);
 
-        resetForm();
-        await refreshPublishedArticles();
-        await refreshDrafts();
+        const result = await authorService.saveUpdate(postId, formData, published);
 
-        return;
+        if (result && result.success) {
+          showNotification(
+            result.message || (published ? "Artikel erfolgreich veröffentlicht" : "Entwurf erfolgreich aktualisiert"),
+            "success"
+          );
+
+          // Deleted chapters zurücksetzen nach erfolgreichem Update
+          deletedChapters.value = [];
+
+          resetForm();
+          await refreshPublishedArticles();
+          await refreshDrafts();
+        } else {
+          showNotification(result?.message || "Fehler beim Aktualisieren des Artikels", "error");
+        }
       } catch (error) {
-        console.error("error beim updaten des posts", error);
+        console.error("Fehler beim Updaten des Posts:", error);
+        showNotification("Ein unerwarteter Fehler ist aufgetreten", "error");
+      } finally {
+        isSaving.value = false;
       }
     };
 
@@ -772,6 +795,7 @@ export default defineComponent({
     const editPublishedArticle = async (article: PublishedArticle) => {
       try {
         editMode.value = true;
+
         // Artikel laden
         articleId.value = article.id;
         articleTitle.value = article.title;
@@ -779,10 +803,17 @@ export default defineComponent({
         coverImage.value = article.image || "";
         forKids.value = article.forKids || false;
         ageRestriction.value = article.ageRestriction || 0;
-        selectedCategory.value = article.category || "";
+
+        // Kategorie korrekt mappen
+        const englishCategory = article.category || "OTHER";
+        selectedCategory.value = categoryMapReverse[englishCategory] || "Andere";
+
         tags.value = article.tags || [];
         chapters.value = normalizeChapters(article.chapters);
         articleQuiz.value = article.quiz || { questions: [] };
+
+        // Deleted chapters zurücksetzen beim Laden eines neuen Artikels
+        deletedChapters.value = [];
 
         saveToLocalStorage();
         showNotification("Artikel wurde zum Bearbeiten geladen", "success");
@@ -824,7 +855,7 @@ export default defineComponent({
       }
     };
 
-    // === Reset Funktion, damit dann das feld wieder sauber it ===
+    // === Reset Funktion ===
     const resetForm = () => {
       articleId.value = "";
       articleTitle.value = "";
@@ -840,6 +871,7 @@ export default defineComponent({
       tags.value = [];
       newTag.value = "";
       showTagInput.value = false;
+      deletedChapters.value = [];
 
       editMode.value = false;
 
@@ -847,11 +879,11 @@ export default defineComponent({
       showNotification("Formular wurde zurückgesetzt", "info");
     };
 
-    // === Macht aus JSON multi part data===
+    // === Erstellen eines neuen Artikels ===
     const createForm = (): FormData => {
       const formData = new FormData();
 
-      // Basis-Daten
+      // Basis-Daten - KONSISTENTE FELDNAMEN
       formData.append("title", articleTitle.value);
       formData.append("quickDescription", articleDescription.value);
       formData.append("tags", tags.value.join(","));
@@ -933,7 +965,7 @@ export default defineComponent({
       }
     };
 
-    // === Artikel veröffentlichen (in db speicher (isPublished)) ===
+    // === Artikel veröffentlichen ===
     const publishArticle = async () => {
       if (!isFormValid.value) {
         showNotification("Bitte füllen Sie alle erforderlichen Felder aus.", "error");
@@ -970,7 +1002,8 @@ export default defineComponent({
           saveToLocalStorage();
         }
       }, 30000);
-      return { autoSaveInterval, apiBackupInterval };
+
+      return autoSaveInterval;
     };
 
     let autoSaveInterval: ReturnType<typeof setInterval>;
@@ -999,17 +1032,15 @@ export default defineComponent({
       }
 
       // Auto-Save starten
-      const intervals = startAutoSaveInterval();
-      autoSaveInterval = intervals.autoSaveInterval;
-      apiBackupInterval = intervals.apiBackupInterval;
+      autoSaveInterval = startAutoSaveInterval();
 
       // Event-Listener
       window.addEventListener("beforeunload", saveToLocalStorage);
     });
+
     // Cleanup
     onBeforeUnmount(() => {
       clearInterval(autoSaveInterval);
-      clearInterval(apiBackupInterval);
       window.removeEventListener("beforeunload", saveToLocalStorage);
     });
 
@@ -1272,7 +1303,7 @@ export default defineComponent({
   // === Optionsmenü Styles ===
   .options-menu {
     padding: map.get(vars.$spacing, l);
-    position: relative; // Für korrekte Tooltip-Positionierung
+    position: relative;
 
     .options-header {
       margin-bottom: map.get(vars.$spacing, m);
@@ -1298,7 +1329,6 @@ export default defineComponent({
       @media (max-width: 1024px) {
         grid-template-columns: 1fr 1fr;
 
-        // Zielgruppe nimmt volle Breite auf kleineren Bildschirmen
         .option-group:first-child {
           grid-column: 1 / -1;
         }
@@ -1370,7 +1400,7 @@ export default defineComponent({
 
       .tooltip-content {
         position: absolute;
-        top: calc(100% + 8px); // Position unterhalb des Icons
+        top: calc(100% + 8px);
         left: 50%;
         transform: translateX(-50%) translateY(-4px);
         width: 250px;
@@ -1383,7 +1413,7 @@ export default defineComponent({
         visibility: hidden;
         transition: all 0.2s ease;
         pointer-events: none;
-        z-index: 9999; // Sehr hoher z-index
+        z-index: 9999;
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -1394,7 +1424,6 @@ export default defineComponent({
           }
         }
 
-        // Tooltip Arrow oben
         &::before {
           content: "";
           position: absolute;
@@ -1413,7 +1442,6 @@ export default defineComponent({
           }
         }
 
-        // Inner Arrow für Border-Effekt
         &::after {
           content: "";
           position: absolute;
@@ -1570,9 +1598,8 @@ export default defineComponent({
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, primary);
           color: mixins.theme-color($theme, text-secondary);
-          border: 1px solid mixins.theme-color($theme, border-light);
-          cursor: pointer;
           transition: all 0.3s;
+          border: 1px solid mixins.theme-color($theme, primary);
         }
       }
     }
@@ -1608,7 +1635,7 @@ export default defineComponent({
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background-color: transparent;
-          color: mixins.theme-color($theme, primary);
+          color: mixins.theme-color($theme, text-secondary);
           border: 1px dashed mixins.theme-color($theme, primary);
 
           &:hover {

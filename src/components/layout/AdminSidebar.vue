@@ -3,7 +3,7 @@
   <aside class="admin-sidebar" :class="{ open: isOpen }">
     <!-- Logo wie in Member-Sidebar -->
     <a href="/" class="logo-link">
-      <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
+      <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-Sidebar" />
     </a>
 
     <!-- Sidebar-Header mit Benutzerinfo -->

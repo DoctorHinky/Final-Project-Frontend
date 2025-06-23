@@ -1,101 +1,139 @@
 // src/style/base/variables.scss
 @use "sass:map";
 
-// Farbpaletten
+// Farbpaletten - Erweitert für Glass Effects, behält aber alle Original-Werte
 $colors: (
   // Dark-Theme-Farben
-  dark:
-    (
-      primary-bg: #0f2419,
-      // Tiefer Waldgrün
-      secondary-bg: #163a27,
-      // Etwas helleres Grün
-      card-bg: #1d4a32,
-      // Karten Hintergrund
-      hover-color: #285f42,
-      // Hover-Zustand
-      nav-item-bg: #1a422d,
-
-      // Navigation Items
-      // Akzentfarben
-      accent-green: #4ad295,
-      // Lebendiges Grün
-      accent-lime: #9be15d,
-      // Frisches Limette
-      accent-teal: #35ccd0,
-      // Türkis
-      accent-yellow: #ffd460,
-      // Warmes Gelb
-      accent-orange: #ff9a55,
-      // Sanftes Orange
-      // Statusfarben
-      success: #4ad295,
-      warning: #ffd460,
-      error: #ff6b6b,
-
-      // Textfarben
-      text-primary: #ffffff,
-      // Weiß
-      text-secondary: #c7e9d6,
-      // Helles Pastellgrün
-      text-tertiary: #8fd3b5,
-      // Mittleres Mintgrün
-      // Rahmen-Farben
-      border-light: rgba(199, 233, 214, 0.2),
-      border-medium: rgba(199, 233, 214, 0.3),
-      // Schatten/Glow
-      shadow-color: rgba(0, 0, 0, 0.25),
-      glow-green: rgba(74, 210, 149, 0.4),
-      glow-teal: rgba(53, 204, 208, 0.4),
-      glow-lime: rgba(155, 225, 93, 0.4),
-    ),
+  dark: (
+    // Original Farben bleiben erhalten
+    primary-bg: #0f2419,              // Tiefer Waldgrün
+    secondary-bg: #163a27,            // Etwas helleres Grün
+    card-bg: #104b2b,                 // Karten Hintergrund
+    hover-color: #285f42,             // Hover-Zustand
+    nav-item-bg: #1a422d,             // Navigation Items
+    
+    // Original Akzentfarben
+    accent-green: #00fc8a,            // Lebendiges Grün
+    accent-lime: #9be15d,             // Frisches Limette
+    accent-teal: #2ba2a7,             // Türkis
+    accent-yellow: #ffd460,           // Warmes Gelb
+    accent-orange: #ff9a55,           // Sanftes Orange
+    
+    // Original Statusfarben
+    success: #4ad295,
+    warning: #ffd460,
+    error: #ff6b6b,
+    
+    // Original Textfarben
+    text-primary: #ffffff,            // Weiß
+    text-secondary: #c7e9d6,          // Helles Pastellgrün
+    text-tertiary: #8fd3b5,           // Mittleres Mintgrün
+    
+    // Original Rahmen-Farben
+    border-light: rgba(156, 180, 166, 0.2),
+    border-medium: rgba(199, 233, 214, 0.3),
+    
+    // Original Schatten/Glow
+    shadow-color: rgba(0, 0, 0, 0.25),
+    glow-green: rgba(74, 210, 149, 0.4),
+    glow-teal: rgba(53, 204, 208, 0.4),
+    glow-lime: rgba(155, 225, 93, 0.4),
+    
+    // NEU: Glass-Effekt Erweiterungen
+    glass-bg: rgba(30, 30, 30, 0.72),
+    glass-border: rgba(255, 255, 255, 0.1),
+    glass-hover: rgba(255, 255, 255, 0.1),
+    glass-active: rgba(10, 132, 255, 0.3),
+    
+    // NEU: System-Farben (iOS/macOS inspiriert)
+    system-blue: #0a84ff,             // iOS Blue
+    system-green: #30d158,            // iOS Green
+    system-red: #ff453a,              // iOS Red
+    system-orange: #ff9f0a,           // iOS Orange
+    system-purple: #bf5af2,           // iOS Purple
+    system-pink: #ff375f,             // iOS Pink
+    system-teal: #64d2ff,             // iOS Teal
+    system-indigo: #5e5ce6,           // iOS Indigo
+    
+    // NEU: Erweiterte Textfarben
+    text-quaternary: #3a3a3c,         // Quaternary Label
+    
+    // NEU: Erweiterte Rahmen
+    border-heavy: rgba(255, 255, 255, 0.16),
+    
+    // NEU: Erweiterte Glows
+    glow-blue: rgba(10, 132, 255, 0.5),
+    glow-red: rgba(253, 37, 26, 0.5),
+    
+    // NEU: Info Status
+    info: #0a84ff,
+  ),
 
   // Light-Theme-Farben
-  light:
-    (
-      primary-bg: #edfaef,
-      // Helles Mintgrün
-      secondary-bg: #e6f5eb,
-      // Helles Pastellgrün
-      card-bg: #f5fff1,
-      // Karten Hintergrund (Weiß)
-      hover-color: #d9f1e3,
-      // Hover-Zustand
-      nav-item-bg: #e6f5eb,
-
-      // Navigation Items
-      // Akzentfarben
-      accent-green: #26bb77,
-      // Lebendiges Grün
-      accent-lime: #77cd35,
-      // Frisches Limette
-      accent-teal: #17a2b8,
-      // Türkis
-      accent-yellow: #ffc107,
-      // Warmes Gelb
-      accent-orange: #ff9a55,
-      // Sanftes Orange
-      // Statusfarben
-      success: #26bb77,
-      warning: #ffc107,
-      error: #e74c3c,
-
-      // Textfarben
-      text-primary: #005f40,
-      // Dunkelgrün für Text
-      text-secondary: #2a7857,
-      // Mittleres Grün für Sekundärtext
-      text-tertiary: #4c9372,
-      // Helles Grün für Tertiärtext
-      // Rahmen-Farben
-      border-light: rgba(38, 187, 119, 0.2),
-      border-medium: rgba(38, 187, 119, 0.3),
-      // Schatten/Glow
-      shadow-color: rgba(0, 95, 64, 0.1),
-      glow-green: rgba(38, 187, 119, 0.3),
-      glow-teal: rgba(23, 162, 184, 0.3),
-      glow-lime: rgba(119, 205, 53, 0.3),
-    )
+  light: (
+    // Original Farben bleiben erhalten
+    primary-bg: #edfaef,              // Helles Mintgrün
+    secondary-bg: #e6f5eb,            // Helles Pastellgrün
+    card-bg: #f5fff1,                 // Karten Hintergrund (Weiß)
+    hover-color: #d9f1e3,             // Hover-Zustand
+    nav-item-bg: #e6f5eb,             // Navigation Items
+    
+    // Original Akzentfarben
+    accent-green: #26bb77,            // Lebendiges Grün
+    accent-lime: #77cd35,             // Frisches Limette
+    accent-teal: #17a2b8,             // Türkis
+    accent-yellow: #ffc107,           // Warmes Gelb
+    accent-orange: #ff9a55,           // Sanftes Orange
+    
+    // Original Statusfarben
+    success: #26bb77,
+    warning: #ffc107,
+    error: #e74c3c,
+    
+    // Original Textfarben
+    text-primary: #005f40,            // Dunkelgrün für Text
+    text-secondary: #2a7857,          // Mittleres Grün für Sekundärtext
+    text-tertiary: #4c9372,           // Helles Grün für Tertiärtext
+    
+    // Original Rahmen-Farben
+    border-light: rgba(38, 187, 119, 0.2),
+    border-medium: rgba(38, 187, 119, 0.3),
+    
+    // Original Schatten/Glow
+    shadow-color: rgba(0, 95, 64, 0.1),
+    glow-green: rgba(38, 187, 119, 0.3),
+    glow-teal: rgba(23, 162, 184, 0.3),
+    glow-lime: rgba(119, 205, 53, 0.3),
+    
+    // NEU: Glass-Effekt Erweiterungen
+    glass-bg: rgba(255, 255, 255, 0.72),
+    glass-border: rgba(255, 255, 255, 0.6),
+    glass-hover: rgba(255, 255, 255, 0.5),
+    glass-active: rgba(0, 122, 255, 0.15),
+    
+    // NEU: System-Farben (iOS/macOS inspiriert)
+    system-blue: #007aff,             // iOS Blue Light
+    system-green: #34c759,            // iOS Green Light
+    system-red: #ff3b30,              // iOS Red Light
+    system-orange: #ff9500,           // iOS Orange Light
+    system-purple: #af52de,           // iOS Purple Light
+    system-pink: #ff2d55,             // iOS Pink Light
+    system-teal: #5ac8fa,             // iOS Teal Light
+    system-indigo: #5856d6,           // iOS Indigo Light
+    
+    // NEU: Erweiterte Textfarben für Apple-Style
+    text-quaternary: #c7c7cc,         // Quaternary Label Light
+    
+    // NEU: Erweiterte Rahmen
+    border-heavy: rgba(0, 0, 0, 0.12),
+    
+    // NEU: Erweiterte Glows
+    glow-blue: rgba(0, 122, 255, 0.3),
+    glow-red: rgba(255, 59, 48, 0.3),
+    
+    // NEU: Info Status
+    info: #007aff,
+  )
 );
 
 // Moderne Sass-Funktion für den Zugriff auf verschachtelte Maps
@@ -103,61 +141,77 @@ $colors: (
   @return map.get(map.get($colors, $theme), $color);
 }
 
-// Gradient-Definitionen mit modernen Funktionen
+// Gradient-Definitionen mit modernen Funktionen - Erweitert für Glass-Effekte
 $gradients: (
   dark: (
-    primary:
-      linear-gradient(
-        to right,
-        color("dark", "accent-green"),
-        color("dark", "accent-teal")
-      ),
-    button:
-      linear-gradient(
-        45deg,
-        color("dark", "accent-green"),
-        color("dark", "accent-teal")
-      ),
-    nav-active:
-      linear-gradient(
-        135deg,
-        color("dark", "accent-green"),
-        color("dark", "accent-teal")
-      ),
-    header:
-      linear-gradient(
-        to right,
-        color("dark", "accent-green"),
-        color("dark", "accent-teal"),
-        color("dark", "accent-lime")
-      ),
+    // Original Gradienten bleiben erhalten
+    primary: linear-gradient(
+      to right,
+      color("dark", "accent-green"),
+      color("dark", "accent-teal")
+    ),
+    button: linear-gradient(
+      45deg,
+      color("dark", "accent-green"),
+      color("dark", "accent-teal")
+    ),
+    nav-active: linear-gradient(
+      135deg,
+      color("dark", "accent-green"),
+      color("dark", "accent-teal")
+    ),
+    header: linear-gradient(
+      to right,
+      color("dark", "accent-green"),
+      color("dark", "accent-teal"),
+      color("dark", "accent-lime")
+    ),
+    
+    // NEU: Glass-Gradienten
+    glass-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%),
+    glass-shine: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    glass-depth: radial-gradient(circle at top right, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
+    
+    // NEU: Status-Gradienten
+    success-gradient: linear-gradient(135deg, #30d158, #34c759),
+    warning-gradient: linear-gradient(135deg, #ffd60a, #ffcc00),
+    error-gradient: linear-gradient(135deg, #ff453a, #ff3b30),
+    info-gradient: linear-gradient(135deg, #0a84ff, #007aff),
   ),
   light: (
-    primary:
-      linear-gradient(
-        to right,
-        color("light", "accent-green"),
-        color("light", "accent-teal")
-      ),
-    button:
-      linear-gradient(
-        45deg,
-        color("light", "accent-green"),
-        color("light", "accent-teal")
-      ),
-    nav-active:
-      linear-gradient(
-        135deg,
-        color("light", "accent-green"),
-        color("light", "accent-teal")
-      ),
-    header:
-      linear-gradient(
-        to right,
-        color("light", "accent-green"),
-        color("light", "accent-teal"),
-        color("light", "accent-lime")
-      ),
+    // Original Gradienten bleiben erhalten
+    primary: linear-gradient(
+      to right,
+      color("light", "accent-green"),
+      color("light", "accent-teal")
+    ),
+    button: linear-gradient(
+      45deg,
+      color("light", "accent-green"),
+      color("light", "accent-teal")
+    ),
+    nav-active: linear-gradient(
+      135deg,
+      color("light", "accent-green"),
+      color("light", "accent-teal")
+    ),
+    header: linear-gradient(
+      to right,
+      color("light", "accent-green"),
+      color("light", "accent-teal"),
+      color("light", "accent-lime")
+    ),
+    
+    // NEU: Glass-Gradienten
+    glass-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.45) 100%),
+    glass-shine: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+    glass-depth: radial-gradient(circle at top right, rgba(255, 255, 255, 0.8) 0%, transparent 70%),
+    
+    // NEU: Status-Gradienten
+    success-gradient: linear-gradient(135deg, #34c759, #30d158),
+    warning-gradient: linear-gradient(135deg, #ffcc00, #ffd60a),
+    error-gradient: linear-gradient(135deg, #ff3b30, #ff453a),
+    info-gradient: linear-gradient(135deg, #007aff, #0a84ff),
   ),
 );
 
@@ -166,7 +220,7 @@ $gradients: (
   @return map.get(map.get($gradients, $theme), $name);
 }
 
-// Typografie
+// Typografie - Original bleibt erhalten
 $fonts: (
   primary: (
     "Comic Sans MS",
@@ -180,16 +234,22 @@ $fonts: (
     xl: 1.4rem,
     xxl: 1.8rem,
     xxxl: 2rem,
+    // NEU: Erweiterte Größen
+    xxs: 0.75rem,     // Extra extra small
+    xs: 0.8125rem,    // Extra small
   ),
   weights: (
     regular: 400,
     medium: 600,
     bold: 700,
     extra-bold: 800,
+    // NEU: Erweiterte Gewichte
+    light: 300,
+    semibold: 500,
   ),
 );
 
-// Abstände
+// Abstände - Original bleibt erhalten
 $spacing: (
   xxs: 0.3rem,
   xs: 0.5rem,
@@ -201,7 +261,7 @@ $spacing: (
   xxxl: 3.5rem,
 );
 
-// Layout
+// Layout - Original bleibt erhalten
 $layout: (
   border-radius: (
     small: 6px,
@@ -220,7 +280,7 @@ $layout: (
   ),
 );
 
-// Z-Index
+// Z-Index - Original bleibt erhalten
 $z-index: (
   below: -1,
   base: 0,
@@ -230,11 +290,40 @@ $z-index: (
   tooltip: 300,
 );
 
-// Transitions
+// Transitions - Erweitert für smooth Apple-Animationen
 $transitions: (
   quick: 0.2s ease,
   default: 0.3s ease,
   slow: 0.5s ease,
   very-slow: 0.8s ease,
+  // NEU: Erweiterte Transitions
+  smooth: 0.4s cubic-bezier(0.4, 0.2, 0.2, 1),
+  bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+  elastic: 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55),
 );
 
+// NEU: Blur-Werte für Glass-Effekte
+$blur-values: (
+  subtle: 8px,
+  medium: 16px,
+  strong: 24px,
+  intense: 32px,
+);
+
+// NEU: Box-Shadow Presets für Apple-Style
+$shadow-presets: (
+  light: (
+    subtle: 0 1px 3px rgba(0, 0, 0, 0.04),
+    small: 0 2px 8px rgba(0, 0, 0, 0.06),
+    medium: 0 4px 16px rgba(0, 0, 0, 0.08),
+    large: 0 8px 32px rgba(0, 0, 0, 0.12),
+    huge: 0 16px 48px rgba(0, 0, 0, 0.16),
+  ),
+  dark: (
+    subtle: 0 1px 3px rgba(0, 0, 0, 0.12),
+    small: 0 2px 8px rgba(0, 0, 0, 0.16),
+    medium: 0 4px 16px rgba(0, 0, 0, 0.24),
+    large: 0 8px 32px rgba(0, 0, 0, 0.32),
+    huge: 0 16px 48px rgba(0, 0, 0, 0.48),
+  ),
+);

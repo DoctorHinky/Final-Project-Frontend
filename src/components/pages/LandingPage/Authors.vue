@@ -596,22 +596,18 @@ export default defineComponent({
 
     // Card Type Variations
     &.card-type-1 {
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
       animation: morphing 8s ease-in-out infinite;
     }
 
     &.card-type-2 {
+      clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
       border-radius: map.get(map.get(vars.$layout, border-radius), large);
       transform-style: preserve-3d;
     }
 
     &.card-type-3 {
       clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
-    }
-
-    &.card-type-4 {
-      border-radius: 50% 20% 80% 40% / 60% 30% 70% 40%;
-      animation: morphing-alt 10s ease-in-out infinite;
     }
 
     // Animation Types

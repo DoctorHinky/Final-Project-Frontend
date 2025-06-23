@@ -5,7 +5,7 @@
       <div class="logo">
         <!-- Logo als Link zur Hauptseite -->
         <router-link to="/">
-          <img src="@/assets/images/Logo.png" alt="Logo" class="logo-image" />
+          <img src="@/assets/images/Logo.webp" alt="Logo" class="logo-image" />
         </router-link>
       </div>
 

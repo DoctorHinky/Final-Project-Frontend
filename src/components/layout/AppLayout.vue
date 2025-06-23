@@ -56,7 +56,7 @@ export default defineComponent({
 
   .main-content {
     /* Fester Abstand zum Header für alle Seiten */
-    padding-top: 100px;
+    padding-top: 80px;
     /* Anpassbar je nach Höhe des Headers */
   }
 }

@@ -460,23 +460,21 @@ export default defineComponent({
   justify-content: center;
   z-index: 1000;
   padding: map.get(vars.$spacing, l);
-
+  
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
       backdrop-filter: blur(6px);
     }
   }
-
+  
   .author-modal {
-    width: 100%;
-    min-height: 100vh;
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     padding: 1rem;
     position: relative;
     top: 0px;
     display: flex;
     flex-direction: column;
-
+    
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         background-color: mixins.theme-color($theme, card-bg);
@@ -484,7 +482,7 @@ export default defineComponent({
         @include mixins.shadow('large', $theme);
       }
     }
-
+    
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -493,26 +491,27 @@ export default defineComponent({
       position: sticky;
       top: 0;
       z-index: 10;
-
+      margin-bottom: map.get(vars.$spacing, l);
+      
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
           background-color: mixins.theme-color($theme, card-bg);
           border-bottom: 1px solid mixins.theme-color($theme, border-light);
         }
       }
-
+      
       h2 {
         font-size: map.get(map.get(vars.$fonts, sizes), xl);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin: 0;
-
+        
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
         }
       }
-
+      
       .close-button {
         background: none;
         border: none;
@@ -524,11 +523,11 @@ export default defineComponent({
         height: 40px;
         border-radius: 50%;
         transition: all 0.2s;
-
+        
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
-
+            
             &:hover {
               background-color: mixins.theme-color($theme, hover-color);
               color: mixins.theme-color($theme, text-primary);
@@ -537,17 +536,17 @@ export default defineComponent({
         }
       }
     }
-        .close-icon {
-          position: absolute;
-          width: 24px;
-          height: 24px;
-        }
+    .close-icon {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+    }
     .modal-content {
       max-width: 100% !important;
       .modal-description {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         margin-bottom: map.get(vars.$spacing, xl);
-
+        
         @each $theme in ('light', 'dark') {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
