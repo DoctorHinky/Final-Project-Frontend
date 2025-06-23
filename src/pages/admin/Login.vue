@@ -100,8 +100,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { authService } from "@/services/auth.service";
-
+import { authService } from "../../services/auth.service";
 export default defineComponent({
   name: "AdminLogin",
   setup() {

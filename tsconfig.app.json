@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "target": "esnext", // ← nötig für import.meta
+    "module": "esnext",
+    "moduleResolution": "node",
     "composite": true,
     "baseUrl": ".",
     "paths": {
