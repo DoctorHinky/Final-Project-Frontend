@@ -78,28 +78,8 @@
                 </button>
               </div>
 
-              <!-- Edit Mode -->
-              <div v-if="editingMessageId === message.id" class="edit-mode">
-                <div
-                  ref="editEditor"
-                  class="edit-input"
-                  contenteditable="true"
-                  @keydown.enter.prevent="saveEdit"
-                  @keydown.esc="cancelEdit"
-                  @input="handleEditInput"
-                ></div>
-                <div class="edit-actions">
-                  <button @click="cancelEdit" class="edit-btn cancel">
-                    <XMarkIcon class="edit-action-icon" />
-                  </button>
-                  <button @click="saveEdit" class="edit-btn save" :disabled="!editingContent.trim()">
-                    <CheckIcon class="edit-action-icon" />
-                  </button>
-                </div>
-              </div>
-
               <!-- Normal Message Display -->
-              <template v-else>
+              <template v-if="editingMessageId !== message.id">
                 <!-- Deleted message -->
                 <p v-if="message.content === 'Die Nachricht wurde gelöscht'" class="deleted-text">
                   <em>Diese Nachricht wurde gelöscht</em>
@@ -155,6 +135,17 @@
 
       <!-- Rich Text Editor -->
       <div class="message-editor">
+        <!-- Edit Mode Indicator -->
+        <div v-if="editingMessageId" class="edit-mode-indicator">
+          <div class="edit-info">
+            <PencilIcon class="edit-icon" />
+            <span>Nachricht bearbeiten</span>
+          </div>
+          <button @click="cancelEdit" class="cancel-edit-btn" title="Bearbeitung abbrechen">
+            <XMarkIcon class="cancel-icon" />
+          </button>
+        </div>
+
         <!-- Formatting Toolbar -->
         <div class="formatting-toolbar">
           <button
@@ -221,17 +212,19 @@
             @focus="updateActiveFormats"
             @click="updateActiveFormats"
             @blur="handleInput"
-            :data-placeholder="'Nachricht schreiben...'"
+            :data-placeholder="editingMessageId ? 'Nachricht bearbeiten...' : 'Nachricht schreiben...'"
           ></div>
 
           <button
             type="button"
-            @click.prevent="sendMessage"
+            @click.prevent="handleSendOrUpdate"
             class="send-button"
             :disabled="!canSendMessage"
-            :title="`Senden (${canSendMessage ? 'Bereit' : 'Nachricht eingeben'})`"
+            :title="editingMessageId ? 'Änderungen speichern' : 'Senden'"
+            :class="{ 'update-mode': editingMessageId }"
           >
-            <PaperAirplaneIcon class="icon-size" />
+            <CheckIcon v-if="editingMessageId" class="icon-size" />
+            <PaperAirplaneIcon v-else class="icon-size" />
           </button>
         </div>
       </div>
@@ -311,7 +304,6 @@ export default defineComponent({
     const isLoading = ref(false);
     const chatContainer = ref<HTMLElement>();
     const messageEditor = ref<HTMLDivElement>();
-    const editEditor = ref<HTMLDivElement>();
     const currentConversationId = ref<string>("");
     const currentUserId = ref<string>("");
     const isUserTyping = ref(false);
@@ -322,7 +314,6 @@ export default defineComponent({
     // Edit/Delete State
     const hoveredMessageId = ref<string | null>(null);
     const editingMessageId = ref<string | null>(null);
-    const editingContent = ref("");
     const showDeleteConfirm = ref(false);
     const messageToDelete = ref<ChatMessage | null>(null);
     const isAtBottom = ref(true);
@@ -389,7 +380,9 @@ export default defineComponent({
     ];
 
     // Computed
-    const hasContent = computed(() => editorContent.value.trim().length > 0);
+    const hasContent = computed(() => {
+      return editorContent.value.trim().length > 0;
+    });
 
     const canSendMessage = computed(() => hasContent.value && !isSending.value);
 
@@ -424,7 +417,9 @@ export default defineComponent({
         scrollToBottom(false);
 
         // Zusätzlicher Scroll-Versuch nach kurzer Verzögerung mit Animation
-        setTimeout(() => scrollToBottom(true), 100);
+        setTimeout(() => {
+          scrollToBottom(true);
+        }, 100);
       } catch (error) {
         console.error("Fehler beim Laden der Nachrichten:", error);
         messages.value = [];
@@ -442,7 +437,9 @@ export default defineComponent({
         .slice(0, 2);
     };
 
-    const formatTime = (timestamp: string) => chatService.formatChatTime(timestamp);
+    const formatTime = (timestamp: string) => {
+      return chatService.formatChatTime(timestamp);
+    };
 
     const isOwnMessage = (message: ChatMessage): boolean => {
       return chatService.isOwnMessage(message, currentUserId.value);
@@ -488,7 +485,9 @@ export default defineComponent({
       }
     };
 
-    const handleScroll = () => checkIfAtBottom();
+    const handleScroll = () => {
+      checkIfAtBottom();
+    };
 
     // Edit/Delete Functions
     const canEditMessage = (message: ChatMessage): boolean => {
@@ -500,64 +499,72 @@ export default defineComponent({
     const startEditing = (message: ChatMessage) => {
       editingMessageId.value = message.id;
 
-      // Extrahiere Text aus HTML
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = message.content || "";
-      editingContent.value = tempDiv.textContent || "";
+      // Lade den Nachrichteninhalt ins Haupteingabefeld
+      if (messageEditor.value) {
+        // Setze den HTML-Inhalt direkt, damit Formatierungen erhalten bleiben
+        messageEditor.value.innerHTML = message.content || "";
+        editorContent.value = messageEditor.value.textContent || "";
 
-      nextTick(() => {
-        if (editEditor.value) {
-          // Setze den Inhalt direkt in den DOM, nicht über Vue
-          editEditor.value.textContent = editingContent.value;
-          editEditor.value.focus();
-
-          // Setze Cursor ans Ende
-          const range = document.createRange();
-          const selection = window.getSelection();
-          if (selection) {
-            range.selectNodeContents(editEditor.value);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
+        // Fokussiere das Eingabefeld und setze den Cursor ans Ende
+        messageEditor.value.focus();
+        const range = document.createRange();
+        const selection = window.getSelection();
+        if (selection) {
+          range.selectNodeContents(messageEditor.value);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
         }
-      });
-    };
 
-    const handleEditInput = (event: Event) => {
-      const target = event.target as HTMLDivElement;
-      editingContent.value = target.textContent || "";
+        // Update die aktiven Formate
+        updateActiveFormats();
+      }
     };
 
     const cancelEdit = () => {
       editingMessageId.value = null;
-      editingContent.value = "";
+
+      // Leere das Eingabefeld
+      if (messageEditor.value) {
+        messageEditor.value.innerHTML = "";
+        editorContent.value = "";
+        updateActiveFormats();
+      }
     };
 
     const saveEdit = async () => {
-      if (!editingMessageId.value || !editingContent.value.trim()) return;
+      if (!editingMessageId.value || !editorContent.value.trim()) return;
+
+      isSending.value = true;
+      let htmlContent = messageEditor.value?.innerHTML || "";
 
       try {
+        // Konvertiere i-Tags zurück zu em-Tags für die Speicherung
+        htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
+
         // Update message via service
-        await chatService.updateMessage(editingMessageId.value, editingContent.value.trim());
+        await chatService.updateMessage(editingMessageId.value, htmlContent);
 
         // Update local message
         const messageIndex = messages.value.findIndex((m) => m.id === editingMessageId.value);
         if (messageIndex !== -1) {
           messages.value[messageIndex] = {
             ...messages.value[messageIndex],
-            content: editingContent.value.trim(),
+            content: htmlContent,
             updatedAt: new Date().toISOString(),
           };
         }
 
         emit("show-toast", "Nachricht wurde bearbeitet", "success");
+
+        // Reset edit mode
         cancelEdit();
-        // Behalte die aktuelle Scroll-Position
       } catch (error: any) {
         console.error("Fehler beim Bearbeiten der Nachricht:", error);
         const errorMessage = error.response?.data?.message || "Fehler beim Bearbeiten der Nachricht";
         emit("show-toast", errorMessage, "error");
+      } finally {
+        isSending.value = false;
       }
     };
 
@@ -588,7 +595,6 @@ export default defineComponent({
         }
 
         emit("show-toast", "Nachricht wurde gelöscht", "success");
-        // Behalte die aktuelle Scroll-Position
       } catch (error: any) {
         console.error("Fehler beim Löschen der Nachricht:", error);
         const errorMessage = error.response?.data?.message || "Fehler beim Löschen der Nachricht";
@@ -613,7 +619,9 @@ export default defineComponent({
         document.execCommand(format, false);
         updateActiveFormats();
 
-        nextTick(() => handleInput());
+        nextTick(() => {
+          handleInput();
+        });
       }
     };
 
@@ -656,15 +664,18 @@ export default defineComponent({
 
       updateActiveFormats();
 
-      isUserTyping.value = true;
+      // Nur Typing-Indikator anzeigen, wenn nicht im Edit-Modus
+      if (!editingMessageId.value) {
+        isUserTyping.value = true;
 
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
+        }
+
+        typingTimeout = setTimeout(() => {
+          isUserTyping.value = false;
+        }, 2000);
       }
-
-      typingTimeout = setTimeout(() => {
-        isUserTyping.value = false;
-      }, 2000);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -685,7 +696,13 @@ export default defineComponent({
 
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        sendMessage();
+        handleSendOrUpdate();
+      }
+
+      // ESC zum Abbrechen der Bearbeitung
+      if (event.key === "Escape" && editingMessageId.value) {
+        event.preventDefault();
+        cancelEdit();
       }
     };
 
@@ -695,6 +712,11 @@ export default defineComponent({
       document.execCommand("insertText", false, text);
 
       nextTick(() => handleInput());
+    };
+
+    const handleSendOrUpdate = () => {
+      if (editingMessageId.value) saveEdit();
+      else sendMessage();
     };
 
     const sendMessage = async () => {
@@ -720,10 +742,10 @@ export default defineComponent({
       try {
         htmlContent = htmlContent.replace(/<i>/g, "<em>").replace(/<\/i>/g, "</em>");
 
-        // const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
+        const response = await chatService.sendMessage(currentConversationId.value, htmlContent);
 
         const localMessage: ChatMessage = {
-          id: Date.now().toString(),
+          id: response.id,
           conversationId: currentConversationId.value,
           senderId: currentUserId.value,
           content: htmlContent,
@@ -748,10 +770,10 @@ export default defineComponent({
         isAtBottom.value = true;
         scrollToBottom(true);
 
-        emit("send-message", {
+        /*         emit("send-message", {
           friendId: props.friendId,
           message: messageText,
-        });
+        }); */
       } catch (error) {
         console.error("Fehler beim Senden der Nachricht:", error);
         emit("show-toast", "Fehler beim Senden der Nachricht", "error");
@@ -769,7 +791,7 @@ export default defineComponent({
 
     const focusEditor = () => {
       nextTick(() => {
-        if (messageEditor.value) {
+        if (messageEditor.value && !editingMessageId.value) {
           messageEditor.value.focus();
           const range = document.createRange();
           const selection = window.getSelection();
@@ -907,14 +929,12 @@ export default defineComponent({
       editorContent,
       hoveredMessageId,
       editingMessageId,
-      editingContent,
       showDeleteConfirm,
       isAtBottom,
 
       // Refs
       chatContainer,
       messageEditor,
-      editEditor,
 
       // Computed
       hasContent,
@@ -932,12 +952,12 @@ export default defineComponent({
       handleKeyDown,
       handlePaste,
       handleScroll,
+      handleSendOrUpdate,
       sendMessage,
       closeModal,
       updateActiveFormats,
       canEditMessage,
       startEditing,
-      handleEditInput,
       cancelEdit,
       saveEdit,
       deleteMessageConfirm,
@@ -1149,8 +1169,6 @@ export default defineComponent({
           transparent 6px
         );
       background-blend-mode: lighten;
-      // Optional: für noch weicheren Effekt
-      // filter: blur(0.1px);
     }
   }
 
@@ -1409,80 +1427,6 @@ export default defineComponent({
           }
         }
 
-        .edit-mode {
-          display: flex;
-          gap: map.get(vars.$spacing, s);
-          align-items: flex-start;
-
-          .edit-input {
-            flex: 1;
-            min-height: 24px;
-            max-height: 120px;
-            overflow-y: auto;
-            padding: map.get(vars.$spacing, xs);
-            border-radius: map.get(map.get(vars.$layout, border-radius), small);
-            outline: none;
-            line-height: 1.4;
-
-            @each $theme in ("light", "dark") {
-              .theme-#{$theme} & {
-                background-color: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-
-                &:focus {
-                  border-color: rgba(255, 255, 255, 0.4);
-                }
-              }
-            }
-          }
-
-          .edit-actions {
-            display: flex;
-            gap: map.get(vars.$spacing, xxs);
-
-            .edit-btn {
-              width: 24px;
-              height: 24px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              transition: all 0.2s ease;
-
-              &.cancel {
-                background-color: rgba(255, 107, 107, 0.2);
-                color: #ff6b6b;
-
-                &:hover {
-                  background-color: rgba(255, 107, 107, 0.3);
-                }
-              }
-
-              &.save {
-                background-color: rgba(76, 175, 80, 0.2);
-                color: #4caf50;
-
-                &:hover:not(:disabled) {
-                  background-color: rgba(76, 175, 80, 0.3);
-                }
-
-                &:disabled {
-                  opacity: 0.5;
-                  cursor: not-allowed;
-                }
-              }
-
-              .edit-action-icon {
-                width: 14px;
-                height: 14px;
-                position: absolute;
-              }
-            }
-          }
-        }
-
         .message-text {
           margin: 0 0 map.get(vars.$spacing, xs) 0;
           line-height: 1.4;
@@ -1624,6 +1568,79 @@ export default defineComponent({
     .theme-#{$theme} & {
       border-color: mixins.theme-color($theme, border-light);
       transition: border-color 0.4s ease-out;
+    }
+  }
+
+  // Edit Mode Indicator
+  .edit-mode-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, l);
+
+    @each $theme in ("light", "dark") {
+      .theme-#{$theme} & {
+        background-color: rgba(mixins.theme-color($theme, accent-teal), 0.1);
+        border-bottom: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
+      }
+    }
+
+    .edit-info {
+      display: flex;
+      align-items: center;
+      gap: map.get(vars.$spacing, s);
+
+      .edit-icon {
+        width: 16px;
+        height: 16px;
+
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+          }
+        }
+      }
+
+      span {
+        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        font-weight: map.get(map.get(vars.$fonts, weights), medium);
+
+        @each $theme in ("light", "dark") {
+          .theme-#{$theme} & {
+            color: mixins.theme-color($theme, accent-teal);
+          }
+        }
+      }
+    }
+
+    .cancel-edit-btn {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      @each $theme in ("light", "dark") {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+
+          &:hover {
+            background-color: rgba(mixins.theme-color($theme, text-secondary), 0.1);
+            color: mixins.theme-color($theme, text-primary);
+          }
+        }
+      }
+
+      .cancel-icon {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+      }
     }
   }
 
@@ -1807,6 +1824,10 @@ export default defineComponent({
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+          }
+
+          &.update-mode {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
           }
         }
       }

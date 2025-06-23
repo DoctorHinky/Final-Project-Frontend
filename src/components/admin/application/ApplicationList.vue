@@ -108,7 +108,6 @@
       <table class="applications-table">
         <thead>
           <tr>
-            <th class="col-id">ID</th>
             <th class="col-applicant">Bewerber</th>
             <th class="col-email">E-Mail</th>
             <th class="col-phone">Telefon</th>
@@ -156,7 +155,6 @@
             @click="viewApplicationDetails(application.id)"
             class="application-row"
           >
-            <td class="col-id">{{ application.id.substring(0, 8) }}...</td>
             <td class="col-applicant">
               <div class="applicant-cell">
                 <div class="applicant-avatar">
@@ -719,14 +717,6 @@ props
         color: #f0f0f0;
       }
     }
-
-    .col-id {
-      width: 120px;
-      color: #777;
-      font-size: 0.85rem;
-      font-family: monospace;
-    }
-
     .col-applicant {
       min-width: 200px;
 

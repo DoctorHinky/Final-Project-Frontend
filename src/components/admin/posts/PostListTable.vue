@@ -35,7 +35,7 @@
             </div>
           </td>
           <td class="col-category">
-            <span class="post-category">{{ formatCategory(post.category) }}</span>
+            <span class="post-category">{{ mapPostCategoryToGerman(formatCategory(post.category)) }}</span>
           </td>
           <td class="col-date">{{ formatDate(post.publishedAt, "-") }}</td>
           <td class="col-status">
@@ -109,6 +109,7 @@
 import { defineComponent, type PropType } from "vue";
 import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
 import { formatDate } from "@/utils/helperFunctions";
+import { mapPostCategoryToGerman } from "@/utils/postCategory";
 
 export default defineComponent({
   name: "PostListTable",
@@ -156,6 +157,8 @@ export default defineComponent({
       if (!num) return "0";
       return num.toLocaleString("de-DE");
     },
+
+    mapPostCategoryToGerman,
   },
 });
 </script>

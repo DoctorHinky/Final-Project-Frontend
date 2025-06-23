@@ -147,7 +147,7 @@
                 :class="{
                   'text-red-600 font-bold': user.role === 'ADMIN',
                   'text-blue-600 font-semibold': user.role === 'AUTHOR',
-                  'text-gray-800': user.role === 'USER',
+                  'text-gray-800': user.role === 'CHILD' || user.role === 'ADULT',
                 }"
               >
                 {{ roleLabel(user.role) }}
@@ -324,7 +324,9 @@ export default defineComponent({
       { value: "all", label: "Alle Rollen" },
       { value: "ADMIN", label: "Admins" },
       { value: "AUTHOR", label: "Autoren" },
-      { value: "USER", label: "Normale Nutzer" },
+      { value: "ADULT", label: "Erwachsene" },
+      { value: "CHILD", label: "Kinder" },
+      { value: "MODERATOR", label: "Moderatoren" },
     ];
 
     function getFilterLabel(value: string): string {
@@ -362,8 +364,10 @@ export default defineComponent({
           return "Admin";
         case "AUTHOR":
           return "Autor";
-        case "USER":
-          return "Nutzer";
+        case "ADULT":
+          return "Erwachsener";
+        case "CHILD":
+          return "Kind";
         case "MODERATOR":
           return "Moderator";
         default:
@@ -728,13 +732,13 @@ export default defineComponent({
     }
 
     .col-id {
-      width: 100px;
+      width: 30%;
       color: #777;
       font-size: 0.85rem;
     }
 
     .col-name {
-      min-width: 200px;
+      width: 25%;
 
       .user-name-cell {
         display: flex;
@@ -764,13 +768,13 @@ export default defineComponent({
     }
 
     .col-email {
-      min-width: 200px;
+      width: 30%;
       color: #a0a0a0;
     }
 
     .col-status,
     .col-type {
-      width: 120px;
+      width: 10%;
       text-align: center;
     }
 

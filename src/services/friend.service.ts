@@ -85,8 +85,6 @@ class FriendService {
    */
   async getMySentRequests(): Promise<SentRequestResponse[]> {
     try {
-      console.warn("Endpoint für gesendete Anfragen für normale User fehlt im Backend");
-
       const response = await api.get("/friends/pendingRequestsOfMe");
       return response.data;
     } catch (error) {
@@ -314,7 +312,7 @@ class FriendService {
 
       return {
         message: "Nachricht erfolgreich gesendet",
-        data: result.message,
+        data: result.content,
       };
     } catch (error) {
       console.error("Fehler beim Senden der Nachricht:", error);

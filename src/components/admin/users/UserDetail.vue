@@ -43,7 +43,8 @@
 
           <div class="user-badges">
             <select v-if="editing.role" v-model="editData.role" @change="saveField('role')" class="role-select">
-              <option value="USER">User</option>
+              <option value="CHILD">Kind</option>
+              <option value="ADULT">Erwachsener</option>
               <option value="ADMIN">Admin</option>
               <option value="MODERATOR">Moderator</option>
               <option value="AUTHOR">Author</option>

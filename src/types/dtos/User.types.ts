@@ -31,4 +31,4 @@ export type User = {
   updatedAt: string | Date;
 };
 
-export type UserRoles = "ADMIN" | "AUTHOR" | "USER" | "MODERATOR";
+export type UserRoles = "ADMIN" | "AUTHOR" | "CHILD" | "ADULT" | "MODERATOR";

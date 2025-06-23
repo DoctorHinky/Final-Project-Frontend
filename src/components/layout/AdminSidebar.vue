@@ -413,6 +413,7 @@ export default defineComponent({
       cursor: pointer;
       transition: all 0.3s ease;
       gap: 10px;
+      margin-bottom: 30%;
 
       &:hover {
         background: linear-gradient(135deg, #333, #252525);

@@ -23,7 +23,7 @@
           </div>
           <div class="info-row">
             <span class="label">Kategorie:</span>
-            <span>{{ formatCategory(post.category) }}</span>
+            <span>{{ mapPostCategoryToGerman(formatCategory(post.category)) }}</span>
           </div>
           <div class="info-row">
             <span class="label">Status:</span>
@@ -80,6 +80,7 @@ import adminPostService from "@/services/admin.post.service";
 import { authService } from "@/services/auth.service";
 import type { BaseArticleItem as Post } from "@/types/BaseArticle.types";
 import { formatDate } from "@/utils/helperFunctions";
+import { mapPostCategoryToGerman } from "@/utils/postCategory";
 
 export default defineComponent({
   name: "PostDetailModal",
@@ -199,6 +200,7 @@ export default defineComponent({
       formatCategory,
       getStatusClass,
       getStatusText,
+      mapPostCategoryToGerman,
     };
   },
 });

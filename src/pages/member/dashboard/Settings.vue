@@ -253,7 +253,10 @@ export default defineComponent({
         // Validierung wird in der Unterkomponente durchgeführt
 
         // In einem echten Szenario: Passwort ändern
-        await userService.changePassword(passwordForm.value);
+        await userService.updatePassword({
+          password: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        });
 
         // Für Beispielzwecke: Simulation einer API-Antwort
 
@@ -275,7 +278,7 @@ export default defineComponent({
     };
 
     // Benachrichtigungseinstellungen speichern
-    const saveNotificationSettings = async (notificationSettings: any): Promise<void> => {
+    const saveNotificationSettings = async (_notificationSettings: any): Promise<void> => {
       try {
         isSaving.value = true;
         saveError.value = false;
@@ -288,9 +291,7 @@ export default defineComponent({
 
         // Erfolgsanzeige
         saveSuccess.value = true;
-        setTimeout(() => {
-          saveSuccess.value = false;
-        }, 3000);
+        setTimeout(() => (saveSuccess.value = false), 3000);
       } catch (error) {
         saveError.value = true;
         if (error instanceof Error) {

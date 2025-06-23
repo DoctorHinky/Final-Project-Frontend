@@ -139,7 +139,7 @@ class ChatService {
   /**
    * Sendet eine Textnachricht
    */
-  async sendMessage(conversationId: string, message: string): Promise<SendMessageResponse> {
+  async sendMessage(conversationId: string, message: string): Promise<ChatMessage> {
     try {
       const formData = new FormData();
       formData.append("message", message.trim());

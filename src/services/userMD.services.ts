@@ -11,7 +11,6 @@ export interface UserUpdateData {
   bio?: string;
   shortDescription?: string;
   profilePicture?: string | null;
-  publicid_picture?: string | null;
 }
 
 export interface PasswordUpdateData {
@@ -21,14 +20,12 @@ export interface PasswordUpdateData {
 
 export interface ProfileImageUploadResponse {
   url: string;
-  public_id: string;
   message: string;
 }
 
 export interface CloudinaryUploadResponse {
   message: string;
   url: string;
-  public_id?: string;
 }
 
 export const userService = {
@@ -90,7 +87,6 @@ export const userService = {
     return {
       message: response.data.message || "Upload erfolgreich",
       url: response.data.url,
-      public_id: response.data.public_id || `profile_${Date.now()}`,
     };
   },
 
@@ -124,7 +120,6 @@ export const userService = {
     return {
       message: uploadResponse.data.message || "Upload erfolgreich",
       url: uploadResponse.data.url,
-      public_id: uploadResponse.data.public_id || `profile_${Date.now()}`,
     };
   },
 
@@ -134,10 +129,9 @@ export const userService = {
    * @param publicId - Public-ID für Cloudinary (optional)
    * @returns Aktualisierte Benutzerdaten
    */
-  async updateProfileImage(profilePicture: string, publicId?: string): Promise<User> {
+  async updateProfileImage(profilePicture: string): Promise<User> {
     const updateData: UserUpdateData = {
       profilePicture,
-      publicid_picture: publicId || `profile_${Date.now()}`,
     };
 
     return this.updateUser(updateData);
@@ -154,7 +148,7 @@ export const userService = {
       const uploadResponse = await this.uploadProfileImageToCloudinary(file);
 
       // 2. Profilbild in der Datenbank aktualisieren
-      const updatedUser = await this.updateProfileImage(uploadResponse.url, uploadResponse.public_id);
+      const updatedUser = await this.updateProfileImage(uploadResponse.url);
 
       // 3. Event für andere Komponenten triggern
       this.triggerProfileUpdateEvent();
@@ -177,7 +171,7 @@ export const userService = {
       const uploadResponse = await this.uploadProfileImageFromDataUrl(dataUrl);
 
       // 2. Profilbild in der Datenbank aktualisieren
-      const updatedUser = await this.updateProfileImage(uploadResponse.url, uploadResponse.public_id);
+      const updatedUser = await this.updateProfileImage(uploadResponse.url);
 
       // 3. Event für andere Komponenten triggern
       this.triggerProfileUpdateEvent();

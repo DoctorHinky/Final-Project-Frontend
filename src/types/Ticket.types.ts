@@ -26,6 +26,11 @@ export type Ticket = {
   category: TicketCategory;
   createdAt: string;
   updatedAt: string;
+  userFile: {
+    user: {
+      username: string;
+    };
+  };
   workedBy: {
     username: string;
     id: string;
