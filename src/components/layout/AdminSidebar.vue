@@ -65,10 +65,7 @@
       <div class="footer-divider"></div>
       <div class="footer-container">
         <button class="back-button" @click="navigateToMemberDashboard">
-          <span class="back-icon">
-            <ArrowLeftIcon class="h-5 w-5" />
-          </span>
-          <span class="back-text">Zurück zum Member-Bereich</span>
+          <span class="back-text">Member-Bereich</span>
           <span class="back-arrow">
             <ChevronRightIcon class="h-4 w-4" />
           </span>

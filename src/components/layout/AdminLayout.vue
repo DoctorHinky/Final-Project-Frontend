@@ -252,15 +252,18 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 70px;
-  z-index: 1500; /* Erhöht um über anderen Elementen zu bleiben */
+  z-index: 500; /* Erhöht um über anderen Elementen zu bleiben */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(10px);
-  background-color: rgba(26, 26, 26, 0.95);
-  border-bottom: 1px solid #333;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0 16px;
+  background: rgba(30, 30, 40, 0.85);
+  box-shadow: 0 8px 32px 0 rgba(93, 173, 226, 0.25);
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  border-bottom: 1px solid #333;
+  border-right: 1.5px solid rgba(93, 173, 226, 0.2);
+  border-radius: 0 0 0 8px;
 }
 
 /* Header-Bereich links */
