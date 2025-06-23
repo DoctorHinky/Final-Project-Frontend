@@ -181,7 +181,6 @@ export default defineComponent({
     }
 
     th {
-      background-color: #262626;
       color: #a0a0a0;
       font-weight: 500;
       font-size: 0.9rem;

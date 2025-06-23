@@ -207,7 +207,6 @@ export default defineComponent({
 }
 
 .stat-card {
-  background-color: #2a2a2a;
   border-radius: 8px;
   padding: 16px;
   display: flex;
