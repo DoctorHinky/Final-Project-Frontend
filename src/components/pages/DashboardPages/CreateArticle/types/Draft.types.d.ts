@@ -1,4 +1,4 @@
-import { Chapter } from "./Chapter.types";
+import { Chapter } from "./Draft.Chapter.types";
 import type { QuizCreation as Quiz } from "./Create.Quiz.types";
 export type Draft = {
   id: string;

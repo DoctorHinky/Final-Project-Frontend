@@ -973,8 +973,8 @@ export default defineComponent({
       return { autoSaveInterval, apiBackupInterval };
     };
 
-    let autoSaveInterval: number;
-    let apiBackupInterval: number;
+    let autoSaveInterval: ReturnType<typeof setInterval>;
+    let apiBackupInterval: ReturnType<typeof setInterval>;
     // === Lifecycle ===
     onMounted(async () => {
       // Autorisierung prüfen
