@@ -10,7 +10,7 @@
         
         <!-- Logo Container -->
         <div class="logo-wrapper">
-          <img src="../assets/images/Logo.png" alt="Learn to Grow" class="entrance-logo" />
+          <img src="../assets/images/Logo.webp" alt="Learn to Grow" class="entrance-logo" />
           <div class="logo-glow"></div>
         </div>
         

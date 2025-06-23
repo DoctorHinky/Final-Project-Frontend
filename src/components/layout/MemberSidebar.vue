@@ -232,30 +232,30 @@ export default defineComponent({
     // Methods
     const loadUserData = async () => {
       try {
-        const user = await userService.getCurrentUser();
-        userData.value = user;
+      const user = await userService.getCurrentUser();
+      userData.value = user;
 
-        // Username setzen
-        userName.value = user?.username || "Benutzer";
+      // Username setzen
+      userName.value = user?.username || "Benutzer";
 
-        // Rolle für Anzeige setzen (auf Deutsch)
-        const roleMap: Record<string, string> = {
-          ADMIN: "Administrator",
-          AUTHOR: "Autor",
-          ADULT: "Erwachsener",
-          CHILD: "Kind",
-          MODERATOR: "Moderator",
-        };
+      // Rolle für Anzeige setzen (auf Deutsch)
+      const roleMap: Record<string, string> = {
+        ADMIN: "Administrator",
+        AUTHOR: "Autor",
+        ADULT: "Erwachsener",
+        CHILD: "Kind",
+        MODERATOR: "Moderator",
+      };
 
-        const role = user?.role?.toString() || "";
-        userRole.value = roleMap[role] || role;
+      const role = user?.role?.toString() || "";
+      userRole.value = roleMap[role] || role;
 
-        // Berechtigung für Artikel-Erstellung setzen
-        canCreateArticles.value = role === "AUTHOR" || role === "ADMIN";
+      // Nur Autoren dürfen Artikel erstellen
+      canCreateArticles.value = role === "AUTHOR";
       } catch (error) {
-        console.error("Fehler beim Laden der Benutzerdaten:", error);
-        // Fallback zu Token-Dekodierung
-        loadUserFromToken();
+      console.error("Fehler beim Laden der Benutzerdaten:", error);
+      // Fallback zu Token-Dekodierung
+      loadUserFromToken();
       }
     };
 
@@ -285,9 +285,9 @@ export default defineComponent({
           const displayRole = decoded.role || "";
           userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
 
-          // NUR Authors und Admins können Artikel erstellen
+          // NUR Authors können Artikel erstellen
           const roleCheck = (decoded.role || "").toLowerCase();
-          canCreateArticles.value = roleCheck === "author" || roleCheck === "admin";
+          canCreateArticles.value = roleCheck === "author";
         }
       } catch (e) {
         console.error("Token konnte nicht dekodiert werden:", e);
