@@ -3,7 +3,7 @@
   <aside class="member-sidebar" :class="{ open: isOpen }">
     <!-- Sidebar-Header mit Logo und Schließen-Button -->
     <a href="/" class="logo-link">
-      <img src="../../assets/images/Logo.png" alt="Logo" class="logo-Sidebar" />
+      <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-Sidebar" />
     </a>
     <div class="sidebar-header">
       <!-- Dynamisches Profilbild -->
