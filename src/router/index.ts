@@ -18,11 +18,16 @@ import PrivacyPolicy from "../pages/PrivacyPolicyPage.vue";
 import Imprint from "../pages/Imprint.vue";
 import NotFound from "../pages/NotFound.vue";
 
-// Navigation Guard für geschützte Routen - OHNE async/await
+// Navigation Guard für geschützte Routen
 const requireAuth = (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (authService.isLoggedIn()) {
+  console.log("[Router] requireAuth guard for:", to.path);
+  const isLoggedIn = authService.isLoggedIn();
+  console.log("[Router] User logged in:", isLoggedIn);
+  
+  if (isLoggedIn) {
     next();
   } else {
+    console.log("[Router] Not logged in, redirecting to login");
     next({
       path: "/login-register",
       query: { redirect: to.fullPath },
@@ -32,9 +37,15 @@ const requireAuth = (to: RouteLocationNormalized, _from: RouteLocationNormalized
 
 // Navigation Guard für Admin-Berechtigung
 const requireAdmin = (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (authService.isAdminLoggedIn()) {
+  console.log("[Router] requireAdmin guard for:", to.path);
+  const isAdminLoggedIn = authService.isAdminLoggedIn();
+  console.log("[Router] Admin logged in:", isAdminLoggedIn);
+  
+  if (isAdminLoggedIn) {
+    console.log("[Router] Admin access granted");
     next();
   } else {
+    console.log("[Router] Admin access denied, redirecting to admin login");
     next({
       path: "/admin/login",
       query: { redirect: to.fullPath },
@@ -44,7 +55,12 @@ const requireAdmin = (to: RouteLocationNormalized, _from: RouteLocationNormalize
 
 // Navigation Guard für Autor-Routen
 const requireAuthorAuth = (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (authService.isLoggedIn() && authorService.isAuthor()) {
+  console.log("[Router] requireAuthorAuth guard");
+  const isLoggedIn = authService.isLoggedIn();
+  const isAuthor = isLoggedIn && authorService.isAuthor();
+  console.log("[Router] Author check:", { isLoggedIn, isAuthor });
+  
+  if (isAuthor) {
     next();
   } else {
     next({
@@ -82,7 +98,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/member",
-    component: AppLayout, // Verwende AppLayout, da MemberLayout fehlt
+    component: AppLayout,
     beforeEnter: requireAuth,
     children: [
       {
@@ -146,10 +162,13 @@ const routes: Array<RouteRecordRaw> = [
         name: "AdminLogin",
         component: () => import("../pages/admin/Login.vue"),
         beforeEnter: (_to, _from, next) => {
+          console.log("[Router] Admin login route accessed");
           // Wenn Admin bereits eingeloggt, zum Dashboard
           if (authService.isAdminLoggedIn()) {
+            console.log("[Router] Admin already logged in, redirecting to dashboard");
             next("/admin/dashboard");
           } else {
+            console.log("[Router] Showing admin login page");
             next();
           }
         },
@@ -164,7 +183,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "AdminDashboard",
             component: () => import("../pages/admin/Dashboard.vue"),
             props: (route) => ({
-              defaultTab: route.query.tab || "overview", // GEÄNDERT: von "all-users" zu "overview"
+              defaultTab: route.query.tab || "overview",
             }),
           },
         ],
@@ -199,8 +218,11 @@ const router = createRouter({
 let navigationInProgress = false;
 
 router.beforeEach((to, from, next) => {
+  console.log("[Router] Global beforeEach:", { from: from.path, to: to.path });
+  
   // Verhindere mehrfache gleichzeitige Navigationen
   if (navigationInProgress && to.path === from.path) {
+    console.log("[Router] Navigation already in progress, skipping");
     return next(false);
   }
 
@@ -228,20 +250,25 @@ router.beforeEach((to, from, next) => {
     const adminLoggedIn = authService.isAdminLoggedIn();
     const isAuthor = loggedIn && authorService.isAuthor();
 
+    console.log("[Router] Auth status:", { authRequired, loggedIn, adminLoggedIn, isAuthor });
+
     // Eingeloggter User auf Login-Seite? → redirect
     if (to.path === "/login-register" && loggedIn) {
+      console.log("[Router] User already logged in, redirecting to member dashboard");
       navigationInProgress = false;
       return next("/member/dashboard");
     }
 
     // Admin bereits eingeloggt auf Admin-Login? → redirect
     if (to.path === "/admin/login" && adminLoggedIn) {
+      console.log("[Router] Admin already logged in, redirecting to admin dashboard");
       navigationInProgress = false;
       return next("/admin/dashboard");
     }
 
     // Bei geschützten Autor-Routen prüfen
     if (authorRequired && !isAuthor) {
+      console.log("[Router] Author required but not authorized");
       navigationInProgress = false;
       return next({
         path: "/member/dashboard",
@@ -250,10 +277,12 @@ router.beforeEach((to, from, next) => {
 
     // Bei geschützten Routen prüfen
     if (authRequired && !loggedIn && !adminLoggedIn) {
+      console.log("[Router] Auth required but not logged in");
       navigationInProgress = false;
 
       // Admin-Route?
       if (to.path.startsWith("/admin/") && to.path !== "/admin/login") {
+        console.log("[Router] Admin route, redirecting to admin login");
         return next({
           path: "/admin/login",
           query: { redirect: to.fullPath },
@@ -261,23 +290,26 @@ router.beforeEach((to, from, next) => {
       }
 
       // Member-Route
+      console.log("[Router] Member route, redirecting to login");
       return next({
         path: "/login-register",
         query: { redirect: to.fullPath },
       });
     }
 
+    console.log("[Router] Navigation allowed");
     navigationInProgress = false;
     next();
   } catch (error) {
-    console.error("Navigation Guard Error:", error);
+    console.error("[Router] Navigation Guard Error:", error);
     navigationInProgress = false;
     next();
   }
 });
 
 // Reset navigation flag nach jedem erfolgreichen Navigationswechsel
-router.afterEach(() => {
+router.afterEach((to, from) => {
+  console.log("[Router] Navigation completed:", { from: from.path, to: to.path });
   navigationInProgress = false;
 });
 

@@ -36,6 +36,19 @@
       <button class="close-sidebar" @click="$emit('close')">×</button>
     </div>
 
+    <!-- Admin-Bereich Button (nur für Admin/Moderator) -->
+    <div v-if="isAdminOrModerator" class="admin-section">
+      <button class="admin-button" @click="navigateToAdmin">
+        <span class="admin-icon">
+          <ShieldCheckIcon class="h-5 w-5" />
+        </span>
+        <span class="admin-text">Admin-Bereich</span>
+        <span class="admin-arrow">
+          <ChevronRightIcon class="h-4 w-4" />
+        </span>
+      </button>
+    </div>
+
     <!-- Sidebar-Navigation mit Drag & Drop -->
     <nav class="sidebar-nav" ref="navContainer">
       <transition-group name="nav-item-move" tag="div" class="nav-items-container">
@@ -90,11 +103,27 @@
         </button>
       </div>
     </div>
+
+    <!-- Loading Overlay für Admin-Navigation -->
+    <transition name="fade">
+      <div v-if="isNavigatingToAdmin" class="admin-loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+          <p class="loading-text">Wechsel zum Admin-Bereich...</p>
+          <p class="loading-subtext">Bitte warten</p>
+        </div>
+      </div>
+    </transition>
   </aside>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRouter } from "vue-router";
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -106,10 +135,13 @@ import {
   LifebuoyIcon,
   Bars3Icon,
   ArrowPathIcon,
+  ShieldCheckIcon,
+  ChevronRightIcon,
 } from "@heroicons/vue/24/outline";
 import { userService } from "@/services/userMD.services";
 import { notificationService } from "@/services/notification.service";
 import { memberTicketService } from "@/services/member.ticket.service";
+import { authService } from "@/services/auth.service";
 import type { User, TokenPayload } from "@/types/dtos";
 
 // Interface für Menu Items
@@ -137,6 +169,8 @@ export default defineComponent({
     LifebuoyIcon,
     Bars3Icon,
     ArrowPathIcon,
+    ShieldCheckIcon,
+    ChevronRightIcon,
   },
   props: {
     isOpen: {
@@ -150,15 +184,19 @@ export default defineComponent({
   },
   emits: ["select-menu", "close", "logout"],
   setup(_props, { emit }) {
+    const router = useRouter();
+    
     // State
     const canCreateArticles = ref(false);
     const userName = ref("");
     const userRole = ref("");
+    const userRoleType = ref(""); // Speichert die tatsächliche Rolle (ADMIN, MODERATOR, etc.)
     const userData = ref<User | null>(null);
     const isImageLoaded = ref(true);
     const fallbackImageUrl = "/src/assets/images/AvatarIcon1.webp";
     const openTicketsCount = ref(0);
     const notificationCount = ref(0);
+    const isNavigatingToAdmin = ref(false); // Loading state für Admin-Navigation
 
     // Drag & Drop State
     const draggedItem = ref<string | null>(null);
@@ -179,6 +217,11 @@ export default defineComponent({
 
     const isCustomProfileImage = computed(() => {
       return userData.value?.profilePicture && userData.value.profilePicture !== fallbackImageUrl;
+    });
+
+    // Computed property um zu prüfen ob der Nutzer Admin oder Moderator ist
+    const isAdminOrModerator = computed(() => {
+      return userRoleType.value === "ADMIN" || userRoleType.value === "MODERATOR";
     });
 
     // Basis-Menüelemente
@@ -249,6 +292,7 @@ export default defineComponent({
 
       const role = user?.role?.toString() || "";
       userRole.value = roleMap[role] || role;
+      userRoleType.value = role; // Speichere die tatsächliche Rolle
 
       // Nur Autoren dürfen Artikel erstellen
       canCreateArticles.value = role === "AUTHOR";
@@ -284,6 +328,7 @@ export default defineComponent({
           // Rolle für Anzeige setzen
           const displayRole = decoded.role || "";
           userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
+          userRoleType.value = displayRole.toUpperCase(); // Speichere die tatsächliche Rolle
 
           // NUR Authors können Artikel erstellen
           const roleCheck = (decoded.role || "").toLowerCase();
@@ -295,6 +340,7 @@ export default defineComponent({
         canCreateArticles.value = false;
         userName.value = "Benutzer";
         userRole.value = "Benutzer";
+        userRoleType.value = "";
       }
     };
 
@@ -312,6 +358,34 @@ export default defineComponent({
           window.dispatchEvent(new CustomEvent("switch-to-profile-tab"));
         }
       }, 100);
+    };
+
+    // Navigation zum Admin-Bereich
+    const navigateToAdmin = async () => {
+      console.log("[MemberSidebar] Navigating to admin area...");
+      
+      // Loading state aktivieren
+      isNavigatingToAdmin.value = true;
+      
+      try {
+        // Kurze Verzögerung für bessere UX (damit der Loader sichtbar wird)
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Aus Sicherheitsgründen erst ausloggen
+        authService.logout();
+        
+        // Weitere kurze Verzögerung
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Direkt zu /admin weiterleiten
+        await router.push("/admin");
+      } catch (error) {
+        console.error("[MemberSidebar] Error during admin navigation:", error);
+        // Bei Fehler trotzdem weiterleiten
+        window.location.href = "/admin";
+      } finally {
+        // Loading state wird nicht deaktiviert, da die Seite neu geladen wird
+      }
     };
 
     // Drag & Drop Handler
@@ -551,6 +625,8 @@ export default defineComponent({
       isImageLoaded,
       notificationCount,
       openTicketsCount,
+      isAdminOrModerator,
+      isNavigatingToAdmin,
 
       // Drag & Drop State
       draggedItem,
@@ -565,6 +641,7 @@ export default defineComponent({
       loadUserData,
       goToProfileSettings,
       resetMenuOrder,
+      navigateToAdmin,
 
       // Drag & Drop Methods
       handleDragStart,
@@ -914,6 +991,172 @@ export default defineComponent({
           background: linear-gradient(135deg, rgba(74, 210, 149, 0.2), rgba(74, 210, 149, 0.1));
           transform: scale(1.1) rotate(90deg);
           box-shadow: 0 0 20px rgba(74, 210, 149, 0.4);
+        }
+      }
+    }
+  }
+
+  // Admin-Bereich Button
+  .admin-section {
+    padding: 12px 16px;
+    position: relative;
+    z-index: 1;
+    
+    // Glass Separator mit Glow
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 16px;
+      right: 16px;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(93, 173, 226, 0.3) 20%,
+        rgba(255, 107, 157, 0.3) 80%,
+        transparent
+      );
+      box-shadow: 0 0 20px rgba(93, 173, 226, 0.2);
+    }
+
+    .admin-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(93, 173, 226, 0.12), rgba(255, 107, 157, 0.08));
+      border: 1px solid rgba(93, 173, 226, 0.2);
+      border-radius: 16px;
+      color: #5dade2;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+
+      // Shimmer-Effekt
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        transition: left 0.5s ease;
+      }
+
+      // Light Theme
+      .theme-light & {
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.15), rgba(255, 107, 157, 0.1));
+        border-color: rgba(93, 173, 226, 0.25);
+        color: #0078d7;
+        box-shadow: 
+          0 2px 8px rgba(93, 173, 226, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+        &:hover {
+          background: linear-gradient(135deg, rgba(93, 173, 226, 0.22), rgba(255, 107, 157, 0.15));
+          border-color: rgba(93, 173, 226, 0.35);
+          color: #005a9e;
+          transform: translateY(-1px);
+          box-shadow: 
+            0 4px 16px rgba(93, 173, 226, 0.18),
+            0 0 24px rgba(93, 173, 226, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+          &::before {
+            left: 100%;
+          }
+
+          .admin-arrow {
+            transform: translateX(3px);
+          }
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 
+            0 2px 8px rgba(93, 173, 226, 0.12),
+            inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+      }
+      
+      // Dark Theme
+      .theme-dark & {
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(255, 107, 157, 0.06));
+        border-color: rgba(93, 173, 226, 0.15);
+        color: #5dade2;
+        box-shadow: 
+          0 2px 8px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+        &:hover {
+          background: linear-gradient(135deg, rgba(93, 173, 226, 0.18), rgba(255, 107, 157, 0.12));
+          border-color: rgba(93, 173, 226, 0.3);
+          color: #85c1e2;
+          transform: translateY(-1px);
+          box-shadow: 
+            0 4px 16px rgba(0, 0, 0, 0.25),
+            0 0 24px rgba(93, 173, 226, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+          &::before {
+            left: 100%;
+          }
+
+          .admin-arrow {
+            transform: translateX(3px);
+          }
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      .admin-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+
+        svg {
+          width: 20px;
+          height: 20px;
+          transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+      }
+
+      .admin-text {
+        flex: 1;
+        text-align: left;
+        letter-spacing: -0.2px;
+        font-weight: 600;
+      }
+
+      .admin-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        opacity: 0.8;
+
+        svg {
+          width: 16px;
+          height: 16px;
         }
       }
     }
@@ -1411,6 +1654,177 @@ export default defineComponent({
         inset 0 0 0 2px rgba(74, 210, 149, 0.3);
     }
   }
+}
+
+// Admin Loading Overlay
+.admin-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 0 32px 32px 0;
+  
+  // Glass-Effect passend zum Sidebar-Design
+  .theme-light & {
+    background: linear-gradient(
+      135deg,
+      rgba(237, 250, 239, 0.95) 0%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  
+  .theme-dark & {
+    background: linear-gradient(
+      135deg,
+      rgba(15, 36, 25, 0.95) 0%,
+      rgba(22, 58, 39, 0.9) 100%
+    );
+    backdrop-filter: blur(20px) saturate(220%);
+    -webkit-backdrop-filter: blur(20px) saturate(220%);
+  }
+
+  .loading-content {
+    text-align: center;
+    padding: 20px;
+  }
+
+  // Multi-Ring Spinner mit Admin-Farben (Blau/Pink)
+  .loading-spinner {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+
+    .spinner-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      
+      // Ring 1 - Äußerer Ring (Blau)
+      &:nth-child(1) {
+        border-top-color: #5dade2;
+        border-right-color: #5dade2;
+        animation: spin-ring-1 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+      }
+
+      // Ring 2 - Mittlerer Ring (Pink)
+      &:nth-child(2) {
+        inset: 10px;
+        border-top-color: #ff6b9d;
+        border-bottom-color: #ff6b9d;
+        animation: spin-ring-2 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+      }
+
+      // Ring 3 - Innerer Ring (Orange)
+      &:nth-child(3) {
+        inset: 20px;
+        border-left-color: #ff8c42;
+        border-right-color: #ff8c42;
+        animation: spin-ring-3 1s linear infinite;
+      }
+    }
+  }
+
+  .loading-text {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    
+    .theme-light & {
+      color: #0078d7;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+    
+    .theme-dark & {
+      color: #5dade2;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .loading-subtext {
+    font-size: 14px;
+    opacity: 0.8;
+    
+    .theme-light & {
+      color: #005a9e;
+    }
+    
+    .theme-dark & {
+      color: #85c1e2;
+    }
+    
+    // Pulsierender Punkt-Animation
+    &::after {
+      content: '';
+      display: inline-block;
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+  }
+}
+
+// Spinner Animationen
+@keyframes spin-ring-1 {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes spin-ring-2 {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(-180deg) scale(0.9);
+  }
+  100% {
+    transform: rotate(-360deg) scale(1);
+  }
+}
+
+@keyframes spin-ring-3 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dots {
+  0%, 20% {
+    content: '';
+  }
+  40% {
+    content: '.';
+  }
+  60% {
+    content: '..';
+  }
+  80%, 100% {
+    content: '...';
+  }
+}
+
+// Fade Transition für Overlay
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 // Transitions
