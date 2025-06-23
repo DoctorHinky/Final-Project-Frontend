@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import path from "path"; // ← Wichtig
 
 export default defineConfig({
+  base: "./", // ← Wichtig für die korrekte Pfadauflösung
   plugins: [vue()],
   resolve: {
     alias: {

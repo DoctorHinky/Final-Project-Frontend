@@ -4,16 +4,31 @@
     <!-- Animierter Learn To Grow Titel -->
     <div class="animated-title">
       <div class="word learn">
-        <span class="letter" v-for="(letter, index) in 'Learn'" :key="'learn-' + index"
-          :style="{ animationDelay: index * 0.1 + 's' }">{{ letter }}</span>
+        <span
+          class="letter"
+          v-for="(letter, index) in 'Learn'"
+          :key="'learn-' + index"
+          :style="{ animationDelay: index * 0.1 + 's' }"
+          >{{ letter }}</span
+        >
       </div>
       <div class="word to">
-        <span class="letter" v-for="(letter, index) in 'To'" :key="'to-' + index"
-          :style="{ animationDelay: (5 + index) * 0.1 + 's' }">{{ letter }}</span>
+        <span
+          class="letter"
+          v-for="(letter, index) in 'To'"
+          :key="'to-' + index"
+          :style="{ animationDelay: (5 + index) * 0.1 + 's' }"
+          >{{ letter }}</span
+        >
       </div>
       <div class="word grow">
-        <span class="letter" v-for="(letter, index) in 'Grow'" :key="'grow-' + index"
-          :style="{ animationDelay: (7 + index) * 0.1 + 's' }">{{ letter }}</span>
+        <span
+          class="letter"
+          v-for="(letter, index) in 'Grow'"
+          :key="'grow-' + index"
+          :style="{ animationDelay: (7 + index) * 0.1 + 's' }"
+          >{{ letter }}</span
+        >
       </div>
     </div>
 
@@ -32,16 +47,28 @@
         <div class="form-group">
           <label for="username">Benutzername oder E-Mail</label>
           <div class="input-container">
-            <input type="text" id="username" v-model="loginForm.username" required
-              placeholder="Admin-Benutzername oder E-Mail" :disabled="isLoading" />
+            <input
+              type="text"
+              id="username"
+              v-model="loginForm.username"
+              required
+              placeholder="Admin-Benutzername oder E-Mail"
+              :disabled="isLoading"
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label for="password">Passwort</label>
           <div class="input-container">
-            <input type="password" id="password" v-model="loginForm.password" required placeholder="Admin-Passwort"
-              :disabled="isLoading" />
+            <input
+              type="password"
+              id="password"
+              v-model="loginForm.password"
+              required
+              placeholder="Admin-Passwort"
+              :disabled="isLoading"
+            />
           </div>
         </div>
 
@@ -112,8 +139,7 @@ export default defineComponent({
         // Verwende die adminLogin Methode aus authService
         const result = await authService.adminLogin(
           trimmedInput, // Kann Email oder Username sein
-          loginForm.password,
-          true // rememberMe = true für Admin
+          loginForm.password
         );
 
         if (result.success) {
@@ -130,7 +156,6 @@ export default defineComponent({
         } else {
           errorMessage.value = "Zugriff verweigert. Sie benötigen Admin-Rechte.";
         }
-
       } catch (error: any) {
         console.error("Admin login error:", error);
 
@@ -191,15 +216,14 @@ export default defineComponent({
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background:
-      radial-gradient(ellipse at 20% 30%, rgba(93,173,226,0.10) 0, transparent 60%),
-      radial-gradient(ellipse at 80% 70%, rgba(255,107,157,0.08) 0, transparent 70%),
-      radial-gradient(ellipse at 50% 100%, rgba(255,140,66,0.08) 0, transparent 80%);
+    background: radial-gradient(ellipse at 20% 30%, rgba(93, 173, 226, 0.1) 0, transparent 60%),
+      radial-gradient(ellipse at 80% 70%, rgba(255, 107, 157, 0.08) 0, transparent 70%),
+      radial-gradient(ellipse at 50% 100%, rgba(255, 140, 66, 0.08) 0, transparent 80%);
     mix-blend-mode: lighten;
   }
   position: relative;
   overflow: hidden;
-  
+
   // Mehr Platz für größeren Titel
   @media (min-width: 1200px) {
     padding-top: 2rem;
@@ -221,30 +245,22 @@ export default defineComponent({
     display: flex;
 
     &.learn .letter {
-      color: #5DADE2; // Helleres Blau
-      text-shadow:
-        0 0 30px rgba(93, 173, 226, 0.8),
-        0 0 60px rgba(93, 173, 226, 0.6),
-        0 0 90px rgba(93, 173, 226, 0.4);
-      -webkit-text-stroke: 3px #2E86DE; // Dickerer Stroke für größere Schrift
+      color: #5dade2; // Helleres Blau
+      text-shadow: 0 0 30px rgba(93, 173, 226, 0.8), 0 0 60px rgba(93, 173, 226, 0.6), 0 0 90px rgba(93, 173, 226, 0.4);
+      -webkit-text-stroke: 3px #2e86de; // Dickerer Stroke für größere Schrift
     }
 
     &.to .letter {
-      color: #FF6B9D; // Pink
-      text-shadow:
-        0 0 30px rgba(255, 107, 157, 0.8),
-        0 0 60px rgba(255, 107, 157, 0.6),
+      color: #ff6b9d; // Pink
+      text-shadow: 0 0 30px rgba(255, 107, 157, 0.8), 0 0 60px rgba(255, 107, 157, 0.6),
         0 0 90px rgba(255, 107, 157, 0.4);
-      -webkit-text-stroke: 3px #C44569;
+      -webkit-text-stroke: 3px #c44569;
     }
 
     &.grow .letter {
-      color: #FF8C42; // Sattes Orange
-      text-shadow:
-        0 0 30px rgba(255, 140, 66, 0.8),
-        0 0 60px rgba(255, 140, 66, 0.6),
-        0 0 90px rgba(255, 140, 66, 0.4);
-      -webkit-text-stroke: 3px #E55934;
+      color: #ff8c42; // Sattes Orange
+      text-shadow: 0 0 30px rgba(255, 140, 66, 0.8), 0 0 60px rgba(255, 140, 66, 0.6), 0 0 90px rgba(255, 140, 66, 0.4);
+      -webkit-text-stroke: 3px #e55934;
     }
   }
 
@@ -302,7 +318,6 @@ export default defineComponent({
 }
 
 @keyframes glassEffect {
-
   0%,
   100% {
     opacity: 0;
@@ -318,7 +333,6 @@ export default defineComponent({
 }
 
 @keyframes letterPulse {
-
   0%,
   100% {
     transform: scale(1) translateY(0);
@@ -337,15 +351,15 @@ export default defineComponent({
     margin-bottom: 3rem;
 
     .word.learn .letter {
-      -webkit-text-stroke: 2px #2E86DE;
+      -webkit-text-stroke: 2px #2e86de;
     }
 
     .word.to .letter {
-      -webkit-text-stroke: 2px #C44569;
+      -webkit-text-stroke: 2px #c44569;
     }
 
     .word.grow .letter {
-      -webkit-text-stroke: 2px #E55934;
+      -webkit-text-stroke: 2px #e55934;
     }
   }
 }
@@ -370,11 +384,13 @@ export default defineComponent({
   width: 100%;
   padding: map.get(vars.$spacing, xl);
   // Schimmernder Glasmorphismus-Effekt wie beim Learn To Grow Titel
-  box-shadow:
-    0 10px 25px 0 rgba(93, 173, 226, 0.25),   // Blau wie "Learn"
-    0 0 0 8px rgba(255, 107, 157, 0.10),      // Pink wie "To"
-    0 0 40px 0 rgba(255, 140, 66, 0.12),      // Orange wie "Grow"
-    0 0 80px 0 rgba(255, 255, 255, 0.08);     // Weißer Schimmer
+  box-shadow: 0 10px 25px 0 rgba(93, 173, 226, 0.25),
+    // Blau wie "Learn"
+    0 0 0 8px rgba(255, 107, 157, 0.1),
+    // Pink wie "To"
+    0 0 40px 0 rgba(255, 140, 66, 0.12),
+    // Orange wie "Grow"
+    0 0 80px 0 rgba(255, 255, 255, 0.08); // Weißer Schimmer
   backdrop-filter: blur(16px) saturate(120%);
   -webkit-backdrop-filter: blur(16px) saturate(120%);
   background: rgba(30, 30, 40, 0.55);
@@ -390,14 +406,13 @@ export default defineComponent({
   .MovingPointBorderLeft,
   .MovingPointBorderRight {
     position: absolute;
-    background: linear-gradient(45deg, #5DADE2, #FF6B9D, #FF8C42);
+    background: linear-gradient(45deg, #5dade2, #ff6b9d, #ff8c42);
     z-index: 2;
     display: block;
     animation: none;
   }
 
   &:hover {
-
     transform: scale(1.02);
     transition: transform 0.3s ease, border-color 0.3s ease;
     .MovingPointBorderTop {
@@ -534,8 +549,8 @@ export default defineComponent({
       &:focus-within {
         border-color: transparent;
         background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(255, 107, 157, 0.1));
-        box-shadow: 
-          0 0 0 2px #5DADE2, // Blauer Glow
+        box-shadow: 0 0 0 2px #5dade2,
+          // Blauer Glow
           0 0 20px rgba(93, 173, 226, 0.4),
           0 0 40px rgba(255, 107, 157, 0.2);
       }
@@ -576,14 +591,14 @@ export default defineComponent({
 
   &.alert-error {
     background-color: rgba(231, 76, 60, 0.15);
-    border-left: 4px solid #FF6B9D; // Pink aus dem Farbschema
+    border-left: 4px solid #ff6b9d; // Pink aus dem Farbschema
     color: #ff8fab;
     box-shadow: 0 0 20px rgba(255, 107, 157, 0.2);
   }
 
   &.alert-success {
     background-color: rgba(46, 204, 113, 0.15);
-    border-left: 4px solid #5DADE2; // Blau aus dem Farbschema
+    border-left: 4px solid #5dade2; // Blau aus dem Farbschema
     color: #6dd5ff;
     box-shadow: 0 0 20px rgba(93, 173, 226, 0.2);
   }
@@ -600,7 +615,7 @@ export default defineComponent({
   .login-button {
     width: 100%;
     padding: map.get(vars.$spacing, m);
-    background: linear-gradient(135deg, #5DADE2, #FF6B9D, #FF8C42);
+    background: linear-gradient(135deg, #5dade2, #ff6b9d, #ff8c42);
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
     color: white;
@@ -613,33 +628,25 @@ export default defineComponent({
     position: relative;
     overflow: hidden;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    box-shadow: 
-      0 4px 15px rgba(93, 173, 226, 0.3),
-      0 2px 8px rgba(255, 107, 157, 0.2);
+    box-shadow: 0 4px 15px rgba(93, 173, 226, 0.3), 0 2px 8px rgba(255, 107, 157, 0.2);
 
     // Glanz-Overlay
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.3), 
-        transparent
-      );
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       transition: left 0.5s ease;
     }
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 
-        0 6px 20px rgba(93, 173, 226, 0.4),
-        0 4px 12px rgba(255, 107, 157, 0.3),
+      box-shadow: 0 6px 20px rgba(93, 173, 226, 0.4), 0 4px 12px rgba(255, 107, 157, 0.3),
         0 8px 25px rgba(255, 140, 66, 0.2);
-      
+
       &::before {
         left: 100%;
       }
@@ -693,20 +700,20 @@ export default defineComponent({
     position: relative;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: -2px;
       left: 50%;
       width: 0;
       height: 2px;
-      background: linear-gradient(90deg, #5DADE2, #FF6B9D);
+      background: linear-gradient(90deg, #5dade2, #ff6b9d);
       transition: all 0.3s ease;
       transform: translateX(-50%);
     }
 
     &:hover {
-      color: #5DADE2;
-      
+      color: #5dade2;
+
       &::after {
         width: 100%;
       }
@@ -735,13 +742,13 @@ export default defineComponent({
 @media (max-width: map.get(map.get(vars.$layout, breakpoints), mobile)) {
   .login-container {
     padding: map.get(vars.$spacing, l);
-    
+
     // Dünnere Borders für Mobile
     .MovingPointBorderTop,
     .MovingPointBorderBottom {
       height: 2px;
     }
-    
+
     .MovingPointBorderLeft,
     .MovingPointBorderRight {
       width: 2px;
