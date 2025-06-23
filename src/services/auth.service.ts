@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import api from "./axiosInstance"; // Importiere die konfigurierte axios Instanz
 import axios from "axios";
 
-const url = import.meta.env.VITE_BASE_URL;
+const url = process.env.VITE_BASE_URL;
 
 interface DecodedToken {
   exp?: number;
