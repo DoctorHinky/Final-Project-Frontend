@@ -7,7 +7,7 @@
     </div>
 
     <!-- CTA-Button für Autor-Bewerbung -->
-    <button class="become-author-cta" @click="handleAuthorClick">
+    <button v-if="isAuthor" class="become-author-cta" @click="handleAuthorClick">
       <IconPencilSquare class="cta-icon" />
       Werde Autor
     </button>
@@ -15,48 +15,50 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
-import { PencilSquareIcon as IconPencilSquare } from '@heroicons/vue/24/outline';
+import { defineComponent, computed } from "vue";
+import { PencilSquareIcon as IconPencilSquare } from "@heroicons/vue/24/outline";
+import { authService } from "@/services/auth.service";
 
 export default defineComponent({
-  name: 'WelcomeSection',
+  name: "WelcomeSection",
   components: {
-    IconPencilSquare
+    IconPencilSquare,
   },
-  emits: ['open-author-modal'],
+  emits: ["open-author-modal"],
   setup(_, { emit }) {
     const currentDate = computed(() => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       };
-      return now.toLocaleDateString('de-DE', options);
+      return now.toLocaleDateString("de-DE", options);
     });
 
     // Debug-Funktion für Button-Click
-    const handleAuthorClick = () => {
-      console.log('🔘 WelcomeSection: Button clicked!');
-      console.log('📤 WelcomeSection: Emitting open-author-modal event');
-      emit('open-author-modal');
-      console.log('✅ WelcomeSection: Event emitted');
-    };
+    const handleAuthorClick = () => emit("open-author-modal");
+
+    const isAuthor = computed(() => {
+      const user = authService.getUserData();
+      return user && user.role === "author";
+    });
 
     return {
       currentDate,
-      handleAuthorClick
+      isAuthor,
+      handleAuthorClick,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:map';
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use '@/style/base/animations' as animations;
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
 
 // Willkommen-Sektion mit CTA-Button
 .welcome-section {
@@ -68,14 +70,14 @@ export default defineComponent({
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   transition: all 0.3s;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background-color: mixins.theme-color($theme, card-bg);
       border: 1px solid mixins.theme-color($theme, border-light);
 
       &:hover {
         transform: translateY(-5px);
-        @include mixins.shadow('medium', $theme);
+        @include mixins.shadow("medium", $theme);
         border-color: mixins.theme-color($theme, accent-teal);
       }
     }
@@ -92,7 +94,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, xs);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -102,7 +104,7 @@ export default defineComponent({
     p {
       font-size: map.get(map.get(vars.$fonts, sizes), medium);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -146,13 +148,15 @@ export default defineComponent({
     animation: gradientShift 15s ease infinite;
 
     /* Theme-spezifische Eigenschaften */
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         /* Theme-spezifischer Gradient-Hintergrund */
-        background: linear-gradient(135deg,
-            mixins.theme-color($theme, accent-green) 0%,
-            mixins.theme-color($theme, accent-teal) 50%,
-            mixins.theme-color($theme, accent-lime) 100%);
+        background: linear-gradient(
+          135deg,
+          mixins.theme-color($theme, accent-green) 0%,
+          mixins.theme-color($theme, accent-teal) 50%,
+          mixins.theme-color($theme, accent-lime) 100%
+        );
 
         /* Theme-spezifische Schatten */
         box-shadow: 0 10px 25px mixins.theme-color($theme, shadow-color),
@@ -188,14 +192,13 @@ export default defineComponent({
   .become-author-cta:hover {
     transform: translateY(-5px) scale(1.02);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         box-shadow: 0 15px 30px mixins.theme-color($theme, shadow-color),
-          0 0 20px rgba(mixins.theme-color($theme, accent-teal), 0.45),
-          inset 0 0 10px rgba(255, 255, 255, 0.3);
+          0 0 20px rgba(mixins.theme-color($theme, accent-teal), 0.45), inset 0 0 10px rgba(255, 255, 255, 0.3);
 
         /* Glow-Effekt aus Variablen */
-        @include mixins.glow('green', 'medium', $theme);
+        @include mixins.glow("green", "medium", $theme);
       }
     }
   }
@@ -209,7 +212,7 @@ export default defineComponent({
   .become-author-cta:active {
     transform: translateY(-2px) scale(0.98);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         box-shadow: 0 5px 15px mixins.theme-color($theme, shadow-color);
       }
@@ -225,7 +228,7 @@ export default defineComponent({
     transition: transform 0.4s ease;
     pointer-events: none; /* Icon soll keine Klicks abfangen */
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-on-primary);
       }
