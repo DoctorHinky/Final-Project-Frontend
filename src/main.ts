@@ -7,15 +7,25 @@ import App from "./App.vue";
 import { resetScrollObserver } from "./utils/scrollObserver";
 import { authService } from "./services/auth.service";
 
-if (authService.isLoggedIn()) {
-  authService.scheduleTokenRefresh();
-  authService.startTokenCountdown();
-}
-const app = createApp(App);
-app.use(router);
-app.mount("#app");
+async function bootstrap() {
+  // ✅ Token prüfen und ggf. automatisch refreshen
+  await authService.checkAndRefreshToken();
 
-// Scroll-Animationen nach jedem Routenwechsel initialisieren
-router.afterEach(() => {
-  resetScrollObserver();
-});
+  // ⏱️ Falls User eingeloggt ist, starte die Refresh-Logik
+  if (authService.isLoggedIn()) {
+    authService.scheduleTokenRefresh();
+    authService.startTokenCountdown();
+  }
+
+  const app = createApp(App);
+  app.use(router);
+  app.mount("#app");
+
+  // Scroll-Animationen nach jedem Routenwechsel initialisieren
+  router.afterEach(() => {
+    resetScrollObserver();
+  });
+}
+
+bootstrap();
+

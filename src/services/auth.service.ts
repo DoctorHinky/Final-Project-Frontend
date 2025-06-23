@@ -1,7 +1,7 @@
 // import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import api from "./axiosInstance"; // Importiere die konfigurierte axios Instanz
-import axios from "axios";
+// import axios from "axios";
 
 interface DecodedToken {
   exp?: number;
@@ -17,7 +17,10 @@ class AuthService {
   private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private rememberMe = false;
   private isRefreshing = false;
-
+  constructor() {
+    const flag = localStorage.getItem("remember_me_flag");
+    this.rememberMe = flag === "true";
+  }
   async login({
     username,
     email,
@@ -30,36 +33,41 @@ class AuthService {
     rememberMe?: boolean;
   }): Promise<{ success: boolean; role?: string }> {
     try {
-      if (!email && !username) throw new Error("Either email or username must be provided");
+      if (!email && !username)
+        throw new Error("Either email or username must be provided");
       const payload: { username?: string; email?: string; password: string } = {
         password,
       };
 
- if (email) payload.email = email;
-if (username) payload.username = username;
+      if (email) payload.email = email;
+      if (username) payload.username = username;
 
-const response = await api.post("/auth/local/login", payload, {
-  headers: { "Content-Type": "application/json" },
-});
-console.log("📍 login() Methode aufgerufen");
-console.log("Antwort vom Server:", response.data);
+      const response = await api.post("/auth/local/login", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("📍 login() Methode aufgerufen");
+      console.log("Antwort vom Server:", response.data);
 
-const { access_token, refresh_token } = response.data;
-console.log("🔐 Access:", access_token);
-console.log("🔁 Refresh:", refresh_token);
+      const { access_token, refresh_token } = response.data;
+      console.log("🔐 Access:", access_token);
+      console.log("🔁 Refresh:", refresh_token);
 
-this.rememberMe = rememberMe;
-const storage = this.getStorage();
-storage.setItem(this.accessTokenKey, access_token);
-storage.setItem(this.refreshTokenKey, refresh_token);
+      this.rememberMe = rememberMe;
+      localStorage.setItem("remember_me_flag", String(rememberMe));
+      const storage = this.getStorage();
+      storage.setItem(this.accessTokenKey, access_token);
+      storage.setItem(this.refreshTokenKey, refresh_token);
 
-const decoded = jwtDecode<DecodedToken>(access_token);
+      const decoded = jwtDecode<DecodedToken>(access_token);
 
-this.scheduleTokenRefresh();
-this.startTokenCountdown();
-return { success: true, role: decoded.role };
+      this.scheduleTokenRefresh();
+      this.startTokenCountdown();
+      return { success: true, role: decoded.role };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false };
+    }
   }
-}
 
   logout(): void {
     // ⏹️ Timer stoppen
@@ -68,19 +76,21 @@ return { success: true, role: decoded.role };
       this.refreshTimeoutId = null;
     }
 
-  // 🗂️ Aktives Storage anhand von rememberMe
-  const storage = this.getStorage();
-  storage.removeItem(this.accessTokenKey);
-  storage.removeItem(this.refreshTokenKey);
+    // 🗂️ Aktives Storage anhand von rememberMe
+    const storage = this.getStorage();
+    storage.removeItem(this.accessTokenKey);
+    storage.removeItem(this.refreshTokenKey);
 
-  // 🔁 Sicherheitshalber auch im anderen Storage entfernen (falls sich rememberMe geändert hat)
-  const otherStorage = storage === localStorage ? sessionStorage : localStorage;
-  otherStorage.removeItem(this.accessTokenKey);
-  otherStorage.removeItem(this.refreshTokenKey);
+    // 🔁 Sicherheitshalber auch im anderen Storage entfernen (falls sich rememberMe geändert hat)
+    const otherStorage =
+      storage === localStorage ? sessionStorage : localStorage;
+    otherStorage.removeItem(this.accessTokenKey);
+    otherStorage.removeItem(this.refreshTokenKey);
 
-  // 🚫 Refresh-Status zurücksetzen
-  this.isRefreshing = false;
-}
+    // 🚫 Refresh-Status zurücksetzen
+    this.isRefreshing = false;
+    localStorage.removeItem("remember_me_flag");
+  }
 
   adminLogout(): void {
     // Admin-Tokens entfernen
@@ -92,7 +102,10 @@ return { success: true, role: decoded.role };
 
   getAccessToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
+    return (
+      localStorage.getItem(this.accessTokenKey) ||
+      sessionStorage.getItem(this.accessTokenKey)
+    );
   }
 
   getUserData(): DecodedToken | null {
@@ -123,13 +136,18 @@ return { success: true, role: decoded.role };
 
   getRefreshToken(): string | null {
     // Zuerst in localStorage suchen, dann in sessionStorage
-    return localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
+    return (
+      localStorage.getItem(this.refreshTokenKey) ||
+      sessionStorage.getItem(this.refreshTokenKey)
+    );
   }
 
   // Separate Token-Verwaltung für Admin
   getAdminAccessToken(): string | null {
     // FALLBACK: Prüfe auch die normalen Token-Keys für Rückwärtskompatibilität
-    const adminToken = localStorage.getItem("admin_access_token") || sessionStorage.getItem("admin_access_token");
+    const adminToken =
+      localStorage.getItem("admin_access_token") ||
+      sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
 
     // Fallback auf normale Tokens falls Admin sich über normalen Login angemeldet hat
@@ -148,15 +166,16 @@ return { success: true, role: decoded.role };
     return null;
   }
 
-  setAdminTokens(accessToken: string, refreshToken: string, rememberMe: boolean = false): void {
-    if (rememberMe) {
-      localStorage.setItem("admin_access_token", accessToken);
-      localStorage.setItem("admin_refresh_token", refreshToken);
-    } else {
-      sessionStorage.setItem("admin_access_token", accessToken);
-      sessionStorage.setItem("admin_refresh_token", refreshToken);
-    }
-  }
+ setAdminTokens(accessToken: string, refreshToken: string, rememberMe: boolean = false): void {
+  const storage = rememberMe ? localStorage : sessionStorage;
+
+  storage.setItem("admin_access_token", accessToken);
+  storage.setItem("admin_refresh_token", refreshToken);
+
+  // Optional: auch normale Tokens setzen, wenn nötig
+  storage.setItem(this.accessTokenKey, accessToken);
+  storage.setItem(this.refreshTokenKey, refreshToken);
+}
 
   // Admin Login - verwendet die gleiche Logik wie normaler Login
   async adminLogin(
@@ -220,15 +239,9 @@ return { success: true, role: decoded.role };
     }
   }
 
-  private getStorage(): Storage {
-    // Prüfe, ob Token im localStorage vorhanden ist
-    if (localStorage.getItem(this.accessTokenKey)) {
-      this.rememberMe = true;
-      return localStorage;
-    }
-    this.rememberMe = false;
-    return sessionStorage;
-  }
+private getStorage(): Storage {
+  return this.rememberMe ? localStorage : sessionStorage;
+}
 
   isLoggedIn(): boolean {
     const token = this.getAccessToken();
@@ -329,8 +342,8 @@ return { success: true, role: decoded.role };
       console.log("🔁 Refresh (alt):", refreshToken);
       console.groupEnd();
 
-      const response = await axios.post(
-          "auth/refresh",
+      const response = await api.post(
+        "/auth/refresh",
         {},
         {
           headers: { Authorization: `Bearer ${refreshToken}` },
@@ -389,9 +402,9 @@ return { success: true, role: decoded.role };
       console.error("❌ Fehler beim Dekodieren des Tokens:", e);
     }
   }
-  isRememberMeActive(): boolean {
-    return !!localStorage.getItem(this.accessTokenKey);
-  }
+ isRememberMeActive(): boolean {
+  return localStorage.getItem("remember_me_flag") === "true";
+}
 
   // Neue Methode für manuellen Token-Check mit Refresh
   async checkAndRefreshToken(): Promise<boolean> {
@@ -416,7 +429,3 @@ return { success: true, role: decoded.role };
 }
 
 export const authService = new AuthService();
-function logout() {
-  throw new Error("Function not implemented.");
-}
-
