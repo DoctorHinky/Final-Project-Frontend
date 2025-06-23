@@ -65,25 +65,6 @@
             {{ formatCategory(article.category) }}
           </div>
 
-          <!-- Certified Author Badge -->
-          <div v-if="article.isCertifiedAuthor" class="certified-badge">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M9 12l2 2 4-4"></path>
-              <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-              <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-            </svg>
-            <span>Zertifiziert</span>
-          </div>
 
           <!-- Click-to-Read Overlay -->
           <div class="click-overlay">
@@ -771,73 +752,8 @@ export default defineComponent({
           }
         }
       }
-
-      // Certified Badge
-      .certified-badge {
-        position: absolute;
-        top: map.get(vars.$spacing, s);
-        right: map.get(vars.$spacing, s);
-        padding: 6px 10px;
-        border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-        font-size: 11px;
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        backdrop-filter: blur(10px);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        z-index: 2;
-
-        @each $theme in ("light", "dark") {
-          .theme-#{$theme} & {
-            background: rgba(255, 215, 0, 0.9);
-            color: #333;
-          }
-        }
-
-        svg {
-          width: 12px;
-          height: 12px;
-        }
-      }
-
-      // Click Overlay
-      .click-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 3;
-
-        .click-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: map.get(vars.$spacing, s);
-          color: white;
-          text-align: center;
-
-          .click-icon {
-            padding: map.get(vars.$spacing, m);
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-          }
-
-          span {
-            font-weight: map.get(map.get(vars.$fonts, weights), medium);
-            font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          }
-        }
-      }
     }
-
+    
     // Card Content
     .card-content {
       padding: map.get(vars.$spacing, l);

@@ -897,15 +897,19 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   z-index: 1050;
+  width: 100%;
+  height: 100%;
   padding: map.get(vars.$spacing, m);
   background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
+  position: absolute;
+  top: -15%;
+  left: 0%;
   width: 100%;
   max-width: 1200px;
   height: 80vh;
-  max-height: 700px;
   display: flex;
   flex-direction: column;
   border-radius: map.get(map.get(vars.$layout, border-radius), large);
