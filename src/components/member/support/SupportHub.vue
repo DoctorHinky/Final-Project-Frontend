@@ -761,7 +761,7 @@ export default defineComponent({
 .Support-IMG {
   width: 600px;
   position: absolute;
-  top: 10%;
+  top: 8%;
   left: 60%;
   transform: translateX(-50%);
   border-radius: 40%;
