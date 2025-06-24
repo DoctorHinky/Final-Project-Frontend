@@ -82,6 +82,7 @@
       :friend-id="selectedFriend?.friendId || selectedFriend?.id || ''"
       :friend-name="selectedFriend?.username || ''"
       :is-online="selectedFriend?.isOnline || false"
+      :friend-profile-image="selectedFriend?.profileImage || ''"
       @send-message="handleSendMessage"
       @show-toast="showToast"
     />

@@ -103,9 +103,7 @@ export const memberTicketService = {
   async createTicket(formData: FormData): Promise<CreateTicketResponse> {
     try {
       const response = await api.post(`/tickets/create`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       // Response normalisieren
@@ -133,20 +131,14 @@ export const memberTicketService = {
         return [];
       }
 
-      console.log("Fetching tickets for user:", userId);
-
       // Nutze die by-user Route statt myTickets
       const response = await api.get(`/tickets/by-user/${userId}`);
 
       // Backend gibt String zurück wenn keine Tickets vorhanden
-      if (typeof response.data === "string") {
-        console.log("No tickets message:", response.data);
-        return [];
-      }
+      if (typeof response.data === "string") return [];
 
       // Response-Daten normalisieren
       const tickets = Array.isArray(response.data) ? response.data : [];
-      console.log("Tickets found:", tickets.length);
 
       return tickets.map((ticket: any) => ({
         id: ticket.id,
@@ -204,9 +196,7 @@ export const memberTicketService = {
       }
 
       // Files/files normalisieren
-      if (ticketData.Files) {
-        ticketData.files = ticketData.Files;
-      }
+      if (ticketData.Files) ticketData.files = ticketData.Files;
 
       return ticketData;
     } catch (error: any) {
@@ -257,7 +247,6 @@ export const memberTicketService = {
       if (error.response?.status === 403) {
         throw new Error("Sie haben keine Berechtigung, dieses Ticket wieder zu öffnen.");
       }
-
       throw new Error(error.response?.data?.message || "Ticket konnte nicht wieder geöffnet werden.");
     }
   },
@@ -267,9 +256,7 @@ export const memberTicketService = {
     try {
       const response = await api.get(`/tickets/by-user/${userId}`);
 
-      if (typeof response.data === "string") {
-        return [];
-      }
+      if (typeof response.data === "string") return [];
 
       const tickets = Array.isArray(response.data) ? response.data : [];
 
@@ -348,20 +335,6 @@ export const memberTicketService = {
   // Kann User Ticket schließen?
   canCloseTicket(ticket: UserTicket | FullTicket): boolean {
     return ticket.status !== TicketStatus.CLOSED;
-  },
-
-  // Debug-Funktion für Entwicklung
-  async testConnection(): Promise<void> {
-    try {
-      console.log("Testing ticket service connection...");
-      const userId = getCurrentUserId();
-      console.log("Current user ID:", userId);
-
-      const tickets = await this.getMyTickets();
-      console.log("Connection successful, tickets:", tickets);
-    } catch (error) {
-      console.error("Connection test failed:", error);
-    }
   },
 };
 

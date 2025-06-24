@@ -24,8 +24,6 @@ class NotificationService {
   async getNotificationCount(): Promise<number> {
     try {
       const response = await api.get<number>("/notification/count");
-      console.log("count gepollt");
-      console.log("Anzahl ungelesener Benachrichtigungen:", response);
       // Backend gibt direkt die Zahl zurück
       return response.data;
     } catch (error) {

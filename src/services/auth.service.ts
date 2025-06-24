@@ -69,10 +69,13 @@ class AuthService {
   }
 
   // Admin Login - verwendet die gleiche Logik wie normaler Login
-  async adminLogin(emailOrUsername: string, password: string): Promise<{ success: boolean; role?: string; message?: string }> {
+  async adminLogin(
+    emailOrUsername: string,
+    password: string
+  ): Promise<{ success: boolean; role?: string; message?: string }> {
     try {
       console.log("[AdminLogin] Start mit:", emailOrUsername);
-      
+
       // Verwende die normale login Methode
       const loginData: any = { password };
       const trimmedInput = emailOrUsername.trim();
@@ -85,13 +88,13 @@ class AuthService {
       }
 
       console.log("[AdminLogin] Sende Request an Backend...");
-      
+
       const response = await api.post("/auth/local/login", loginData, {
         headers: { "Content-Type": "application/json" },
       });
 
       const { access_token, refresh_token } = response.data;
-      
+
       console.log("[AdminLogin] Response erhalten, Token vorhanden:", !!access_token);
 
       if (!access_token) {
@@ -110,17 +113,17 @@ class AuthService {
       // Speichere Tokens in sessionStorage für Admin
       sessionStorage.setItem(this.accessTokenKey, access_token);
       sessionStorage.setItem(this.refreshTokenKey, refresh_token);
-      
+
       // Admin-spezifische Token-Keys für bessere Trennung
       sessionStorage.setItem("admin_access_token", access_token);
       sessionStorage.setItem("admin_refresh_token", refresh_token);
-      
+
       console.log("[AdminLogin] Tokens gespeichert in sessionStorage");
-      
+
       // Starte Token-Refresh für Admin
       this.scheduleTokenRefresh();
       this.startTokenCountdown();
-      
+
       console.log("[AdminLogin] Login erfolgreich, Rolle:", decoded.role);
       return { success: true, role: decoded.role };
     } catch (error: any) {
@@ -130,14 +133,14 @@ class AuthService {
         data: error.response?.data,
         url: error.config?.url,
       });
-      
+
       let message = "Ein Fehler ist aufgetreten";
       if (error.response?.status === 401) {
         message = "Ungültige Anmeldedaten";
       } else if (error.response?.status === 403) {
         message = "Zugriff verweigert";
       }
-      
+
       return { success: false, message };
     }
   }
@@ -160,7 +163,7 @@ class AuthService {
     localStorage.removeItem(this.refreshTokenKey);
     sessionStorage.removeItem(this.accessTokenKey);
     sessionStorage.removeItem(this.refreshTokenKey);
-    
+
     // Admin-spezifische Tokens entfernen
     sessionStorage.removeItem("admin_access_token");
     sessionStorage.removeItem("admin_refresh_token");
@@ -200,7 +203,7 @@ class AuthService {
     // Prüfe zuerst Admin-spezifische Keys
     const adminToken = sessionStorage.getItem("admin_access_token");
     if (adminToken) return adminToken;
-    
+
     // Fallback auf normale Tokens
     const normalToken = this.getAccessToken();
     if (normalToken) {
@@ -213,7 +216,7 @@ class AuthService {
         console.error("Token decode error:", e);
       }
     }
-    
+
     return null;
   }
 
@@ -243,10 +246,7 @@ class AuthService {
 
   isAdminLoggedIn(): boolean {
     const token = this.getAdminAccessToken();
-    if (!token) {
-      console.log("[Auth] Kein Admin-Token gefunden");
-      return false;
-    }
+    if (!token) return false;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
@@ -255,11 +255,9 @@ class AuthService {
       // Prüfe ob Token noch gültig ist UND ob User Admin/Moderator ist
       if (decoded.exp && decoded.exp > now) {
         const isAdminOrMod = decoded.role === "ADMIN" || decoded.role === "MODERATOR";
-        console.log("[Auth] Admin check:", { role: decoded.role, isAdminOrMod });
         return isAdminOrMod;
       }
 
-      console.log("[Auth] Admin-Token abgelaufen");
       return false;
     } catch (error) {
       console.error("[Auth] Fehler beim Prüfen des Admin-Status:", error);
@@ -341,7 +339,7 @@ class AuthService {
       if (refresh_token) {
         storage.setItem(this.refreshTokenKey, refresh_token);
       }
-      
+
       // Admin-spezifische Tokens aktualisieren falls Admin
       if (isAdmin) {
         sessionStorage.setItem("admin_access_token", access_token);

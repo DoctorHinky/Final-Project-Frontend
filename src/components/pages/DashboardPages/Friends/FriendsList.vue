@@ -113,7 +113,6 @@ export default defineComponent({
 
     const openChat = (friend: Friend) => {
       emit("open-chat", friend);
-      console.log("FriendsList: open-chat event emitted"); // DEBUG
     };
 
     return {
