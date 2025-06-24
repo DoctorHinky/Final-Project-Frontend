@@ -157,7 +157,7 @@ export default defineComponent({
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
   display: flex;
   flex-direction: column;
-  height: fit-content;
+  height: 100vh;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
@@ -259,8 +259,6 @@ export default defineComponent({
 .articles-list {
   display: flex;
   flex-direction: column;
-  max-height: 400px;
-  overflow-y: auto;
 
   .article-item {
     display: grid;

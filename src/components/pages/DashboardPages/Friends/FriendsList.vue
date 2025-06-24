@@ -18,7 +18,6 @@
           <p class="friend-bio">{{ friend.bio }}</p>
           <div class="friend-meta">
             <span class="friend-since">Freunde seit {{ friend.friendSince }}</span>
-            <span class="shared-interests">{{ friend.sharedInterests }} gemeinsame Interessen</span>
           </div>
         </div>
         <div class="friend-actions">
@@ -148,7 +147,7 @@ export default defineComponent({
 
 // Friend card styles
 .friend-card {
-  width: 600px;
+  width: 700px;
   display: flex;
   padding: map.get(vars.$spacing, l);
   border-radius: map.get(map.get(vars.$layout, border-radius), medium);
@@ -273,8 +272,7 @@ export default defineComponent({
         }
       }
 
-      .friend-since,
-      .shared-interests {
+      .friend-since {
         padding: 4px 10px;
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         white-space: nowrap;
