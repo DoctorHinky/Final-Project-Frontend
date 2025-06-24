@@ -10,4 +10,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"), // ← Alias für src/
     },
   },
+  build: {
+    outDir: "dist", // ← Sicherstellen, dass der Build IMMER in "dist" geht
+    emptyOutDir: true, // ← Löscht alten Inhalt von dist vor dem neuen Build
+  },
 });
