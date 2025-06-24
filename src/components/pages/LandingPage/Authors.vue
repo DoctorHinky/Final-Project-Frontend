@@ -16,7 +16,7 @@
       <div
         v-for="(author, index) in authors"
         :key="author.id"
-        :class="['author-card', `card-type-${index + 1}`, 'animation-pending']"
+        :class="['author-card', `card-type-${(index % 4) + 1}`, 'animation-pending']"
         :data-index="index"
         :ref="`authorCard${index}`"
       >
@@ -304,18 +304,19 @@ export default defineComponent({
       const cards = document.querySelectorAll(".author-card.animation-pending");
 
       cards.forEach((card, index) => {
-        // Spezifische Animation für jeden der 3 Autoren
-        const animationType = index + 1;
+        // Die Animation richtet sich nach dem Kartentyp (1-4)
+        const cardTypeMatch = card.className.match(/card-type-(\d+)/);
+        const cardType = cardTypeMatch ? parseInt(cardTypeMatch[1]) : 1;
 
         setTimeout(() => {
           card.classList.remove("animation-pending");
-          card.classList.add("animate-in", `animation-type-${animationType}`);
+          card.classList.add("animate-in");
 
-          // Gestaffelte Text-Animation nach Karten-Erscheinen
+          // Animate text after card is visible
           setTimeout(() => {
             animateCardText(card as HTMLElement);
-          }, 400 + (index * 100));
-        }, index * 300); // Erhöhte Verzögerung zwischen Karten
+          }, 300);
+        }, index * 200);
       });
     };
 
@@ -498,7 +499,7 @@ export default defineComponent({
     }
 
     .main-title {
-      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-size: 2rem !important;
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, l);
       position: relative;
@@ -593,68 +594,46 @@ export default defineComponent({
     &.animation-pending {
       opacity: 0;
       transform: translateY(100px) scale(0.8);
-      will-change: transform, opacity;
     }
 
-    // Nach Animation fertig
-    &.animate-in {
-      will-change: auto;
-    }
-
-    // Card Type Variations für genau 3 Karten
+    // Card Type Variations mit angepassten Animationen
     &.card-type-1 {
-      // Erste Karte: Diamant-Form mit wellenförmiger Animation
-      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-      animation: diamondPulse 10s ease-in-out infinite;
+      clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
       
-      &:hover {
-        animation-play-state: paused;
-        clip-path: polygon(45% 0%, 100% 45%, 55% 100%, 0% 55%);
+      &.animate-in {
+        animation: slideInDiagonal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      
+      // Subtile Morphing-Animation nach dem Einblenden
+      &.animate-in::after {
+        content: '';
+        animation: morphingSubtle 8s ease-in-out 1s infinite;
       }
     }
 
     &.card-type-2 {
-      // Zweite Karte: Hexagon mit 3D-Rotation
-      clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       transform-style: preserve-3d;
-      animation: hexagonRotate 12s linear infinite;
       
-      &:hover {
-        animation-play-state: paused;
+      &.animate-in {
+        animation: hexagonReveal 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
     }
 
     &.card-type-3 {
-      // Dritte Karte: Asymmetrisch mit morphender Form
-      clip-path: polygon(20% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%, 0% 30%);
-      animation: asymmetricMorph 15s ease-in-out infinite;
+      clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
       
-      &:hover {
-        animation-play-state: paused;
-        clip-path: polygon(15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%, 0% 15%);
+      &.animate-in {
+        animation: slideInSkewed 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
     }
 
-    // Animation Types für 3 spezifische Karten
-    &.animation-type-1.animate-in {
-      // Erste Karte: Elegantes Gleiten mit Rotation
-      animation: 
-        glideInFromLeft 1s cubic-bezier(0.23, 1, 0.32, 1) forwards,
-        subtleFloat 6s ease-in-out 1s infinite;
-    }
-
-    &.animation-type-2.animate-in {
-      // Zweite Karte: 3D-Flip mit Bounce
-      animation: 
-        flipInWithBounce 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
-        gentleRotate 8s linear 1.2s infinite;
-    }
-
-    &.animation-type-3.animate-in {
-      // Dritte Karte: Spiral-Eingang mit Pulsieren
-      animation: 
-        spiralIn 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-        rhythmicPulse 4s ease-in-out 1.4s infinite;
+    &.card-type-4 {
+      clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+      
+      &.animate-in {
+        animation: trapezoidMorph 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
     }
 
     @each $theme in ("light", "dark") {
@@ -786,27 +765,21 @@ export default defineComponent({
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
       &.shape-1 {
-        // Kreisform für ersten Autor
-        width: 100px;
+        width: 100px; // Reduziert von 120px
         height: 100px;
         border-radius: 50%;
-        animation: circleBreath 4s ease-in-out infinite;
       }
 
       &.shape-2 {
-        // Pentagon für zweiten Autor
-        width: 100px;
+        width: 100px; // Reduziert von 120px
         height: 100px;
         clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-        animation: pentagonSpin 6s linear infinite;
       }
 
       &.shape-3 {
-        // Organische Form für dritten Autor
-        width: 100px;
+        width: 100px; // Reduziert von 120px
         height: 100px;
         border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-        animation: organicMorph 8s ease-in-out infinite;
       }
 
       .image-glow {
@@ -861,24 +834,21 @@ export default defineComponent({
           }
 
           &.icon-1 {
-            top: -50px;
-            left: -15px;
+            top: -50px; // Reduziert von -60px
+            left: -15px; // Reduziert von -20px
             animation-delay: 0s;
-            animation: floatIcon 3s ease-in-out infinite, orbitIcon 10s linear infinite;
           }
 
           &.icon-2 {
-            top: -35px;
-            right: -25px;
+            top: -35px; // Reduziert von -40px
+            right: -25px; // Reduziert von -30px
             animation-delay: 1s;
-            animation: floatIcon 3s ease-in-out 1s infinite, orbitIcon 10s linear 3.33s infinite reverse;
           }
 
           &.icon-3 {
-            bottom: -40px;
-            left: 5px;
+            bottom: -40px; // Reduziert von -50px
+            left: 5px; // Reduziert von 10px
             animation-delay: 2s;
-            animation: floatIcon 3s ease-in-out 2s infinite, orbitIcon 10s linear 6.66s infinite;
           }
         }
       }
@@ -1093,49 +1063,10 @@ export default defineComponent({
         border-radius: 50%;
         opacity: 0;
         animation: particleFloat 4s ease-in-out infinite;
-        
-        // Individuelle Positionen für Explosion
-        &:nth-child(1) { 
-          --particle-x: -40px; 
-          --particle-y: -40px;
-          top: 20%;
-          left: 20%;
-        }
-        &:nth-child(2) { 
-          --particle-x: 40px; 
-          --particle-y: -40px;
-          top: 20%;
-          right: 20%;
-        }
-        &:nth-child(3) { 
-          --particle-x: -40px; 
-          --particle-y: 40px;
-          bottom: 20%;
-          left: 20%;
-        }
-        &:nth-child(4) { 
-          --particle-x: 40px; 
-          --particle-y: 40px;
-          bottom: 20%;
-          right: 20%;
-        }
-        &:nth-child(5) { 
-          --particle-x: 0; 
-          --particle-y: -50px;
-          top: 50%;
-          left: 50%;
-        }
-        &:nth-child(6) { 
-          --particle-x: 0; 
-          --particle-y: 50px;
-          bottom: 50%;
-          left: 50%;
-        }
 
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
-            box-shadow: 0 0 8px mixins.theme-color($theme, accent-lime);
           }
         }
       }
@@ -1216,34 +1147,12 @@ export default defineComponent({
       }
     }
 
-    // Hover Effect - Verbessert für 3 Karten
+    // Hover Effect
     &:hover {
-      transform: translateY(-15px) scale(1.05);
-      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-
-      @each $theme in ("light", "dark") {
-        .theme-#{$theme} & {
-          box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.3),
-            0 0 60px rgba(mixins.theme-color($theme, accent-green), 0.5),
-            inset 0 0 30px rgba(mixins.theme-color($theme, accent-teal), 0.2);
-        }
-      }
+      transform: translateY(-10px) scale(1.02);
 
       .author-image-container {
-        transform: scale(1.15) rotate(5deg);
-        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-
-        &.shape-1 {
-          animation-play-state: paused;
-        }
-        &.shape-2 {
-          animation-play-state: paused;
-          transform: scale(1.15) rotate(185deg);
-        }
-        &.shape-3 {
-          animation-play-state: paused;
-        }
+        transform: scale(1.1);
       }
 
       .hover-reveal {
@@ -1257,236 +1166,12 @@ export default defineComponent({
 
       .card-particles .particle {
         opacity: 1;
-        animation: particleExplosion 1s ease-out forwards;
-      }
-
-      // Spezifische Hover-Effekte pro Karte
-      &.card-type-1 {
-        .image-glow {
-          animation: pulseGlow 1s ease-in-out infinite;
-        }
-      }
-
-      &.card-type-2 {
-        transform: translateY(-15px) scale(1.05) perspective(1000px) rotateX(5deg);
-      }
-
-      &.card-type-3 {
-        .card-bg-pattern {
-          animation-duration: 5s;
-          opacity: 0.3;
-        }
       }
     }
   }
 }
 
 // Keyframe Animations
-@keyframes glideInFromLeft {
-  0% {
-    opacity: 0;
-    transform: translateX(-150px) translateY(30px) rotateZ(-5deg) scale(0.8);
-  }
-  60% {
-    opacity: 1;
-    transform: translateX(20px) translateY(-5px) rotateZ(1deg) scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) translateY(0) rotateZ(0deg) scale(1);
-  }
-}
-
-@keyframes subtleFloat {
-  0%, 100% {
-    transform: translateY(0px) rotateZ(0deg);
-  }
-  50% {
-    transform: translateY(-15px) rotateZ(1deg);
-  }
-}
-
-@keyframes flipInWithBounce {
-  0% {
-    opacity: 0;
-    transform: perspective(1000px) rotateY(-90deg) scale(0.5);
-  }
-  40% {
-    transform: perspective(1000px) rotateY(20deg) scale(1.1);
-  }
-  60% {
-    transform: perspective(1000px) rotateY(-10deg) scale(0.95);
-  }
-  80% {
-    transform: perspective(1000px) rotateY(5deg) scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(1000px) rotateY(0deg) scale(1);
-  }
-}
-
-@keyframes gentleRotate {
-  0% {
-    transform: perspective(1000px) rotateY(0deg);
-  }
-  100% {
-    transform: perspective(1000px) rotateY(360deg);
-  }
-}
-
-@keyframes spiralIn {
-  0% {
-    opacity: 0;
-    transform: rotate(-720deg) scale(0) translateX(100px);
-  }
-  50% {
-    opacity: 0.8;
-    transform: rotate(-180deg) scale(0.7) translateX(50px);
-  }
-  75% {
-    opacity: 1;
-    transform: rotate(-45deg) scale(1.1) translateX(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: rotate(0deg) scale(1) translateX(0);
-  }
-}
-
-@keyframes rhythmicPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.05);
-  }
-  50% {
-    transform: scale(1);
-  }
-  75% {
-    transform: scale(0.95);
-  }
-}
-
-@keyframes diamondPulse {
-  0%, 100% {
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    clip-path: polygon(45% 0%, 100% 45%, 55% 100%, 0% 55%);
-    transform: scale(1.05) rotate(45deg);
-  }
-  50% {
-    clip-path: polygon(55% 0%, 100% 55%, 45% 100%, 0% 45%);
-    transform: scale(1) rotate(90deg);
-  }
-  75% {
-    clip-path: polygon(48% 0%, 100% 48%, 52% 100%, 0% 52%);
-    transform: scale(0.95) rotate(135deg);
-  }
-}
-
-@keyframes hexagonRotate {
-  0% {
-    transform: perspective(800px) rotateX(0deg) rotateY(0deg);
-  }
-  25% {
-    transform: perspective(800px) rotateX(10deg) rotateY(90deg);
-  }
-  50% {
-    transform: perspective(800px) rotateX(-10deg) rotateY(180deg);
-  }
-  75% {
-    transform: perspective(800px) rotateX(10deg) rotateY(270deg);
-  }
-  100% {
-    transform: perspective(800px) rotateX(0deg) rotateY(360deg);
-  }
-}
-
-@keyframes asymmetricMorph {
-  0%, 100% {
-    clip-path: polygon(20% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%, 0% 30%);
-  }
-  20% {
-    clip-path: polygon(10% 0%, 100% 10%, 90% 100%, 0% 90%, 10% 100%, 0% 10%);
-  }
-  40% {
-    clip-path: polygon(30% 0%, 100% 30%, 70% 100%, 0% 70%, 30% 100%, 0% 30%);
-  }
-  60% {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 100%, 0% 0%);
-  }
-  80% {
-    clip-path: polygon(15% 0%, 100% 15%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
-  }
-}
-
-@keyframes circleBreath {
-  0%, 100% {
-    transform: scale(1);
-    border-radius: 50%;
-  }
-  50% {
-    transform: scale(1.1);
-    border-radius: 45%;
-  }
-}
-
-@keyframes pentagonSpin {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(180deg) scale(0.9);
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-  }
-}
-
-@keyframes organicMorph {
-  0%, 100% {
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-  }
-  25% {
-    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
-  }
-  50% {
-    border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
-  }
-  75% {
-    border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
-  }
-}
-
-@keyframes particleExplosion {
-  0% {
-    transform: translate(0, 0) scale(0);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--particle-x, 30px), var(--particle-y, -30px)) scale(1);
-    opacity: 0;
-  }
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    filter: blur(15px);
-    transform: scale(1);
-  }
-  50% {
-    filter: blur(25px);
-    transform: scale(1.2);
-  }
-}
-
 @keyframes blink {
   0%,
   50% {
@@ -1515,24 +1200,109 @@ export default defineComponent({
   }
 }
 
-@keyframes floatIcon {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    opacity: 0.7;
+// Animation für card-type-1 (schräger Schnitt links)
+@keyframes slideInDiagonal {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(100px) rotate(-5deg);
+    clip-path: polygon(0% 0, 0% 0, 0% 100%, 0% 100%);
   }
   50% {
-    transform: translateY(-10px) rotate(180deg) scale(1.2);
+    opacity: 0.7;
+    clip-path: polygon(0% 0, 50% 0, 50% 100%, 0% 100%);
+  }
+  100% {
     opacity: 1;
+    transform: translateX(0) translateY(0) rotate(0deg);
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
   }
 }
 
-@keyframes orbitIcon {
+// Animation für card-type-2 (Hexagon)
+@keyframes hexagonReveal {
   0% {
-    transform: rotate(0deg) translateX(60px) rotate(0deg);
+    opacity: 0;
+    transform: scale(0) rotateZ(180deg);
+    clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.5) rotateZ(90deg);
   }
   100% {
-    transform: rotate(360deg) translateX(60px) rotate(-360deg);
+    opacity: 1;
+    transform: scale(1) rotateZ(0deg);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+}
+
+// Animation für card-type-3 (schräger Schnitt rechts)
+@keyframes slideInSkewed {
+  0% {
+    opacity: 0;
+    transform: translateX(100px) translateY(100px) rotate(5deg);
+    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  }
+  50% {
+    opacity: 0.7;
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotate(0deg);
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+  }
+}
+
+// Animation für card-type-4 (Trapez)
+@keyframes trapezoidMorph {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.3);
+    clip-path: polygon(50% 100%, 50% 100%, 50% 100%, 50% 100%);
+  }
+  30% {
+    opacity: 0.5;
+    transform: translateY(50px) scale(0.6);
+    clip-path: polygon(40% 50%, 60% 50%, 60% 100%, 40% 100%);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(20px) scale(0.8);
+    clip-path: polygon(30% 25%, 70% 25%, 65% 100%, 35% 100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+  }
+}
+
+// Subtile Morphing-Animation für card-type-1
+@keyframes morphingSubtle {
+  0%, 100% {
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  25% {
+    clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  50% {
+    clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  75% {
+    clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@keyframes floatIcon {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+    opacity: 1;
   }
 }
 

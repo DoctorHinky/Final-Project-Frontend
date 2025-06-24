@@ -288,6 +288,7 @@ export default defineComponent({
 .hero-section {
   margin: 0 auto;
   min-height: 100vh;
+  width: 100%;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -308,7 +309,6 @@ export default defineComponent({
   }
 
   .hero-container {
-
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: map.get(vars.$spacing, xxl);
@@ -337,6 +337,7 @@ export default defineComponent({
       margin: 0;
 
       .title-line {
+        font-size: 2rem;
         display: block;
         animation: fade-in-up 0.8s ease-out backwards;
 
@@ -356,6 +357,7 @@ export default defineComponent({
         position: relative;
 
         .flip-text {
+        font-size: 2rem;
           display: inline-block;
           transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
           transform-style: preserve-3d;
@@ -669,7 +671,7 @@ export default defineComponent({
   // Right side 3D animation
   .hero-visual {
     position: relative;
-    height: 600px;
+    height: 700px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -680,8 +682,8 @@ export default defineComponent({
 
     .animation-container {
       position: relative;
-      width: 500px;
-      height: 500px;
+      width: 600px;
+      height: 600px;
       transform-style: preserve-3d;
       perspective: 1000px;
 
@@ -713,13 +715,13 @@ export default defineComponent({
 
           .orbit-card {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 110px;
+            height: 110px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 8px;
             border-radius: map.get(map.get(vars.$layout, border-radius), medium);
             backdrop-filter: blur(10px);
             animation: card-self-rotate 30s linear infinite;
@@ -734,8 +736,8 @@ export default defineComponent({
             }
 
             svg {
-              width: 24px;
-              height: 24px;
+              width: 32px;
+              height: 32px;
 
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
@@ -745,7 +747,7 @@ export default defineComponent({
             }
 
             span {
-              font-size: 11px;
+              font-size: 13px;
               font-weight: map.get(map.get(vars.$fonts, weights), medium);
 
               @each $theme in ('light', 'dark') {
@@ -759,37 +761,37 @@ export default defineComponent({
             &.card-1 {
               top: 50%;
               left: 0;
-              transform: translateY(-50%) translateX(-150px);
+              transform: translateY(-50%) translateX(-200px);
             }
 
             &.card-2 {
               top: 50%;
               right: 0;
-              transform: translateY(-50%) translateX(150px);
+              transform: translateY(-50%) translateX(200px);
             }
 
             &.card-3 {
               top: 0;
               left: 50%;
-              transform: translateX(-50%) translateY(-150px);
+              transform: translateX(-50%) translateY(-200px);
             }
 
             &.card-4 {
               bottom: 0;
               left: 50%;
-              transform: translateX(-50%) translateY(150px);
+              transform: translateX(-50%) translateY(200px);
             }
 
             &.card-5 {
               top: 20%;
               left: 20%;
-              transform: translate(-50%, -50%) translateZ(150px);
+              transform: translate(-50%, -50%) translateZ(200px);
             }
 
             &.card-6 {
               bottom: 20%;
               right: 20%;
-              transform: translate(50%, 50%) translateZ(-150px);
+              transform: translate(50%, 50%) translateZ(-200px);
             }
           }
         }
@@ -804,8 +806,8 @@ export default defineComponent({
 
         .glow-effect {
           position: absolute;
-          width: 250px;
-          height: 250px;
+          width: 350px;
+          height: 350px;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
@@ -825,8 +827,8 @@ export default defineComponent({
 
         .logo-3d {
           position: relative;
-          width: 120px;
-          height: 120px;
+          width: 160px;
+          height: 160px;
           border-radius: 50%;
           z-index: 10;
 
@@ -842,8 +844,8 @@ export default defineComponent({
 
         .pulse-ring {
           position: absolute;
-          width: 150px;
-          height: 150px;
+          width: 200px;
+          height: 200px;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);

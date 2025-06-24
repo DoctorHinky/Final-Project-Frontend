@@ -376,11 +376,11 @@ export default defineComponent({
 .LandingPage {
   display: flex;
   flex-direction: column;
-  gap: 300px;
+  gap: 100px;
   padding-bottom: map.get(vars.$spacing, xxxl);
   opacity: 0;
   transform: translateY(30px);
-  max-width: 1600px;
+  max-width: 2000px;
   
   &.page-revealed {
     animation: pageReveal 0.8s ease-out forwards;

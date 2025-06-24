@@ -1,88 +1,151 @@
 <!-- src/components/layout/AppHeader.vue -->
 <template>
-  <header class="app-header container">
-    <div class="header-top">
-      <div class="logo">
-        <!-- Logo als Link zur Hauptseite -->
-        <router-link to="/">
-          <img src="@/assets/images/Logo.webp" alt="Logo" class="logo-image" />
-        </router-link>
+  <header class="app-header" :class="{ 'scrolled': isScrolled, 'mobile-open': isMobileMenuOpen }">
+    <div class="header-container">
+      <!-- Main Header Row -->
+      <div class="header-main">
+        <!-- Logo -->
+        <div class="logo-wrapper">
+          <router-link to="/" class="logo-link">
+            <img src="@/assets/images/Logo.webp" alt="LearnToGrow Logo" class="logo-image" />
+            <span class="logo-text">LearnToGrow</span>
+          </router-link>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="desktop-nav" aria-label="Hauptnavigation">
+          <ul class="nav-list">
+            <li v-for="(item, index) in navItems" :key="index" class="nav-item">
+              <a :href="`#${item.id}`" class="nav-link" :class="{ 'active': activeSection === index }"
+                @click.prevent="navigateToSection(item.id, index)"
+                :aria-current="activeSection === index ? 'page' : undefined">
+                <component :is="item.icon" class="nav-icon" />
+                <span class="nav-text">{{ item.name }}</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Theme Toggle -->
+          <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
+
+          <!-- CTA Button -->
+          <router-link to="/login-register" class="cta-button desktop-only">
+            <span class="cta-text">Jetzt starten</span>
+            <ArrowRightIcon class="cta-icon" />
+          </router-link>
+
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-menu-toggle" @click="toggleMobileMenu" :aria-expanded="isMobileMenuOpen"
+            aria-label="Menü öffnen">
+            <span class="menu-icon">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
       </div>
 
-      <!-- Desktop Header Actions -->
-      <div class="header-actions desktop-only">
-        <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
-        <router-link to="/login-register" class="login-button">Anmelden</router-link>
+      <!-- Progress Bar -->
+      <div class="scroll-progress">
+        <div class="progress-bar" :style="{ width: scrollProgress + '%' }"></div>
       </div>
-
-      <!-- Mobile Hamburger Menu -->
-      <button class="hamburger-menu mobile-only" :class="{ active: isMobileMenuOpen }" @click="toggleMobileMenu"
-        aria-label="Navigation öffnen">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
     </div>
 
-    <!-- Desktop Navigation -->
-    <nav class="nav-tabs desktop-only">
-      <a v-for="(tab, index) in tabs" :key="index" class="nav-tab" :class="{ active: activeTab === index }"
-        @click="scrollToSection(tab.id, index)" href="javascript:void(0);">
-        {{ tab.name }}
-      </a>
-    </nav>
+    <!-- Mobile Menu Overlay -->
+    <Transition name="mobile-menu">
+      <div v-if="isMobileMenuOpen" class="mobile-menu-overlay" @click.self="closeMobileMenu">
+        <div class="mobile-menu-content">
+          <!-- Mobile Menu Header -->
+          <div class="mobile-menu-header">
+            <img src="@/assets/images/Logo.webp" alt="LearnToGrow Logo" class="logo-image" style="width:40px; height:40px; border-radius:10px; object-fit:cover;" />
+            <h2 class="mobile-menu-title">Lern To Grow</h2>
+            <button class="close-btn" @click="closeMobileMenu" aria-label="Menü schließen">
+              <XMarkIcon class="close-icon" />
+            </button>
+          </div>
 
-    <!-- Mobile Navigation Overlay -->
-    <transition name="slide-down">
-      <div v-if="isMobileMenuOpen" class="mobile-menu-overlay">
-        <nav class="mobile-nav">
-          <a v-for="(tab, index) in tabs" :key="index" class="mobile-nav-item" :class="{ active: activeTab === index }"
-            @click="handleMobileNavClick(tab.id, index)">
-            <component :is="tab.icon" class="nav-icon" />
-            {{ tab.name }}
-          </a>
+          <!-- Mobile Navigation -->
+          <nav class="mobile-nav" aria-label="Mobile Navigation">
+            <ul class="mobile-nav-list">
+              <li v-for="(item, index) in navItems" :key="index" class="mobile-nav-item">
+                <a :href="`#${item.id}`" class="mobile-nav-link" :class="{ 'active': activeSection === index }"
+                  @click="handleMobileNavClick(item.id, index)">
+                  <div class="link-content">
+                    <component :is="item.icon" class="mobile-nav-icon" />
+                    <div class="link-text">
+                      <span class="link-title">{{ item.name }}</span>
+                      <span class="link-description">{{ item.description }}</span>
+                    </div>
+                  </div>
+                  <ChevronRightIcon class="link-arrow" />
+                </a>
+              </li>
+            </ul>
+          </nav>
 
-          <div class="mobile-actions">
-            <div class="theme-toggle-wrapper">
-              <span class="action-label">Design</span>
-              <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
+          <!-- Mobile Menu Footer -->
+          <div class="mobile-menu-footer">
+            <div class="theme-switcher">
+              <span class="switcher-label">Design-Modus</span>
+              <div class="theme-toggle-mobile">
+                <ThemeToggle :is-light-theme="isLightTheme" @toggle="toggleTheme" />
+              </div>
             </div>
-            <router-link to="/login-register" class="mobile-login-button" @click="closeMobileMenu">
-              <UserIcon class="login-icon" />
-              Anmelden
+
+            <router-link to="/login-register" class="mobile-cta-button" @click="closeMobileMenu">
+              <UserCircleIcon class="cta-icon" />
+              <span>Kostenlos registrieren</span>
             </router-link>
           </div>
-        </nav>
+        </div>
       </div>
-    </transition>
+    </Transition>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import ThemeToggle from '../ui/ThemeToggle.vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
-  InformationCircleIcon,
-  BriefcaseIcon,
+  HomeIcon,
+  RocketLaunchIcon,
   PuzzlePieceIcon,
   UserGroupIcon,
-  PencilIcon,
-  EnvelopeIcon,
-  UserIcon
+  PencilSquareIcon,
+  EyeIcon,
+  ArrowRightIcon,
+  XMarkIcon,
+  ChevronRightIcon,
+  UserCircleIcon
 } from '@heroicons/vue/24/outline';
+import ThemeToggle from '../ui/ThemeToggle.vue';
+
+interface NavItem {
+  name: string;
+  id: string;
+  icon: any;
+  description: string;
+}
 
 export default defineComponent({
   name: 'AppHeader',
   components: {
     ThemeToggle,
-    InformationCircleIcon,
-    BriefcaseIcon,
+    HomeIcon,
+    RocketLaunchIcon,
     PuzzlePieceIcon,
     UserGroupIcon,
-    PencilIcon,
-    EnvelopeIcon,
-    UserIcon
+    PencilSquareIcon,
+    EyeIcon,
+    ArrowRightIcon,
+    XMarkIcon,
+    ChevronRightIcon,
+    UserCircleIcon
   },
   props: {
     isLightTheme: {
@@ -90,139 +153,118 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['tab-change', 'toggle-theme'],
-  setup(_, { emit }) {
-    const activeTab = ref(0);
+  emits: ['toggle-theme', 'tab-change'],
+  setup(props, { emit }) {
     const router = useRouter();
     const route = useRoute();
-    const isMobileMenuOpen = ref(false);
-    const isScrolling = ref(false);
-    const scrollTimeout = ref<number | null>(null);
-    const sectionPositions = ref<Array<{ id: string; top: number; bottom: number }>>([]);
 
-    const tabs = [
-      { name: 'Über', id: 'hero', icon: InformationCircleIcon },
-      { name: 'Mission', id: 'content', icon: BriefcaseIcon },
-      { name: 'Quiz', id: 'quiz', icon: PuzzlePieceIcon },
-      { name: 'Community', id: 'community', icon: UserGroupIcon },
-      { name: 'Autoren', id: 'Authors', icon: PencilIcon },
-      { name: 'Vorschau', id: 'sub', icon: EnvelopeIcon }
+    // State
+    const activeSection = ref(0);
+    const isScrolled = ref(false);
+    const scrollProgress = ref(0);
+    const isMobileMenuOpen = ref(false);
+    const isNavigating = ref(false);
+
+    // Navigation Items
+    const navItems: NavItem[] = [
+      {
+        name: 'Start',
+        id: 'hero',
+        icon: HomeIcon,
+        description: 'Zurück zum Anfang'
+      },
+      {
+        name: 'Mission',
+        id: 'content',
+        icon: RocketLaunchIcon,
+        description: 'Unsere Vision & Werte'
+      },
+      {
+        name: 'Quiz',
+        id: 'quiz',
+        icon: PuzzlePieceIcon,
+        description: 'Teste dein Wissen'
+      },
+      {
+        name: 'Community',
+        id: 'community',
+        icon: UserGroupIcon,
+        description: 'Werde Teil der Familie'
+      },
+      {
+        name: 'Autoren',
+        id: 'Authors',
+        icon: PencilSquareIcon,
+        description: 'Lerne unser Team kennen'
+      },
+      {
+        name: 'Entdecken',
+        id: 'sub',
+        icon: EyeIcon,
+        description: 'Artikel & Geschichten'
+      }
     ];
 
-    // Berechnet die Header-Höhe basierend auf der Bildschirmgröße
-    const headerOffset = computed(() => window.innerWidth > 768 ? 130 : 80);
+    // Computed
+    const headerHeight = computed(() => {
+      return window.innerWidth > 768 ? 80 : 70;
+    });
 
-    // Aktualisiert die Positionen aller Sektionen
-    const updateSectionPositions = () => {
-      sectionPositions.value = tabs.map(tab => {
-        const element = document.getElementById(tab.id);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          return {
-            id: tab.id,
-            top: rect.top + scrollTop - headerOffset.value - 20, // 20px zusätzlicher Puffer
-            bottom: rect.bottom + scrollTop - headerOffset.value
-          };
-        }
-        return { id: tab.id, top: 0, bottom: 0 };
-      });
+    // Methods
+    const updateScrollProgress = () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      scrollProgress.value = scrolled;
+
+      // Update isScrolled state
+      isScrolled.value = winScroll > 50;
     };
 
-    // Bestimmt die aktive Sektion basierend auf der Scroll-Position
-    const determineActiveSection = () => {
-      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
+    const updateActiveSection = () => {
+      if (isNavigating.value) return;
 
-      // Spezialfall: Ganz unten auf der Seite
-      if (scrollPosition + windowHeight >= documentHeight - 50) {
-        const lastIndex = tabs.length - 1;
-        if (activeTab.value !== lastIndex) {
-          activeTab.value = lastIndex;
-          emit('tab-change', lastIndex);
-        }
-        return;
-      }
+      const scrollPosition = window.scrollY + headerHeight.value + 100;
 
-      // Finde die aktuelle Sektion
-      for (let i = sectionPositions.value.length - 1; i >= 0; i--) {
-        const section = sectionPositions.value[i];
-        if (scrollPosition >= section.top) {
-          if (activeTab.value !== i) {
-            activeTab.value = i;
+      // Find current section
+      for (let i = navItems.length - 1; i >= 0; i--) {
+        const section = document.getElementById(navItems[i].id);
+        if (section && scrollPosition >= section.offsetTop) {
+          if (activeSection.value !== i) {
+            activeSection.value = i;
             emit('tab-change', i);
           }
           break;
         }
       }
-
-      // Spezialfall: Ganz oben auf der Seite
-      if (scrollPosition < sectionPositions.value[0]?.top) {
-        if (activeTab.value !== 0) {
-          activeTab.value = 0;
-          emit('tab-change', 0);
-        }
-      }
     };
 
-    // Optimierter Scroll-Handler mit Debouncing
-    const handleScroll = () => {
-      if (!isScrolling.value) {
-        requestAnimationFrame(determineActiveSection);
-      }
-
-      // Clear existing timeout
-      if (scrollTimeout.value) {
-        clearTimeout(scrollTimeout.value);
-      }
-
-      // Set scrolling timeout
-      scrollTimeout.value = window.setTimeout(() => {
-        isScrolling.value = false;
-      }, 150);
-    };
-
-    // Scroll zu einer spezifischen Sektion
-    const scrollToSection = (sectionId: string, index: number) => {
-      isScrolling.value = true;
-      activeTab.value = index;
-
-      // Überprüfen, ob wir uns auf der Homepage befinden
-      if (route.path !== '/') {
-        // Wenn nicht, zuerst zur Homepage navigieren
-        router.push('/').then(() => {
-          // Kleine Verzögerung, um sicherzustellen, dass die Komponente gemountet ist
-          setTimeout(() => {
-            scrollToElement(sectionId);
-          }, 100);
-        });
-      } else {
-        // Direkt zum Element scrollen, wenn wir bereits auf der Homepage sind
-        scrollToElement(sectionId);
-      }
-
-      // Event für andere Komponenten emittieren
+    const navigateToSection = async (sectionId: string, index: number) => {
+      isNavigating.value = true;
+      activeSection.value = index;
       emit('tab-change', index);
-    };
 
-    const scrollToElement = (sectionId: string) => {
+      // Check if we're on the home page
+      if (route.path !== '/') {
+        await router.push('/');
+        // Wait for page to load
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Scroll to section
       const element = document.getElementById(sectionId);
       if (element) {
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset.value;
-
+        const offsetTop = element.offsetTop - headerHeight.value;
         window.scrollTo({
-          top: offsetPosition,
+          top: offsetTop,
           behavior: 'smooth'
         });
-
-        // Scroll-Tracking nach dem Smooth-Scroll wieder aktivieren
-        setTimeout(() => {
-          isScrolling.value = false;
-          updateSectionPositions();
-        }, 800);
       }
+
+      // Reset navigation flag
+      setTimeout(() => {
+        isNavigating.value = false;
+      }, 1000);
     };
 
     const toggleTheme = () => {
@@ -231,6 +273,7 @@ export default defineComponent({
 
     const toggleMobileMenu = () => {
       isMobileMenuOpen.value = !isMobileMenuOpen.value;
+      // Prevent body scroll when menu is open
       document.body.style.overflow = isMobileMenuOpen.value ? 'hidden' : '';
     };
 
@@ -240,93 +283,48 @@ export default defineComponent({
     };
 
     const handleMobileNavClick = (sectionId: string, index: number) => {
-      scrollToSection(sectionId, index);
+      navigateToSection(sectionId, index);
       closeMobileMenu();
     };
 
-    // Resize-Handler für responsive Anpassungen
-    const handleResize = () => {
-      if (window.innerWidth > 768 && isMobileMenuOpen.value) {
-        closeMobileMenu();
-      }
-      // Sektionspositionen bei Resize neu berechnen
-      updateSectionPositions();
-    };
-
-    // Intersection Observer für präziseres Tracking (optional, aber performanter)
-    const setupIntersectionObserver = () => {
-      const options = {
-        rootMargin: `-${headerOffset.value}px 0px -50% 0px`,
-        threshold: [0, 0.25, 0.5, 0.75, 1]
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        if (isScrolling.value) return;
-
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            const index = tabs.findIndex(tab => tab.id === entry.target.id);
-            if (index !== -1 && activeTab.value !== index) {
-              activeTab.value = index;
-              emit('tab-change', index);
-            }
-          }
-        });
-      }, options);
-
-      // Beobachte alle Sektionen
-      tabs.forEach(tab => {
-        const element = document.getElementById(tab.id);
-        if (element) {
-          observer.observe(element);
-        }
+    // Scroll handler
+    const handleScroll = () => {
+      requestAnimationFrame(() => {
+        updateScrollProgress();
+        updateActiveSection();
       });
-
-      return observer;
     };
 
-    // Route-Watcher für Navigation zwischen Seiten
-    watch(() => route.path, (newPath) => {
-      if (newPath === '/') {
-        // Wenn zur Homepage navigiert wird, Positionen aktualisieren
+    // Lifecycle
+    onMounted(() => {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      // Initial update
+      updateScrollProgress();
+      updateActiveSection();
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('scroll', handleScroll);
+      document.body.style.overflow = '';
+    });
+
+    // Watch route changes
+    watch(() => route.path, () => {
+      if (route.path === '/') {
         setTimeout(() => {
-          updateSectionPositions();
-          determineActiveSection();
+          updateActiveSection();
         }, 100);
       }
     });
 
-    onMounted(() => {
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', handleResize);
-
-      // Initial positions update
-      setTimeout(() => {
-        updateSectionPositions();
-        determineActiveSection();
-      }, 100);
-
-      // Optional: Intersection Observer für noch bessere Performance
-      const observer = setupIntersectionObserver();
-
-      // Cleanup function
-      onUnmounted(() => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
-        document.body.style.overflow = '';
-        if (scrollTimeout.value) {
-          clearTimeout(scrollTimeout.value);
-        }
-        observer.disconnect();
-      });
-    });
-
     return {
-      activeTab,
-      tabs,
-      scrollToSection,
-      toggleTheme,
+      navItems,
+      activeSection,
+      isScrolled,
+      scrollProgress,
       isMobileMenuOpen,
+      navigateToSection,
+      toggleTheme,
       toggleMobileMenu,
       closeMobileMenu,
       handleMobileNavClick
@@ -335,214 +333,353 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
-@use 'sass:map';
+<style lang="scss" scoped>
 @use '@/style/base/variables' as vars;
 @use '@/style/base/mixins' as mixins;
+@use 'sass:map';
 
+// Header Container
 .app-header {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%) translateY(-100px);
-  width: 100%;
-  padding: map.get(vars.$spacing, m) 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-radius: 20px;
-  user-select: none;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background-color: rgba(255, 255, 255, 0.65);
-  opacity: 0;
-  animation: navbar-slide-down 2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: if($theme =='light', rgba(255, 255, 255, 0.65), rgba(30, 30, 30, 0.45));
-      box-shadow: 0 2px 8px rgba(mixins.theme-color($theme, shadow-color), 0.1);
-      transition: all 0.4s ease-out;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.1);
     }
   }
 
-  // Container für Logo und Header-Actions
-  .header-top {
-    @include mixins.flex(row, space-between, center, nowrap);
-    padding: 10px map.get(vars.$spacing, m) 0;
-  }
-
-  // Header Actions Container
-  .header-actions {
-    @include mixins.flex(row, flex-end, center, nowrap);
-    gap: map.get(vars.$spacing, m);
-  }
-
-  .logo {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    a {
-      display: flex;
-      align-items: center;
-    }
-
-    .logo-image {
-      height: 60px;
-      width: auto;
-      border-radius: 50px;
-      object-fit: contain;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: scale(1.05);
-      }
-    }
-
+  &.scrolled {
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: -5px;
-          left: 0;
-          width: 100%;
-          height: 2px;
-          background: mixins.theme-gradient($theme, primary);
-          border-radius: 2px;
-        }
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       }
     }
   }
 
-  // Login Button
-  .login-button {
-    display: inline-block;
-    text-decoration: none;
-
+  &.mobile-open {
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        @include mixins.button-style($theme, 'small', true);
+        background: mixins.theme-color($theme, bg-primary);
       }
     }
   }
 }
 
-@keyframes navbar-slide-down {
-  0% {
-    transform: translateX(-50%) translateY(-100px);
-    opacity: 0;
+.header-container {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Main Header Row
+.header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  height: 80px;
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+    height: 70px;
+  }
+}
+
+// Logo
+.logo-wrapper {
+  flex-shrink: 0;
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 
-  100% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+  .logo-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+      }
+    }
+
+    @media (max-width: 480px) {
+      display: none;
+    }
   }
 }
 
 // Desktop Navigation
-.nav-tabs {
-  font-family: "Comic Sans MS", sans-serif;
-  @include mixins.flex(row, center, center, wrap);
-  gap: map.get(vars.$spacing, m);
-  margin-bottom: map.get(vars.$spacing, s);
-  padding: 1rem;
+.desktop-nav {
+  display: none;
 
-  .nav-tab {
+  @media (min-width: 1025px) {
+    display: block;
+  }
+
+  .nav-list {
     display: flex;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    padding: map.get(vars.$spacing, s) map.get(vars.$spacing, xl);
-    border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-    font-weight: map.get(map.get(vars.$fonts, weights), bold);
-    font-size: map.get(map.get(vars.$fonts, sizes), small);
-    cursor: pointer;
-    background: transparent;
-    text-decoration: none;
-    transition: all 0.3s;
-    width: 150px;
-    height: 40px;
     align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: map.get(map.get(vars.$fonts, weights), medium);
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, nav-item-bg);
-        color: mixins.theme-color($theme, text-primary);
-        border: 2px solid mixins.theme-color($theme, border-light);
-        @include mixins.shadow('small', $theme);
+        color: mixins.theme-color($theme, text-secondary);
+
+        &:hover {
+          color: mixins.theme-color($theme, text-primary);
+          background: rgba(mixins.theme-color($theme, accent-green), 0.1);
+        }
+
+        &.active {
+          color: mixins.theme-color($theme, text-primary);
+          background: rgba(mixins.theme-color($theme, accent-green), 0.15);
+        }
+      }
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-text {
+      position: relative;
+    }
+
+    .nav-indicator {
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 30px;
+      height: 3px;
+      border-radius: 2px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: mixins.theme-gradient($theme, primary);
+        }
+      }
+    }
+
+    &:hover .nav-icon {
+      transform: translateY(-2px);
+    }
+
+    &.active .nav-indicator {
+      transform: translateX(-50%) scaleX(1);
+    }
+  }
+}
+
+// Header Actions
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+// CTA Button
+.cta-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: map.get(map.get(vars.$fonts, weights), medium);
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background: mixins.theme-gradient($theme, primary);
+      color: white;
+      box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-green), 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(mixins.theme-color($theme, accent-green), 0.4);
 
         &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-          transition: left map.get(vars.$transitions, slow);
+          width: 300px;
+          height: 300px;
         }
 
-        &:hover,
-        &.active {
-          background: mixins.theme-gradient($theme, nav-active);
-          color: rgba(26, 26, 26, 0.59);
-          transform: scale(1.05);
-          @include mixins.glow('green', 'medium', $theme);
-          border-color: transparent;
-          transition: 0.5s;
+        .cta-icon {
+          transform: translateX(3px);
         }
+      }
+    }
+  }
 
-        &:hover::before {
-          left: 100%;
+  .cta-text {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-icon {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+  }
+}
+
+// Mobile Menu Toggle
+.mobile-menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+
+      &:hover {
+        background: mixins.theme-color($theme, secondary-bg);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  .menu-icon {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      border-radius: 2px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          background: mixins.theme-color($theme, text-primary);
         }
+      }
+    }
+
+    .mobile-open & {
+      span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+      }
+
+      span:nth-child(2) {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
       }
     }
   }
 }
 
-// Hamburger Menu Button
-.hamburger-menu {
-  display: none;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 30px;
-  height: 24px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  z-index: 10;
+// Progress Bar
+.scroll-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
 
-  span {
-    width: 100%;
-    height: 3px;
-    border-radius: 10px;
-    transition: all 0.3s linear;
-    position: relative;
-    transform-origin: 1px;
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        background-color: mixins.theme-color($theme, text-primary);
-      }
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      background: rgba(mixins.theme-color($theme, border-light), 0.2);
     }
   }
 
-  &.active {
-    span:first-child {
-      transform: rotate(45deg);
-    }
+  .progress-bar {
+    height: 100%;
+    transition: width 0.1s linear;
 
-    span:nth-child(2) {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-
-    span:nth-child(3) {
-      transform: rotate(-45deg);
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background: mixins.theme-gradient($theme, primary);
+      }
     }
   }
 }
@@ -550,227 +687,331 @@ export default defineComponent({
 // Mobile Menu Overlay
 .mobile-menu-overlay {
   position: fixed;
-  top: 50px;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 99999;
-  display: block !important; // Sicherstellen, dass es sichtbar ist
+  z-index: 1100;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      background-color: mixins.theme-color($theme, primary-bg);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(5px);
     }
   }
 }
 
-.mobile-nav {
-  padding: map.get(vars.$spacing, xl) map.get(vars.$spacing, m);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: map.get(vars.$spacing, m);
-  margin-top: 50px;
-
+.mobile-menu-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 400px;
   height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  backdrop-filter: blur(5px);
+  flex-direction: column;
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
-      color: mixins.theme-color($theme, text-primary);
-      background-color: mixins.theme-color($theme, nav-item-bg);
-      border: 2px solid transparent;
+      background: mixins.theme-color($theme, bg-primary);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
     }
   }
 
-  .mobile-nav-item {
-    display: flex;
-    align-items: center;
-    gap: map.get(vars.$spacing, m);
-    padding: map.get(vars.$spacing, m) map.get(vars.$spacing, l);
-    border-radius: map.get(map.get(vars.$layout, border-radius), medium);
-    text-decoration: none;
-    font-weight: map.get(map.get(vars.$fonts, weights), medium);
-    font-size: map.get(map.get(vars.$fonts, sizes), base);
-    transition: all 0.3s ease;
-    cursor: pointer;
+  @media (max-width: 480px) {
+    max-width: 100%;
+  }
+
+  @media (max-width: 360px) {
+    max-width: 85%;
+  }
+}
+
+// Mobile Menu Header
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      border-bottom: 1px solid mixins.theme-color($theme, border-light);
+    }
+  }
+
+  .mobile-menu-title {
+    font-size: 1.25rem;
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    margin: 0;
 
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
-        background-color: mixins.theme-color($theme, nav-item-bg);
-        border: 2px solid transparent;
+      }
+    }
+  }
 
-        &:hover,
-        &:active,
-        &.active {
-          background: mixins.theme-gradient($theme, nav-active);
-          color: rgba(26, 26, 26, 0.59);
-          border-color: mixins.theme-color($theme, accent);
-          transform: translateX(10px);
+  .close-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+        color: mixins.theme-color($theme, text-primary);
+
+        &:hover {
+          background: mixins.theme-color($theme, secondary-bg);
+          transform: rotate(90deg);
+        }
+
+        &:active {
+          transform: rotate(90deg) scale(0.9);
         }
       }
     }
 
-    .nav-icon {
+    .close-icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+// Mobile Navigation
+.mobile-nav {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+
+  .mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        color: mixins.theme-color($theme, text-primary);
+
+        &:hover,
+        &:focus {
+          background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
+          transform: translateX(-5px);
+        }
+
+        &:active {
+          transform: translateX(-3px) scale(0.98);
+        }
+
+        &.active {
+          background: rgba(mixins.theme-color($theme, accent-green), 0.1);
+          border-left: 3px solid mixins.theme-color($theme, accent-green);
+
+          .mobile-nav-icon {
+            color: mixins.theme-color($theme, accent-green);
+          }
+        }
+      }
+    }
+
+    .link-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .mobile-nav-icon {
       width: 24px;
       height: 24px;
       flex-shrink: 0;
     }
-  }
 
-  .mobile-actions {
-    margin-top: map.get(vars.$spacing, xl);
-    padding-top: map.get(vars.$spacing, xl);
-    display: flex;
-    flex-direction: column;
-    gap: map.get(vars.$spacing, l);
-
-    @each $theme in ('light', 'dark') {
-      .theme-#{$theme} & {
-        border-top: 2px solid mixins.theme-color($theme, border-light);
-      }
+    .link-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }
 
-    .theme-toggle-wrapper {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 map.get(vars.$spacing, l);
-
-      .action-label {
-        font-weight: map.get(map.get(vars.$fonts, weights), medium);
-
-        @each $theme in ('light', 'dark') {
-          .theme-#{$theme} & {
-            color: mixins.theme-color($theme, text-secondary);
-          }
-        }
-      }
+    .link-title {
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      font-size: 1rem;
     }
 
-    .mobile-login-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: map.get(vars.$spacing, m);
-      padding: map.get(vars.$spacing, m) map.get(vars.$spacing, xl);
-      border-radius: map.get(map.get(vars.$layout, border-radius), pill);
-      text-decoration: none;
-      font-weight: map.get(map.get(vars.$fonts, weights), bold);
-      transition: all 0.3s ease;
+    .link-description {
+      font-size: 0.875rem;
 
       @each $theme in ('light', 'dark') {
         .theme-#{$theme} & {
-          background: mixins.theme-gradient($theme, primary);
-          color: white;
-          @include mixins.shadow('medium', $theme);
-
-          &:active {
-            transform: scale(0.95);
-          }
+          color: mixins.theme-color($theme, text-secondary);
         }
       }
+    }
 
-      .login-icon {
-        width: 20px;
-        height: 20px;
+    .link-arrow {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-tertiary);
+        }
       }
+    }
+
+    &:hover .link-arrow {
+      transform: translateX(3px);
     }
   }
 }
 
-// Animations
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.3s ease-out;
+// Mobile Menu Footer
+.mobile-menu-footer {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @each $theme in ('light', 'dark') {
+    .theme-#{$theme} & {
+      border-top: 1px solid mixins.theme-color($theme, border-light);
+      background: rgba(mixins.theme-color($theme, secondary-bg), 0.3);
+    }
+  }
+
+  .theme-switcher {
+    .switcher-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: map.get(map.get(vars.$fonts, weights), medium);
+      margin-bottom: 0.75rem;
+
+      @each $theme in ('light', 'dark') {
+        .theme-#{$theme} & {
+          color: mixins.theme-color($theme, text-secondary);
+        }
+      }
+    }
+
+    .theme-toggle-mobile {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .mobile-cta-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: map.get(map.get(vars.$fonts, weights), bold);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+
+    @each $theme in ('light', 'dark') {
+      .theme-#{$theme} & {
+        background: mixins.theme-gradient($theme, primary);
+        color: white;
+        box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-green), 0.3);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(mixins.theme-color($theme, accent-green), 0.4);
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+    }
+
+    .cta-icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
 }
 
-.slide-down-enter-from {
-  transform: translateY(-100%);
-  opacity: 0;
+// Transitions
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+  transition: opacity 0.4s ease;
+
+  .mobile-menu-content {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
-.slide-down-leave-to {
-  transform: translateY(-100%);
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
   opacity: 0;
+
+  .mobile-menu-content {
+    transform: translateX(100%);
+  }
 }
 
 // Utility Classes
 .desktop-only {
-  display: flex;
-}
-
-.mobile-only {
-  display: none;
-}
-
-// Responsive Design
-@media (max-width: 768px) {
-  .app-header {
-    padding: map.get(vars.$spacing, s) 0;
-    border-radius: 0 0 20px 20px;
-    width: 100%;
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%); // Zentriert das Header-Element auf Mobile
-
-    .header-top {
-      padding: 5px map.get(vars.$spacing, m);
-      margin-bottom: 0;
-    }
-
-    .logo-image {
-      height: 45px !important;
-    }
-  }
-
-  .desktop-only {
+  @media (max-width: 1024px) {
     display: none !important;
   }
+}
 
-  .mobile-only {
-    display: flex !important;
-  }
-
-  .hamburger-menu {
-    display: flex;
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-@media (max-width: 480px) {
+// Print styles
+@media print {
   .app-header {
-    .logo-image {
-      height: 40px !important;
-    }
-  }
-
-  .mobile-nav {
-    padding: map.get(vars.$spacing, m);
-
-    .mobile-nav-item {
-      font-size: map.get(map.get(vars.$fonts, sizes), small);
-      padding: map.get(vars.$spacing, s) map.get(vars.$spacing, m);
-
-      .nav-icon {
-        width: 20px;
-        height: 20px;
-      }
-    }
+    display: none;
   }
 }
 
-// Tablet specific adjustments
-@media (min-width: 481px) and (max-width: 768px) {
-  .nav-tabs {
-    gap: map.get(vars.$spacing, s);
-    padding: map.get(vars.$spacing, s);
+// Performance optimizations for mobile
+@media (max-width: 768px) {
+  .app-header {
+    will-change: transform;
+  }
 
-    .nav-tab {
-      width: 120px;
-      font-size: 0.875rem;
-      padding: map.get(vars.$spacing, xs) map.get(vars.$spacing, m);
-    }
+  .mobile-menu-content {
+    will-change: transform;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>

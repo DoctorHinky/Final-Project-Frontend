@@ -51,7 +51,7 @@
               </div>
               <div class="member-info">
                 <span class="name">Chris Schubert</span>
-                <span class="role">Frontend & Design</span>
+                <span class="role">Frontend & UI/UX</span>
               </div>
             </div>
             <div class="team-member">
@@ -63,7 +63,7 @@
               </div>
               <div class="member-info">
                 <span class="name">Mark Döring</span>
-                <span class="role">Frontend & Backend</span>
+                <span class="role">Frontend to Backend</span>
               </div>
             </div>
           </div>
