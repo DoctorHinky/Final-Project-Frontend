@@ -368,7 +368,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .deleted-users-list {
-  background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 24px;
@@ -418,7 +417,6 @@ export default defineComponent({
     }
 
     th {
-      background-color: #262626;
       color: #a0a0a0;
       font-weight: 500;
       font-size: 0.9rem;

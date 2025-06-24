@@ -415,7 +415,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .ticket-list-container {
   margin-top: 24px;
-  background-color: #222;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -426,7 +425,6 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: #2a2a2a;
   border-bottom: 1px solid #333;
 }
 
@@ -500,9 +498,12 @@ export default defineComponent({
   }
 
   &.active {
-    background-color: #444;
+    background: rgba(68, 68, 68, 0.6);
     color: #fff;
     border-color: #666;
+    backdrop-filter: blur(8px) saturate(160%);
+    box-shadow: 0 4px 24px 0 rgba(255, 255, 255, 0.08);
+    transition: background 0.3s, box-shadow 0.3s;
   }
 }
 
@@ -580,7 +581,6 @@ export default defineComponent({
   }
 
   th {
-    background-color: #2a2a2a;
     font-weight: 600;
     color: #bbb;
     position: sticky;

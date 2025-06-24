@@ -512,7 +512,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .user-list-container {
-  background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 24px;
@@ -569,7 +568,7 @@ export default defineComponent({
 
       .select-trigger {
         padding: 8px 12px;
-        background-color: #2a2a2a;
+        background-color: transparent;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;
@@ -663,7 +662,7 @@ export default defineComponent({
 
       .search-input {
         padding: 8px 12px 8px 36px;
-        background-color: #2a2a2a;
+        background-color: transparent;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;
@@ -702,7 +701,6 @@ export default defineComponent({
     }
 
     th {
-      background-color: #262626;
       color: #a0a0a0;
       font-weight: 500;
       font-size: 0.9rem;

@@ -89,7 +89,7 @@ export default defineComponent({
     .filter-container {
       .filter-select {
         padding: 8px 12px;
-        background-color: #2a2a2a;
+        background-color: transparent;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;
@@ -118,7 +118,7 @@ export default defineComponent({
 
       .search-input {
         padding: 8px 36px 8px 12px;
-        background-color: #2a2a2a;
+        background-color: transparent;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;

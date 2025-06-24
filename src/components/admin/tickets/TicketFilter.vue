@@ -256,7 +256,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .ticket-filter {
-  background-color: #2a2a2a;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
@@ -319,7 +318,7 @@ export default defineComponent({
 .filter-select {
   padding: 10px 12px;
   border-radius: 4px;
-  background-color: #333;
+  background-color: transparent;
   border: 1px solid #444;
   color: #fff;
   font-size: 0.875rem;
@@ -351,7 +350,7 @@ export default defineComponent({
     width: 100%;
     padding: 10px 12px 10px 36px;
     border-radius: 4px;
-    background-color: #333;
+    background-color: transparent;
     border: 1px solid #444;
     color: #fff;
     font-size: 0.875rem;

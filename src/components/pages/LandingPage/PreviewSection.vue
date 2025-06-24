@@ -65,7 +65,6 @@
             {{ formatCategory(article.category) }}
           </div>
 
-
           <!-- Click-to-Read Overlay -->
           <div class="click-overlay">
             <div class="click-content">
@@ -94,7 +93,7 @@
         <div class="card-content">
           <!-- Meta Information -->
           <div class="article-meta">
-            <span class="meta-author">{{ article.author || "Unbekannt" }}</span>
+            <span class="meta-author">{{ article.author.username || "Unbekannt" }}</span>
             <span class="meta-separator">•</span>
             <span class="meta-date">{{ formatDate(article.createdAt) }}</span>
           </div>
@@ -747,7 +746,7 @@ export default defineComponent({
         }
       }
     }
-    
+
     // Card Content
     .card-content {
       padding: map.get(vars.$spacing, l);

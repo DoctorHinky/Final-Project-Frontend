@@ -252,15 +252,18 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 70px;
-  z-index: 1500; /* Erhöht um über anderen Elementen zu bleiben */
+  z-index: 500; /* Erhöht um über anderen Elementen zu bleiben */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(10px);
-  background-color: rgba(26, 26, 26, 0.95);
-  border-bottom: 1px solid #333;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   padding: 0 16px;
+  background: rgba(30, 30, 40, 0.85);
+  box-shadow: 0 8px 32px 0 rgba(93, 173, 226, 0.25);
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  border-bottom: 1px solid #333;
+  border-right: 1.5px solid rgba(93, 173, 226, 0.2);
+  border-radius: 0 0 0 8px;
 }
 
 /* Header-Bereich links */
@@ -316,20 +319,22 @@ export default defineComponent({
   justify-content: center;
   gap: 6px;
   padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.875rem;
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.4s ease-out;
+  transition: background 0.3s, box-shadow 0.3s, color 0.3s;
   min-width: 36px;
   min-height: 36px;
   border: none;
-  background: linear-gradient(135deg, #600, #800);
-  color: white;
+  background: linear-gradient(135deg, #232a34 60%, #1e222b 100%);
+  color: #f0f0f0;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #2d3a4a 60%, #23304a 100%);
+    color: #5dade2;
+    box-shadow: 0 4px 16px rgba(93, 173, 226, 0.15);
+    transform: translateY(-1px) scale(1.03);
   }
 }
 

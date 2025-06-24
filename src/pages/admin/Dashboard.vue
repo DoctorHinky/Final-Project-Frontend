@@ -1,6 +1,10 @@
 <!-- src/pages/admin/Dashboard.vue -->
 <template>
   <div class="admin-dashboard">
+    <!-- Glass Background Effects -->
+    <div class="glass-bg-effect"></div>
+    <div class="glass-bg-effect-2"></div>
+
     <!-- User Suche -->
     <UserSearch v-if="activeTab === 'user-search'" @user-selected="viewUserDetails" />
 
@@ -41,26 +45,40 @@
 
     <!-- Default/Overview -->
     <div v-if="activeTab === 'overview'" class="overview-content">
-      <h2>Willkommen im Admin Dashboard</h2>
-      <p>Wählen Sie einen Bereich aus dem Menü aus.</p>
+      <div class="overview-header">
+        <h2 class="animated-title">
+          <span class="title-word">Admin</span>
+          <span class="title-word accent">Dashboard</span>
+        </h2>
+        <p class="subtitle">Übersicht über alle wichtigen Metriken und Aktivitäten</p>
+      </div>
 
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-container">
-        <div class="loading-spinner"></div>
+        <div class="orbital-loader-mini">
+          <div class="core"></div>
+          <div class="orbit orbit-1"></div>
+          <div class="orbit orbit-2"></div>
+        </div>
         <p>Lade Dashboard-Daten...</p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="loadError" class="error-container">
+      <div v-else-if="loadError" class="error-container glass-card">
+        <div class="error-icon">⚠️</div>
         <p class="error-message">{{ loadError }}</p>
-        <button @click="loadDashboardStats" class="retry-button">Erneut versuchen</button>
+        <button @click="loadDashboardStats" class="retry-button">
+          <span class="button-text">Erneut versuchen</span>
+        </button>
       </div>
 
       <!-- Quick Stats Overview -->
       <div v-else class="quick-stats">
         <!-- Aktive Benutzer -->
         <div class="stat-card users" @click="navigateToTab('all-users')">
+          <div class="card-glow"></div>
           <div class="stat-icon">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -79,14 +97,19 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.totalUsers }}</h3>
-            <p>Aktive Benutzer</p>
+            <h3 class="stat-number">{{ stats.totalUsers }}</h3>
+            <p class="stat-label">Aktive Benutzer</p>
+          </div>
+          <div class="stat-trend">
+            <span class="trend-icon">↗</span>
           </div>
         </div>
 
         <!-- Bewerbungen -->
         <div class="stat-card applications" @click="navigateToTab('applications')">
+          <div class="card-glow"></div>
           <div class="stat-icon applications">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -105,14 +128,19 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.totalApplications }}</h3>
-            <p>Bewerbungen</p>
+            <h3 class="stat-number">{{ stats.totalApplications }}</h3>
+            <p class="stat-label">Bewerbungen</p>
+          </div>
+          <div class="stat-trend">
+            <span class="trend-icon">↗</span>
           </div>
         </div>
 
         <!-- Ausstehende Bewerbungen -->
         <div class="stat-card urgent" @click="navigateToApplications('pending')">
+          <div class="card-glow"></div>
           <div class="stat-icon pending">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -129,14 +157,17 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.pendingApplications }}</h3>
-            <p>Ausstehende Bewerbungen</p>
+            <h3 class="stat-number">{{ stats.pendingApplications }}</h3>
+            <p class="stat-label">Ausstehende Bewerbungen</p>
           </div>
+          <div class="stat-badge">Wichtig</div>
         </div>
 
         <!-- Gelöschte Benutzer -->
         <div class="stat-card deleted" @click="navigateToTab('deleted-users')">
+          <div class="card-glow"></div>
           <div class="stat-icon deleted">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -153,14 +184,16 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.deletedUsers }}</h3>
-            <p>Gelöschte Benutzer</p>
+            <h3 class="stat-number">{{ stats.deletedUsers }}</h3>
+            <p class="stat-label">Gelöschte Benutzer</p>
           </div>
         </div>
 
         <!-- Aktive Beiträge -->
         <div class="stat-card posts" @click="navigateToTab('active-posts')">
+          <div class="card-glow"></div>
           <div class="stat-icon posts">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -180,14 +213,19 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.activePosts }}</h3>
-            <p>Aktive Beiträge</p>
+            <h3 class="stat-number">{{ stats.activePosts }}</h3>
+            <p class="stat-label">Aktive Beiträge</p>
+          </div>
+          <div class="stat-trend positive">
+            <span class="trend-icon">↗</span>
           </div>
         </div>
 
         <!-- Offene Tickets -->
         <div class="stat-card tickets" @click="navigateToTab('tickets')">
+          <div class="card-glow"></div>
           <div class="stat-icon tickets">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -203,14 +241,16 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.openTickets }}</h3>
-            <p>Offene Tickets</p>
+            <h3 class="stat-number">{{ stats.openTickets }}</h3>
+            <p class="stat-label">Offene Tickets</p>
           </div>
         </div>
 
         <!-- Neue User heute -->
         <div class="stat-card new-users">
+          <div class="card-glow"></div>
           <div class="stat-icon new-users">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -229,14 +269,26 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.newUsersToday }}</h3>
-            <p>Neue User heute</p>
+            <h3 class="stat-number">{{ stats.newUsersToday }}</h3>
+            <p class="stat-label">Neue User heute</p>
+          </div>
+          <div class="stat-sparkline">
+            <svg viewBox="0 0 50 20" class="sparkline">
+              <polyline
+                points="0,15 10,10 20,12 30,8 40,10 50,5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
           </div>
         </div>
 
         <!-- Deaktivierte User -->
         <div class="stat-card deactivated">
+          <div class="card-glow"></div>
           <div class="stat-icon deactivated">
+            <div class="icon-glow"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -253,15 +305,18 @@
             </svg>
           </div>
           <div class="stat-content">
-            <h3>{{ stats.deactivatedUsers }}</h3>
-            <p>Deaktivierte User</p>
+            <h3 class="stat-number">{{ stats.deactivatedUsers }}</h3>
+            <p class="stat-label">Deaktivierte User</p>
           </div>
         </div>
       </div>
 
       <!-- Last Update Info -->
-      <div v-if="!isLoading && !loadError" class="last-update">
-        <p>Letzte Aktualisierung: {{ lastUpdateFormatted }}</p>
+      <div v-if="!isLoading && !loadError" class="last-update glass-card">
+        <p class="update-text">
+          <span class="update-icon">🔄</span>
+          Letzte Aktualisierung: {{ lastUpdateFormatted }}
+        </p>
         <button @click="loadDashboardStats" class="refresh-button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -273,22 +328,25 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
+            class="refresh-icon"
           >
             <polyline points="23 4 23 10 17 10"></polyline>
             <polyline points="1 20 1 14 7 14"></polyline>
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
           </svg>
-          Aktualisieren
+          <span>Aktualisieren</span>
         </button>
       </div>
     </div>
 
     <!-- User Details Modal -->
     <div class="modal-overlay" v-if="showUserDetails" @click="closeUserDetails">
-      <div class="modal-container" @click.stop>
+      <div class="modal-container glass-modal" @click.stop>
         <div class="modal-header">
           <h3>Benutzerdetails</h3>
-          <button class="close-button" @click="closeUserDetails">×</button>
+          <button class="close-button" @click="closeUserDetails">
+            <span>×</span>
+          </button>
         </div>
         <div class="modal-content">
           <UserDetail :user-id="selectedUserId" />
@@ -298,10 +356,12 @@
 
     <!-- Application Details Modal -->
     <div class="modal-overlay" v-if="showApplicationDetails" @click="closeApplicationDetails">
-      <div class="modal-container" @click.stop>
+      <div class="modal-container glass-modal" @click.stop>
         <div class="modal-header">
           <h3>Bewerbungsdetails</h3>
-          <button class="close-button" @click="closeApplicationDetails">×</button>
+          <button class="close-button" @click="closeApplicationDetails">
+            <span>×</span>
+          </button>
         </div>
         <div class="modal-content">
           <ApplicationDetail :application-id="selectedApplicationId" @application-updated="handleApplicationUpdated" />
@@ -312,6 +372,7 @@
 </template>
 
 <script lang="ts">
+// [Script-Teil bleibt unverändert]
 import { defineComponent, ref, computed, onMounted, watch, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/axiosInstance";
@@ -614,443 +675,862 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@use "sass:map";
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "@/style/base/animations" as animations;
+
+// Admin Dashboard mit Glass-Effekten
 .admin-dashboard {
-  width: 100%;
-  min-height: calc(100vh - 130px);
+  width: 100vw;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #181c24 0%, #1e1e28 100%);
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 10rem 0 0 5rem;
+  padding-right: 22rem;
+
+  // Animierte Hintergrund-Effekte
+  .glass-bg-effect {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(93, 173, 226, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    top: -300px;
+    right: -300px;
+    animation: floatBg 20s ease-in-out infinite;
+    filter: blur(40px);
+  }
+
+  .glass-bg-effect-2 {
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    bottom: -400px;
+    left: -400px;
+    animation: floatBg 25s ease-in-out infinite reverse;
+    filter: blur(60px);
+  }
 }
 
+@keyframes floatBg {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+// Tickets Section mit Glass-Effekt
 .tickets {
-  background: #2a2a2a;
-  padding: 20px;
-  border-radius: 8px;
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(93, 173, 226, 0.15);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-// NEU: Applications Section Styles
+// Applications Section mit modernem Design
 .applications-section {
   .applications-nav {
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
-    padding: 12px;
-    background-color: #222;
-    border-radius: 8px;
-    border: 1px solid #333;
+    padding: 16px;
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    border: 1px solid rgba(93, 173, 226, 0.15);
+    box-shadow: 
+      0 4px 24px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
     .subtab-button {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background-color: #2a2a2a;
-      color: #a0a0a0;
+      gap: 10px;
+      padding: 12px 24px;
+      border: 1px solid rgba(93, 173, 226, 0.2);
+      border-radius: 12px;
+      background: rgba(42, 42, 42, 0.4);
+      backdrop-filter: blur(10px);
+      color: #a8d5e8;
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(93, 173, 226, 0.2), transparent);
+        transition: left 0.5s ease;
+      }
 
       .subtab-icon {
         width: 18px;
         height: 18px;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
 
       &:hover {
-        background-color: #333;
-        border-color: #666;
-        color: #f0f0f0;
+        background: rgba(93, 173, 226, 0.15);
+        border-color: rgba(93, 173, 226, 0.3);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 
+          0 4px 16px rgba(93, 173, 226, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+        &::before {
+          left: 100%;
+        }
+
+        .subtab-icon {
+          filter: drop-shadow(0 0 6px rgba(93, 173, 226, 0.6));
+        }
       }
 
       &.active {
-        background-color: rgba(255, 152, 0, 0.2);
+        background: linear-gradient(135deg, rgba(255, 152, 0, 0.25), rgba(255, 152, 0, 0.15));
         border-color: rgba(255, 152, 0, 0.4);
-        color: #ff9800;
+        color: #ffb74d;
+        box-shadow: 
+          0 0 20px rgba(255, 152, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 20%;
+          right: 20%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, #ff9800, transparent);
+          box-shadow: 0 0 10px rgba(255, 152, 0, 0.6);
+        }
       }
     }
   }
 }
 
+// Overview Content mit modernem Design
 .overview-content {
-  text-align: center;
   padding: 40px 20px;
+  position: relative;
+  z-index: 1;
 
-  h2 {
-    color: #fff;
-    margin-bottom: 12px;
-    font-size: 2rem;
+  .overview-header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+
+    .animated-title {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      
+      .title-word {
+        background: linear-gradient(135deg, #ffffff 0%, #a8d5e8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 2px 20px rgba(93, 173, 226, 0.3);
+        animation: titleGlow 3s ease-in-out infinite;
+        
+        &.accent {
+          background: linear-gradient(135deg, #5dade2 0%, #ff6b9d 50%, #ff8c42 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: titleGlowAccent 3s ease-in-out infinite;
+        }
+      }
+    }
+
+    .subtitle {
+      color: rgba(168, 213, 232, 0.8);
+      font-size: 1.1rem;
+      margin: 0;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
   }
 
-  p {
-    color: #888;
-    font-size: 1.1rem;
-    margin-bottom: 40px;
-  }
-
-  // Loading State
+  // Loading State mit kleinem Orbital Loader
   .loading-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 300px;
+    gap: 24px;
 
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 3px solid #444;
-      border-top-color: #0078d7;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
+    .orbital-loader-mini {
+      width: 60px;
+      height: 60px;
+      position: relative;
+      animation: rotate 3s linear infinite;
+
+      .core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px;
+        height: 16px;
+        background: radial-gradient(circle, #5dade2 0%, #ff6b9d 100%);
+        border-radius: 50%;
+        box-shadow: 
+          0 0 20px rgba(93, 173, 226, 0.8),
+          0 0 40px rgba(255, 107, 157, 0.4);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .orbit {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border: 2px solid;
+        border-radius: 50%;
+        
+        &.orbit-1 {
+          width: 40px;
+          height: 40px;
+          transform: translate(-50%, -50%);
+          border-color: rgba(93, 173, 226, 0.4);
+          animation: orbit 2s linear infinite;
+        }
+        
+        &.orbit-2 {
+          width: 55px;
+          height: 55px;
+          transform: translate(-50%, -50%);
+          border-color: rgba(255, 107, 157, 0.3);
+          animation: orbit 3s linear infinite reverse;
+        }
+      }
     }
 
     p {
-      color: #aaa;
+      color: #a8d5e8;
       font-size: 1rem;
       margin: 0;
+      opacity: 0.8;
     }
   }
 
-  // Error State
+  // Error State mit Glass Card
   .error-container {
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    gap: 20px;
+    padding: 40px;
+    max-width: 500px;
+    margin: 0 auto;
+
+    .error-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.6));
+      animation: errorPulse 2s ease-in-out infinite;
+    }
 
     .error-message {
-      color: #e74c3c;
+      color: #ff8fab;
       font-size: 1rem;
-      margin-bottom: 20px;
+      margin: 0;
+      text-align: center;
     }
 
     .retry-button {
-      background-color: #0078d7;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
+      background: linear-gradient(135deg, rgba(93, 173, 226, 0.2), rgba(93, 173, 226, 0.1));
+      border: 1px solid rgba(93, 173, 226, 0.3);
+      color: #5dade2;
+      padding: 12px 24px;
+      border-radius: 12px;
       font-size: 0.95rem;
-      transition: background-color 0.2s;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(93, 173, 226, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
 
       &:hover {
-        background-color: #106ebe;
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.3), rgba(93, 173, 226, 0.2));
+        border-color: rgba(93, 173, 226, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 
+          0 4px 20px rgba(93, 173, 226, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }
 
+  // Quick Stats Grid mit Glass Cards
   .quick-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    max-width: 1200px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1400px;
     margin: 0 auto;
 
     .stat-card {
-      background-color: #222;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 24px;
+      background: rgba(30, 30, 40, 0.6);
+      backdrop-filter: blur(16px) saturate(150%);
+      -webkit-backdrop-filter: blur(16px) saturate(150%);
+      border: 1px solid rgba(93, 173, 226, 0.15);
+      border-radius: 20px;
+      padding: 28px;
       display: flex;
       align-items: center;
       gap: 20px;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+      
+      // Card Glow Overlay
+      .card-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.02) 100%);
+        pointer-events: none;
+      }
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        border-color: #444;
+        transform: translateY(-6px) scale(1.02);
+        border-color: rgba(93, 173, 226, 0.3);
+        box-shadow: 
+          0 12px 40px rgba(0, 0, 0, 0.4),
+          0 0 60px rgba(93, 173, 226, 0.15),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+        .card-glow {
+          opacity: 1;
+        }
+
+        .stat-icon {
+          transform: scale(1.1) rotate(5deg);
+          
+          .icon-glow {
+            opacity: 1;
+            transform: scale(1.5);
+          }
+        }
+
+        .stat-number {
+          transform: scale(1.05);
+        }
       }
 
-      // Standard Users (Blau)
+      // Spezifische Card-Farben
       &.users {
-        border-color: rgba(0, 120, 215, 0.3);
-        background-color: rgba(0, 120, 215, 0.05);
-
+        border-color: rgba(93, 173, 226, 0.2);
+        
         &:hover {
-          border-color: rgba(0, 120, 215, 0.5);
-          box-shadow: 0 8px 20px rgba(0, 120, 215, 0.2);
+          border-color: rgba(93, 173, 226, 0.5);
+          box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.4),
+            0 0 40px rgba(93, 173, 226, 0.25);
+        }
+
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(93, 173, 226, 0.2), rgba(93, 173, 226, 0.1));
+          color: #5dade2;
         }
       }
 
-      // Gelöschte Users (Rot)
       &.deleted {
-        border-color: rgba(231, 76, 60, 0.3);
-        background-color: rgba(231, 76, 60, 0.05);
-
+        border-color: rgba(255, 107, 157, 0.2);
+        
         &:hover {
-          border-color: rgba(231, 76, 60, 0.5);
-          box-shadow: 0 8px 20px rgba(231, 76, 60, 0.2);
+          border-color: rgba(255, 107, 157, 0.5);
+          box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.4),
+            0 0 40px rgba(255, 107, 157, 0.25);
+        }
+
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+          color: #ff6b9d;
         }
       }
 
-      // Posts (Grün)
       &.posts {
-        border-color: rgba(46, 204, 113, 0.3);
-        background-color: rgba(46, 204, 113, 0.05);
-
-        &:hover {
-          border-color: rgba(46, 204, 113, 0.5);
-          box-shadow: 0 8px 20px rgba(46, 204, 113, 0.2);
+        border-color: rgba(46, 204, 113, 0.2);
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(46, 204, 113, 0.1));
+          color: #2ecc71;
         }
       }
 
-      // Tickets (Orange)
       &.tickets {
-        border-color: rgba(255, 152, 0, 0.3);
-        background-color: rgba(255, 152, 0, 0.05);
-
-        &:hover {
-          border-color: rgba(255, 152, 0, 0.5);
-          box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        border-color: rgba(255, 152, 0, 0.2);
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.1));
+          color: #ff9800;
         }
       }
 
-      // Neue Users (Lila)
-      &.new-users {
-        border-color: rgba(155, 89, 182, 0.3);
-        background-color: rgba(155, 89, 182, 0.05);
-
-        &:hover {
-          border-color: rgba(155, 89, 182, 0.5);
-          box-shadow: 0 8px 20px rgba(155, 89, 182, 0.2);
-        }
-      }
-
-      // Deaktivierte Users (Grau)
-      &.deactivated {
-        border-color: rgba(149, 165, 166, 0.3);
-        background-color: rgba(149, 165, 166, 0.05);
-
-        &:hover {
-          border-color: rgba(149, 165, 166, 0.5);
-          box-shadow: 0 8px 20px rgba(149, 165, 166, 0.2);
-        }
-      }
-
-      // Bewerbungen (Orange)
       &.applications {
-        border-color: rgba(255, 152, 0, 0.3);
-        background-color: rgba(255, 152, 0, 0.05);
-
-        &:hover {
-          border-color: rgba(255, 152, 0, 0.5);
-          box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        border-color: rgba(255, 152, 0, 0.2);
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.1));
+          color: #ff9800;
         }
       }
 
-      // Ausstehende Bewerbungen (Gelb)
       &.urgent {
-        border-color: rgba(255, 193, 7, 0.3);
-        background-color: rgba(255, 193, 7, 0.05);
-
-        &:hover {
-          border-color: rgba(255, 193, 7, 0.5);
-          box-shadow: 0 8px 20px rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.2);
+        background: linear-gradient(135deg, rgba(30, 30, 40, 0.6), rgba(255, 193, 7, 0.05));
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.15));
+          color: #ffc107;
+          animation: urgentPulse 2s ease-in-out infinite;
         }
       }
 
+      &.new-users {
+        border-color: rgba(155, 89, 182, 0.2);
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.1));
+          color: #9b59b6;
+        }
+      }
+
+      &.deactivated {
+        border-color: rgba(149, 165, 166, 0.2);
+        
+        .stat-icon {
+          background: linear-gradient(135deg, rgba(149, 165, 166, 0.2), rgba(149, 165, 166, 0.1));
+          color: #95a5a6;
+        }
+      }
+
+      // Stat Icon mit Glow-Effekt
       .stat-icon {
-        width: 60px;
-        height: 60px;
-        background-color: rgba(0, 120, 215, 0.2);
-        border-radius: 50%;
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #0078d7;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+        backdrop-filter: blur(10px);
+        box-shadow: 
+          0 4px 16px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-        &.deleted {
-          background-color: rgba(231, 76, 60, 0.2);
-          color: #e74c3c;
-        }
-
-        &.posts {
-          background-color: rgba(46, 204, 113, 0.2);
-          color: #2ecc71;
-        }
-
-        &.tickets {
-          background-color: rgba(255, 152, 0, 0.2);
-          color: #ff9800;
-        }
-
-        &.new-users {
-          background-color: rgba(155, 89, 182, 0.2);
-          color: #9b59b6;
-        }
-
-        &.deactivated {
-          background-color: rgba(149, 165, 166, 0.2);
-          color: #95a5a6;
-        }
-
-        // NEU: Application Icons
-        &.applications {
-          background-color: rgba(255, 152, 0, 0.2);
-          color: #ff9800;
-        }
-
-        &.pending {
-          background-color: rgba(255, 193, 7, 0.2);
-          color: #ffc107;
+        .icon-glow {
+          position: absolute;
+          inset: -20px;
+          background: radial-gradient(circle, currentColor 0%, transparent 70%);
+          opacity: 0;
+          transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
+          filter: blur(20px);
+          pointer-events: none;
         }
 
         svg {
           width: 28px;
           height: 28px;
+          position: relative;
+          z-index: 1;
         }
       }
 
       .stat-content {
-        text-align: left;
+        flex: 1;
+        min-width: 0;
 
-        h3 {
+        .stat-number {
           margin: 0;
-          font-size: 2rem;
-          color: #f0f0f0;
-          font-weight: 600;
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1;
+          transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
-        p {
-          margin: 4px 0 0 0;
-          color: #a0a0a0;
+        .stat-label {
+          margin: 6px 0 0 0;
+          color: rgba(168, 213, 232, 0.8);
           font-size: 0.95rem;
+          font-weight: 500;
+        }
+      }
+
+      // Trend Indicators
+      .stat-trend {
+        display: flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.2);
+
+        &.positive {
+          background: rgba(46, 204, 113, 0.15);
+          color: #2ecc71;
+          border-color: rgba(46, 204, 113, 0.2);
+        }
+
+        .trend-icon {
+          animation: trendBounce 2s ease-in-out infinite;
+        }
+      }
+
+      // Badge
+      .stat-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 12px;
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.2));
+        border: 1px solid rgba(255, 193, 7, 0.4);
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #ffc107;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: badgePulse 2s ease-in-out infinite;
+      }
+
+      // Sparkline
+      .stat-sparkline {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        width: 50px;
+        height: 20px;
+        opacity: 0.3;
+
+        .sparkline {
+          width: 100%;
+          height: 100%;
+
+          polyline {
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.6;
+          }
         }
       }
     }
   }
 
-  // Last Update Info
+  // Last Update Info mit Glass-Effekt
   .last-update {
-    margin-top: 40px;
+    margin-top: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 24px;
+    padding: 20px 32px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 
-    p {
+    .update-text {
       margin: 0;
-      color: #666;
-      font-size: 0.9rem;
+      color: rgba(168, 213, 232, 0.8);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .update-icon {
+        font-size: 1.1rem;
+        animation: rotate 4s linear infinite;
+      }
     }
 
     .refresh-button {
-      background-color: transparent;
-      border: 1px solid #444;
-      color: #aaa;
-      padding: 6px 12px;
-      border-radius: 4px;
+      background: linear-gradient(135deg, rgba(93, 173, 226, 0.15), rgba(93, 173, 226, 0.08));
+      border: 1px solid rgba(93, 173, 226, 0.25);
+      color: #5dade2;
+      padding: 10px 20px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
 
-      svg {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(93, 173, 226, 0.2), transparent);
+        transition: left 0.5s ease;
+      }
+
+      .refresh-icon {
         width: 16px;
         height: 16px;
+        transition: transform 0.3s ease;
       }
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        border-color: #666;
-        color: #fff;
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.25), rgba(93, 173, 226, 0.15));
+        border-color: rgba(93, 173, 226, 0.4);
+        color: #6dd5ff;
+        transform: translateY(-2px);
+        box-shadow: 
+          0 4px 20px rgba(93, 173, 226, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+        &::before {
+          left: 100%;
+        }
+
+        .refresh-icon {
+          transform: rotate(180deg);
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }
 }
 
-// Modal Styles
+// Glass Card Mixin
+.glass-card {
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(93, 173, 226, 0.15);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+// Modal Styles mit Glass-Effekt
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1900; /* User Details etwas niedriger als Application Details */
-  backdrop-filter: blur(3px);
+  z-index: 1900;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-container {
   width: 90%;
   max-width: 800px;
   max-height: 90vh;
-  background-color: #222;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(30, 30, 40, 0.95);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(93, 173, 226, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid #444;
-  animation: modal-appear 0.3s ease-out;
+  border: 1px solid rgba(93, 173, 226, 0.2);
+  animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
-  z-index: 2000; /* Niedriger als ApplicationDetail */
+  z-index: 2000;
+
+  &.glass-modal {
+    background: rgba(30, 30, 40, 0.85);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(93, 173, 226, 0.1) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(255, 107, 157, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+  }
 }
 
 .modal-header {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #262626;
+  border-bottom: 1px solid rgba(93, 173, 226, 0.15);
+  background: rgba(40, 40, 50, 0.5);
   position: relative;
   z-index: 2100;
 
   h3 {
     margin: 0;
-    color: #fff;
-    font-size: 1.2rem;
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
   .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+    border: 1px solid rgba(255, 107, 157, 0.3);
+    color: #ff6b9d;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
     position: relative;
     z-index: 2200;
+    font-size: 1.5rem;
+    font-weight: 300;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.3), rgba(255, 107, 157, 0.2));
+      border-color: rgba(255, 107, 157, 0.5);
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 
+        0 0 20px rgba(255, 107, 157, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+      transform: scale(0.95) rotate(90deg);
     }
   }
 }
 
 .modal-content {
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
   flex: 1;
   position: relative;
   z-index: 2100;
-}
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
 
-// Animations
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
+    }
   }
 }
 
-@keyframes modal-appear {
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -1061,27 +1541,152 @@ export default defineComponent({
   }
 }
 
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes titleGlow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2) drop-shadow(0 0 20px rgba(93, 173, 226, 0.5));
+  }
+}
+
+@keyframes titleGlowAccent {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 20px rgba(255, 107, 157, 0.3));
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 30px rgba(255, 107, 157, 0.5));
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes urgentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+}
+
+@keyframes trendBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 // Responsive
 @media (max-width: 768px) {
   .overview-content {
     padding: 20px;
 
-    h2 {
-      font-size: 1.5rem;
-    }
+    .overview-header {
+      margin-bottom: 32px;
 
-    p {
-      font-size: 1rem;
+      .animated-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
     }
 
     .quick-stats {
       grid-template-columns: 1fr;
       gap: 16px;
+
+      .stat-card {
+        padding: 20px;
+
+        .stat-icon {
+          width: 56px;
+          height: 56px;
+
+          svg {
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .stat-content {
+          .stat-number {
+            font-size: 1.8rem;
+          }
+
+          .stat-label {
+            font-size: 0.9rem;
+          }
+        }
+      }
     }
 
     .last-update {
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      padding: 16px 24px;
     }
   }
 
@@ -1089,14 +1694,27 @@ export default defineComponent({
     width: 95%;
     max-width: none;
     margin: 10px;
+    border-radius: 16px;
   }
 
   // Applications Nav responsive
   .applications-nav {
+    padding: 12px !important;
+    
     .subtab-button {
       flex: 1;
       justify-content: center;
+      padding: 10px 16px;
+      font-size: 0.85rem;
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 </style>
