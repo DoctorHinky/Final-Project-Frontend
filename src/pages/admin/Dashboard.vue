@@ -81,13 +81,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="5" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
+              <UsersIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.totalUsers }}</h3>
@@ -104,13 +98,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon applications">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-              </svg>
+              <DocumentTextIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.totalApplications }}</h3>
@@ -126,11 +114,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon pending">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
+              <ClockIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.pendingApplications }}</h3>
@@ -144,11 +128,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon deleted">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-              </svg>
+              <TrashIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.deletedUsers }}</h3>
@@ -161,14 +141,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon posts">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
+              <NewspaperIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.activePosts }}</h3>
@@ -184,10 +157,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon tickets">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-              </svg>
+              <TicketIcon class="icons ticketIcon" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.openTickets }}</h3>
@@ -200,13 +170,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon new-users">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <line x1="19" y1="8" x2="19" y2="14"></line>
-                <line x1="22" y1="11" x2="16" y2="11"></line>
-              </svg>
+              <UserPlusIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.newUsersToday }}</h3>
@@ -225,11 +189,7 @@
             <div class="card-glow"></div>
             <div class="stat-icon deactivated">
               <div class="icon-glow"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-              </svg>
+              <NoSymbolIcon class="icons" />
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{ stats.deactivatedUsers }}</h3>
@@ -245,13 +205,7 @@
             Letzte Aktualisierung: {{ lastUpdateFormatted }}
           </p>
           <button @click="loadDashboardStats" class="refresh-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="refresh-icon">
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
+            <ArrowPathIcon class="refresh-icon" />
             <span>Aktualisieren</span>
           </button>
         </div>
@@ -310,7 +264,19 @@ import ApplicationDetail from "@/components/admin/application/ApplicationDetail.
 import PostList from "@/components/admin/posts/PostList.vue";
 import Tickets from "@/components/admin/tickets/Tickets.vue";
 // Icons
-import { QueueListIcon as ListIcon, MagnifyingGlassIcon as SearchIcon } from "@heroicons/vue/24/outline";
+import {
+  QueueListIcon as ListIcon,
+  MagnifyingGlassIcon as SearchIcon,
+  UsersIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  TrashIcon,
+  NewspaperIcon,
+  TicketIcon,
+  UserPlusIcon,
+  NoSymbolIcon,
+  ArrowPathIcon
+} from "@heroicons/vue/24/outline";
 
 export interface DashboardStats {
   totalUsers: number;
@@ -335,6 +301,16 @@ export default defineComponent({
     ApplicationDetail,
     PostList,
     Tickets,
+    // Icons
+    UsersIcon,
+    DocumentTextIcon,
+    ClockIcon,
+    TrashIcon,
+    NewspaperIcon,
+    TicketIcon,
+    UserPlusIcon,
+    NoSymbolIcon,
+    ArrowPathIcon
   },
   props: {
     defaultTab: {
@@ -593,6 +569,19 @@ export default defineComponent({
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+// Hero Icons Klasse
+.icons {
+  max-width: 50px;
+  max-height: 50px;
+  width: 100%;
+  height: 100%;
+
+  @media (max-width: 767px) {
+    max-width: 40px;
+    max-height: 40px;
+  }
 }
 
 // Volle Breite Hintergrund
@@ -860,7 +849,8 @@ export default defineComponent({
         animation: titleGlow 3s ease-in-out infinite;
 
         &.accent {
-          font-size: clamp(1.5rem, 4vw, 2rem);;
+          font-size: clamp(1.5rem, 4vw, 2rem);
+          ;
           background: linear-gradient(135deg, #5dade2 0%, #ff6b9d 50%, #ff8c42 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -1228,18 +1218,6 @@ export default defineComponent({
           transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
           filter: blur(20px);
           pointer-events: none;
-        }
-
-        svg {
-          width: 24px;
-          height: 24px;
-          position: relative;
-          z-index: 1;
-
-          @media (max-width: 767px) {
-            width: 22px;
-            height: 22px;
-          }
         }
       }
 
@@ -1788,5 +1766,9 @@ export default defineComponent({
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.ticketIcon {
+  position: absolute;
 }
 </style>

@@ -30,7 +30,7 @@
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
         <p v-if="userRole" class="user-role">{{ userRole }}</p>
-        <span v-if="isCustomProfileImage" class="profile-status">Am Verfassen</span>
+        <span v-if="isCustomProfileImage" class="profile-status">Am lesen</span>
       </div>
 
       <button class="close-sidebar" @click="$emit('close')">×</button>

@@ -581,14 +581,14 @@ export default defineComponent({
       input,
       select {
         padding: 10px 12px;
-        background-color: transparent;
+        background-color: #33333300;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;
         font-size: 1rem;
         transition: all 0.3s ease;
 
-        &:focus {
+        &:focus, &:hover {
           outline: none;
           border-color: #666;
           background-color: #333;

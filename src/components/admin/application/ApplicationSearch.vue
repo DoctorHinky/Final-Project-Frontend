@@ -316,7 +316,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .application-search-container {
-  background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 24px;
@@ -366,7 +365,7 @@ export default defineComponent({
       padding: 14px 16px;
       font-size: 1rem;
       border: none;
-      background-color: #2a2a2a;
+      background-color: transparent;
       color: #f0f0f0;
 
       &:focus {
@@ -379,7 +378,7 @@ export default defineComponent({
     }
 
     .search-button {
-      background-color: #333;
+      background-color: transparent;
       border: none;
       padding: 0 20px;
       cursor: pointer;
@@ -396,7 +395,6 @@ export default defineComponent({
   }
 
   .advanced-filters {
-    background: #2a2a2a;
     padding: 16px;
     border-radius: 8px;
     border: 1px solid #444;
@@ -437,7 +435,7 @@ export default defineComponent({
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background-color: #333;
+    background-color: transparent;
     border: 1px solid #444;
     border-radius: 4px;
     color: #f0f0f0;
@@ -513,7 +511,6 @@ export default defineComponent({
       align-items: center;
       padding: 16px;
       border-radius: 8px;
-      background-color: #2a2a2a;
       border: 1px solid #333;
       gap: 16px;
       cursor: pointer;
@@ -522,7 +519,7 @@ export default defineComponent({
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        background-color: #333;
+        background-color: #33333338;
       }
 
       .application-header {
@@ -687,7 +684,6 @@ export default defineComponent({
 
 .search-tips {
   display: flex;
-  background-color: #2a2a2a;
   border-radius: 8px;
   border: 1px solid #333;
   padding: 16px;

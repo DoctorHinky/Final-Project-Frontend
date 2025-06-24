@@ -716,7 +716,7 @@ export default defineComponent({
       transition: all 0.3s ease;
 
       &:hover {
-        background-color: #2a2a2a;
+        background-color: #2a2a2a3d;
       }
 
       &.hidden-user {
@@ -746,7 +746,7 @@ export default defineComponent({
         .user-avatar {
           width: 32px;
           height: 32px;
-          border-radius: 50%;
+          border-radius: 10px;
           background-color: #444;
           display: flex;
           align-items: center;
