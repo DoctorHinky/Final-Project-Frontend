@@ -7,7 +7,7 @@
     </div>
 
     <!-- CTA-Button für Autor-Bewerbung -->
-    <button v-if="isAuthor" class="become-author-cta" @click="handleAuthorClick">
+    <button v-if="!canBecameAuthor" class="become-author-cta" @click="handleAuthorClick">
       <IconPencilSquare class="cta-icon" />
       Werde Autor
     </button>
@@ -40,14 +40,15 @@ export default defineComponent({
     // Debug-Funktion für Button-Click
     const handleAuthorClick = () => emit("open-author-modal");
 
-    const isAuthor = computed(() => {
+    const canBecameAuthor = computed(() => {
       const user = authService.getUserData();
-      return user && user.role === "author";
+      console.log("Current user data:", user); // Debugging-Ausgabe
+      return user && user.role === "AUTHOR";
     });
 
     return {
       currentDate,
-      isAuthor,
+      canBecameAuthor,
       handleAuthorClick,
     };
   },
