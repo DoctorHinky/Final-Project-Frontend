@@ -481,7 +481,10 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   user-select: none;
-  
+  padding-top: 8rem;
+  padding-bottom: 3rem;
+  // Optimierter Glass-Effekt
+  background: rgba(30, 30, 40, 0.92);
   // Mobile Anpassungen
   @media (max-width: 1023px) {
     top: 0;
@@ -494,14 +497,14 @@ export default defineComponent({
     left: -100vw;
   }
   
-  // Optimierter Glass-Effekt
-  background: rgba(30, 30, 40, 0.92);
   box-shadow: 
     4px 0 20px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(93, 173, 226, 0.1);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border-right: 1px solid rgba(93, 173, 226, 0.2);
+  & {
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(20px) saturate(150%);
+    border-right: 1px solid rgba(93, 173, 226, 0.2);
+  }
   
   @media (max-width: 767px) {
     border-right: none;
@@ -547,8 +550,9 @@ export default defineComponent({
     }
 
     .logo-sidebar {
-      height: 40px;
-      width: 40px;
+      height: 80px;
+      width: 80px;
+      margin-bottom: 4rem;
       border-radius: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       
@@ -713,6 +717,10 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
       min-height: 52px;
+      // Optimierte Glass Card
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #a8d5e8;
       
       @media (max-width: 767px) {
         padding: 16px 20px;
@@ -720,10 +728,6 @@ export default defineComponent({
         border-radius: 16px;
       }
       
-      // Optimierte Glass Card
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      color: #a8d5e8;
       
       &:hover:not(.dragging) {
         background: rgba(93, 173, 226, 0.12);
