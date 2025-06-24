@@ -1,3 +1,4 @@
+<!-- src/components/admin/users/UserDetail.vue -->
 <template>
   <div class="user-detail-container">
     <div v-if="isLoading" class="loading-state">
@@ -56,53 +57,39 @@
             <span class="status-badge" :class="user.verified ? 'active' : 'inactive'" @click="toggleVerified">
               <svg
                 v-if="user.verified"
+                class="icon icon-sm"
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
                 fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="inline mr-1"
               >
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
               <svg
                 v-else
+                class="icon icon-sm"
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
                 fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="inline mr-1"
               >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
               {{ user.verified ? "Verifiziert" : "Nicht verifiziert" }}
             </span>
 
             <span v-if="user.isDeleted" class="status-badge deleted">
               <svg
+                class="icon icon-sm"
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
                 fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="inline mr-1"
               >
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
               </svg>
               Gelöscht
             </span>
@@ -115,21 +102,14 @@
         <div class="quick-actions">
           <button @click="resetChanges" :disabled="!hasChanges" class="reset-btn">
             <svg
+              class="icon icon-sm"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
               fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="inline mr-1"
             >
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-              <path d="M21 3v5h-5"></path>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-              <path d="M8 16H3v5"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
             Zurücksetzen
           </button>
@@ -137,22 +117,17 @@
       </div>
 
       <!-- Kontakt Section -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-2"
           >
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
           </svg>
           Kontaktdaten
         </h4>
@@ -204,22 +179,17 @@
       </div>
 
       <!-- Profil Section -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-2"
           >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="8" r="4"></circle>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
           Profilinformationen
         </h4>
@@ -251,22 +221,17 @@
       </div>
 
       <!-- Berechtigungen Section -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-2"
           >
-            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
           </svg>
           Berechtigungen & Status
         </h4>
@@ -294,25 +259,17 @@
       </div>
 
       <!-- System Info Section -->
-      <div class="section system-info">
+      <div class="section glass-section system-info">
         <h4>
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-2"
           >
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m11-11h-6m-6 0H1"></path>
-            <path
-              d="m20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-            ></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
           </svg>
           Systeminformationen
         </h4>
@@ -344,97 +301,67 @@
       <div class="section danger-zone">
         <h4>
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-2"
           >
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
           Gefahrenzone
         </h4>
         <div class="danger-actions">
           <button v-if="!user.isDeleted" @click="deleteUser" class="danger-btn">
             <svg
+              class="icon icon-sm"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
               fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="inline mr-1"
             >
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
             Benutzer löschen
           </button>
           <button v-else @click="restoreUser" class="restore-btn">
             <svg
+              class="icon icon-sm"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
               fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="inline mr-1"
             >
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-              <path d="M21 3v5h-5"></path>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-              <path d="M8 16H3v5"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
             Benutzer wiederherstellen
           </button>
           <button @click="resetPassword" class="warning-btn">
             <svg
+              class="icon icon-sm"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
               fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="inline mr-1"
             >
-              <path
-                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"
-              ></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
             </svg>
             Passwort zurücksetzen
           </button>
           <button v-if="user.role !== 'ADMIN'" @click="makeAdmin" class="warning-btn">
             <svg
+              class="icon icon-sm"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
               fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="inline mr-1"
             >
-              <polygon
-                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-              ></polygon>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
             </svg>
             Zum Admin machen
           </button>
@@ -445,18 +372,14 @@
       <div class="save-section">
         <button @click="saveAllChanges" :disabled="!hasChanges" class="save-btn">
           <svg
+            class="icon"
             xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
             fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="inline mr-1"
           >
-            <polyline points="20 6 9 17 4 12"></polyline>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
           Alle Änderungen speichern
         </button>
@@ -583,7 +506,6 @@ const saveAllChanges = async () => {
 
     originalUser.value = { ...user.value };
   } catch (err) {
-    alert("❌ Fehler beim Speichern! Check die Konsole.");
     console.error("Fehler beim Speichern:", err.response?.data || err.message);
   }
 };
@@ -602,7 +524,6 @@ const deleteUser = async () => {
       await userService.deleteUser(props.userId, reason);
       await loadUser();
     } catch (err) {
-      alert("❌ Fehler beim Löschen!");
       console.error(err);
     }
   }
@@ -614,7 +535,6 @@ const restoreUser = async () => {
       await userService.restoreUser(props.userId);
       await loadUser();
     } catch (err) {
-      alert("❌ Fehler beim Wiederherstellen!");
       console.error(err);
     }
   }
@@ -622,7 +542,7 @@ const restoreUser = async () => {
 
 const resetPassword = async () => {
   if (confirm("Passwort wirklich zurücksetzen? Der Benutzer erhält eine E-Mail.")) {
-    alert("🔑 Passwort-Reset E-Mail wurde gesendet!");
+    console.log("Passwort-Reset E-Mail wurde gesendet!");
   }
 };
 
@@ -631,9 +551,8 @@ const makeAdmin = async () => {
     try {
       user.value.role = "ADMIN";
       await saveAllChanges();
-      alert("👑 Benutzer ist jetzt Admin!");
+      console.log("Benutzer ist jetzt Admin!");
     } catch (err) {
-      alert("❌ Fehler beim Admin-Upgrade!");
       console.error(err);
     }
   }
@@ -657,16 +576,30 @@ const loadUser = async () => {
 onMounted(() => loadUser());
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// Import der globalen Admin-Styles
+@import '../../../style/base/admin-global.scss'; // style\base\admin-global.scss
+
+
+// Icon Styles
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+  &.icon-sm {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 /* Z-Index Fix für Modal/Dialog */
 .user-detail-container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   color: #e0e0e0;
   position: relative !important;
   z-index: 9999 !important;
-  background-color: #0a0a0a !important;
   min-height: 100vh;
 }
 
@@ -680,8 +613,9 @@ onMounted(() => loadUser());
 .error-state {
   text-align: center;
   padding: 60px;
-  background-color: #1a1a1a;
-  border-radius: 12px;
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
   position: relative;
   z-index: 10;
 }
@@ -689,8 +623,8 @@ onMounted(() => loadUser());
 .loading-spinner {
   width: 50px;
   height: 50px;
-  border: 3px solid #333;
-  border-top-color: #ff9800;
+  border: 3px solid rgba(93, 173, 226, 0.2);
+  border-top-color: #5dade2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -705,13 +639,15 @@ onMounted(() => loadUser());
   display: flex;
   align-items: center;
   gap: 30px;
-  background: #1a1a1a !important;
   padding: 30px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 20;
+  border: 1px solid rgba(93, 173, 226, 0.15);
 }
 
 .user-avatar {
@@ -726,6 +662,7 @@ onMounted(() => loadUser());
   font-weight: bold;
   color: white;
   flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
 
   img {
     width: 100%;
@@ -737,6 +674,7 @@ onMounted(() => loadUser());
 
 .user-avatar.admin {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 8px 24px rgba(245, 87, 108, 0.3);
 }
 
 .user-main-info {
@@ -761,13 +699,14 @@ onMounted(() => loadUser());
 }
 
 .edit-input {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.8);
   border: 2px solid #ff9800;
   color: white;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1.2rem;
   outline: none;
+  backdrop-filter: blur(10px);
 }
 
 .user-badges {
@@ -788,50 +727,58 @@ onMounted(() => loadUser());
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  backdrop-filter: blur(10px);
 }
 
 .type-badge {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.6);
   color: #888;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .type-badge.admin {
-  background: #f5576c;
-  color: white;
+  background: linear-gradient(135deg, rgba(245, 87, 108, 0.2), rgba(245, 87, 108, 0.1));
+  color: #f5576c;
+  border-color: rgba(245, 87, 108, 0.3);
 }
 
 .type-badge.moderator {
-  background: #4facfe;
-  color: white;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(79, 172, 254, 0.1));
+  color: #4facfe;
+  border-color: rgba(79, 172, 254, 0.3);
 }
 
 .type-badge.author {
-  background: #ff9800;
-  color: white;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.1));
+  color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.3);
 }
 
 .type-badge:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .status-badge.active {
-  background: #00b894;
-  color: white;
+  background: linear-gradient(135deg, rgba(0, 184, 148, 0.2), rgba(0, 184, 148, 0.1));
+  color: #00b894;
+  border: 1px solid rgba(0, 184, 148, 0.3);
 }
 
 .status-badge.inactive {
-  background: #d63031;
-  color: white;
+  background: linear-gradient(135deg, rgba(214, 48, 49, 0.2), rgba(214, 48, 49, 0.1));
+  color: #d63031;
+  border: 1px solid rgba(214, 48, 49, 0.3);
 }
 
 .status-badge.deleted {
-  background: #636e72;
-  color: white;
+  background: linear-gradient(135deg, rgba(99, 110, 114, 0.2), rgba(99, 110, 114, 0.1));
+  color: #636e72;
+  border: 1px solid rgba(99, 110, 114, 0.3);
 }
 
 .role-select {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.8);
   color: white;
   border: 2px solid #ff9800;
   padding: 6px 16px;
@@ -839,6 +786,7 @@ onMounted(() => loadUser());
   cursor: pointer;
   font-size: 0.9rem;
   outline: none;
+  backdrop-filter: blur(10px);
 }
 
 .user-id {
@@ -857,33 +805,42 @@ onMounted(() => loadUser());
 .reset-btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.95rem;
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.6);
   color: #888;
+  backdrop-filter: blur(10px);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: #3a3a3a;
+  background: rgba(40, 40, 50, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Sections mit z-index Fix */
+/* Sections mit z-index Fix und Glass-Effekt */
 .section {
-  background: #1a1a1a !important;
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 10;
   opacity: 1 !important;
   visibility: visible !important;
+  background: rgba(30, 30, 40, 0.4);
+  border: 1px solid rgba(93, 173, 226, 0.15);
+}
+
+.section.glass-section {
+  backdrop-filter: blur(16px);
+  background: rgba(30, 30, 40, 0.6);
 }
 
 .section h4 {
@@ -892,6 +849,7 @@ onMounted(() => loadUser());
   color: #ff9800;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .field-group {
@@ -918,20 +876,21 @@ onMounted(() => loadUser());
 }
 
 .field-value {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.8);
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   min-height: 44px;
   display: flex;
   align-items: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .field-value:hover {
-  background: #333;
-  border: 1px solid #444;
-  padding: 11px 15px;
+  background: rgba(40, 40, 50, 0.9);
+  border-color: rgba(93, 173, 226, 0.2);
 }
 
 .field-value.text-area {
@@ -942,15 +901,16 @@ onMounted(() => loadUser());
 
 .field-input,
 textarea.field-input {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.8);
   border: 2px solid #ff9800;
   color: white;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
   outline: none;
   font-family: inherit;
   resize: vertical;
+  backdrop-filter: blur(10px);
 }
 
 .toggles-grid {
@@ -965,21 +925,22 @@ textarea.field-input {
   gap: 12px;
   cursor: pointer;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   transition: background 0.2s;
 }
 
 .toggle-item:hover {
-  background: #2a2a2a;
+  background: rgba(30, 30, 40, 0.6);
 }
 
 .toggle {
   width: 48px;
   height: 24px;
-  background: #333;
+  background: rgba(51, 51, 51, 0.8);
   border-radius: 12px;
   position: relative;
   transition: background 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .toggle::after {
@@ -995,12 +956,13 @@ textarea.field-input {
 }
 
 .toggle.active {
-  background: #00b894;
+  background: linear-gradient(135deg, rgba(0, 184, 148, 0.4), rgba(0, 184, 148, 0.2));
 }
 
 .toggle.active::after {
-  background: white;
+  background: #00b894;
   left: 26px;
+  box-shadow: 0 2px 8px rgba(0, 184, 148, 0.4);
 }
 
 .info-grid {
@@ -1025,9 +987,9 @@ textarea.field-input {
 }
 
 .danger-zone {
-  background: linear-gradient(135deg, #2a1a1a, #1f0f0f) !important;
-  border: 2px solid rgba(214, 48, 49, 0.3);
-  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.1);
+  background: linear-gradient(135deg, rgba(42, 26, 26, 0.6), rgba(31, 15, 15, 0.6)) !important;
+  border: 1px solid rgba(214, 48, 49, 0.3);
+  box-shadow: 0 4px 16px rgba(214, 48, 49, 0.1);
 }
 
 .danger-zone h4 {
@@ -1046,7 +1008,7 @@ textarea.field-input {
 .warning-btn {
   padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -1054,40 +1016,44 @@ textarea.field-input {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  backdrop-filter: blur(10px);
 }
 
 .danger-btn {
-  background: linear-gradient(135deg, #d63031, #b71c1c);
+  background: linear-gradient(135deg, rgba(214, 48, 49, 0.3), rgba(183, 28, 28, 0.3));
   color: white;
   box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+  border: 1px solid rgba(214, 48, 49, 0.4);
 }
 
 .danger-btn:hover {
-  background: linear-gradient(135deg, #c62828, #8b0000);
+  background: linear-gradient(135deg, rgba(198, 40, 40, 0.4), rgba(139, 0, 0, 0.4));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(214, 48, 49, 0.4);
 }
 
 .restore-btn {
-  background: linear-gradient(135deg, #00b894, #00a884);
+  background: linear-gradient(135deg, rgba(0, 184, 148, 0.3), rgba(0, 168, 132, 0.3));
   color: white;
   box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+  border: 1px solid rgba(0, 184, 148, 0.4);
 }
 
 .restore-btn:hover {
-  background: linear-gradient(135deg, #00a884, #009874);
+  background: linear-gradient(135deg, rgba(0, 168, 132, 0.4), rgba(0, 152, 116, 0.4));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
 }
 
 .warning-btn {
-  background: linear-gradient(135deg, #ff9800, #f57c00);
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.3), rgba(245, 124, 0, 0.3));
   color: white;
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+  border: 1px solid rgba(255, 152, 0, 0.4);
 }
 
 .warning-btn:hover {
-  background: linear-gradient(135deg, #f57c00, #e65100);
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.4), rgba(229, 81, 0, 0.4));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
 }
@@ -1096,30 +1062,34 @@ textarea.field-input {
 .save-section {
   margin-top: 30px;
   padding: 30px;
-  background: linear-gradient(135deg, #1a1a1a, #222);
-  border-radius: 12px;
+  border-radius: 16px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(93, 173, 226, 0.15);
 }
 
 .save-btn {
   padding: 16px 40px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 1.1rem;
-  background: linear-gradient(135deg, #00b894, #00a884);
+  background: linear-gradient(135deg, rgba(0, 184, 148, 0.3), rgba(0, 168, 132, 0.3));
   color: white;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+  border: 1px solid rgba(0, 184, 148, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .save-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #00a884, #009874);
+  background: linear-gradient(135deg, rgba(0, 168, 132, 0.4), rgba(0, 152, 116, 0.4));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
 }
@@ -1127,8 +1097,9 @@ textarea.field-input {
 .save-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: linear-gradient(135deg, #444, #333);
+  background: linear-gradient(135deg, rgba(68, 68, 68, 0.3), rgba(51, 51, 51, 0.3));
   box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 @keyframes spin {

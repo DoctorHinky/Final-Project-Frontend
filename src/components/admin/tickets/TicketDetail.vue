@@ -1,30 +1,6 @@
 <!-- src/components/admin/tickets/TicketDetail.vue -->
 <template>
   <div class="ticket-detail">
-    <!-- Ticket Header -->
-    <div class="ticket-header">
-      <div class="header-left">
-        <button class="btn-back" @click="$emit('close')">
-          <!-- Hero Icon: Arrow Left -->
-          <svg
-            class="icon-back"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-          Zurück
-        </button>
-        <h2 class="ticket-title">{{ ticket.title }}</h2>
-      </div>
-      <div class="header-right">
-        <span class="ticket-id">#{{ ticket.id }}</span>
-      </div>
-    </div>
-
     <!-- Ticket Info Box -->
     <div class="ticket-info-box">
       <div class="info-grid">
@@ -661,10 +637,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .ticket-detail {
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 /* Icon Styles */
@@ -711,72 +683,9 @@ export default defineComponent({
   }
 }
 
-/* Header */
-.ticket-header {
-  padding: 20px 24px;
-  background-color: #2a2a2a;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .header-right {
-    flex-shrink: 0;
-  }
-
-  .btn-back {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background-color: #333;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-
-    &:hover {
-      background-color: #444;
-      transform: translateX(-2px);
-    }
-  }
-
-  .ticket-title {
-    margin: 0;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #f0f0f0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .ticket-id {
-    font-size: 0.9rem;
-    color: #888;
-    font-weight: 500;
-    padding: 4px 12px;
-    background-color: #333;
-    border-radius: 16px;
-  }
-}
-
 /* Info Box */
 .ticket-info-box {
   padding: 24px;
-  background-color: #2a2a2a;
   margin: 20px;
   border-radius: 8px;
   border: 1px solid #333;
@@ -929,7 +838,6 @@ export default defineComponent({
 .ticket-description-box {
   margin: 20px;
   padding: 20px;
-  background-color: #2a2a2a;
   border-radius: 8px;
   border: 1px solid #333;
   flex-shrink: 0;
@@ -957,7 +865,6 @@ export default defineComponent({
   flex: 1;
   margin: 0 20px 20px;
   padding: 20px;
-  background-color: #2a2a2a;
   border-radius: 8px;
   border: 1px solid #333;
   display: flex;
@@ -995,7 +902,6 @@ export default defineComponent({
     flex-direction: column;
     gap: 12px;
     padding: 16px;
-    background-color: #333;
     border-radius: 8px;
     margin-bottom: 20px;
     flex-shrink: 0;
@@ -1004,7 +910,7 @@ export default defineComponent({
       width: 100%;
       padding: 12px;
       border-radius: 6px;
-      background-color: #2a2a2a;
+      background-color: transparent;
       border: 1px solid #444;
       color: #fff;
       resize: vertical;
@@ -1378,24 +1284,6 @@ export default defineComponent({
 
 /* Responsive */
 @media (max-width: 768px) {
-  .ticket-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-
-    .header-left {
-      width: 100%;
-    }
-
-    .header-right {
-      width: 100%;
-    }
-
-    .ticket-id {
-      display: inline-block;
-    }
-  }
-
   .ticket-info-box {
     margin: 16px;
     padding: 16px;
@@ -1449,14 +1337,6 @@ export default defineComponent({
 }
 
 @media (max-width: 480px) {
-  .ticket-header {
-    padding: 16px;
-
-    .ticket-title {
-      font-size: 1.1rem;
-    }
-  }
-
   .quick-actions-bar {
     .btn-action {
       padding: 8px 12px;

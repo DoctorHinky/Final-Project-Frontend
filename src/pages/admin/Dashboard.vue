@@ -1487,8 +1487,8 @@ export default defineComponent({
 }
 
 .modal-container {
-  width: 90%;
-  max-width: 800px;
+  width: 100%;
+  max-width: 1200px;
   max-height: 90vh;
   background: rgba(30, 30, 40, 0.95);
   backdrop-filter: blur(24px) saturate(150%);

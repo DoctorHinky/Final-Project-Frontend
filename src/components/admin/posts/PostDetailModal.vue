@@ -1,74 +1,67 @@
 <!-- src/components/admin/posts/PostDetailModal.vue -->
 <template>
-  <div class="modal-overlay" @click="$emit('close')">
-    <div class="modal-container" @click.stop>
-      <div class="modal-header">
-        <h3>{{ post?.title || "Lade..." }}</h3>
-        <button class="close-button" @click="$emit('close')">×</button>
+  <div class="post-detail-content">
+    <div v-if="loading" class="detail-loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <div v-else-if="error" class="detail-error">
+      <p>{{ error }}</p>
+    </div>
+
+    <div v-else-if="post" class="post-details">
+      <div class="post-info">
+        <div class="info-row">
+          <span class="label">Autor:</span>
+          <span>{{ post.author?.username || "Unbekannt" }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Kategorie:</span>
+          <span>{{ mapPostCategoryToGerman(formatCategory(post.category)) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="status-badge" :class="getStatusClass(post)">
+            {{ getStatusText(post) }}
+          </span>
+        </div>
+        <div class="info-row" v-if="post.publishedAt">
+          <span class="label">Veröffentlicht:</span>
+          <span>{{ formatDate(post.publishedAt, "-") }}</span>
+        </div>
       </div>
 
-      <div v-if="loading" class="modal-loading">
-        <div class="loading-spinner"></div>
+      <div class="post-description" v-if="post.quickDescription">
+        <h4>Beschreibung</h4>
+        <p>{{ post.quickDescription }}</p>
       </div>
 
-      <div v-else-if="error" class="modal-error">
-        <p>{{ error }}</p>
+      <div class="post-image" v-if="post.image">
+        <h4>Vorschaubild</h4>
+        <img :src="post.image" :alt="post.title" />
       </div>
 
-      <div v-else-if="post" class="modal-content">
-        <div class="post-info">
-          <div class="info-row">
-            <span class="label">Autor:</span>
-            <span>{{ post.author?.username || "Unbekannt" }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Kategorie:</span>
-            <span>{{ mapPostCategoryToGerman(formatCategory(post.category)) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Status:</span>
-            <span class="status-badge" :class="getStatusClass(post)">
-              {{ getStatusText(post) }}
-            </span>
-          </div>
-          <div class="info-row" v-if="post.publishedAt">
-            <span class="label">Veröffentlicht:</span>
-            <span>{{ formatDate(post.publishedAt, "-") }}</span>
-          </div>
-        </div>
+      <div class="post-chapters" v-if="post.chapters && post.chapters.length > 0">
+        <h4>Kapitel ({{ post.chapters.length }})</h4>
+        <ul>
+          <li v-for="chapter in post.chapters" :key="chapter.id">
+            {{ chapter.title }}
+          </li>
+        </ul>
+      </div>
 
-        <div class="post-description" v-if="post.quickDescription">
-          <h4>Beschreibung</h4>
-          <p>{{ post.quickDescription }}</p>
-        </div>
+      <div class="post-actions">
+        <button
+          v-if="!post.isDeleted"
+          @click="toggleStatus"
+          class="action-button"
+          :class="post.published ? 'unpublish' : 'publish'"
+          :disabled="!canPublish"
+        >
+          {{ post.published ? "Depublizieren" : "Veröffentlichen" }}
+        </button>
 
-        <div class="post-image" v-if="post.image">
-          <h4>Vorschaubild</h4>
-          <img :src="post.image" :alt="post.title" />
-        </div>
-
-        <div class="post-chapters" v-if="post.chapters && post.chapters.length > 0">
-          <h4>Kapitel ({{ post.chapters.length }})</h4>
-          <ul>
-            <li v-for="chapter in post.chapters" :key="chapter.id">
-              {{ chapter.title }}
-            </li>
-          </ul>
-        </div>
-
-        <div class="post-actions">
-          <button
-            v-if="!post.isDeleted"
-            @click="toggleStatus"
-            class="action-button"
-            :class="post.published ? 'unpublish' : 'publish'"
-            :disabled="!canPublish"
-          >
-            {{ post.published ? "Depublizieren" : "Veröffentlichen" }}
-          </button>
-
-          <button v-if="!post.isDeleted" @click="deletePost" class="action-button delete">Löschen</button>
-        </div>
+        <button v-if="!post.isDeleted" @click="deletePost" class="action-button delete">Löschen</button>
       </div>
     </div>
   </div>
@@ -207,71 +200,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1100;
-  backdrop-filter: blur(3px);
+.post-detail-content {
+  position: relative;
 }
 
-.modal-container {
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh;
-  background-color: #222;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #444;
-  animation: modal-appear 0.3s ease-out;
-}
-
-.modal-header {
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #262626;
-
-  h3 {
-    margin: 0;
-    color: #fff;
-    font-size: 1.2rem;
-  }
-
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-  }
-}
-
-.modal-loading,
-.modal-error {
+.detail-loading,
+.detail-error {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,13 +222,10 @@ export default defineComponent({
   }
 }
 
-.modal-content {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
+.post-details {
+  position: relative;
 
   .post-info {
-    background-color: #1c1c1c;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 20px;
@@ -358,7 +289,6 @@ export default defineComponent({
 
       li {
         padding: 8px 12px;
-        background-color: #1c1c1c;
         border-radius: 4px;
         margin-bottom: 8px;
         color: #d0d0d0;
@@ -436,18 +366,6 @@ export default defineComponent({
         }
       }
     }
-  }
-}
-
-@keyframes modal-appear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 

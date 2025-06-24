@@ -47,13 +47,21 @@
 
     <!-- Ticket Detail Modal -->
     <div v-if="selectedTicket" class="modal-overlay" @click="closeTicketDetail">
-      <div class="modal-container large" @click.stop>
-        <TicketDetail
-          :ticket="selectedTicket"
-          @close="closeTicketDetail"
-          @updated="handleTicketUpdate"
-          @deleted="handleTicketDeleted"
-        />
+      <div class="modal-container glass-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Ticketdetails</h3>
+          <button class="close-button" @click="closeTicketDetail">
+            <span>×</span>
+          </button>
+        </div>
+        <div class="modal-content">
+          <TicketDetail
+            :ticket="selectedTicket"
+            @close="closeTicketDetail"
+            @updated="handleTicketUpdate"
+            @deleted="handleTicketDeleted"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -271,6 +279,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .tickets-container {
   width: 100%;
+  min-height: 100vh;
 }
 
 .tickets-header {
@@ -320,61 +329,137 @@ export default defineComponent({
 }
 
 .modal-container {
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
+  max-width: 1200px;
   max-height: 90vh;
-  background-color: #222;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(30, 30, 40, 0.95);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(93, 173, 226, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: modal-appear 0.3s ease-out;
+  border: 1px solid rgba(93, 173, 226, 0.2);
+  animation: modal-appear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: absolute;
+  top: -50px;
+  z-index: 2000;
 
-  &.large {
-    max-width: 1000px;
+  @media (max-width: 767px) {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100vh - 32px);
+    border-radius: 16px;
+  }
+
+  &.glass-modal {
+    background: rgba(30, 30, 40, 0.85);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(93, 173, 226, 0.1) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(255, 107, 157, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
   }
 }
 
 .modal-header {
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #262626;
+  border-bottom: 1px solid rgba(93, 173, 226, 0.15);
+  background: rgba(40, 40, 50, 0.5);
+  position: relative;
+  z-index: 2100;
+
+  @media (max-width: 767px) {
+    padding: 16px 20px;
+  }
 
   h3 {
     margin: 0;
-    color: #fff;
-    font-size: 1.2rem;
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+    @media (max-width: 767px) {
+      font-size: 1.1rem;
+    }
   }
 
   .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+    border: 1px solid rgba(255, 107, 157, 0.3);
+    color: #ff6b9d;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+    position: relative;
+    z-index: 2200;
+    font-size: 1.5rem;
+    font-weight: 300;
+
+    @media (max-width: 767px) {
+      width: 32px;
+      height: 32px;
+      font-size: 1.3rem;
+    }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.3), rgba(255, 107, 157, 0.2));
+      border-color: rgba(255, 107, 157, 0.5);
+      transform: scale(1.1) rotate(90deg);
+      box-shadow:
+        0 0 20px rgba(255, 107, 157, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+      transform: scale(0.95) rotate(90deg);
     }
   }
 }
 
 .modal-content {
-  padding: 20px;
+  padding: 0;
   overflow-y: auto;
   flex: 1;
+  position: relative;
+  z-index: 2100;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
+    }
+  }
 }
 
 @keyframes modal-appear {

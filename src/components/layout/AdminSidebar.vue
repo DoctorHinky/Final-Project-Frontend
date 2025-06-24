@@ -12,9 +12,6 @@
     <div class="sidebar-header">
       <div class="profile-image-container">
         <img :src="userPicture" alt="Account Logo" class="account-logo" />
-        <div class="profile-edit-overlay">
-          <span class="edit-icon">👤</span>
-        </div>
       </div>
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
@@ -32,7 +29,7 @@
           :key="item.id"
           :data-item-id="item.id"
           class="nav-item"
-          :class="{
+          :class="{ 
             active: isActiveItem(item.id),
             dragging: draggedItem === item.id,
             'drag-over': dragOverIndex === index,
@@ -49,7 +46,7 @@
           <span class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
           </span>
-
+          
           <span class="nav-icon">
             <component :is="item.icon" class="h-6 w-6" />
           </span>
@@ -154,8 +151,18 @@ export default defineComponent({
         icon: HomeIcon,
       },
       {
+        id: "tickets",
+        text: "Tickets",
+        icon: TicketIcon,
+      },
+      {
+        id: "active-posts",
+        text: "Aktive Artikel",
+        icon: DocumentTextIcon,
+      },
+      {
         id: "all-users",
-        text: "Alle User",
+        text: "Alle Benutzer",
         icon: UsersIcon,
       },
       {
@@ -164,18 +171,8 @@ export default defineComponent({
         icon: DocumentIcon,
       },
       {
-        id: "active-posts",
-        text: "Active Posts",
-        icon: DocumentTextIcon,
-      },
-      {
-        id: "tickets",
-        text: "Tickets",
-        icon: TicketIcon,
-      },
-      {
         id: "deleted-users",
-        text: "Gelöschte User",
+        text: "Gelöschte Benutzer",
         icon: UserMinusIcon,
       },
     ]);
@@ -211,7 +208,7 @@ export default defineComponent({
     onMounted(async () => {
       // Load menu order first
       loadMenuOrder();
-
+      
       try {
         // Token dekodieren für Benutzerinformationen
         const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
@@ -257,7 +254,7 @@ export default defineComponent({
         userRole.value = "Admin";
       }
     });
-
+    
     // Prüfen ob ein Item aktiv ist
     const isActiveItem = (itemId: string) => {
       // Wenn kein activeMenu gesetzt ist und wir auf der Dashboard-Route ohne tab sind,
@@ -482,9 +479,7 @@ export default defineComponent({
   flex-direction: column;
   user-select: none;
   padding-top: 8rem;
-  padding-bottom: 3rem;
-  // Optimierter Glass-Effekt
-  background: rgba(30, 30, 40, 0.92);
+  
   // Mobile Anpassungen
   @media (max-width: 1023px) {
     top: 0;
@@ -497,14 +492,14 @@ export default defineComponent({
     left: -100vw;
   }
   
+  // Optimierter Glass-Effekt
+  background: rgba(30, 30, 40, 0.92);
   box-shadow: 
     4px 0 20px rgba(0, 0, 0, 0.3),
     0 0 40px rgba(93, 173, 226, 0.1);
-  & {
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    backdrop-filter: blur(20px) saturate(150%);
-    border-right: 1px solid rgba(93, 173, 226, 0.2);
-  }
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-right: 1px solid rgba(93, 173, 226, 0.2);
   
   @media (max-width: 767px) {
     border-right: none;
@@ -513,7 +508,7 @@ export default defineComponent({
   
   // Glass Refraction Layer
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: 
@@ -570,23 +565,11 @@ export default defineComponent({
     padding: 20px;
     position: relative;
     z-index: 1;
-
-    // Glass Separator mit Glow
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: map.get(vars.$spacing, m);
-      right: map.get(vars.$spacing, m);
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(93, 173, 226, 0.3) 20%,
-        rgba(255, 107, 157, 0.3) 80%,
-        transparent
-      );
-      box-shadow: 0 0 20px rgba(93, 173, 226, 0.2);
+    gap: 12px;
+    border-bottom: 1px solid rgba(93, 173, 226, 0.15);
+    
+    @media (max-width: 767px) {
+      padding: 16px 20px;
     }
 
     .profile-image-container {
@@ -616,26 +599,6 @@ export default defineComponent({
         object-fit: cover;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         border: 1px solid rgba(93, 173, 226, 0.2);
-      }
-
-      .profile-edit-overlay {
-        position: absolute;
-        inset: 0;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        pointer-events: none;
-
-        .edit-icon {
-          font-size: 16px;
-          color: #5dade2;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
       }
     }
 
@@ -729,10 +692,6 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
       min-height: 52px;
-      // Optimierte Glass Card
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      color: #a8d5e8;
       
       @media (max-width: 767px) {
         padding: 16px 20px;
@@ -740,6 +699,10 @@ export default defineComponent({
         border-radius: 16px;
       }
       
+      // Optimierte Glass Card
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #a8d5e8;
       
       &:hover:not(.dragging) {
         background: rgba(93, 173, 226, 0.12);
@@ -994,28 +957,7 @@ export default defineComponent({
   }
 }
 
-// Logo mit Glass-Effekt
-.logo-Sidebar {
-  display: block;
-  margin: 0 auto;
-  height: 100px;
-  width: 100px;
-  border-radius: 24px;
-  margin-bottom: map.get(vars.$spacing, m);
-  opacity: 0.95;
-  transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(93, 173, 226, 0.2);
-
-  &:hover {
-    opacity: 1;
-    transform: scale(1.05) translateZ(0);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(93, 173, 226, 0.15),
-      inset 0 0 0 2px rgba(93, 173, 226, 0.3);
-  }
-}
-
-// Glass-Scrollbar
+// Scrollbar
 .sidebar-nav {
   &::-webkit-scrollbar {
     width: 6px;
@@ -1029,8 +971,7 @@ export default defineComponent({
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
     border-radius: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-
+    
     &:hover {
       background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
     }
