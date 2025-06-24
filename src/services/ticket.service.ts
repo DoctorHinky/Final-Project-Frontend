@@ -15,7 +15,6 @@ const ticketService = {
         },
       }
     );
-    console.log(response);
     return response.data;
   },
 
@@ -27,7 +26,6 @@ const ticketService = {
         headers: { "Content-Type": "application/json" },
       }
     );
-    console.log(response);
     return response.data;
   },
 
@@ -39,7 +37,6 @@ const ticketService = {
         headers: { "Content-Type": "application/json" },
       }
     );
-    console.log(response);
     return response.data;
   },
 
@@ -55,7 +52,6 @@ const ticketService = {
         },
       }
     );
-    console.log(response);
     return response.data;
   },
 
@@ -63,7 +59,6 @@ const ticketService = {
     const response = await api.get(`tickets/my-tickets`, {
       headers: { "Content-Type": "application/json" },
     });
-    console.log(response);
     return response.data;
   },
 
@@ -71,7 +66,6 @@ const ticketService = {
     const response = await api.get(`tickets/by-moderator/${moderatorId}`, {
       headers: { "Content-Type": "application/json" },
     });
-    console.log(response);
     return response.data;
   },
 
@@ -91,9 +85,7 @@ const ticketService = {
   // Ein einzelnes Ticket abrufen
   async getTicketById(id: string) {
     try {
-      console.log("getTicketById called", id);
       const response = await api.get(`tickets/${id}`);
-      console.log("res mit id: ", response);
       return response.data;
     } catch (error) {
       console.error(`Fehler beim Abrufen des Tickets mit ID ${id}:`, error);
@@ -107,8 +99,7 @@ const ticketService = {
       const response = await api.post(`tickets/create`, ticketData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Ticket erstellt:", response);
-      console.log(response);
+
       return response.data;
     } catch (error) {
       console.error("Fehler beim Erstellen des Tickets:", error);
@@ -122,12 +113,9 @@ const ticketService = {
       const response = await api.post(
         `tickets/${ticketId}/message`,
         { message }, // nur das message-Feld senden
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log(response);
       return response.data;
     } catch (error) {
       console.error(`Fehler beim Hinzufügen einer Nachricht zum Ticket mit ID ${ticketId}:`, error);
@@ -142,42 +130,13 @@ const ticketService = {
         { category },
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log(response);
+
       return response.data;
     } catch (error) {
       console.error(`Fehler beim Aktualisieren der Kategorie des Tickets mit ID ${ticketId}:`, error);
       throw error;
     }
   },
-
-  // Ticket-Statistiken abrufen
-  /*   async getTicketStats() {
-    try {
-      // Im Produktionsmodus: API-Aufruf
-      const response = await api.get(`tickets/stats`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      console.error("Fehler beim Abrufen der Ticket-Statistiken:", error);
-      return {
-        total: 0,
-        byStatus: {
-          [TicketStatus.OPEN]: 0,
-          [TicketStatus.IN_PROGRESS]: 0,
-          [TicketStatus.CANCELED]: 0,
-          [TicketStatus.CLOSED]: 0,
-        },
-        byCategory: {
-          [TicketCategory.ACCOUNT]: 0,
-          [TicketCategory.TECHNICAL]: 0,
-          [TicketCategory.REPORT]: 0,
-          [TicketCategory.OTHER]: 0,
-        },
-      };
-    }
-  }, */
 
   async reopenTicket(ticketId: string) {
     try {
@@ -186,7 +145,7 @@ const ticketService = {
         {},
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log(response);
+
       return response.data;
     } catch (error) {
       console.error(`Fehler beim Wiedereröffnen des Tickets mit ID ${ticketId}:`, error);
@@ -208,21 +167,6 @@ const ticketService = {
       return [];
     }
   },
-
-  // Ticket löschen
-  /* async deleteTicket(id: string) {
-    try {
-      // Im Produktionsmodus: API-Aufruf
-      const response = await axios.delete(`tickets/${id}`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      console.error(`Fehler beim Löschen des Tickets mit ID ${id}:`, error);
-      throw error;
-    }
-  }, */
 };
 
 export default ticketService;

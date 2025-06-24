@@ -74,8 +74,6 @@ class AuthService {
     password: string
   ): Promise<{ success: boolean; role?: string; message?: string }> {
     try {
-      console.log("[AdminLogin] Start mit:", emailOrUsername);
-
       // Verwende die normale login Methode
       const loginData: any = { password };
       const trimmedInput = emailOrUsername.trim();
@@ -87,26 +85,20 @@ class AuthService {
         loginData.username = trimmedInput;
       }
 
-      console.log("[AdminLogin] Sende Request an Backend...");
-
       const response = await api.post("/auth/local/login", loginData, {
         headers: { "Content-Type": "application/json" },
       });
 
       const { access_token, refresh_token } = response.data;
 
-      console.log("[AdminLogin] Response erhalten, Token vorhanden:", !!access_token);
-
       if (!access_token) {
         return { success: false, message: "Keine Tokens erhalten" };
       }
 
       const decoded = jwtDecode<DecodedToken>(access_token);
-      console.log("[AdminLogin] Token dekodiert, Rolle:", decoded.role);
 
       // Prüfe ob User Admin/Moderator ist
       if (decoded.role !== "ADMIN" && decoded.role !== "MODERATOR") {
-        console.log("[AdminLogin] Keine Admin-Berechtigung");
         return { success: false, message: "Keine Admin-Berechtigung" };
       }
 
@@ -118,13 +110,10 @@ class AuthService {
       sessionStorage.setItem("admin_access_token", access_token);
       sessionStorage.setItem("admin_refresh_token", refresh_token);
 
-      console.log("[AdminLogin] Tokens gespeichert in sessionStorage");
-
       // Starte Token-Refresh für Admin
       this.scheduleTokenRefresh();
       this.startTokenCountdown();
 
-      console.log("[AdminLogin] Login erfolgreich, Rolle:", decoded.role);
       return { success: true, role: decoded.role };
     } catch (error: any) {
       console.error("[AdminLogin] Fehler:", error);

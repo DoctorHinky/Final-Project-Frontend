@@ -14,7 +14,6 @@ export const startConversation = async (targetId: string) => {
 export const getConversationList = async () => {
   try {
     const res = await api.get("/conversation/loadPreview");
-    console.log("Loaded conversation list:", res);
     if (res.status === 200) return res.data;
   } catch (error) {
     console.error("Error fetching conversation list:", error);
@@ -27,7 +26,8 @@ export const loadOneConversation = async (conversationId: string) => {
     const res = await api.get(`/conversation/${conversationId}`);
 
     if (res.status === 200) return res.data;
-    console.log("Loaded conversation:", res);
+
+    return null; // Falls die Konversation nicht gefunden wurde
   } catch (error) {
     console.error("Error loading conversation:", error);
   }

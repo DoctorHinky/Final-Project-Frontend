@@ -63,7 +63,7 @@ class AuthorService {
       return "Ein Fehler ist aufgetreten";
     }
   }
-  
+
   // Alle Entwürfe des Autors abrufen
   async getAuthorDrafts(): Promise<DraftsResult> {
     const userData = authService.getUserData();
@@ -74,7 +74,6 @@ class AuthorService {
         headers: { "Content-Type": "application/json" },
       });
       const drafts: Article[] = response.data.posts || [];
-      console.log("Entwürfe des Autors:", drafts);
       return { drafts };
     } catch (error) {
       console.error("Fehler beim Laden der Entwürfe:", error);
@@ -92,7 +91,6 @@ class AuthorService {
         headers: { "Content-Type": "application/json" },
       });
       const posts: Post[] = response.data.posts || [];
-      console.log("Veröffentlichte Artikel des Autors:", posts);
       return { posts };
     } catch (error) {
       console.error("Fehler beim Laden der Entwürfe:", error);
@@ -169,27 +167,19 @@ class AuthorService {
   // WICHTIG: Korrigierte saveUpdate Methode
   async saveUpdate(postId: string, article: FormData, published: boolean): Promise<any> {
     try {
-      console.log("Saving update for post:", postId, "published:", published);
-      
       // Backend erwartet published als Query-Parameter
-      const response = await api.patch(
-        `/article/updateFullPost/${postId}?published=${published}`,
-        article,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          timeout: 30000, // 30 Sekunden Timeout für große Updates
-        }
-      );
-      
-      console.log("Update response:", response.data);
-      
-      if (response.status === 200 || response.data?.status === 'OK') {
+      const response = await api.patch(`/article/updateFullPost/${postId}?published=${published}`, article, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 30000, // 30 Sekunden Timeout für große Updates
+      });
+
+      if (response.status === 200 || response.data?.status === "OK") {
         return {
           success: true,
           message: published ? "Artikel erfolgreich veröffentlicht" : "Entwurf erfolgreich aktualisiert",
-          data: response.data
+          data: response.data,
         };
       }
 
@@ -200,7 +190,7 @@ class AuthorService {
     } catch (error: any) {
       console.error("Fehler beim Aktualisieren des Artikels:", error);
       console.error("Error response:", error.response?.data);
-      
+
       // Detailliertere Fehlerbehandlung
       if (error.response?.data?.message) {
         return {
@@ -208,7 +198,7 @@ class AuthorService {
           message: error.response.data.message,
         };
       }
-      
+
       return {
         success: false,
         message: "Ein unerwarteter Fehler ist aufgetreten",

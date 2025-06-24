@@ -354,57 +354,6 @@ class FriendService {
       throw error;
     }
   }
-
-  /**
-   * DEBUGGING: Teste alle verfügbaren Friend-Endpunkte
-   */
-  async debugFriendEndpoints(): Promise<void> {
-    console.group("🔍 Friend Service Backend Endpoint Debug");
-
-    const testEndpoints = [
-      { method: "GET", url: "/friends/friendsOfMe", description: "Meine Freunde" },
-      { method: "GET", url: "/friends/pendingRequestsOfMe", description: "Empfangene Anfragen" },
-      { method: "GET", url: "/friends/sentRequestsOfMe", description: "Gesendete Anfragen (ideal)" },
-      { method: "GET", url: "/friends/mySentRequests", description: "Gesendete Anfragen (alt 1)" },
-      { method: "GET", url: "/friends/sentRequests", description: "Gesendete Anfragen (alt 2)" },
-      { method: "GET", url: "/friends/requests/sent", description: "Gesendete Anfragen (alt 3)" },
-      { method: "GET", url: "/user/sentFriendRequests", description: "User-bezogene gesendete Anfragen" },
-      { method: "GET", url: "/user/getMe", description: "Aktuelle User-Info" },
-    ];
-
-    for (const endpoint of testEndpoints) {
-      try {
-        const response = await api.request({
-          method: endpoint.method,
-          url: endpoint.url,
-        });
-        console.log(`✅ ${endpoint.method} ${endpoint.url}:`, response.status, endpoint.description);
-
-        // Zeige Struktur der Response
-        if (response.data) {
-          console.log(`   📋 Response-Struktur:`, Object.keys(response.data));
-        }
-      } catch (error: any) {
-        const status = error.response?.status || "ERR";
-        const message = error.response?.data?.message || error.message;
-        console.log(`❌ ${endpoint.method} ${endpoint.url}:`, status, message, `(${endpoint.description})`);
-      }
-    }
-
-    console.groupEnd();
-
-    // Zusätzlich: Prüfe User-Rolle
-    try {
-      const userResponse = await api.get("/user/getMe");
-      console.log("👤 Aktuelle User-Info:", {
-        id: userResponse.data.id,
-        username: userResponse.data.username,
-        role: userResponse.data.role,
-      });
-    } catch (error) {
-      console.error("❌ Konnte User-Info nicht laden");
-    }
-  }
 }
 
 export default new FriendService();

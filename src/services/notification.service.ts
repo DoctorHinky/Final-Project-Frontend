@@ -151,7 +151,6 @@ class NotificationService {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
-      console.log("Notification-Polling gestoppt");
     }
   }
 
@@ -278,30 +277,6 @@ class NotificationService {
     });
 
     return stats;
-  }
-
-  /**
-   * Debug-Methoden für Entwicklung
-   */
-  async debugInfo(): Promise<void> {
-    console.group("🔔 Notification Service Debug Info");
-
-    try {
-      const count = await this.getNotificationCount();
-      const notifications = await this.getNotifications();
-      const stats = this.getNotificationStats(notifications);
-
-      console.log("Ungelesene Anzahl:", count);
-      console.log("Gesamte Benachrichtigungen:", stats.total);
-      console.log("Statistiken nach Typ:", stats.byType);
-      console.log("Polling aktiv:", !!this.pollingInterval);
-      console.log("Registrierte Listener:", this.listeners.length);
-      console.log("Cache aktiv:", this.notificationCache.size > 0);
-    } catch (error) {
-      console.error("Debug-Fehler:", error);
-    }
-
-    console.groupEnd();
   }
 }
 
