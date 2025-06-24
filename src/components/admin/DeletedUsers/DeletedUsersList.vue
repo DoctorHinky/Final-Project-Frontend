@@ -448,7 +448,7 @@ export default defineComponent({
       .user-avatar {
         width: 40px;
         height: 40px;
-        border-radius: 50%;
+        border-radius: 10px;
         background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
         display: flex;
         align-items: center;

@@ -1,19 +1,17 @@
 <!-- src/components/layout/AdminSidebar.vue -->
 <template>
   <aside class="admin-sidebar" :class="{ open: isOpen }">
-    <!-- Logo wie in Member-Sidebar -->
-    <a href="/" class="logo-link">
-      <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-Sidebar" />
-    </a>
+    <!-- Logo -->
+    <div class="logo-container">
+      <a href="/" class="logo-link">
+        <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-sidebar" />
+      </a>
+    </div>
 
     <!-- Sidebar-Header mit Benutzerinfo -->
     <div class="sidebar-header">
       <div class="profile-image-container">
         <img :src="userPicture" alt="Account Logo" class="account-logo" />
-        <!-- Hover-Indikator für Klickbarkeit -->
-        <div class="profile-edit-overlay">
-          <span class="edit-icon">👤</span>
-        </div>
       </div>
       <div class="header-content">
         <h3 v-if="userName">{{ userName }}</h3>
@@ -31,7 +29,7 @@
           :key="item.id"
           :data-item-id="item.id"
           class="nav-item"
-          :class="{
+          :class="{ 
             active: isActiveItem(item.id),
             dragging: draggedItem === item.id,
             'drag-over': dragOverIndex === index,
@@ -48,11 +46,14 @@
           <span class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
           </span>
-
+          
           <span class="nav-icon">
             <component :is="item.icon" class="h-6 w-6" />
           </span>
           <span class="nav-text">{{ item.text }}</span>
+          
+          <!-- Active Indicator -->
+          <span v-if="isActiveItem(item.id)" class="active-indicator"></span>
         </div>
 
         <!-- Drop-Indikator Linie -->
@@ -90,7 +91,6 @@ import {
   DocumentTextIcon,
   TicketIcon,
   DocumentIcon,
-  ArrowLeftIcon,
   ChevronRightIcon,
   Bars3Icon,
   ArrowPathIcon,
@@ -110,7 +110,6 @@ export default defineComponent({
     DocumentTextIcon,
     DocumentIcon,
     TicketIcon,
-    ArrowLeftIcon,
     ChevronRightIcon,
     Bars3Icon,
     ArrowPathIcon,
@@ -135,7 +134,7 @@ export default defineComponent({
     const userRole = ref("");
     const userPicture = ref("");
 
-    // Drag & Drop State - MUSS VOR COMPUTED UND FUNKTIONEN DEFINIERT WERDEN
+    // Drag & Drop State
     const draggedItem = ref<string | null>(null);
     const draggedIndex = ref<number | null>(null);
     const dragOverIndex = ref<number | null>(null);
@@ -152,8 +151,18 @@ export default defineComponent({
         icon: HomeIcon,
       },
       {
+        id: "tickets",
+        text: "Tickets",
+        icon: TicketIcon,
+      },
+      {
+        id: "active-posts",
+        text: "Aktive Artikel",
+        icon: DocumentTextIcon,
+      },
+      {
         id: "all-users",
-        text: "Alle User",
+        text: "Alle Benutzer",
         icon: UsersIcon,
       },
       {
@@ -162,18 +171,8 @@ export default defineComponent({
         icon: DocumentIcon,
       },
       {
-        id: "active-posts",
-        text: "Active Posts",
-        icon: DocumentTextIcon,
-      },
-      {
-        id: "tickets",
-        text: "Tickets",
-        icon: TicketIcon,
-      },
-      {
         id: "deleted-users",
-        text: "Gelöschte User",
+        text: "Gelöschte Benutzer",
         icon: UserMinusIcon,
       },
     ]);
@@ -209,7 +208,7 @@ export default defineComponent({
     onMounted(async () => {
       // Load menu order first
       loadMenuOrder();
-
+      
       try {
         // Token dekodieren für Benutzerinformationen
         const token = localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
@@ -235,7 +234,6 @@ export default defineComponent({
             userRole.value = roleMap[displayRole.toLowerCase()] || displayRole;
             const userData = await userService.getCurrentUser();
             if (userData && userData.profilePicture) {
-              console.log("Benutzerprofilbild gefunden:", userData.profilePicture);
               userPicture.value = userData.profilePicture;
             } else {
               userPicture.value = "https://api.api-ninjas.com/v1/randomimage";
@@ -256,7 +254,7 @@ export default defineComponent({
         userRole.value = "Admin";
       }
     });
-
+    
     // Prüfen ob ein Item aktiv ist
     const isActiveItem = (itemId: string) => {
       // Wenn kein activeMenu gesetzt ist und wir auf der Dashboard-Route ohne tab sind,
@@ -468,112 +466,125 @@ export default defineComponent({
 @use "@/style/base/mixins" as mixins;
 @use "@/style/base/animations" as animations;
 
-// Hauptcontainer mit intensivem Glass Effect - Admin Farben
+// Hauptcontainer mit optimiertem Glass Effect
 .admin-sidebar {
   position: fixed;
-  top: 70px;
+  top: 0;
   left: -300px;
   width: 300px;
   height: 100vh;
-  z-index: 950;
+  z-index: 1400;
   transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   display: flex;
   flex-direction: column;
-  padding-top: 70px;
   user-select: none;
-
-  // Liquid glass effect mit Admin-Farben
-  background: rgba(30, 30, 40, 0.85);
-  box-shadow: 0 8px 32px 0 rgba(93, 173, 226, 0.25);
-  backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
-  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
-  border-right: 1.5px solid rgba(93, 173, 226, 0.2);
-  border-radius: 0 32px 32px 0;
-  overflow: hidden;
-
-  // Glass Refraction Layer mit Admin Glow
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 30% 70%, rgba(93, 173, 226, 0.15) 0%, transparent 60%),
-      radial-gradient(circle at 70% 30%, rgba(255, 107, 157, 0.1) 0%, transparent 60%);
-    pointer-events: none;
-    mix-blend-mode: soft-light;
+  padding-top: 8rem;
+  
+  // Mobile Anpassungen
+  @media (max-width: 1023px) {
+    top: 0;
+    width: 280px;
+    left: -280px;
   }
-
-  // Noise Texture für Glas-Effekt
-  &::after {
-    content: "";
+  
+  @media (max-width: 767px) {
+    width: 100vw;
+    left: -100vw;
+  }
+  
+  // Optimierter Glass-Effekt
+  background: rgba(30, 30, 40, 0.92);
+  box-shadow: 
+    4px 0 20px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(93, 173, 226, 0.1);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border-right: 1px solid rgba(93, 173, 226, 0.2);
+  
+  @media (max-width: 767px) {
+    border-right: none;
+    background: rgba(30, 30, 40, 0.98);
+  }
+  
+  // Glass Refraction Layer
+  &::before {
+    content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.03;
-    mix-blend-mode: overlay;
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 35px,
-        rgba(255, 255, 255, 0.05) 35px,
-        rgba(255, 255, 255, 0.05) 70px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 35px,
-        rgba(93, 173, 226, 0.03) 35px,
-        rgba(93, 173, 226, 0.03) 70px
-      );
+    background: 
+      radial-gradient(circle at 30% 70%, rgba(93, 173, 226, 0.08) 0%, transparent 60%),
+      radial-gradient(circle at 70% 30%, rgba(255, 107, 157, 0.05) 0%, transparent 60%);
     pointer-events: none;
   }
 
   &.open {
     left: 0;
-    box-shadow: 0 16px 48px rgba(93, 173, 226, 0.2), 0 0 120px rgba(255, 107, 157, 0.1);
-    padding-top: 2rem;
-    backdrop-filter: blur(32px) saturate(220%) brightness(1.1);
-    -webkit-backdrop-filter: blur(32px) saturate(220%) brightness(1.1);
+    box-shadow: 
+      4px 0 30px rgba(0, 0, 0, 0.4),
+      0 0 60px rgba(93, 173, 226, 0.15);
   }
 
-  // Sidebar-Header mit Glass-Separation
+  // Logo Container
+  .logo-container {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    border-bottom: 1px solid rgba(93, 173, 226, 0.15);
+    
+    @media (max-width: 767px) {
+      height: 60px;
+      padding: 10px;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-sidebar {
+      height: 80px;
+      width: 80px;
+      margin-bottom: 4rem;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(93, 173, 226, 0.3);
+      }
+    }
+  }
+
+  // Sidebar-Header mit Glass-Effekt
   .sidebar-header {
     display: flex;
     align-items: center;
-    padding: map.get(vars.$spacing, m);
+    padding: 20px;
     position: relative;
     z-index: 1;
-
-    // Glass Separator mit Glow
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: map.get(vars.$spacing, m);
-      right: map.get(vars.$spacing, m);
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(93, 173, 226, 0.3) 20%,
-        rgba(255, 107, 157, 0.3) 80%,
-        transparent
-      );
-      box-shadow: 0 0 20px rgba(93, 173, 226, 0.2);
+    gap: 12px;
+    border-bottom: 1px solid rgba(93, 173, 226, 0.15);
+    
+    @media (max-width: 767px) {
+      padding: 16px 20px;
     }
 
     .profile-image-container {
       position: relative;
-      margin-right: map.get(vars.$spacing, s);
       flex-shrink: 0;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
 
       &:hover {
-        transform: scale(1.05) translateZ(0);
+        transform: scale(1.05);
 
         .account-logo {
-          filter: brightness(1.1);
-          box-shadow: 0 8px 24px rgba(93, 173, 226, 0.3), 0 0 40px rgba(255, 107, 157, 0.2),
-            0 0 0 3px rgba(93, 173, 226, 0.3);
+          box-shadow: 
+            0 0 20px rgba(93, 173, 226, 0.4),
+            0 0 0 2px rgba(93, 173, 226, 0.3);
         }
 
         .profile-edit-overlay {
@@ -582,33 +593,12 @@ export default defineComponent({
       }
 
       .account-logo {
-        width: 50px;
-        height: 50px;
-        border-radius: 16px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         object-fit: cover;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        border: 2px solid rgba(93, 173, 226, 0.3);
-        background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(255, 107, 157, 0.05));
-      }
-
-      .profile-edit-overlay {
-        position: absolute;
-        inset: 0;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3));
-        backdrop-filter: blur(8px);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        pointer-events: none;
-
-        .edit-icon {
-          font-size: 16px;
-          color: #5dade2;
-          filter: drop-shadow(0 2px 8px rgba(93, 173, 226, 0.5));
-        }
+        border: 1px solid rgba(93, 173, 226, 0.2);
       }
     }
 
@@ -618,19 +608,17 @@ export default defineComponent({
 
       h3 {
         margin: 0;
-        font-size: map.get(map.get(vars.$fonts, sizes), medium);
-        font-weight: map.get(map.get(vars.$fonts, weights), bold);
+        font-size: 1.1rem;
+        font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        letter-spacing: -0.5px;
         color: #ffffff;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .user-role {
         margin: 2px 0 0 0;
-        font-size: map.get(map.get(vars.$fonts, sizes), small);
+        font-size: 0.85rem;
         opacity: 0.8;
         font-weight: 500;
         color: #5dade2;
@@ -638,48 +626,54 @@ export default defineComponent({
 
       .profile-status {
         display: block;
-        font-size: map.get(map.get(vars.$fonts, sizes), xs);
-        margin-top: 1px;
-        opacity: 0.9;
-        font-style: italic;
+        font-size: 0.75rem;
+        margin-top: 2px;
+        opacity: 0.7;
         color: #ff6b9d;
-        text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
       }
     }
 
     .close-sidebar {
-      width: 32px;
-      height: 32px;
-      display: flex;
+      width: 36px;
+      height: 36px;
+      display: none;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(93, 173, 226, 0.05));
+      background: rgba(93, 173, 226, 0.1);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(93, 173, 226, 0.2);
       border-radius: 10px;
       font-size: 1.5rem;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-      flex-shrink: 0;
       color: #5dade2;
+      
+      @media (max-width: 1023px) {
+        display: flex;
+      }
 
       &:hover {
-        background: linear-gradient(135deg, rgba(93, 173, 226, 0.2), rgba(93, 173, 226, 0.1));
+        background: rgba(93, 173, 226, 0.2);
         transform: scale(1.1) rotate(90deg);
         box-shadow: 0 0 20px rgba(93, 173, 226, 0.4);
       }
     }
   }
 
-  // Robuste Navigation mit Glass-Cards
+  // Navigation mit optimierten Glass-Cards
   .sidebar-nav {
     flex: 1;
-    padding: map.get(vars.$spacing, m);
+    padding: 20px 12px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
+    
+    @media (max-width: 767px) {
+      padding: 16px;
+      padding-bottom: 100px;
+    }
 
     .nav-items-container {
       display: flex;
@@ -691,76 +685,67 @@ export default defineComponent({
     .nav-item {
       display: flex;
       align-items: center;
-      padding: 14px 18px;
-      border-radius: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       position: relative;
       overflow: hidden;
       min-height: 52px;
-
-      // Robuste Glass Card mit Admin Akzent
-      background: linear-gradient(135deg, rgba(93, 173, 226, 0.08) 0%, rgba(93, 173, 226, 0.04) 100%);
-      border: 1px solid rgba(93, 173, 226, 0.12);
+      
+      @media (max-width: 767px) {
+        padding: 16px 20px;
+        min-height: 56px;
+        border-radius: 16px;
+      }
+      
+      // Optimierte Glass Card
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       color: #a8d5e8;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-
+      
       &:hover:not(.dragging) {
-        background: linear-gradient(135deg, rgba(93, 173, 226, 0.18) 0%, rgba(255, 107, 157, 0.1) 100%);
+        background: rgba(93, 173, 226, 0.12);
         border-color: rgba(93, 173, 226, 0.25);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 24px rgba(93, 173, 226, 0.12),
-          inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
+        transform: translateX(4px);
+        
         .nav-icon {
           color: #5dade2;
-          filter: drop-shadow(0 0 8px rgba(93, 173, 226, 0.5));
+          transform: scale(1.1);
         }
       }
 
       &.active:not(.dragging) {
-        background: linear-gradient(135deg, rgba(93, 173, 226, 0.28) 0%, rgba(255, 107, 157, 0.18) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(93, 173, 226, 0.2) 0%,
+          rgba(255, 107, 157, 0.1) 100%
+        );
         color: #ffffff;
         border-color: rgba(93, 173, 226, 0.4);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 32px rgba(93, 173, 226, 0.15),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         font-weight: 600;
 
         .nav-icon {
           color: #5dade2;
-          filter: drop-shadow(0 0 12px rgba(93, 173, 226, 0.7));
         }
-
-        &::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
+        
+        .active-indicator {
+          opacity: 1;
           width: 3px;
-          height: 60%;
-          background: linear-gradient(180deg, #5dade2, #ff6b9d);
-          border-radius: 0 3px 3px 0;
-          box-shadow: 0 0 16px rgba(93, 173, 226, 0.6);
         }
       }
 
-      // Hover Glass Refraction
-      &::after {
-        content: "";
+      // Active Indicator
+      .active-indicator {
         position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-          rgba(255, 255, 255, 0.1) 0%,
-          transparent 50%
-        );
+        left: 0;
+        top: 20%;
+        bottom: 20%;
+        width: 0;
+        background: linear-gradient(180deg, #5dade2, #ff6b9d);
+        border-radius: 0 3px 3px 0;
+        transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-      }
-
-      &:hover::after {
-        opacity: 1;
       }
 
       // Drag & Drop Styles
@@ -768,7 +753,6 @@ export default defineComponent({
         opacity: 0.3;
         cursor: grabbing !important;
         transform: scale(0.95);
-        filter: blur(2px);
       }
 
       .drag-handle {
@@ -781,60 +765,86 @@ export default defineComponent({
         cursor: grab;
         padding: 4px;
         color: #8fd3b5;
+        
+        @media (max-width: 767px) {
+          display: none;
+        }
       }
 
       &:hover .drag-handle {
         opacity: 0.5;
+        
+        @media (max-width: 767px) {
+          opacity: 0;
+        }
       }
 
       .nav-icon {
-        margin-right: 14px;
-        margin-left: 10px;
+        margin-right: 12px;
+        margin-left: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         width: 24px;
         height: 24px;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        opacity: 0.8;
+        opacity: 0.9;
+        
+        @media (max-width: 767px) {
+          width: 26px;
+          height: 26px;
+          margin-right: 14px;
+        }
       }
 
       .nav-text {
         font-weight: 500;
-        font-size: 14px;
-        letter-spacing: -0.2px;
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         flex: 1;
+        
+        @media (max-width: 767px) {
+          font-size: 1rem;
+        }
       }
     }
 
-    // Drop Indikator mit Admin-Glow
+    // Drop Indikator
     .drop-indicator {
       position: absolute;
-      left: 8px;
-      right: 8px;
-      height: 3px;
+      left: 12px;
+      right: 12px;
+      height: 2px;
       background: linear-gradient(90deg, transparent, #5dade2, transparent);
-      border-radius: 1.5px;
+      border-radius: 1px;
       opacity: 0;
       transition: opacity 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
       pointer-events: none;
       z-index: 10;
-      box-shadow: 0 0 10px rgba(93, 173, 226, 0.8), 0 0 20px rgba(93, 173, 226, 0.4);
     }
   }
 
-  // Footer-Bereich mit Glass-Effekt
+  // Footer mit optimierten Buttons
   .sidebar-footer {
     margin-top: auto;
-    padding: map.get(vars.$spacing, m);
-    padding-bottom: 100px;
+    padding: 20px;
+    border-top: 1px solid rgba(93, 173, 226, 0.15);
+    background: rgba(30, 30, 40, 0.5);
+    
+    @media (max-width: 767px) {
+      padding: 16px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(30, 30, 40, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
 
     .footer-divider {
-      height: 1px;
-      margin-bottom: map.get(vars.$spacing, m);
-      background: linear-gradient(90deg, transparent, rgba(93, 173, 226, 0.2), rgba(255, 107, 157, 0.2), transparent);
-      box-shadow: 0 0 10px rgba(93, 173, 226, 0.1);
+      display: none;
     }
 
     .footer-container {
@@ -847,22 +857,20 @@ export default defineComponent({
       flex: 1;
       display: flex;
       align-items: center;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, rgba(255, 107, 157, 0.12), rgba(93, 173, 226, 0.08));
+      justify-content: center;
+      padding: 12px 20px;
+      background: rgba(255, 107, 157, 0.1);
       border: 1px solid rgba(255, 107, 157, 0.2);
-      border-radius: 16px;
+      border-radius: 12px;
       color: #ff6b9d;
-      font-size: 14px;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-      gap: 10px;
+      gap: 8px;
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.1);
 
-      // Shimmer-Effekt
       &::before {
         content: "";
         position: absolute;
@@ -870,17 +878,15 @@ export default defineComponent({
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
         transition: left 0.5s ease;
       }
 
       &:hover {
-        background: linear-gradient(135deg, rgba(255, 107, 157, 0.22), rgba(93, 173, 226, 0.15));
-        border-color: rgba(255, 107, 157, 0.35);
-        color: #ff8fab;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 24px rgba(255, 107, 157, 0.15),
-          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        background: rgba(255, 107, 157, 0.2);
+        border-color: rgba(255, 107, 157, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.2);
 
         &::before {
           left: 100%;
@@ -893,29 +899,11 @@ export default defineComponent({
 
       &:active {
         transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(0, 0, 0, 0.2);
-      }
-
-      .back-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        flex-shrink: 0;
-
-        svg {
-          width: 20px;
-          height: 20px;
-          transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
-        }
       }
 
       .back-text {
         flex: 1;
-        text-align: left;
-        letter-spacing: -0.2px;
-        font-weight: 600;
+        text-align: center;
       }
 
       .back-arrow {
@@ -932,7 +920,7 @@ export default defineComponent({
       }
     }
 
-    // Reset Button mit Glass-Effekt
+    // Reset Button
     .reset-button {
       width: 40px;
       height: 40px;
@@ -940,18 +928,18 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       border: none;
-      background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(93, 173, 226, 0.05));
+      background: rgba(93, 173, 226, 0.1);
       backdrop-filter: blur(10px);
       cursor: pointer;
-      border-radius: 12px;
+      border-radius: 10px;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       flex-shrink: 0;
-      border: 1px solid rgba(93, 173, 226, 0.1);
+      border: 1px solid rgba(93, 173, 226, 0.15);
       color: #8fd3b5;
 
       &:hover {
-        color: #c7e9d6;
-        background: linear-gradient(135deg, rgba(93, 173, 226, 0.15), rgba(93, 173, 226, 0.08));
+        color: #5dade2;
+        background: rgba(93, 173, 226, 0.15);
         transform: rotate(-45deg) scale(1.05);
         box-shadow: 0 0 20px rgba(93, 173, 226, 0.3);
       }
@@ -963,35 +951,13 @@ export default defineComponent({
       .Icons {
         width: 20px;
         height: 20px;
-        position: absolute;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       }
     }
   }
 }
 
-// Logo mit Glass-Effekt
-.logo-Sidebar {
-  display: block;
-  margin: 0 auto;
-  height: 100px;
-  width: 100px;
-  border-radius: 24px;
-  margin-bottom: map.get(vars.$spacing, m);
-  opacity: 0.95;
-  transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(93, 173, 226, 0.2);
-
-  &:hover {
-    opacity: 1;
-    transform: scale(1.05) translateZ(0);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(93, 173, 226, 0.15),
-      inset 0 0 0 2px rgba(93, 173, 226, 0.3);
-  }
-}
-
-// Glass-Scrollbar
+// Scrollbar
 .sidebar-nav {
   &::-webkit-scrollbar {
     width: 6px;
@@ -1005,23 +971,9 @@ export default defineComponent({
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
     border-radius: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-
+    
     &:hover {
       background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
-      box-shadow: 0 0 10px rgba(93, 173, 226, 0.3);
-    }
-  }
-}
-
-// Responsive
-@media (min-width: 1024px) {
-  .admin-sidebar {
-    left: 0;
-    transform: translateX(-100%);
-
-    &.open {
-      transform: translateX(0);
     }
   }
 }
@@ -1041,6 +993,30 @@ export default defineComponent({
   }
 }
 
+// Safe Area Support für iOS
+@supports (padding: env(safe-area-inset-top)) {
+  .admin-sidebar {
+    @media (max-width: 767px) {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+  
+  .logo-container {
+    @media (max-width: 767px) {
+      height: calc(60px + env(safe-area-inset-top));
+      padding-top: calc(10px + env(safe-area-inset-top));
+    }
+  }
+  
+  .sidebar-footer {
+    @media (max-width: 767px) {
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+// Reduced Motion Support
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

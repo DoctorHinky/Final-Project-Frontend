@@ -63,9 +63,7 @@
 
       <!-- Hauptinhalt -->
       <main class="admin-content" :class="{ 'sidebar-active': isSidebarOpen }">
-        <div class="content-wrapper">
-          <router-view />
-        </div>
+        <router-view />
       </main>
     </div>
 
@@ -102,7 +100,7 @@ export default defineComponent({
       return (route.query.tab as string) || "overview";
     });
 
-    // Seitentitel basierend auf aktivem Menü - ERWEITERT um Bewerbungen
+    // Seitentitel basierend auf aktivem Menü
     const pageTitle = computed(() => {
       switch (activeMenu.value) {
         case "overview":
@@ -114,7 +112,7 @@ export default defineComponent({
         case "deleted-users":
           return "Gelöschte Benutzer";
         case "applications":
-          return "Bewerbungen"; // NEU
+          return "Bewerbungen";
         case "active-posts":
           return "Active Posts";
         case "tickets":
@@ -146,7 +144,7 @@ export default defineComponent({
       }
     };
 
-    // Menüpunkt auswählen - ERWEITERT um Bewerbungen
+    // Menüpunkt auswählen
     const onMenuSelect = (menuItem: string) => {
       // Navigation basierend auf dem ausgewählten Menüpunkt
       if (menuItem === "tickets") {
@@ -155,7 +153,7 @@ export default defineComponent({
         // Für Dashboard/Overview ohne Query-Parameter navigieren
         router.push("/admin/dashboard");
       } else {
-        // Für alle anderen Items (including 'applications') mit Tab-Query navigieren
+        // Für alle anderen Items mit Tab-Query navigieren
         router.push({
           path: "/admin/dashboard",
           query: { tab: menuItem },
@@ -228,21 +226,16 @@ export default defineComponent({
 <style lang="scss" scoped>
 /* Grundlegendes Layout */
 .admin-layout {
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  background: #161616;
-  color: #f0f0f0;
-
-  /* Überschreibt AppLayout Styles komplett */
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 999; /* Über AppLayout aber unter Header */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  z-index: 999;
 }
 
 /* Header Stil */
@@ -252,56 +245,82 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 70px;
-  z-index: 500; /* Erhöht um über anderen Elementen zu bleiben */
+  z-index: 1500;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
-  background: rgba(30, 30, 40, 0.85);
-  box-shadow: 0 8px 32px 0 rgba(93, 173, 226, 0.25);
-  backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
-  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
-  border-bottom: 1px solid #333;
-  border-right: 1.5px solid rgba(93, 173, 226, 0.2);
-  border-radius: 0 0 0 8px;
+  padding: 0 24px;
+  background: rgba(30, 30, 40, 0.95);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid rgba(93, 173, 226, 0.2);
+  
+  @media (max-width: 767px) {
+    height: 60px;
+    padding: 0 16px;
+  }
 }
 
 /* Header-Bereich links */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  
+  @media (max-width: 767px) {
+    gap: 12px;
+  }
 }
 
 /* Seitentitel */
 .page-title {
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.35rem;
+  font-weight: 600;
   margin: 0;
   letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
-  color: #f0f0f0;
+  background: linear-gradient(135deg, #ffffff 0%, #a8d5e8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  @media (max-width: 767px) {
+    font-size: 1.1rem;
+    max-width: 200px;
+  }
 }
 
 /* Sidebar-Toggle */
 .sidebar-toggle {
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 40px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  background: transparent;
+  background: rgba(93, 173, 226, 0.1);
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.4s ease-out;
-  color: #f0f0f0;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+  color: #5dade2;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(93, 173, 226, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(93, 173, 226, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  @media (max-width: 767px) {
+    min-width: 36px;
+    min-height: 36px;
   }
 }
 
@@ -309,7 +328,7 @@ export default defineComponent({
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* Abmelde-Button */
@@ -317,24 +336,38 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 16px;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
   font-weight: 500;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.3s, box-shadow 0.3s, color 0.3s;
-  min-width: 36px;
-  min-height: 36px;
-  border: none;
-  background: linear-gradient(135deg, #232a34 60%, #1e222b 100%);
-  color: #f0f0f0;
+  transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+  min-height: 40px;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+  background: rgba(255, 107, 157, 0.1);
+  color: #ff6b9d;
+  backdrop-filter: blur(10px);
 
   &:hover {
-    background: linear-gradient(135deg, #2d3a4a 60%, #23304a 100%);
-    color: #5dade2;
-    box-shadow: 0 4px 16px rgba(93, 173, 226, 0.15);
-    transform: translateY(-1px) scale(1.03);
+    background: rgba(255, 107, 157, 0.2);
+    border-color: rgba(255, 107, 157, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 107, 157, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 767px) {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    
+    .logout-text {
+      display: none !important;
+    }
   }
 }
 
@@ -342,22 +375,46 @@ export default defineComponent({
 .admin-container {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 70px);
-  padding-top: 70px;
-  transition: all 0.4s ease-out;
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 /* Hauptinhaltsbereich */
 .admin-content {
   flex: 1;
   width: 100%;
-  padding: 16px;
-  transition: all 0.4s ease-out;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
+  
+  // Desktop: Margin basierend auf Sidebar-Status
+  @media (min-width: 1024px) {
+    margin-left: 0;
+    
+    .admin-container.sidebar-open & {
+      margin-left: 300px; // Sidebar-Breite
+    }
+  }
+  
+  // Scrollbar Styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
 
-  .content-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
+    border-radius: 4px;
+    
+    &:hover {
+      background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
+    }
   }
 }
 
@@ -369,8 +426,9 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1300; /* Zwischen Sidebar und Header */
-  backdrop-filter: blur(2px);
+  z-index: 1300;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* Utility-Klassen */
@@ -383,24 +441,16 @@ export default defineComponent({
   .d-sm-inline {
     display: inline !important;
   }
+}
 
+@media (min-width: 768px) {
   .admin-header {
-    padding: 0 24px;
+    padding: 0 32px;
   }
 
   .page-title {
     font-size: 1.5rem;
-    max-width: 250px;
-  }
-
-  .sidebar-toggle {
-    min-width: 40px;
-    min-height: 40px;
-  }
-
-  .logout-button {
-    gap: 8px;
-    padding: 6px 16px;
+    max-width: none;
   }
 
   .header-left {
@@ -410,36 +460,11 @@ export default defineComponent({
   .header-right {
     gap: 24px;
   }
-
-  .admin-content {
-    padding: 24px;
-  }
-}
-
-@media (min-width: 768px) {
-  .page-title {
-    font-size: 1.75rem;
-    max-width: none;
-  }
-
-  .header-right {
-    gap: 32px;
-  }
-}
-
-@media (min-width: 992px) {
-  .admin-header {
-    padding: 0 32px;
-  }
-
-  .admin-content {
-    padding: 32px;
-  }
 }
 
 @media (min-width: 1024px) {
-  .admin-container.sidebar-open {
-    margin-left: 280px;
+  .admin-header {
+    padding: 0 40px;
   }
 }
 
@@ -447,6 +472,7 @@ export default defineComponent({
   .admin-content.sidebar-active {
     filter: blur(2px);
     pointer-events: none;
+    user-select: none;
   }
 }
 
@@ -459,5 +485,24 @@ export default defineComponent({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Safe Area Support für iOS */
+@supports (padding: env(safe-area-inset-top)) {
+  .admin-header {
+    @media (max-width: 767px) {
+      padding-top: env(safe-area-inset-top);
+      height: calc(60px + env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>

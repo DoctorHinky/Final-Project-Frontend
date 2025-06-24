@@ -326,11 +326,14 @@ export default defineComponent({
 
   &:focus {
     outline: none;
+    background-color: #222;
     border-color: #ff9800;
+    cursor: pointer;
   }
 
   option {
     background-color: #222;
+    cursor: pointer;
     color: #fff;
   }
 }

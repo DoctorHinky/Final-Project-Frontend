@@ -1,0 +1,447 @@
+// src/style/admin/admin-global.scss
+// Globale Styles für einheitliches Admin-Design
+
+// Import der Basis-Variablen
+@use '../base/variables' as vars;
+@use '../base/mixins' as mixins;
+@use '../base/animations' as animations;
+
+// Admin-spezifische Variablen
+$admin-primary: #5dade2;
+$admin-secondary: #ff6b9d;
+$admin-success: #2ecc71;
+$admin-warning: #ffc107;
+$admin-danger: #ff453a;
+$admin-info: #0a84ff;
+
+// Globale Admin-Klassen
+.admin-wrapper {
+  // Stelle sicher, dass der Admin-Bereich die volle Höhe nutzt
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+}
+
+// Einheitliche Card-Styles für Admin-Bereich
+.admin-card {
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(93, 173, 226, 0.15);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+  
+  @media (max-width: 767px) {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(93, 173, 226, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+
+// Einheitliche Button-Styles
+.admin-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  
+  @media (max-width: 767px) {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  
+  // Primary Button
+  &.primary {
+    background: linear-gradient(135deg, rgba(93, 173, 226, 0.2), rgba(93, 173, 226, 0.1));
+    border-color: rgba(93, 173, 226, 0.3);
+    color: $admin-primary;
+    
+    &:hover {
+      background: linear-gradient(135deg, rgba(93, 173, 226, 0.3), rgba(93, 173, 226, 0.2));
+      border-color: rgba(93, 173, 226, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(93, 173, 226, 0.3);
+    }
+  }
+  
+  // Secondary Button
+  &.secondary {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(255, 107, 157, 0.1));
+    border-color: rgba(255, 107, 157, 0.3);
+    color: $admin-secondary;
+    
+    &:hover {
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.3), rgba(255, 107, 157, 0.2));
+      border-color: rgba(255, 107, 157, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+    }
+  }
+  
+  // Success Button
+  &.success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(46, 204, 113, 0.1));
+    border-color: rgba(46, 204, 113, 0.3);
+    color: $admin-success;
+    
+    &:hover {
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(46, 204, 113, 0.2));
+      border-color: rgba(46, 204, 113, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);
+    }
+  }
+  
+  // Shimmer-Effekt
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Einheitliche Form-Styles
+.admin-form {
+  .form-group {
+    margin-bottom: 20px;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #a8d5e8;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(30, 30, 40, 0.5);
+      border: 1px solid rgba(93, 173, 226, 0.2);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
+      backdrop-filter: blur(10px);
+      
+      &:focus {
+        outline: none;
+        border-color: rgba(93, 173, 226, 0.5);
+        background: rgba(30, 30, 40, 0.7);
+        box-shadow: 
+          0 0 0 3px rgba(93, 173, 226, 0.1),
+          0 0 20px rgba(93, 173, 226, 0.2);
+      }
+      
+      &::placeholder {
+        color: rgba(168, 213, 232, 0.5);
+      }
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+  }
+}
+
+// Einheitliche Table-Styles
+.admin-table {
+  width: 100%;
+  background: rgba(30, 30, 40, 0.4);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(93, 173, 226, 0.15);
+  
+  thead {
+    background: rgba(93, 173, 226, 0.1);
+    
+    th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #5dade2;
+      font-size: 0.95rem;
+      border-bottom: 1px solid rgba(93, 173, 226, 0.2);
+      
+      @media (max-width: 767px) {
+        padding: 12px;
+        font-size: 0.85rem;
+      }
+    }
+  }
+  
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(93, 173, 226, 0.05);
+      }
+      
+      &:not(:last-child) {
+        border-bottom: 1px solid rgba(93, 173, 226, 0.1);
+      }
+    }
+    
+    td {
+      padding: 16px;
+      color: #e0e0e0;
+      font-size: 0.9rem;
+      
+      @media (max-width: 767px) {
+        padding: 12px;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+// Einheitliche Badge-Styles
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.primary {
+    background: linear-gradient(135deg, rgba(93, 173, 226, 0.2), rgba(93, 173, 226, 0.1));
+    border: 1px solid rgba(93, 173, 226, 0.3);
+    color: $admin-primary;
+  }
+  
+  &.success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(46, 204, 113, 0.1));
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    color: $admin-success;
+  }
+  
+  &.warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: $admin-warning;
+  }
+  
+  &.danger {
+    background: linear-gradient(135deg, rgba(255, 69, 58, 0.2), rgba(255, 69, 58, 0.1));
+    border: 1px solid rgba(255, 69, 58, 0.3);
+    color: $admin-danger;
+  }
+}
+
+// Einheitliche Loading-States
+.admin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 20px;
+  
+  .loader {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    
+    .spinner {
+      position: absolute;
+      inset: 0;
+      border: 3px solid rgba(93, 173, 226, 0.2);
+      border-top-color: $admin-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  .loading-text {
+    color: #a8d5e8;
+    font-size: 0.95rem;
+  }
+}
+
+// Einheitliche Empty-States
+.admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  padding: 40px 20px;
+  
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+  }
+  
+  .empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  
+  .empty-text {
+    color: #a8d5e8;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+}
+
+// Utility-Klassen für konsistentes Spacing
+.admin-section {
+  margin-bottom: 32px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.admin-section-header {
+  margin-bottom: 24px;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    
+    @media (max-width: 767px) {
+      font-size: 1.25rem;
+    }
+  }
+  
+  p {
+    margin: 8px 0 0 0;
+    color: #a8d5e8;
+    font-size: 0.95rem;
+  }
+}
+
+// Responsive Container für Admin-Content
+.admin-content-wrapper {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  
+  @media (max-width: 767px) {
+    padding: 0 16px;
+  }
+}
+
+// Animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Accessibility - Focus Styles
+*:focus-visible {
+  outline: 2px solid $admin-primary;
+  outline-offset: 2px;
+}
+
+// Print Styles
+@media print {
+  .admin-sidebar,
+  .admin-header,
+  .sidebar-overlay,
+  .admin-button,
+  .drag-handle {
+    display: none !important;
+  }
+  
+  .admin-content {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// High Contrast Mode Support
+@media (prefers-contrast: high) {
+  .admin-card,
+  .admin-button,
+  .admin-table {
+    border-width: 2px;
+  }
+  
+  .admin-button:hover {
+    outline: 2px solid currentColor;
+  }
+}
+
+// Dark Mode Override (falls das Haupttheme Light ist)
+@media (prefers-color-scheme: dark) {
+  // Alle Admin-Komponenten nutzen bereits dunkle Farben
+  // Dieser Block ist für zukünftige Anpassungen reserviert
+}
+
+// Globale Scrollbar-Styles für Admin-Bereich
+.admin-layout {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(93, 173, 226, 0.3) rgba(0, 0, 0, 0.1);
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(93, 173, 226, 0.3), rgba(255, 107, 157, 0.2));
+      border-radius: 4px;
+      
+      &:hover {
+        background: linear-gradient(180deg, rgba(93, 173, 226, 0.5), rgba(255, 107, 157, 0.3));
+      }
+    }
+  }
+}

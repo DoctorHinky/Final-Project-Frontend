@@ -5,13 +5,13 @@
     <p class="section-description">Passe das Erscheinungsbild an deine Vorlieben an</p>
 
     <!-- Erfolgsmeldung -->
-    <div v-if="saveSuccess" class="alert alert-success">
+    <div v-if="showSuccessMessage" class="alert alert-success">
       <span class="alert-icon">✓</span>
       <span>Deine Design-Einstellungen wurden erfolgreich gespeichert!</span>
     </div>
 
     <!-- Fehlermeldung -->
-    <div v-if="saveError" class="alert alert-error">
+    <div v-if="showErrorMessage" class="alert alert-error">
       <span class="alert-icon">⚠️</span>
       <span>{{ errorMessage }}</span>
     </div>
@@ -93,9 +93,13 @@ export default defineComponent({
   setup(props, { emit }) {
     // Status für Formularprozesse
     const isSaving = ref(false);
-    const saveSuccess = ref(props.showSuccess);
-    const saveError = ref(props.showError);
+    const showSuccessMessage = ref(props.showSuccess);
+    const showErrorMessage = ref(props.showError);
     const errorMessage = ref(props.errorMsg);
+    
+    // Flag ob Einstellungen gespeichert wurden
+    const hasUnsavedChanges = ref(false);
+    const savedSettings = ref<AppearanceSettings | null>(null);
 
     // Ursprüngliche Einstellungen für Preview-Rückgängigmachung
     const originalSettings = ref<AppearanceSettings | null>(null);
@@ -104,14 +108,14 @@ export default defineComponent({
     watch(
       () => props.showSuccess,
       (newVal) => {
-        saveSuccess.value = newVal;
+        showSuccessMessage.value = newVal;
       }
     );
 
     watch(
       () => props.showError,
       (newVal) => {
-        saveError.value = newVal;
+        showErrorMessage.value = newVal;
       }
     );
 
@@ -130,12 +134,14 @@ export default defineComponent({
       () => appearanceSettings.value.theme,
       (newTheme) => {
         themeService.setThemeByName(newTheme);
+        hasUnsavedChanges.value = true;
       }
     );
 
     // Schriftgröße Preview
     const previewFontSize = () => {
       themeService.setFontSize(appearanceSettings.value.fontSize);
+      hasUnsavedChanges.value = true;
     };
 
     // Schriftgrößen-Label
@@ -147,27 +153,31 @@ export default defineComponent({
     // Design-Einstellungen speichern
     const saveAppearanceSettings = async (): Promise<void> => {
       isSaving.value = true;
-      saveSuccess.value = false;
-      saveError.value = false;
+      showSuccessMessage.value = false;
+      showErrorMessage.value = false;
 
       try {
         // Settings im Service speichern
         themeService.setAppearanceSettings(appearanceSettings.value);
+        
+        // Als gespeichert markieren
+        savedSettings.value = { ...appearanceSettings.value };
+        hasUnsavedChanges.value = false;
 
         // Parent-Komponente informieren
         emit("save-appearance", appearanceSettings.value);
 
         // Erfolg anzeigen
-        saveSuccess.value = true;
+        showSuccessMessage.value = true;
         emit("update:showSuccess", true);
 
-        // Erfolg nach 3 Sekunden ausblenden
+        // Erfolg nach 3 Sekunden ausblenden - aber NICHT die gespeicherten Settings verwerfen!
         setTimeout(() => {
-          saveSuccess.value = false;
+          showSuccessMessage.value = false;
           emit("update:showSuccess", false);
         }, 3000);
       } catch (error) {
-        saveError.value = true;
+        showErrorMessage.value = true;
         errorMessage.value = "Einstellungen konnten nicht gespeichert werden.";
         emit("update:showError", true);
       } finally {
@@ -184,11 +194,13 @@ export default defineComponent({
         fontSize: 3,
       };
       themeService.setAppearanceSettings(appearanceSettings.value);
+      hasUnsavedChanges.value = true;
     };
 
     // Beim Verlassen der Seite: Original wiederherstellen wenn nicht gespeichert
     const restoreOriginalSettings = () => {
-      if (originalSettings.value && !saveSuccess.value) {
+      // NUR wiederherstellen wenn es ungespeicherte Änderungen gibt
+      if (originalSettings.value && hasUnsavedChanges.value) {
         themeService.setAppearanceSettings(originalSettings.value);
       }
     };
@@ -196,6 +208,8 @@ export default defineComponent({
     onMounted(() => {
       // Aktuelle Einstellungen als Original speichern
       originalSettings.value = { ...themeService.getAppearanceSettings() };
+      savedSettings.value = { ...originalSettings.value };
+      hasUnsavedChanges.value = false;
     });
 
     onUnmounted(() => {
@@ -206,8 +220,8 @@ export default defineComponent({
     return {
       appearanceSettings,
       isSaving,
-      saveSuccess,
-      saveError,
+      showSuccessMessage,
+      showErrorMessage,
       errorMessage,
       saveAppearanceSettings,
       resetToDefaults,

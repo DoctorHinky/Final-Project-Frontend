@@ -58,9 +58,8 @@
             class="action-btn take-btn"
             :disabled="isProcessing"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 12l2 2 4-4"></path>
-              <circle cx="12" cy="12" r="10"></circle>
+            <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Übernehmen
           </button>
@@ -71,8 +70,8 @@
             class="action-btn accept-btn"
             :disabled="isProcessing"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
+            <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
             Akzeptieren
           </button>
@@ -83,9 +82,8 @@
             class="action-btn reject-btn"
             :disabled="isProcessing"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+            <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
             Ablehnen
           </button>
@@ -93,11 +91,10 @@
       </div>
 
       <!-- Kontaktdaten -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
           </svg>
           Kontaktdaten
         </h4>
@@ -122,13 +119,10 @@
       </div>
 
       <!-- Bewerbungsinhalt -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
           </svg>
           Bewerbungstext
         </h4>
@@ -140,11 +134,10 @@
       </div>
 
       <!-- Hochgeladene Dokumente -->
-      <div class="section" v-if="application.referenceDocument && application.referenceDocument.length > 0">
+      <div class="section glass-section" v-if="application.referenceDocument && application.referenceDocument.length > 0">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
           </svg>
           Hochgeladene Dokumente ({{ application.referenceDocument.length }})
         </h4>
@@ -155,9 +148,8 @@
             class="document-card"
           >
             <div class="document-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
+              <svg class="icon icon-md" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
             </div>
             <div class="document-info">
@@ -171,10 +163,8 @@
               class="document-download"
               title="Dokument öffnen"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
+              <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
             </a>
           </div>
@@ -182,11 +172,11 @@
       </div>
 
       <!-- Bearbeitung & Status -->
-      <div class="section">
+      <div class="section glass-section">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m11-11h-6m-6 0H1"></path>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           Bearbeitungsstatus
         </h4>
@@ -205,11 +195,10 @@
       </div>
 
       <!-- User Information (wenn verfügbar) -->
-      <div class="section" v-if="application.user">
+      <div class="section glass-section" v-if="application.user">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="8" r="4"></circle>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
           Benutzerinformationen
         </h4>
@@ -235,9 +224,8 @@
             class="danger-btn"
             title="Benutzer für weitere Bewerbungen sperren"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            <svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
             Benutzer sperren
           </button>
@@ -247,10 +235,8 @@
       <!-- Danger Zone (für gelöschte User) -->
       <div class="section danger-zone" v-if="!application.user">
         <h4>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
           Verwaiste Bewerbung
         </h4>
@@ -262,78 +248,100 @@
     </div>
 
     <!-- Accept Modal -->
-    <div class="modal-overlay confirmation-modal" v-if="showAcceptModal" @click="showAcceptModal = false">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <h3>Bewerbung akzeptieren</h3>
+    <div class="admin-modal-overlay admin-confirm-modal" v-if="showAcceptModal" @click="showAcceptModal = false">
+      <div class="admin-modal-container" @click.stop>
+        <div class="admin-modal-header">
+          <h3>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Bewerbung akzeptieren
+          </h3>
           <button class="close-button" @click="showAcceptModal = false">×</button>
         </div>
-        <div class="modal-content">
+        <div class="confirm-content">
+          <div class="confirm-icon success">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
           <p>Möchten Sie diese Bewerbung wirklich akzeptieren?</p>
-          <p class="modal-note">
+          <p class="subtitle">
             Der Benutzer wird automatisch zum Autor befördert und alle anderen Bewerbungen werden gelöscht.
           </p>
-          <div class="modal-actions">
-            <button @click="showAcceptModal = false" class="cancel-button">Abbrechen</button>
-            <button @click="acceptApplication" class="confirm-button" :disabled="isProcessing">
-              <span v-if="isProcessing">Wird bearbeitet...</span>
-              <span v-else>Akzeptieren</span>
-            </button>
-          </div>
+        </div>
+        <div class="confirm-actions">
+          <button @click="showAcceptModal = false" class="cancel-btn">Abbrechen</button>
+          <button @click="acceptApplication" class="confirm-btn success" :disabled="isProcessing">
+            <span v-if="isProcessing">Wird bearbeitet...</span>
+            <span v-else>Akzeptieren</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Reject Modal -->
-    <div class="modal-overlay confirmation-modal" v-if="showRejectModal" @click="showRejectModal = false">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <h3>Bewerbung ablehnen</h3>
+    <div class="admin-modal-overlay admin-form-modal" v-if="showRejectModal" @click="showRejectModal = false">
+      <div class="admin-modal-container small" @click.stop>
+        <div class="admin-modal-header">
+          <h3>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Bewerbung ablehnen
+          </h3>
           <button class="close-button" @click="showRejectModal = false">×</button>
         </div>
-        <div class="modal-content">
-          <p>Warum möchten Sie diese Bewerbung ablehnen?</p>
-          <textarea
-            v-model="rejectReason"
-            placeholder="Bitte geben Sie einen Grund für die Ablehnung an..."
-            rows="4"
-            class="reason-textarea"
-            required
-          ></textarea>
-          <div class="modal-actions">
-            <button @click="showRejectModal = false" class="cancel-button">Abbrechen</button>
-            <button @click="rejectApplication" class="reject-button" :disabled="isProcessing || !rejectReason.trim()">
-              <span v-if="isProcessing">Wird bearbeitet...</span>
-              <span v-else>Ablehnen</span>
-            </button>
+        <div class="admin-modal-content">
+          <div class="form-field">
+            <label>Warum möchten Sie diese Bewerbung ablehnen?</label>
+            <textarea
+              v-model="rejectReason"
+              placeholder="Bitte geben Sie einen Grund für die Ablehnung an..."
+              rows="4"
+              required
+            ></textarea>
           </div>
+        </div>
+        <div class="confirm-actions">
+          <button @click="showRejectModal = false" class="cancel-btn">Abbrechen</button>
+          <button @click="rejectApplication" class="confirm-btn danger" :disabled="isProcessing || !rejectReason.trim()">
+            <span v-if="isProcessing">Wird bearbeitet...</span>
+            <span v-else>Ablehnen</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Block User Modal -->
-    <div class="modal-overlay confirmation-modal" v-if="showBlockModal" @click="showBlockModal = false">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <h3>Benutzer für Bewerbungen sperren</h3>
+    <div class="admin-modal-overlay admin-form-modal" v-if="showBlockModal" @click="showBlockModal = false">
+      <div class="admin-modal-container small" @click.stop>
+        <div class="admin-modal-header">
+          <h3>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            Benutzer für Bewerbungen sperren
+          </h3>
           <button class="close-button" @click="showBlockModal = false">×</button>
         </div>
-        <div class="modal-content">
-          <p>Warum möchten Sie diesen Benutzer für weitere Bewerbungen sperren?</p>
-          <textarea
-            v-model="blockReason"
-            placeholder="Bitte geben Sie einen Grund für die Sperre an..."
-            rows="3"
-            class="reason-textarea"
-            required
-          ></textarea>
-          <div class="modal-actions">
-            <button @click="showBlockModal = false" class="cancel-button">Abbrechen</button>
-            <button @click="blockUser" class="block-button" :disabled="isProcessing || !blockReason.trim()">
-              <span v-if="isProcessing">Wird bearbeitet...</span>
-              <span v-else>Sperren</span>
-            </button>
+        <div class="admin-modal-content">
+          <div class="form-field">
+            <label>Warum möchten Sie diesen Benutzer für weitere Bewerbungen sperren?</label>
+            <textarea
+              v-model="blockReason"
+              placeholder="Bitte geben Sie einen Grund für die Sperre an..."
+              rows="3"
+              required
+            ></textarea>
           </div>
+        </div>
+        <div class="confirm-actions">
+          <button @click="showBlockModal = false" class="cancel-btn">Abbrechen</button>
+          <button @click="blockUser" class="confirm-btn danger" :disabled="isProcessing || !blockReason.trim()">
+            <span v-if="isProcessing">Wird bearbeitet...</span>
+            <span v-else>Sperren</span>
+          </button>
         </div>
       </div>
     </div>
@@ -446,10 +454,8 @@ export default defineComponent({
         await applicationService.takeApplication(props.applicationId);
         await loadApplication();
         emit('application-updated');
-        alert('✅ Bewerbung erfolgreich übernommen!');
       } catch (error) {
         console.error('Fehler beim Übernehmen:', error);
-        alert(`❌ Fehler: ${error.message}`);
       } finally {
         isProcessing.value = false;
       }
@@ -462,10 +468,8 @@ export default defineComponent({
         showAcceptModal.value = false;
         await loadApplication();
         emit('application-updated');
-        alert('✅ Bewerbung erfolgreich akzeptiert! Der Benutzer ist jetzt Autor.');
       } catch (error) {
         console.error('Fehler beim Akzeptieren:', error);
-        alert(`❌ Fehler: ${error.message}`);
       } finally {
         isProcessing.value = false;
       }
@@ -473,7 +477,6 @@ export default defineComponent({
 
     const rejectApplication = async () => {
       if (!rejectReason.value.trim()) {
-        alert('Bitte geben Sie einen Grund für die Ablehnung an.');
         return;
       }
 
@@ -484,10 +487,8 @@ export default defineComponent({
         rejectReason.value = '';
         await loadApplication();
         emit('application-updated');
-        alert('✅ Bewerbung erfolgreich abgelehnt.');
       } catch (error) {
         console.error('Fehler beim Ablehnen:', error);
-        alert(`❌ Fehler: ${error.message}`);
       } finally {
         isProcessing.value = false;
       }
@@ -495,12 +496,10 @@ export default defineComponent({
 
     const blockUser = async () => {
       if (!blockReason.value.trim()) {
-        alert('Bitte geben Sie einen Grund für die Sperre an.');
         return;
       }
 
       if (!application.value?.user?.id) {
-        alert('Benutzer-ID nicht verfügbar.');
         return;
       }
 
@@ -509,10 +508,8 @@ export default defineComponent({
         await applicationService.blockUserFromApplications(application.value.user.id, blockReason.value.trim());
         showBlockModal.value = false;
         blockReason.value = '';
-        alert('✅ Benutzer erfolgreich für weitere Bewerbungen gesperrt.');
       } catch (error) {
         console.error('Fehler beim Sperren:', error);
-        alert(`❌ Fehler: ${error.message}`);
       } finally {
         isProcessing.value = false;
       }
@@ -566,17 +563,36 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// Import der globalen Admin-Styles
+@import '../../../style/base/admin-global.scss'; // style\base\admin-global.scss
+
+
+// Icon Styles
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+  &.icon-sm {
+    width: 16px;
+    height: 16px;
+  }
+
+  &.icon-md {
+    width: 24px;
+    height: 24px;
+  }
+}
+
 .application-detail-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   color: #e0e0e0;
   position: relative !important;
-  z-index: 10000 !important; /* Sehr hoher z-index wie bei UserDetail */
+  z-index: 10000 !important;
   min-height: 100vh;
-  background-color: #0a0a0a !important; /* Expliziter Hintergrund */
   
-  /* Überschreibt alle anderen Styles */
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -590,22 +606,13 @@ export default defineComponent({
   opacity: 1 !important;
 }
 
-.debug-info {
-  background: #333;
-  padding: 8px 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: #ff9800;
-}
-
 .loading-state,
 .error-state {
   text-align: center;
   padding: 60px;
-  background-color: #1a1a1a;
-  border-radius: 12px;
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
   position: relative;
   z-index: 10;
 }
@@ -613,42 +620,33 @@ export default defineComponent({
 .loading-spinner {
   width: 50px;
   height: 50px;
-  border: 3px solid #333;
-  border-top-color: #ff9800;
+  border: 3px solid rgba(93, 173, 226, 0.2);
+  border-top-color: #5dade2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
 }
 
 .retry-button {
-  background-color: #0078d7;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  margin-top: 16px;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: #106ebe;
-  }
+  @extend .admin-button;
+  @extend .primary;
 }
 
 .application-header {
   display: flex !important;
   align-items: center;
   gap: 30px;
-  background: #1a1a1a !important;
   padding: 30px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 30, 40, 0.6);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   position: relative !important;
   z-index: 10010 !important;
   visibility: visible !important;
   opacity: 1 !important;
+  border: 1px solid rgba(93, 173, 226, 0.15);
 
   .applicant-avatar {
     width: 100px;
@@ -662,9 +660,11 @@ export default defineComponent({
     font-weight: bold;
     color: white;
     flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(255, 152, 0, 0.3);
 
     &.no-user {
       background: linear-gradient(135deg, #666 0%, #444 100%);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
 
     img {
@@ -702,30 +702,36 @@ export default defineComponent({
         border-radius: 20px;
         font-size: 0.9rem;
         font-weight: 500;
+        backdrop-filter: blur(10px);
 
         &.status-pending {
-          background-color: rgba(255, 193, 7, 0.2);
+          background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));
           color: #ffc107;
+          border: 1px solid rgba(255, 193, 7, 0.3);
         }
 
         &.status-in-progress {
-          background-color: rgba(0, 120, 215, 0.2);
+          background: linear-gradient(135deg, rgba(0, 120, 215, 0.2), rgba(0, 120, 215, 0.1));
           color: #0078d7;
+          border: 1px solid rgba(0, 120, 215, 0.3);
         }
 
         &.status-accepted {
-          background-color: rgba(46, 204, 113, 0.2);
+          background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(46, 204, 113, 0.1));
           color: #2ecc71;
+          border: 1px solid rgba(46, 204, 113, 0.3);
         }
 
         &.status-rejected {
-          background-color: rgba(231, 76, 60, 0.2);
+          background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(231, 76, 60, 0.1));
           color: #e74c3c;
+          border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
         &.status-canceled {
-          background-color: rgba(149, 165, 166, 0.2);
+          background: linear-gradient(135deg, rgba(149, 165, 166, 0.2), rgba(149, 165, 166, 0.1));
           color: #95a5a6;
+          border: 1px solid rgba(149, 165, 166, 0.3);
         }
 
         &.large {
@@ -735,11 +741,12 @@ export default defineComponent({
       }
 
       .username-badge {
-        background: #2a2a2a;
+        background: rgba(30, 30, 40, 0.6);
         color: #888;
         padding: 6px 16px;
         border-radius: 20px;
         font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -776,11 +783,12 @@ export default defineComponent({
       gap: 8px;
       padding: 10px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       font-size: 0.95rem;
+      backdrop-filter: blur(10px);
 
       &:disabled {
         opacity: 0.5;
@@ -788,32 +796,38 @@ export default defineComponent({
       }
 
       &.take-btn {
-        background: linear-gradient(135deg, #ffc107, #ff9800);
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.3));
         color: white;
+        border: 1px solid rgba(255, 193, 7, 0.4);
 
         &:hover:not(:disabled) {
-          background: linear-gradient(135deg, #ff9800, #f57c00);
+          background: linear-gradient(135deg, rgba(255, 152, 0, 0.4), rgba(245, 124, 0, 0.4));
           transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
         }
       }
 
       &.accept-btn {
-        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.3), rgba(39, 174, 96, 0.3));
         color: white;
+        border: 1px solid rgba(46, 204, 113, 0.4);
 
         &:hover:not(:disabled) {
-          background: linear-gradient(135deg, #27ae60, #229954);
+          background: linear-gradient(135deg, rgba(39, 174, 96, 0.4), rgba(34, 153, 84, 0.4));
           transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
         }
       }
 
       &.reject-btn {
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.3), rgba(192, 57, 43, 0.3));
         color: white;
+        border: 1px solid rgba(231, 76, 60, 0.4);
 
         &:hover:not(:disabled) {
-          background: linear-gradient(135deg, #c0392b, #a93226);
+          background: linear-gradient(135deg, rgba(192, 57, 43, 0.4), rgba(169, 50, 38, 0.4));
           transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
         }
       }
     }
@@ -821,15 +835,21 @@ export default defineComponent({
 }
 
 .section {
-  background: #1a1a1a !important;
   padding: 25px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   position: relative !important;
   z-index: 10005 !important;
   opacity: 1 !important;
   visibility: visible !important;
+  background: rgba(30, 30, 40, 0.4);
+  border: 1px solid rgba(93, 173, 226, 0.15);
+
+  &.glass-section {
+    backdrop-filter: blur(16px);
+    background: rgba(30, 30, 40, 0.6);
+  }
 
   h4 {
     margin: 0 0 20px 0;
@@ -876,13 +896,14 @@ export default defineComponent({
 
   .content-display {
     .content-text {
-      background: #2a2a2a;
       padding: 20px;
-      border-radius: 8px;
+      background: rgba(30, 30, 40, 0.8);
+      border-radius: 10px;
       color: #e0e0e0;
       line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
+      backdrop-filter: blur(10px);
     }
   }
 
@@ -892,17 +913,20 @@ export default defineComponent({
     gap: 16px;
 
     .document-card {
-      background: #2a2a2a;
+      background: rgba(30, 30, 40, 0.8);
       padding: 16px;
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       gap: 12px;
       transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
 
       &:hover {
-        background: #333;
+        background: rgba(40, 40, 50, 0.9);
         transform: translateY(-2px);
+        border-color: rgba(93, 173, 226, 0.2);
       }
 
       .document-icon {
@@ -928,7 +952,7 @@ export default defineComponent({
         color: #0078d7;
         text-decoration: none;
         padding: 8px;
-        border-radius: 4px;
+        border-radius: 6px;
         transition: all 0.2s;
 
         &:hover {
@@ -972,23 +996,26 @@ export default defineComponent({
       gap: 8px;
       padding: 10px 20px;
       border: none;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.3), rgba(192, 57, 43, 0.3));
       color: white;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(231, 76, 60, 0.4);
 
       &:hover {
-        background: linear-gradient(135deg, #c0392b, #a93226);
+        background: linear-gradient(135deg, rgba(192, 57, 43, 0.4), rgba(169, 50, 38, 0.4));
         transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
       }
     }
   }
 
   &.danger-zone {
-    background: linear-gradient(135deg, #2a1a1a, #1f0f0f) !important;
-    border: 2px solid rgba(231, 76, 60, 0.3);
+    background: linear-gradient(135deg, rgba(42, 26, 26, 0.6), rgba(31, 15, 15, 0.6)) !important;
+    border: 1px solid rgba(231, 76, 60, 0.3);
 
     h4 {
       color: #e74c3c;
@@ -1002,177 +1029,8 @@ export default defineComponent({
   }
 }
 
-// Modal Styles mit höherem z-index
-.modal-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-color: rgba(0, 0, 0, 0.85);
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  z-index: 10200 !important; /* Höher als ApplicationDetail Container */
-  backdrop-filter: blur(3px);
-
-  &.confirmation-modal {
-    z-index: 10300 !important;
-    background-color: rgba(0, 0, 0, 0.9);
-  }
-}
-
-.modal-container {
-  width: 90%;
-  max-width: 500px;
-  background-color: #222 !important;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid #444;
-  animation: modal-appear 0.3s ease-out;
-  position: relative !important;
-  z-index: 10400 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.modal-header {
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #262626;
-
-  h3 {
-    margin: 0;
-    color: #fff;
-    font-size: 1.2rem;
-  }
-
-  .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-  }
-}
-
-.modal-content {
-  padding: 20px;
-
-  p {
-    margin: 0 0 16px 0;
-    color: #e0e0e0;
-    line-height: 1.5;
-  }
-
-  .modal-note {
-    font-size: 0.9rem;
-    color: #aaa;
-    font-style: italic;
-  }
-
-  .reason-textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: vertical;
-    margin-bottom: 20px;
-
-    &:focus {
-      outline: none;
-      border-color: #666;
-    }
-
-    &::placeholder {
-      color: #777;
-    }
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-
-    button {
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      &.cancel-button {
-        background-color: #333;
-        color: #f0f0f0;
-
-        &:hover:not(:disabled) {
-          background-color: #444;
-        }
-      }
-
-      &.confirm-button {
-        background-color: rgba(46, 204, 113, 0.8);
-        color: white;
-
-        &:hover:not(:disabled) {
-          background-color: rgba(46, 204, 113, 1);
-        }
-      }
-
-      &.reject-button,
-      &.block-button {
-        background-color: rgba(231, 76, 60, 0.8);
-        color: white;
-
-        &:hover:not(:disabled) {
-          background-color: rgba(231, 76, 60, 1);
-        }
-      }
-    }
-  }
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-@keyframes modal-appear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 768px) {
@@ -1196,11 +1054,6 @@ export default defineComponent({
 
   .documents-grid {
     grid-template-columns: 1fr;
-  }
-
-  .modal-container {
-    width: 95%;
-    margin: 10px;
   }
 }
 </style>

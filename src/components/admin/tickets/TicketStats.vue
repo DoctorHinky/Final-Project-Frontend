@@ -221,56 +221,56 @@ export default defineComponent({
   }
 
   &.total-card {
-    border-left-color: #777;
+    border-left-color: #6b7280;
 
     .stat-icon {
-      background-color: rgba(119, 119, 119, 0.2);
-      color: #777;
+      background-color: rgba(107, 114, 128, 0.15);
+      color: #9ca3af;
     }
   }
 
   &.open-card {
-    border-left-color: #42a5f5;
+    border-left-color: #3b82f6;
 
     .stat-icon {
-      background-color: rgba(33, 150, 243, 0.1);
-      color: #42a5f5;
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
     }
   }
 
   &.in-progress-card {
-    border-left-color: #ba68c8;
+    border-left-color: #ec4899;
 
     .stat-icon {
-      background-color: rgba(156, 39, 176, 0.1);
-      color: #ba68c8;
+      background-color: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
     }
   }
 
   &.waiting-card {
-    border-left-color: #ffd54f;
+    border-left-color: #fb923c;
 
     .stat-icon {
-      background-color: rgba(255, 193, 7, 0.1);
-      color: #ffd54f;
+      background-color: rgba(251, 146, 60, 0.15);
+      color: #fb923c;
     }
   }
 
   &.resolved-card {
-    border-left-color: #81c784;
+    border-left-color: #22c55e;
 
     .stat-icon {
-      background-color: rgba(76, 175, 80, 0.1);
-      color: #81c784;
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
     }
   }
 
   &.closed-card {
-    border-left-color: #bdbdbd;
+    border-left-color: #64748b;
 
     .stat-icon {
-      background-color: rgba(158, 158, 158, 0.1);
-      color: #bdbdbd;
+      background-color: rgba(100, 116, 139, 0.15);
+      color: #64748b;
     }
   }
 }

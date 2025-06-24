@@ -517,7 +517,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .deleted-users-search-container {
-  background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 24px;
@@ -550,7 +549,6 @@ export default defineComponent({
   gap: 24px;
 
   .form-section {
-    background-color: #1c1c1c;
     border-radius: 8px;
     border: 1px solid #333;
     padding: 20px;
@@ -583,14 +581,14 @@ export default defineComponent({
       input,
       select {
         padding: 10px 12px;
-        background-color: #2a2a2a;
+        background-color: #33333300;
         border: 1px solid #444;
         border-radius: 4px;
         color: #f0f0f0;
         font-size: 1rem;
         transition: all 0.3s ease;
 
-        &:focus {
+        &:focus, &:hover {
           outline: none;
           border-color: #666;
           background-color: #333;
@@ -834,7 +832,6 @@ export default defineComponent({
 
 .search-tips {
   display: flex;
-  background-color: #2a2a2a;
   border-radius: 8px;
   border: 1px solid #333;
   padding: 16px;

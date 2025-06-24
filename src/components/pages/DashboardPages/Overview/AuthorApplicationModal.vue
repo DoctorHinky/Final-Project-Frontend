@@ -471,7 +471,7 @@ export default defineComponent({
     border-radius: map.get(map.get(vars.$layout, border-radius), large);
     padding: 1rem;
     position: relative;
-    top: 0px;
+    top: -480px;
     display: flex;
     flex-direction: column;
     

@@ -1032,7 +1032,7 @@ export default defineComponent({
   }
 }
 
-.Icons {
+.Icons{
   width: 20px;
 }
 </style>

@@ -707,7 +707,7 @@ props
       transition: all 0.3s ease;
 
       &:hover {
-        background-color: #2a2a2a;
+        background-color: #2a2a2a42;
       }
 
       td {
@@ -725,7 +725,7 @@ props
         .applicant-avatar {
           width: 32px;
           height: 32px;
-          border-radius: 50%;
+          border-radius: 10px;
           background-color: #444;
           display: flex;
           align-items: center;

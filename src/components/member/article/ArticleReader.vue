@@ -1149,14 +1149,14 @@ export default defineComponent({
   // ===== NAVIGATIONSLEISTE =====
   .reader-navbar {
     position: sticky;
-    top: 0;
+    top: -100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem 2.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
     z-index: 100;
-    max-width: 1400px;
+    max-width: 2000px;
     margin-left: auto;
     margin-right: auto;
     backdrop-filter: blur(10px);
@@ -1164,7 +1164,6 @@ export default defineComponent({
     border-radius: 0 0 24px 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    margin-top: 2rem;
 
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {

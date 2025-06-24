@@ -196,7 +196,7 @@ export default defineComponent({
       cursor: pointer;
 
       &:hover {
-        background-color: #2a2a2a;
+        background-color: #2a2a2a4b;
       }
 
       td {
@@ -254,7 +254,7 @@ export default defineComponent({
         .author-avatar {
           width: 30px;
           height: 30px;
-          border-radius: 50%;
+          border-radius: 10px;
           background-color: #444;
           display: flex;
           align-items: center;
@@ -266,7 +266,6 @@ export default defineComponent({
           img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
             object-fit: cover;
           }
         }

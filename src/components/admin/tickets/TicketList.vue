@@ -7,33 +7,15 @@
         <span class="selected-count">{{ selectedTickets.length }} Tickets ausgewählt</span>
         <div class="action-buttons">
           <button class="btn-action resolve" @click="bulkAction('resolve')" title="Als gelöst markieren">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
             Lösen
           </button>
           <button class="btn-action close" @click="bulkAction('close')" title="Schließen">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -42,23 +24,10 @@
         </div>
       </div>
       <div class="view-options">
-        <button
-          class="btn-view"
-          :class="{ active: viewMode === 'table' }"
-          @click="viewMode = 'table'"
-          title="Tabellenansicht"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+        <button class="btn-view" :class="{ active: viewMode === 'table' }" @click="viewMode = 'table'"
+          title="Tabellenansicht">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6"></line>
             <line x1="8" y1="12" x2="21" y2="12"></line>
             <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -67,23 +36,10 @@
             <line x1="3" y1="18" x2="3.01" y2="18"></line>
           </svg>
         </button>
-        <button
-          class="btn-view"
-          :class="{ active: viewMode === 'card' }"
-          @click="viewMode = 'card'"
-          title="Kartenansicht"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+        <button class="btn-view" :class="{ active: viewMode === 'card' }" @click="viewMode = 'card'"
+          title="Kartenansicht">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
             <rect x="14" y="14" width="7" height="7"></rect>
@@ -101,23 +57,14 @@
 
     <!-- Leerer Zustand -->
     <div v-else-if="tickets.length === 0" class="empty-state">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
         <path d="M15 5v2"></path>
         <path d="M15 11v2"></path>
         <path d="M15 17v2"></path>
         <path
-          d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"
-        ></path>
+          d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z">
+        </path>
       </svg>
       <h3>Keine Tickets gefunden</h3>
       <p>Es wurden keine Tickets gefunden, die Ihren Filterkriterien entsprechen.</p>
@@ -129,13 +76,8 @@
         <thead>
           <tr>
             <th class="checkbox-column">
-              <input
-                type="checkbox"
-                :checked="isAllSelected"
-                :indeterminate="isIndeterminate"
-                @change="toggleSelectAll"
-                id="select-all"
-              />
+              <input type="checkbox" :checked="isAllSelected" :indeterminate="isIndeterminate" @change="toggleSelectAll"
+                id="select-all" />
               <label for="select-all" class="sr-only">Alle auswählen</label>
             </th>
             <th>Ticket</th>
@@ -147,20 +89,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="ticket in tickets"
-            :key="ticket.id"
-            @click="selectTicket(ticket)"
-            class="ticket-row"
-            :class="{ selected: isTicketSelected(ticket.id) }"
-          >
+          <tr v-for="ticket in tickets" :key="ticket.id" @click="selectTicket(ticket)" class="ticket-row"
+            :class="{ selected: isTicketSelected(ticket.id) }">
             <td class="checkbox-column" @click.stop>
-              <input
-                type="checkbox"
-                :checked="isTicketSelected(ticket.id)"
-                @change="toggleTicketSelection(ticket.id)"
-                :id="`ticket-${ticket.id}`"
-              />
+              <input type="checkbox" :checked="isTicketSelected(ticket.id)" @change="toggleTicketSelection(ticket.id)"
+                :id="`ticket-${ticket.id}`" />
               <label :for="`ticket-${ticket.id}`" class="sr-only">Ticket auswählen</label>
             </td>
             <td class="ticket-info">
@@ -182,21 +115,12 @@
 
     <!-- Kartenansicht -->
     <div v-else class="card-view">
-      <div
-        v-for="ticket in tickets"
-        :key="ticket.id"
-        class="ticket-card"
-        :class="{ selected: isTicketSelected(ticket.id) }"
-        @click="selectTicket(ticket)"
-      >
-        <div class="card-header">
+      <div v-for="ticket in tickets" :key="ticket.id" class="ticket-card"
+        :class="{ selected: isTicketSelected(ticket.id) }" @click="selectTicket(ticket)">
+        <div class="card-header" :class="statusClass(ticket.status)">
           <div class="card-checkbox" @click.stop>
-            <input
-              type="checkbox"
-              :checked="isTicketSelected(ticket.id)"
-              @change="toggleTicketSelection(ticket.id)"
-              :id="`card-ticket-${ticket.id}`"
-            />
+            <input type="checkbox" :checked="isTicketSelected(ticket.id)" @change="toggleTicketSelection(ticket.id)"
+              :id="`card-ticket-${ticket.id}`" />
             <label :for="`card-ticket-${ticket.id}`" class="sr-only">Ticket auswählen</label>
           </div>
           <h3 class="card-title">{{ ticket.title }}</h3>
@@ -219,40 +143,22 @@
               <span class="detail-label">Zugewiesen:</span>
               <span class="detail-value">{{
                 ticket.workedBy?.username ? ticket.workedBy?.username : "Nicht zugewiesen"
-              }}</span>
+                }}</span>
             </div>
           </div>
         </div>
         <div class="card-footer">
           <div class="timestamp">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
             <span>{{ formatDate(ticket.updatedAt) }}</span>
           </div>
           <div class="message-count" v-if="ticket.messages">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
             <span>{{ ticket.messages.length }} Nachrichten</span>
@@ -287,7 +193,7 @@ export default defineComponent({
   emits: ["select-ticket", "bulk-action"],
   setup(props, { emit }) {
     // Ansicht-Modus
-    const viewMode = ref<"table" | "card">("table");
+    const viewMode = ref<"table" | "card">("card");
 
     // Ausgewählte Tickets
     const selectedTickets = ref<string[]>([]);
@@ -422,7 +328,7 @@ export default defineComponent({
 
 .ticket-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid #333;
@@ -491,6 +397,8 @@ export default defineComponent({
   cursor: pointer;
   color: #888;
   transition: all 0.2s;
+  width: 50px;
+  height: 32px;
 
   &:hover {
     background-color: #333;
@@ -534,6 +442,7 @@ export default defineComponent({
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -618,6 +527,7 @@ export default defineComponent({
 
   .ticket-info {
     .ticket-title {
+      font-size: 1rem;
       font-weight: 500;
       margin-bottom: 4px;
     }
@@ -632,29 +542,41 @@ export default defineComponent({
 /* Card View */
 .card-view {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(500px, 3fr));
   gap: 16px;
   padding: 16px;
 }
 
 .ticket-card {
-  background-color: #2a2a2a;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
+  border: 1px solid #333;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+    background-color: rgba(0, 0, 0, 0.219);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.514);
+    /* Schwebender weißer Schatten nur unten */
+    box-shadow: 0 16px 32px -8px rgba(255, 255, 255, 0.18) inset, 0 12px 32px 0 rgba(255, 255, 255, 0.18);
   }
 
   &.selected {
     border: 2px solid #ff9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
 
-    .card-header {
-      background-color: rgba(255, 152, 0, 0.15);
+    .card-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 152, 0, 0.1);
+      pointer-events: none;
     }
   }
 
@@ -663,8 +585,30 @@ export default defineComponent({
     display: flex;
     align-items: center;
     gap: 12px;
-    background-color: #333;
     border-bottom: 1px solid #444;
+    position: relative;
+    overflow: hidden;
+
+    // Status-basierte Hintergründe
+    &.status-open {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.15));
+      border-bottom-color: rgba(59, 130, 246, 0.3);
+    }
+
+    &.status-in-progress {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.15));
+      border-bottom-color: rgba(236, 72, 153, 0.3);
+    }
+
+    &.status-waiting {
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(251, 146, 60, 0.15));
+      border-bottom-color: rgba(251, 146, 60, 0.3);
+    }
+
+    &.status-closed {
+      background: linear-gradient(135deg, rgba(100, 116, 139, 0.25), rgba(100, 116, 139, 0.15));
+      border-bottom-color: rgba(100, 116, 139, 0.3);
+    }
 
     .card-checkbox {
       input[type="checkbox"] {
@@ -683,6 +627,8 @@ export default defineComponent({
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -746,29 +692,41 @@ export default defineComponent({
   font-size: 0.75rem;
   font-weight: 600;
 
-  &.status-open {
-    background-color: rgba(33, 150, 243, 0.15);
-    color: #42a5f5;
+  // Badge-Styles für Kartenansicht
+  .card-header & {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
-  &.status-in-progress {
-    background-color: rgba(156, 39, 176, 0.15);
-    color: #ba68c8;
-  }
+  // Badge-Styles für Tabellenansicht
+  .tickets-table & {
+    &.status-open {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
 
-  &.status-waiting {
-    background-color: rgba(255, 193, 7, 0.15);
-    color: #ffd54f;
-  }
+    &.status-in-progress {
+      background-color: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+    }
 
-  &.status-resolved {
-    background-color: rgba(76, 175, 80, 0.15);
-    color: #81c784;
-  }
+    &.status-waiting {
+      background-color: rgba(251, 146, 60, 0.15);
+      color: #fb923c;
+    }
 
-  &.status-closed {
-    background-color: rgba(158, 158, 158, 0.15);
-    color: #bdbdbd;
+    &.status-resolved {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+
+    &.status-closed {
+      background-color: rgba(100, 116, 139, 0.15);
+      color: #64748b;
+    }
   }
 }
 
