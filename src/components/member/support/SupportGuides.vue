@@ -695,6 +695,11 @@ export default defineComponent({
                 border-radius: 6px;
                 font-size: 0.875rem;
                 margin-top: 8px;
+                .Icons{
+                  width: 16px;
+                  height: 16px;
+                  color: #f59e0b; // Amber color for warning icon
+                }
 
                 @each $theme in ("light", "dark") {
                   .theme-#{$theme} & {
@@ -840,6 +845,10 @@ export default defineComponent({
           .btn-primary {
             width: 100%;
             justify-content: center;
+            .Icons {
+              width: 15px;
+              height: 20px;
+            }
           }
         }
       }
