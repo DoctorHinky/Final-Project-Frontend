@@ -509,7 +509,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 850;
+  z-index: 940; // Unter der Sidebar (950)
   backdrop-filter: blur(2px);
 }
 
@@ -584,10 +584,37 @@ export default defineComponent({
   }
 }
 
-@media (max-width: 1023px) {
+// Mobile-spezifische Anpassungen
+@media (max-width: 768px) {
+  // Sidebar-Overlay für volle Breite
+  .sidebar-overlay {
+    z-index: 940; // Unter der Sidebar (950)
+  }
+  
+  // Content nicht verschieben auf Mobile
+  .member-container.custom-container.sidebar-open {
+    margin-left: 0;
+  }
+  
+  // Header bleibt sichtbar und erhöht z-index
+  .member-header.custom-header {
+    z-index: 1000; // Über der Sidebar
+  }
+  
+  // Content Blur entfernen für bessere Performance
   .member-content.custom-content.sidebar-active {
-    filter: blur(2px);
-    pointer-events: none;
+    filter: none;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 1023px) {
+  // Nur auf größeren Tablets den Blur-Effekt
+  @media (min-width: 769px) {
+    .member-content.custom-content.sidebar-active {
+      filter: blur(2px);
+      pointer-events: none;
+    }
   }
 }
 

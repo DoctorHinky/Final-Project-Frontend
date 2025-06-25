@@ -65,7 +65,7 @@
         v-for="(article, index) in articles"
         :key="article.id"
         :class="['preview-card', `card-style-${(index % 3) + 1}`]"
-        @click="handleCardClick()"
+        @click="handleCardClick($event)"
         :style="`--card-index: ${index}`"
       >
         <!-- Glow Effect -->
@@ -175,7 +175,7 @@
 
           <!-- Action Area -->
           <div class="card-actions">
-            <button class="read-button" @click.stop="handleCardClick()">
+            <button class="read-button" @click.stop="handleCardClick($event)">
               <span class="button-text">Artikel entdecken</span>
               <span class="button-icon">
                 <svg viewBox="0 0 24 24" width="20" height="20">
