@@ -1,6 +1,6 @@
 <!-- src/components/layout/AppHeader.vue -->
 <template>
-  <header class="app-header" :class="{ 'scrolled': isScrolled, 'mobile-open': isMobileMenuOpen }">
+  <header class="app-header" :class="{ scrolled: isScrolled, 'mobile-open': isMobileMenuOpen }">
     <div class="header-container">
       <!-- Main Header Row -->
       <div class="header-main">
@@ -16,9 +16,13 @@
         <nav class="desktop-nav" aria-label="Hauptnavigation">
           <ul class="nav-list">
             <li v-for="(item, index) in navItems" :key="index" class="nav-item">
-              <a :href="`#${item.id}`" class="nav-link" :class="{ 'active': activeSection === index }"
+              <a
+                :href="`#${item.id}`"
+                class="nav-link"
+                :class="{ active: activeSection === index }"
                 @click.prevent="navigateToSection(item.id, index)"
-                :aria-current="activeSection === index ? 'page' : undefined">
+                :aria-current="activeSection === index ? 'page' : undefined"
+              >
                 <component :is="item.icon" class="nav-icon" />
                 <span class="nav-text">{{ item.name }}</span>
                 <span class="nav-indicator"></span>
@@ -39,8 +43,12 @@
           </router-link>
 
           <!-- Mobile Menu Toggle -->
-          <button class="mobile-menu-toggle" @click="toggleMobileMenu" :aria-expanded="isMobileMenuOpen"
-            aria-label="Menü öffnen">
+          <button
+            class="mobile-menu-toggle"
+            @click="toggleMobileMenu"
+            :aria-expanded="isMobileMenuOpen"
+            aria-label="Menü öffnen"
+          >
             <span class="menu-icon">
               <span></span>
               <span></span>
@@ -62,7 +70,12 @@
         <div class="mobile-menu-content">
           <!-- Mobile Menu Header -->
           <div class="mobile-menu-header">
-            <img src="@/assets/images/Logo.webp" alt="LearnToGrow Logo" class="logo-image" style="width:40px; height:40px; border-radius:10px; object-fit:cover;" />
+            <img
+              src="@/assets/images/Logo.webp"
+              alt="LearnToGrow Logo"
+              class="logo-image"
+              style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover"
+            />
             <h2 class="mobile-menu-title">Lern To Grow</h2>
             <button class="close-btn" @click="closeMobileMenu" aria-label="Menü schließen">
               <XMarkIcon class="close-icon" />
@@ -73,8 +86,12 @@
           <nav class="mobile-nav" aria-label="Mobile Navigation">
             <ul class="mobile-nav-list">
               <li v-for="(item, index) in navItems" :key="index" class="mobile-nav-item">
-                <a :href="`#${item.id}`" class="mobile-nav-link" :class="{ 'active': activeSection === index }"
-                  @click="handleMobileNavClick(item.id, index)">
+                <a
+                  :href="`#${item.id}`"
+                  class="mobile-nav-link"
+                  :class="{ active: activeSection === index }"
+                  @click="handleMobileNavClick(item.id, index)"
+                >
                   <div class="link-content">
                     <component :is="item.icon" class="mobile-nav-icon" />
                     <div class="link-text">
@@ -109,8 +126,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import {
   HomeIcon,
   RocketLaunchIcon,
@@ -121,11 +138,11 @@ import {
   ArrowRightIcon,
   XMarkIcon,
   ChevronRightIcon,
-  UserCircleIcon
-} from '@heroicons/vue/24/outline';
-import ThemeToggle from '../ui/ThemeToggle.vue';
+  UserCircleIcon,
+} from "@heroicons/vue/24/outline";
+import ThemeToggle from "../ui/ThemeToggle.vue";
 
-interface NavItem {
+export interface NavItem {
   name: string;
   id: string;
   icon: any;
@@ -133,7 +150,7 @@ interface NavItem {
 }
 
 export default defineComponent({
-  name: 'AppHeader',
+  name: "AppHeader",
   components: {
     ThemeToggle,
     HomeIcon,
@@ -145,16 +162,16 @@ export default defineComponent({
     ArrowRightIcon,
     XMarkIcon,
     ChevronRightIcon,
-    UserCircleIcon
+    UserCircleIcon,
   },
   props: {
     isLightTheme: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['toggle-theme', 'tab-change'],
-  setup(props, { emit }) {
+  emits: ["toggle-theme", "tab-change"],
+  setup(_props, { emit }) {
     const router = useRouter();
     const route = useRoute();
 
@@ -168,41 +185,41 @@ export default defineComponent({
     // Navigation Items
     const navItems: NavItem[] = [
       {
-        name: 'Start',
-        id: 'hero',
+        name: "Start",
+        id: "hero",
         icon: HomeIcon,
-        description: 'Zurück zum Anfang'
+        description: "Zurück zum Anfang",
       },
       {
-        name: 'Mission',
-        id: 'content',
+        name: "Mission",
+        id: "content",
         icon: RocketLaunchIcon,
-        description: 'Unsere Vision & Werte'
+        description: "Unsere Vision & Werte",
       },
       {
-        name: 'Quiz',
-        id: 'quiz',
+        name: "Quiz",
+        id: "quiz",
         icon: PuzzlePieceIcon,
-        description: 'Teste dein Wissen'
+        description: "Teste dein Wissen",
       },
       {
-        name: 'Community',
-        id: 'community',
+        name: "Community",
+        id: "community",
         icon: UserGroupIcon,
-        description: 'Werde Teil der Familie'
+        description: "Werde Teil der Familie",
       },
       {
-        name: 'Autoren',
-        id: 'Authors',
+        name: "Autoren",
+        id: "Authors",
         icon: PencilSquareIcon,
-        description: 'Lerne unser Team kennen'
+        description: "Lerne unser Team kennen",
       },
       {
-        name: 'Entdecken',
-        id: 'sub',
+        name: "Entdecken",
+        id: "sub",
         icon: EyeIcon,
-        description: 'Artikel & Geschichten'
-      }
+        description: "Artikel & Geschichten",
+      },
     ];
 
     // Computed
@@ -232,7 +249,7 @@ export default defineComponent({
         if (section && scrollPosition >= section.offsetTop) {
           if (activeSection.value !== i) {
             activeSection.value = i;
-            emit('tab-change', i);
+            emit("tab-change", i);
           }
           break;
         }
@@ -242,13 +259,13 @@ export default defineComponent({
     const navigateToSection = async (sectionId: string, index: number) => {
       isNavigating.value = true;
       activeSection.value = index;
-      emit('tab-change', index);
+      emit("tab-change", index);
 
       // Check if we're on the home page
-      if (route.path !== '/') {
-        await router.push('/');
+      if (route.path !== "/") {
+        await router.push("/");
         // Wait for page to load
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       // Scroll to section
@@ -257,7 +274,7 @@ export default defineComponent({
         const offsetTop = element.offsetTop - headerHeight.value;
         window.scrollTo({
           top: offsetTop,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
 
@@ -268,18 +285,18 @@ export default defineComponent({
     };
 
     const toggleTheme = () => {
-      emit('toggle-theme');
+      emit("toggle-theme");
     };
 
     const toggleMobileMenu = () => {
       isMobileMenuOpen.value = !isMobileMenuOpen.value;
       // Prevent body scroll when menu is open
-      document.body.style.overflow = isMobileMenuOpen.value ? 'hidden' : '';
+      document.body.style.overflow = isMobileMenuOpen.value ? "hidden" : "";
     };
 
     const closeMobileMenu = () => {
       isMobileMenuOpen.value = false;
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
 
     const handleMobileNavClick = (sectionId: string, index: number) => {
@@ -297,25 +314,28 @@ export default defineComponent({
 
     // Lifecycle
     onMounted(() => {
-      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener("scroll", handleScroll, { passive: true });
       // Initial update
       updateScrollProgress();
       updateActiveSection();
     });
 
     onUnmounted(() => {
-      window.removeEventListener('scroll', handleScroll);
-      document.body.style.overflow = '';
+      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "";
     });
 
     // Watch route changes
-    watch(() => route.path, () => {
-      if (route.path === '/') {
-        setTimeout(() => {
-          updateActiveSection();
-        }, 100);
+    watch(
+      () => route.path,
+      () => {
+        if (route.path === "/") {
+          setTimeout(() => {
+            updateActiveSection();
+          }, 100);
+        }
       }
-    });
+    );
 
     return {
       navItems,
@@ -327,16 +347,16 @@ export default defineComponent({
       toggleTheme,
       toggleMobileMenu,
       closeMobileMenu,
-      handleMobileNavClick
+      handleMobileNavClick,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 // Header Container
 .app-header {
@@ -347,7 +367,7 @@ export default defineComponent({
   z-index: 1000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -356,7 +376,7 @@ export default defineComponent({
   }
 
   &.scrolled {
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       }
@@ -364,7 +384,7 @@ export default defineComponent({
   }
 
   &.mobile-open {
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-color($theme, bg-primary);
       }
@@ -424,7 +444,7 @@ export default defineComponent({
     font-size: 1.25rem;
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -465,7 +485,7 @@ export default defineComponent({
     font-size: 0.95rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-secondary);
 
@@ -501,7 +521,7 @@ export default defineComponent({
       border-radius: 2px;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-gradient($theme, primary);
         }
@@ -539,14 +559,14 @@ export default defineComponent({
   position: relative;
   overflow: hidden;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background: mixins.theme-gradient($theme, primary);
       color: white;
       box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-green), 0.3);
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 50%;
         left: 50%;
@@ -605,7 +625,7 @@ export default defineComponent({
     justify-content: center;
   }
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
 
@@ -634,7 +654,7 @@ export default defineComponent({
       border-radius: 2px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-color($theme, text-primary);
         }
@@ -666,7 +686,7 @@ export default defineComponent({
   right: 0;
   height: 3px;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background: rgba(mixins.theme-color($theme, border-light), 0.2);
     }
@@ -676,7 +696,7 @@ export default defineComponent({
     height: 100%;
     transition: width 0.1s linear;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
       }
@@ -693,7 +713,7 @@ export default defineComponent({
   bottom: 0;
   z-index: 1100;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(20px);
@@ -715,7 +735,7 @@ export default defineComponent({
   backdrop-filter: blur(5px);
   flex-direction: column;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       background: mixins.theme-color($theme, bg-primary);
       box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
@@ -738,7 +758,7 @@ export default defineComponent({
   justify-content: space-between;
   padding: 1.5rem;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-bottom: 1px solid mixins.theme-color($theme, border-light);
     }
@@ -749,7 +769,7 @@ export default defineComponent({
     font-weight: map.get(map.get(vars.$fonts, weights), bold);
     margin: 0;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
       }
@@ -767,7 +787,7 @@ export default defineComponent({
     justify-content: center;
     transition: all 0.3s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
         color: mixins.theme-color($theme, text-primary);
@@ -814,7 +834,7 @@ export default defineComponent({
     text-decoration: none;
     transition: all 0.3s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         color: mixins.theme-color($theme, text-primary);
 
@@ -865,7 +885,7 @@ export default defineComponent({
     .link-description {
       font-size: 0.875rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -878,7 +898,7 @@ export default defineComponent({
       flex-shrink: 0;
       transition: transform 0.3s ease;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-tertiary);
         }
@@ -898,7 +918,7 @@ export default defineComponent({
   flex-direction: column;
   gap: 1.5rem;
 
-  @each $theme in ('light', 'dark') {
+  @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
       border-top: 1px solid mixins.theme-color($theme, border-light);
       background: rgba(mixins.theme-color($theme, secondary-bg), 0.3);
@@ -912,7 +932,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       margin-bottom: 0.75rem;
 
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -937,7 +957,7 @@ export default defineComponent({
     font-size: 1rem;
     transition: all 0.3s ease;
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-gradient($theme, primary);
         color: white;
