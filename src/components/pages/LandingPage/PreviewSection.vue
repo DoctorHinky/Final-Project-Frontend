@@ -9,9 +9,7 @@
 
     <div class="section-header">
       <div class="header-badge">NEU</div>
-      <h2 class="glitch-text" data-text="Entdecke unsere neuesten Artikel">
-        Entdecke unsere neuesten Artikel
-      </h2>
+      <h2 class="glitch-text" data-text="Entdecke unsere neuesten Artikel">Entdecke unsere neuesten Artikel</h2>
       <div class="header-decoration">
         <span></span>
         <span></span>
@@ -41,7 +39,10 @@
       <div class="error-content">
         <div class="error-icon">
           <svg viewBox="0 0 24 24" width="48" height="48">
-            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            <path
+              fill="currentColor"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+            />
           </svg>
         </div>
         <h3>Oops! Ein Fehler ist aufgetreten</h3>
@@ -49,7 +50,10 @@
         <button @click="loadPreviews" class="retry-button">
           <span>Erneut versuchen</span>
           <svg viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            <path
+              fill="currentColor"
+              d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
+            />
           </svg>
         </button>
       </div>
@@ -74,7 +78,10 @@
               <div class="placeholder-pattern"></div>
               <div class="placeholder-content">
                 <svg viewBox="0 0 24 24" width="48" height="48">
-                  <path fill="currentColor" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  <path
+                    fill="currentColor"
+                    d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+                  />
                 </svg>
                 <span>Bild wird geladen</span>
               </div>
@@ -97,7 +104,10 @@
           <div class="category-badge">
             <span class="badge-icon">
               <svg viewBox="0 0 24 24" width="16" height="16">
-                <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path
+                  fill="currentColor"
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
               </svg>
             </span>
             <span class="badge-text">{{ formatCategory(article.category) }}</span>
@@ -107,7 +117,10 @@
           <div class="hover-content">
             <div class="hover-icon">
               <svg viewBox="0 0 24 24" width="40" height="40">
-                <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                <path
+                  fill="currentColor"
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                />
               </svg>
             </div>
             <span class="hover-text">Artikel lesen</span>
@@ -126,7 +139,10 @@
             </div>
             <span class="meta-date">
               <svg viewBox="0 0 24 24" width="16" height="16">
-                <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                <path
+                  fill="currentColor"
+                  d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"
+                />
               </svg>
               {{ formatDate(article.createdAt) }}
             </span>
@@ -143,9 +159,9 @@
 
           <!-- Tags -->
           <div class="card-tags" v-if="article.tags && article.tags.length > 0">
-            <span 
-              v-for="(tag, idx) in article.tags.slice(0, 3)" 
-              :key="idx" 
+            <span
+              v-for="(tag, idx) in article.tags.slice(0, 3)"
+              :key="idx"
               class="card-tag"
               :style="`--tag-index: ${idx}`"
             >
@@ -163,7 +179,7 @@
               <span class="button-text">Artikel entdecken</span>
               <span class="button-icon">
                 <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" />
                 </svg>
               </span>
             </button>
@@ -171,13 +187,19 @@
             <div class="card-stats">
               <span class="stat-item">
                 <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  <path
+                    fill="currentColor"
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
                 </svg>
                 <span>234</span>
               </span>
               <span class="stat-item">
                 <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                  <path
+                    fill="currentColor"
+                    d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                  />
                 </svg>
                 <span>1.2k</span>
               </span>
@@ -194,11 +216,11 @@
     <div v-else class="empty-state">
       <div class="empty-illustration">
         <svg viewBox="0 0 200 200" width="200" height="200">
-          <circle cx="100" cy="100" r="80" fill="currentColor" opacity="0.1"/>
-          <path d="M70 80 Q100 60 130 80 L130 120 Q100 140 70 120 Z" fill="currentColor" opacity="0.2"/>
-          <circle cx="85" cy="85" r="5" fill="currentColor"/>
-          <circle cx="115" cy="85" r="5" fill="currentColor"/>
-          <path d="M80 110 Q100 120 120 110" stroke="currentColor" stroke-width="3" fill="none"/>
+          <circle cx="100" cy="100" r="80" fill="currentColor" opacity="0.1" />
+          <path d="M70 80 Q100 60 130 80 L130 120 Q100 140 70 120 Z" fill="currentColor" opacity="0.2" />
+          <circle cx="85" cy="85" r="5" fill="currentColor" />
+          <circle cx="115" cy="85" r="5" fill="currentColor" />
+          <path d="M80 110 Q100 120 120 110" stroke="currentColor" stroke-width="3" fill="none" />
         </svg>
       </div>
       <h3>Keine Artikel verfügbar</h3>
@@ -219,26 +241,26 @@
           <span class="button-content">
             <span>Jetzt kostenlos registrieren</span>
             <svg viewBox="0 0 24 24" width="24" height="24">
-              <path fill="currentColor" d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/>
+              <path fill="currentColor" d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z" />
             </svg>
           </span>
         </button>
         <div class="cta-features">
           <span class="feature-item">
             <svg viewBox="0 0 24 24" width="16" height="16">
-              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
             </svg>
             Unbegrenzter Zugang
           </span>
           <span class="feature-item">
             <svg viewBox="0 0 24 24" width="16" height="16">
-              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
             </svg>
             Personalisierte Empfehlungen
           </span>
           <span class="feature-item">
             <svg viewBox="0 0 24 24" width="16" height="16">
-              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
             </svg>
             Keine Werbung
           </span>
@@ -316,8 +338,8 @@ export default defineComponent({
         ];
 
         // Simuliere API-Delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
         articles.value = mockArticles;
       } catch (err) {
         error.value = err instanceof Error ? err.message : "Ein unerwarteter Fehler ist aufgetreten";
@@ -330,26 +352,26 @@ export default defineComponent({
     // Setup IntersectionObserver für Scroll-Animationen
     const setupScrollObserver = () => {
       // Check for reduced motion preference
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
       observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               const target = entry.target;
-              
-              if (target.classList.contains('preview-section')) {
+
+              if (target.classList.contains("preview-section")) {
                 // Animate header elements
-                target.classList.add('in-view');
-                
+                target.classList.add("in-view");
+
                 // Stagger card animations
-                const cards = target.querySelectorAll('.preview-card');
+                const cards = target.querySelectorAll(".preview-card");
                 cards.forEach((card, index) => {
                   if (prefersReducedMotion) {
-                    card.classList.add('visible', 'no-motion');
+                    card.classList.add("visible", "no-motion");
                   } else {
                     setTimeout(() => {
-                      card.classList.add('visible');
+                      card.classList.add("visible");
                     }, index * 150);
                   }
                 });
@@ -357,20 +379,21 @@ export default defineComponent({
             }
           });
         },
-        { 
+        {
           threshold: 0.1,
-          rootMargin: '50px'
+          rootMargin: "50px",
         }
       );
 
-      const section = document.querySelector('.preview-section');
+      const section = document.querySelector(".preview-section");
       if (section) observer.observe(section);
     };
 
     // Handle card click → redirect to login
-    const handleCardClick = () => {
+    const handleCardClick = (event?: Event) => {
       // Add click animation
-      event?.currentTarget?.classList.add('clicked');
+      const target = event?.currentTarget as HTMLElement | null;
+      target?.classList.add("clicked");
       setTimeout(() => {
         redirectToLogin();
       }, 300);
@@ -383,14 +406,14 @@ export default defineComponent({
     const handleImageError = (event: Event, articleId: string) => {
       const img = event.target as HTMLImageElement;
       console.warn(`Bild konnte nicht geladen werden für Artikel ${articleId}`);
-      
+
       // Hide broken image
-      img.style.display = 'none';
-      
+      img.style.display = "none";
+
       // Show placeholder
-      const placeholder = img.parentElement?.querySelector('.image-placeholder');
+      const placeholder = img.parentElement?.querySelector(".image-placeholder");
       if (placeholder) {
-        (placeholder as HTMLElement).style.display = 'flex';
+        (placeholder as HTMLElement).style.display = "flex";
       }
     };
 
@@ -562,7 +585,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, m);
       position: relative;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
@@ -653,13 +676,13 @@ export default defineComponent({
       max-width: 700px;
       margin: 0 auto;
       line-height: 1.8;
-      
+
       .subtitle-line {
         display: block;
-        
+
         @media (min-width: 768px) {
           display: inline;
-          
+
           &:first-child::after {
             content: " ";
           }
@@ -746,7 +769,7 @@ export default defineComponent({
 
     .error-icon {
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       svg {
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -850,9 +873,7 @@ export default defineComponent({
         background: rgba(mixins.theme-color($theme, card-bg), 0.7);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-        box-shadow: 
-          0 10px 40px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -926,12 +947,10 @@ export default defineComponent({
     // Hover Effects
     &:hover {
       transform: translateY(-10px) scale(1.02);
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(mixins.theme-color($theme, accent-green), 0.5),
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(mixins.theme-color($theme, accent-green), 0.5),
             inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
       }
@@ -995,14 +1014,10 @@ export default defineComponent({
           width: 100%;
           height: 50%;
           pointer-events: none;
-          
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
-              background: linear-gradient(
-                to top,
-                rgba(mixins.theme-color($theme, card-bg), 0.8) 0%,
-                transparent 100%
-              );
+              background: linear-gradient(to top, rgba(mixins.theme-color($theme, card-bg), 0.8) 0%, transparent 100%);
             }
           }
         }
@@ -1029,8 +1044,13 @@ export default defineComponent({
           width: 100%;
           height: 100%;
           opacity: 0.1;
-          background-image: 
-            repeating-linear-gradient(45deg, transparent, transparent 35px, currentColor 35px, currentColor 70px);
+          background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            currentColor 35px,
+            currentColor 70px
+          );
         }
 
         .placeholder-content {
@@ -1087,7 +1107,7 @@ export default defineComponent({
         .badge-icon {
           display: flex;
           align-items: center;
-          
+
           svg {
             @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
@@ -1119,13 +1139,13 @@ export default defineComponent({
           width: 80px;
           height: 80px;
           border-radius: 50%;
-          
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: rgba(mixins.theme-color($theme, card-bg), 0.9);
               backdrop-filter: blur(10px);
               box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-              
+
               svg {
                 color: mixins.theme-color($theme, accent-green);
               }
@@ -1135,7 +1155,7 @@ export default defineComponent({
 
         .hover-text {
           font-weight: map.get(map.get(vars.$fonts, weights), medium);
-          
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: white;
@@ -1204,7 +1224,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
         gap: 4px;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
@@ -1227,7 +1247,7 @@ export default defineComponent({
         line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -1244,7 +1264,7 @@ export default defineComponent({
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
@@ -1464,7 +1484,7 @@ export default defineComponent({
 
     .empty-illustration {
       margin-bottom: map.get(vars.$spacing, l);
-      
+
       svg {
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -1501,7 +1521,7 @@ export default defineComponent({
     position: relative;
     overflow: hidden;
     border-radius: 32px;
-    
+
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: mixins.theme-color($theme, card-bg);
@@ -1524,13 +1544,20 @@ export default defineComponent({
         height: 200%;
         top: -50%;
         left: -50%;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
-            background-image: 
-              radial-gradient(circle at 20% 30%, rgba(mixins.theme-color($theme, accent-green), 0.1) 0%, transparent 50%),
+            background-image: radial-gradient(
+                circle at 20% 30%,
+                rgba(mixins.theme-color($theme, accent-green), 0.1) 0%,
+                transparent 50%
+              ),
               radial-gradient(circle at 80% 70%, rgba(mixins.theme-color($theme, accent-teal), 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 50% 50%, rgba(mixins.theme-color($theme, accent-lime), 0.05) 0%, transparent 70%);
+              radial-gradient(
+                circle at 50% 50%,
+                rgba(mixins.theme-color($theme, accent-lime), 0.05) 0%,
+                transparent 70%
+              );
             animation: pattern-shift 20s ease-in-out infinite;
           }
         }
@@ -1554,7 +1581,7 @@ export default defineComponent({
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: map.get(vars.$spacing, m);
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, accent-green), 0.1);
@@ -1569,7 +1596,7 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
       margin-bottom: map.get(vars.$spacing, m);
       line-height: 1.2;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
@@ -1581,7 +1608,7 @@ export default defineComponent({
       font-size: clamp(1rem, 2vw, 1.125rem);
       margin-bottom: map.get(vars.$spacing, xl);
       line-height: 1.7;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
@@ -1633,7 +1660,7 @@ export default defineComponent({
         transform: scale(0);
         opacity: 0;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-gradient($theme, primary);
@@ -1655,7 +1682,7 @@ export default defineComponent({
       justify-content: center;
       gap: map.get(vars.$spacing, l);
       flex-wrap: wrap;
-      
+
       @media (max-width: 768px) {
         flex-direction: column;
         gap: map.get(vars.$spacing, s);
@@ -1666,11 +1693,11 @@ export default defineComponent({
         align-items: center;
         gap: map.get(vars.$spacing, xs);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
-            
+
             svg {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -1683,7 +1710,8 @@ export default defineComponent({
 
 // Animations
 @keyframes float-orb {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
   33% {
@@ -1695,7 +1723,8 @@ export default defineComponent({
 }
 
 @keyframes pulse-badge {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
@@ -1706,7 +1735,8 @@ export default defineComponent({
 }
 
 @keyframes glitch-1 {
-  0%, 100% {
+  0%,
+  100% {
     clip-path: inset(40% 0 60% 0);
     transform: translate(-2px, -2px);
   }
@@ -1729,7 +1759,8 @@ export default defineComponent({
 }
 
 @keyframes glitch-2 {
-  0%, 100% {
+  0%,
+  100% {
     clip-path: inset(60% 0 40% 0);
     transform: translate(2px, 2px);
   }
@@ -1805,7 +1836,8 @@ export default defineComponent({
 }
 
 @keyframes pattern-shift {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
   }
   25% {

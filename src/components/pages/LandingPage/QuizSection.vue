@@ -36,11 +36,11 @@
       <!-- Question Card -->
       <div class="question-card" :key="currentQuestion">
         <div class="card-glow"></div>
-        
+
         <!-- Question Header -->
         <div class="question-header">
           <div class="question-number">
-            <span>{{ String(currentQuestion + 1).padStart(2, '0') }}</span>
+            <span>{{ String(currentQuestion + 1).padStart(2, "0") }}</span>
           </div>
           <div class="question-category">
             <component :is="questions[currentQuestion].icon" class="category-icon" />
@@ -51,7 +51,7 @@
         <!-- Question Content -->
         <div class="question-content">
           <h3 class="question-text">{{ questions[currentQuestion].text }}</h3>
-          
+
           <!-- Options -->
           <div class="options-grid">
             <button
@@ -73,11 +73,7 @@
 
         <!-- Navigation -->
         <div class="question-navigation">
-          <button 
-            class="nav-btn prev" 
-            @click="previousQuestion"
-            :disabled="currentQuestion === 0"
-          >
+          <button class="nav-btn prev" @click="previousQuestion" :disabled="currentQuestion === 0">
             <ChevronLeftIcon />
             <span>Zurück</span>
           </button>
@@ -91,12 +87,8 @@
             ></button>
           </div>
 
-          <button 
-            class="nav-btn next" 
-            @click="nextQuestion"
-            :disabled="selectedAnswers[currentQuestion] === null"
-          >
-            <span>{{ isLastQuestion ? 'Auswerten' : 'Weiter' }}</span>
+          <button class="nav-btn next" @click="nextQuestion" :disabled="selectedAnswers[currentQuestion] === null">
+            <span>{{ isLastQuestion ? "Auswerten" : "Weiter" }}</span>
             <ChevronRightIcon />
           </button>
         </div>
@@ -107,7 +99,7 @@
     <div class="results-container" v-else>
       <div class="results-card">
         <div class="card-glow"></div>
-        
+
         <!-- Results Header -->
         <div class="results-header">
           <div class="results-icon">
@@ -169,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -185,17 +177,17 @@ import {
   LightBulbIcon,
   SparklesIcon,
   ShieldCheckIcon,
-  UserGroupIcon
-} from '@heroicons/vue/24/solid';
+  UserGroupIcon,
+} from "@heroicons/vue/24/solid";
 
-interface Question {
+export interface Question {
   text: string;
   category: string;
   icon: any;
   options: { text: string; type: string }[];
 }
 
-interface ResultData {
+export interface ResultData {
   type: string;
   icon: any;
   description: string;
@@ -204,7 +196,7 @@ interface ResultData {
 }
 
 export default defineComponent({
-  name: 'QuizSection',
+  name: "QuizSection",
   components: {
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -220,7 +212,7 @@ export default defineComponent({
     LightBulbIcon,
     SparklesIcon,
     ShieldCheckIcon,
-    UserGroupIcon
+    UserGroupIcon,
   },
   setup() {
     const sectionRef = ref<HTMLElement | null>(null);
@@ -238,8 +230,8 @@ export default defineComponent({
           { text: "Ich bleibe ruhig und helfe meinem Kind, seine Gefühle zu benennen", type: "empathisch" },
           { text: "Ich setze klare Grenzen und bleibe konsequent", type: "autoritativ" },
           { text: "Ich lasse mein Kind erstmal zur Ruhe kommen", type: "gelassen" },
-          { text: "Ich versuche, die Situation gemeinsam zu lösen", type: "kooperativ" }
-        ]
+          { text: "Ich versuche, die Situation gemeinsam zu lösen", type: "kooperativ" },
+        ],
       },
       {
         text: "Wie förderst du die Selbstständigkeit deines Kindes?",
@@ -249,8 +241,8 @@ export default defineComponent({
           { text: "Ich lasse es eigene Erfahrungen machen und bin da, wenn es mich braucht", type: "gelassen" },
           { text: "Ich gebe klare Aufgaben und erwarte deren Erfüllung", type: "autoritativ" },
           { text: "Wir besprechen gemeinsam, was es schon alleine kann", type: "kooperativ" },
-          { text: "Ich ermutige und lobe jeden kleinen Fortschritt", type: "empathisch" }
-        ]
+          { text: "Ich ermutige und lobe jeden kleinen Fortschritt", type: "empathisch" },
+        ],
       },
       {
         text: "Wie wichtig ist dir der Austausch mit anderen Eltern?",
@@ -260,8 +252,8 @@ export default defineComponent({
           { text: "Sehr wichtig - ich tausche mich regelmäßig aus", type: "kooperativ" },
           { text: "Ich hole mir Rat, wenn ich ihn brauche", type: "gelassen" },
           { text: "Ich verlasse mich hauptsächlich auf meine Intuition", type: "empathisch" },
-          { text: "Ich orientiere mich an bewährten Erziehungsmethoden", type: "autoritativ" }
-        ]
+          { text: "Ich orientiere mich an bewährten Erziehungsmethoden", type: "autoritativ" },
+        ],
       },
       {
         text: "Wie gehst du mit schwierigen Entwicklungsphasen um?",
@@ -271,76 +263,76 @@ export default defineComponent({
           { text: "Ich informiere mich und wende bewährte Strategien an", type: "autoritativ" },
           { text: "Ich vertraue darauf, dass es eine normale Phase ist", type: "gelassen" },
           { text: "Ich passe mich flexibel an die Bedürfnisse an", type: "empathisch" },
-          { text: "Ich suche gemeinsam mit meinem Kind nach Lösungen", type: "kooperativ" }
-        ]
-      }
+          { text: "Ich suche gemeinsam mit meinem Kind nach Lösungen", type: "kooperativ" },
+        ],
+      },
     ]);
 
     const resultTypes: Record<string, ResultData> = {
       empathisch: {
         type: "Der Empathische Begleiter",
         icon: HeartIcon,
-        description: "Du gehst feinfühlig auf die Bedürfnisse deines Kindes ein und schaffst eine liebevolle, verständnisvolle Atmosphäre.",
+        description:
+          "Du gehst feinfühlig auf die Bedürfnisse deines Kindes ein und schaffst eine liebevolle, verständnisvolle Atmosphäre.",
         strengths: [
           "Hohe emotionale Intelligenz",
           "Starke Bindung zum Kind",
           "Verständnisvolle Kommunikation",
-          "Förderung des Selbstvertrauens"
+          "Förderung des Selbstvertrauens",
         ],
         tips: [
           "Vergiss nicht, auch klare Grenzen zu setzen",
           "Achte auf deine eigenen Bedürfnisse",
-          "Strukturierte Routinen können helfen"
-        ]
+          "Strukturierte Routinen können helfen",
+        ],
       },
       autoritativ: {
         type: "Der Strukturierte Wegweiser",
         icon: ShieldCheckIcon,
-        description: "Du gibst deinem Kind klare Orientierung und Sicherheit durch verlässliche Regeln und liebevolle Konsequenz.",
+        description:
+          "Du gibst deinem Kind klare Orientierung und Sicherheit durch verlässliche Regeln und liebevolle Konsequenz.",
         strengths: [
           "Klare Strukturen und Regeln",
           "Verlässlichkeit und Beständigkeit",
           "Förderung von Selbstdisziplin",
-          "Sicherheit durch Grenzen"
+          "Sicherheit durch Grenzen",
         ],
         tips: [
           "Flexibilität in besonderen Situationen zeigen",
           "Emotionale Bedürfnisse nicht vernachlässigen",
-          "Gemeinsame Entscheidungen ermöglichen"
-        ]
+          "Gemeinsame Entscheidungen ermöglichen",
+        ],
       },
       gelassen: {
         type: "Der Gelassene Optimist",
         icon: SparklesIcon,
-        description: "Du strahlst Ruhe aus und vertraust auf die natürliche Entwicklung deines Kindes, ohne Druck auszuüben.",
+        description:
+          "Du strahlst Ruhe aus und vertraust auf die natürliche Entwicklung deines Kindes, ohne Druck auszuüben.",
         strengths: [
           "Stressresistenz und Geduld",
           "Vertrauen in die Entwicklung",
           "Entspannte Atmosphäre",
-          "Raum für Eigeninitiative"
+          "Raum für Eigeninitiative",
         ],
-        tips: [
-          "Aktive Förderung nicht vergessen",
-          "Bei Bedarf auch mal eingreifen",
-          "Klare Erwartungen kommunizieren"
-        ]
+        tips: ["Aktive Förderung nicht vergessen", "Bei Bedarf auch mal eingreifen", "Klare Erwartungen kommunizieren"],
       },
       kooperativ: {
         type: "Der Demokratische Partner",
         icon: UserGroupIcon,
-        description: "Du siehst dein Kind als gleichwertigen Partner und ihr findet gemeinsam Lösungen für alle Herausforderungen.",
+        description:
+          "Du siehst dein Kind als gleichwertigen Partner und ihr findet gemeinsam Lösungen für alle Herausforderungen.",
         strengths: [
           "Förderung der Selbstständigkeit",
           "Gemeinsame Problemlösung",
           "Respektvolle Kommunikation",
-          "Stärkung der Entscheidungsfähigkeit"
+          "Stärkung der Entscheidungsfähigkeit",
         ],
         tips: [
           "Elternrolle nicht aus den Augen verlieren",
           "Altersgerechte Entscheidungen treffen",
-          "Manchmal braucht es klare Ansagen"
-        ]
-      }
+          "Manchmal braucht es klare Ansagen",
+        ],
+      },
     };
 
     // Initialize selected answers
@@ -348,7 +340,7 @@ export default defineComponent({
 
     // Computed properties
     const progressPercentage = computed(() => {
-      const answered = selectedAnswers.value.filter(a => a !== null).length;
+      const answered = selectedAnswers.value.filter((a) => a !== null).length;
       return Math.round((answered / questions.value.length) * 100);
     });
 
@@ -356,7 +348,7 @@ export default defineComponent({
 
     const resultData = computed(() => {
       const typeCounts: Record<string, number> = {};
-      
+
       selectedAnswers.value.forEach((answerIndex, questionIndex) => {
         if (answerIndex !== null) {
           const selectedType = questions.value[questionIndex].options[answerIndex].type;
@@ -364,7 +356,7 @@ export default defineComponent({
         }
       });
 
-      const dominantType = Object.entries(typeCounts).reduce((a, b) => 
+      const dominantType = Object.entries(typeCounts).reduce((a, b) =>
         typeCounts[a[0]] > typeCounts[b[0]] ? a : b
       )[0];
 
@@ -378,7 +370,7 @@ export default defineComponent({
 
     const nextQuestion = () => {
       if (isLastQuestion.value) {
-        if (selectedAnswers.value.every(a => a !== null)) {
+        if (selectedAnswers.value.every((a) => a !== null)) {
           showResults.value = true;
         }
       } else if (selectedAnswers.value[currentQuestion.value] !== null) {
@@ -404,7 +396,7 @@ export default defineComponent({
 
     const shareResults = () => {
       // Implement share functionality
-      alert('Teilen-Funktion wird implementiert!');
+      alert("Teilen-Funktion wird implementiert!");
     };
 
     // Lifecycle
@@ -413,7 +405,7 @@ export default defineComponent({
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
+              entry.target.classList.add("visible");
             }
           });
         },
@@ -445,16 +437,16 @@ export default defineComponent({
       previousQuestion,
       goToQuestion,
       restartQuiz,
-      shareResults
+      shareResults,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 .quiz-section {
   position: relative;
@@ -495,8 +487,8 @@ export default defineComponent({
         top: -200px;
         right: -200px;
         animation: float-1 25s ease-in-out infinite;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-teal);
           }
@@ -509,8 +501,8 @@ export default defineComponent({
         bottom: -300px;
         left: -300px;
         animation: float-2 20s ease-in-out infinite;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
           }
@@ -524,8 +516,8 @@ export default defineComponent({
         left: 50%;
         transform: translate(-50%, -50%);
         animation: float-3 30s ease-in-out infinite;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-green);
           }
@@ -538,8 +530,7 @@ export default defineComponent({
       width: 100%;
       height: 100%;
       opacity: 0.03;
-      background-image: 
-        linear-gradient(currentColor 1px, transparent 1px),
+      background-image: linear-gradient(currentColor 1px, transparent 1px),
         linear-gradient(90deg, currentColor 1px, transparent 1px);
       background-size: 50px 50px;
     }
@@ -564,8 +555,8 @@ export default defineComponent({
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: map.get(vars.$spacing, m);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, accent-teal), 0.1);
           color: mixins.theme-color($theme, accent-teal);
@@ -583,8 +574,8 @@ export default defineComponent({
       .title-line {
         font-size: 2rem;
         display: block;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -594,8 +585,8 @@ export default defineComponent({
       .title-highlight {
         font-size: 2rem;
         display: block;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
               135deg,
@@ -613,8 +604,8 @@ export default defineComponent({
     .section-subtitle {
       font-size: clamp(1rem, 2.5vw, 1.25rem);
       line-height: 1.6;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -647,8 +638,8 @@ export default defineComponent({
       border-radius: 4px;
       overflow: hidden;
       margin-bottom: map.get(vars.$spacing, s);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, border-light), 0.5);
         }
@@ -658,8 +649,8 @@ export default defineComponent({
         height: 100%;
         border-radius: 4px;
         transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
               90deg,
@@ -675,8 +666,8 @@ export default defineComponent({
       display: flex;
       justify-content: space-between;
       font-size: map.get(map.get(vars.$fonts, sizes), small);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -691,15 +682,13 @@ export default defineComponent({
     position: relative;
     opacity: 0;
     animation: scale-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: rgba(mixins.theme-color($theme, card-bg), 0.8);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-        box-shadow: 
-          0 20px 60px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -711,8 +700,8 @@ export default defineComponent({
       height: 200%;
       opacity: 0.5;
       pointer-events: none;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: radial-gradient(
             circle at 50% 50%,
@@ -730,8 +719,8 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     padding: map.get(vars.$spacing, l);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-bottom: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
       }
@@ -740,8 +729,8 @@ export default defineComponent({
     .question-number {
       font-size: map.get(map.get(vars.$fonts, sizes), xxxl);
       font-weight: map.get(map.get(vars.$fonts, weights), extra-bold);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
             135deg,
@@ -762,8 +751,8 @@ export default defineComponent({
       padding: 8px 16px;
       border-radius: map.get(map.get(vars.$layout, border-radius), pill);
       font-size: map.get(map.get(vars.$fonts, sizes), small);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, secondary-bg), 0.5);
           color: mixins.theme-color($theme, text-secondary);
@@ -773,8 +762,8 @@ export default defineComponent({
       .category-icon {
         width: 16px;
         height: 16px;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, accent-teal);
           }
@@ -792,8 +781,8 @@ export default defineComponent({
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
       line-height: 1.4;
       margin-bottom: map.get(vars.$spacing, xl);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -817,8 +806,8 @@ export default defineComponent({
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, secondary-bg), 0.5);
           border-color: rgba(mixins.theme-color($theme, border-light), 0.5);
@@ -832,7 +821,7 @@ export default defineComponent({
           &.selected {
             background: rgba(mixins.theme-color($theme, accent-teal), 0.1);
             border-color: mixins.theme-color($theme, accent-teal);
-            
+
             .option-letter {
               background: mixins.theme-color($theme, accent-teal);
               color: white;
@@ -851,8 +840,8 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         flex-shrink: 0;
         transition: all 0.3s ease;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, border-light), 0.5);
             color: mixins.theme-color($theme, text-secondary);
@@ -866,8 +855,8 @@ export default defineComponent({
         p {
           margin: 0;
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -878,12 +867,12 @@ export default defineComponent({
       .option-check {
         width: 24px;
         height: 24px;
-        
+
         svg {
           width: 100%;
           height: 100%;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-teal);
             }
@@ -899,8 +888,8 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     padding: map.get(vars.$spacing, l);
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         border-top: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
       }
@@ -916,14 +905,14 @@ export default defineComponent({
       border: none;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      
+
       svg {
         width: 20px;
         height: 20px;
       }
 
       &.prev {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
             color: mixins.theme-color($theme, text-primary);
@@ -937,7 +926,7 @@ export default defineComponent({
       }
 
       &.next {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
               135deg,
@@ -971,8 +960,8 @@ export default defineComponent({
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, text-tertiary), 0.3);
 
@@ -1013,19 +1002,17 @@ export default defineComponent({
     padding: map.get(vars.$spacing, xxl);
     opacity: 0;
     animation: scale-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    
+
     @media (max-width: 768px) {
       padding: map.get(vars.$spacing, xl);
     }
-    
-    @each $theme in ('light', 'dark') {
+
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: rgba(mixins.theme-color($theme, card-bg), 0.9);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-        box-shadow: 
-          0 20px 60px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -1037,8 +1024,8 @@ export default defineComponent({
       height: 200%;
       opacity: 0.3;
       pointer-events: none;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: radial-gradient(
             circle at 50% 0%,
@@ -1063,8 +1050,8 @@ export default defineComponent({
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
             135deg,
@@ -1084,8 +1071,8 @@ export default defineComponent({
     h3 {
       font-size: map.get(map.get(vars.$fonts, sizes), xl);
       font-weight: map.get(map.get(vars.$fonts, weights), medium);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1107,8 +1094,8 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       position: relative;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
             135deg,
@@ -1130,8 +1117,8 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), xxl);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, m);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1143,8 +1130,8 @@ export default defineComponent({
       line-height: 1.6;
       max-width: 600px;
       margin: 0 auto;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -1160,8 +1147,8 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, l);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1183,8 +1170,8 @@ export default defineComponent({
         gap: map.get(vars.$spacing, s);
         padding: map.get(vars.$spacing, m);
         border-radius: 12px;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, secondary-bg), 0.5);
           }
@@ -1194,8 +1181,8 @@ export default defineComponent({
           width: 20px;
           height: 20px;
           flex-shrink: 0;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, accent-yellow);
             }
@@ -1204,8 +1191,8 @@ export default defineComponent({
 
         span {
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -1223,8 +1210,8 @@ export default defineComponent({
       font-size: map.get(map.get(vars.$fonts, sizes), large);
       font-weight: map.get(map.get(vars.$fonts, weights), bold);
       margin-bottom: map.get(vars.$spacing, l);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-primary);
         }
@@ -1241,8 +1228,8 @@ export default defineComponent({
         gap: map.get(vars.$spacing, m);
         padding: map.get(vars.$spacing, m);
         border-radius: 12px;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, accent-teal), 0.05);
             border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
@@ -1258,8 +1245,8 @@ export default defineComponent({
           justify-content: center;
           flex-shrink: 0;
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-color($theme, accent-teal);
               color: white;
@@ -1271,8 +1258,8 @@ export default defineComponent({
           margin: 0;
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           line-height: 1.6;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -1299,14 +1286,14 @@ export default defineComponent({
       border: none;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      
+
       svg {
         width: 20px;
         height: 20px;
       }
 
       &.primary {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
               135deg,
@@ -1324,7 +1311,7 @@ export default defineComponent({
       }
 
       &.secondary {
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
             color: mixins.theme-color($theme, text-primary);
@@ -1351,8 +1338,8 @@ export default defineComponent({
     .floating-shape {
       position: absolute;
       opacity: 0.1;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-color($theme, accent-lime);
         }
@@ -1365,7 +1352,7 @@ export default defineComponent({
           height: #{$size}px;
           top: random(100) * 1%;
           left: random(100) * 1%;
-          
+
           @if $i % 3 == 0 {
             border-radius: 50%;
           } @else if $i % 3 == 1 {
@@ -1373,7 +1360,7 @@ export default defineComponent({
           } @else {
             clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
           }
-          
+
           animation: float-shape-#{$i} #{15 + random(10)}s ease-in-out infinite;
         }
       }
@@ -1405,7 +1392,8 @@ export default defineComponent({
 }
 
 @keyframes float-1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1417,7 +1405,8 @@ export default defineComponent({
 }
 
 @keyframes float-2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1429,7 +1418,8 @@ export default defineComponent({
 }
 
 @keyframes float-3 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%);
   }
   33% {
@@ -1442,7 +1432,8 @@ export default defineComponent({
 
 @for $i from 1 through 10 {
   @keyframes float-shape-#{$i} {
-    0%, 100% {
+    0%,
+    100% {
       transform: translate(0, 0) rotate(0deg);
     }
     50% {
@@ -1473,7 +1464,7 @@ export default defineComponent({
     .options-grid {
       .option-card {
         padding: map.get(vars.$spacing, m);
-        
+
         .option-letter {
           width: 36px;
           height: 36px;

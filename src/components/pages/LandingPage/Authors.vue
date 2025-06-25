@@ -305,8 +305,6 @@ export default defineComponent({
 
       cards.forEach((card, index) => {
         // Die Animation richtet sich nach dem Kartentyp (1-4)
-        const cardTypeMatch = card.className.match(/card-type-(\d+)/);
-        const cardType = cardTypeMatch ? parseInt(cardTypeMatch[1]) : 1;
 
         setTimeout(() => {
           card.classList.remove("animation-pending");
@@ -599,14 +597,14 @@ export default defineComponent({
     // Card Type Variations mit angepassten Animationen
     &.card-type-1 {
       clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
-      
+
       &.animate-in {
         animation: slideInDiagonal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
-      
+
       // Subtile Morphing-Animation nach dem Einblenden
       &.animate-in::after {
-        content: '';
+        content: "";
         animation: morphingSubtle 8s ease-in-out 1s infinite;
       }
     }
@@ -614,7 +612,7 @@ export default defineComponent({
     &.card-type-2 {
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       transform-style: preserve-3d;
-      
+
       &.animate-in {
         animation: hexagonReveal 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
@@ -622,7 +620,7 @@ export default defineComponent({
 
     &.card-type-3 {
       clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
-      
+
       &.animate-in {
         animation: slideInSkewed 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
@@ -630,7 +628,7 @@ export default defineComponent({
 
     &.card-type-4 {
       clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
-      
+
       &.animate-in {
         animation: trapezoidMorph 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
@@ -1280,7 +1278,8 @@ export default defineComponent({
 
 // Subtile Morphing-Animation für card-type-1
 @keyframes morphingSubtle {
-  0%, 100% {
+  0%,
+  100% {
     clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
   }
   25% {

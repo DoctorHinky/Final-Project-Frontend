@@ -129,9 +129,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { 
+import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import {
   UsersIcon,
   SparklesIcon,
   HeartIcon,
@@ -143,11 +143,11 @@ import {
   AcademicCapIcon,
   FaceSmileIcon,
   HandRaisedIcon,
-  StarIcon
-} from '@heroicons/vue/24/solid';
+  StarIcon,
+} from "@heroicons/vue/24/solid";
 
 export default defineComponent({
-  name: 'ContentBlocksSection',
+  name: "ContentBlocksSection",
   components: {
     UsersIcon,
     SparklesIcon,
@@ -160,7 +160,7 @@ export default defineComponent({
     AcademicCapIcon,
     FaceSmileIcon,
     HandRaisedIcon,
-    StarIcon
+    StarIcon,
   },
   setup() {
     const router = useRouter();
@@ -171,36 +171,36 @@ export default defineComponent({
       {
         icon: BookOpenIcon,
         title: "Expertenwissen",
-        description: "Fundierte Artikel und Ratgeber, die dir helfen, dein Kind besser zu verstehen"
+        description: "Fundierte Artikel und Ratgeber, die dir helfen, dein Kind besser zu verstehen",
       },
       {
         icon: HandRaisedIcon,
         title: "Praktische Hilfe",
-        description: "Konkrete Lösungsansätze für alltägliche Herausforderungen in der Erziehung"
+        description: "Konkrete Lösungsansätze für alltägliche Herausforderungen in der Erziehung",
       },
       {
         icon: ChatBubbleBottomCenterTextIcon,
         title: "Starke Community",
-        description: "Austausch mit anderen Eltern, die ähnliche Erfahrungen machen"
-      }
+        description: "Austausch mit anderen Eltern, die ähnliche Erfahrungen machen",
+      },
     ];
 
     const childrenFeatures = [
       {
         icon: LightBulbIcon,
         title: "Spannende Entdeckungen",
-        description: "Alles über Gefühle, Freundschaften und die große weite Welt"
+        description: "Alles über Gefühle, Freundschaften und die große weite Welt",
       },
       {
         icon: PuzzlePieceIcon,
         title: "Spielerisch Lernen",
-        description: "Lustige Geschichten und Spiele, die beim Verstehen helfen"
+        description: "Lustige Geschichten und Spiele, die beim Verstehen helfen",
       },
       {
         icon: StarIcon,
         title: "Neugier wecken",
-        description: "Antworten auf all die Fragen, die dich beschäftigen"
-      }
+        description: "Antworten auf all die Fragen, die dich beschäftigen",
+      },
     ];
 
     // Redirect to login/register page
@@ -208,15 +208,15 @@ export default defineComponent({
       // Add click animation effect
       const button = event?.currentTarget as HTMLElement;
       if (button) {
-        button.classList.add('clicked');
+        button.classList.add("clicked");
         setTimeout(() => {
-          button.classList.remove('clicked');
+          button.classList.remove("clicked");
         }, 600);
       }
-      
+
       // Navigate after short delay for animation
       setTimeout(() => {
-        router.push('/login-register');
+        router.push("/login-register");
       }, 300);
     };
 
@@ -226,21 +226,21 @@ export default defineComponent({
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              
+              entry.target.classList.add("visible");
+
               // Animate cards
-              const cards = entry.target.querySelectorAll('.content-card');
+              const cards = entry.target.querySelectorAll(".content-card");
               cards.forEach((card, index) => {
                 setTimeout(() => {
-                  card.classList.add('animate-in');
+                  card.classList.add("animate-in");
                 }, index * 200);
               });
 
               // Animate features
-              const features = entry.target.querySelectorAll('.feature-item');
+              const features = entry.target.querySelectorAll(".feature-item");
               features.forEach((feature, index) => {
                 setTimeout(() => {
-                  feature.classList.add('animate-in');
+                  feature.classList.add("animate-in");
                 }, 400 + index * 100);
               });
             }
@@ -264,16 +264,16 @@ export default defineComponent({
       sectionRef,
       parentFeatures,
       childrenFeatures,
-      redirectToLogin
+      redirectToLogin,
     };
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-@use '@/style/base/variables' as vars;
-@use '@/style/base/mixins' as mixins;
-@use 'sass:map';
+@use "@/style/base/variables" as vars;
+@use "@/style/base/mixins" as mixins;
+@use "sass:map";
 
 .content-blocks-section {
   position: relative;
@@ -315,8 +315,8 @@ export default defineComponent({
         top: -200px;
         left: -200px;
         animation: float-1 20s ease-in-out infinite;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-green);
           }
@@ -329,8 +329,8 @@ export default defineComponent({
         bottom: -200px;
         right: -200px;
         animation: float-2 25s ease-in-out infinite;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-teal);
           }
@@ -346,8 +346,8 @@ export default defineComponent({
       .shape {
         position: absolute;
         opacity: 0.1;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
           }
@@ -401,8 +401,8 @@ export default defineComponent({
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: map.get(vars.$spacing, m);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, accent-lime), 0.1);
           color: mixins.theme-color($theme, accent-lime);
@@ -419,7 +419,7 @@ export default defineComponent({
 
       .title-text {
         font-size: 2rem;
-        @each $theme in ('light', 'dark') {
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -430,8 +430,8 @@ export default defineComponent({
         font-size: 2rem;
         position: relative;
         display: inline-block;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
               135deg,
@@ -450,8 +450,8 @@ export default defineComponent({
       font-size: clamp(1rem, 2.5vw, 1.25rem);
       max-width: 600px;
       margin: 0 auto;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           color: mixins.theme-color($theme, text-secondary);
         }
@@ -490,14 +490,12 @@ export default defineComponent({
     transform: translateY(50px) scale(0.95);
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
-    @each $theme in ('light', 'dark') {
+    @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: rgba(mixins.theme-color($theme, card-bg), 0.7);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-        box-shadow: 
-          0 10px 40px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -508,12 +506,10 @@ export default defineComponent({
 
     &:hover {
       transform: translateY(-10px) scale(1.02);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
-          box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
       }
 
@@ -527,7 +523,7 @@ export default defineComponent({
 
       .explore-btn {
         transform: translateX(5px);
-        
+
         .btn-icon {
           transform: translateX(3px);
         }
@@ -548,7 +544,7 @@ export default defineComponent({
     }
 
     &.parents-card .card-glow {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: radial-gradient(
             circle at 30% 30%,
@@ -560,7 +556,7 @@ export default defineComponent({
     }
 
     &.children-card .card-glow {
-      @each $theme in ('light', 'dark') {
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: radial-gradient(
             circle at 70% 70%,
@@ -601,9 +597,9 @@ export default defineComponent({
           width: 100%;
           height: 100%;
           border-radius: 24px;
-          
+
           .parents-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: linear-gradient(
                   135deg,
@@ -615,7 +611,7 @@ export default defineComponent({
           }
 
           .children-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: linear-gradient(
                   135deg,
@@ -646,9 +642,9 @@ export default defineComponent({
           bottom: -10px;
           border-radius: 30px;
           opacity: 0.3;
-          
+
           .parents-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 border: 2px solid mixins.theme-color($theme, accent-green);
               }
@@ -656,7 +652,7 @@ export default defineComponent({
           }
 
           .children-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 border: 2px solid mixins.theme-color($theme, accent-teal);
               }
@@ -669,8 +665,8 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), xxl);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin-bottom: map.get(vars.$spacing, s);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
           }
@@ -682,9 +678,9 @@ export default defineComponent({
         height: 3px;
         margin: 0 auto;
         border-radius: 2px;
-        
+
         .parents-card & {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(
                 90deg,
@@ -696,7 +692,7 @@ export default defineComponent({
         }
 
         .children-card & {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(
                 90deg,
@@ -739,8 +735,8 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, secondary-bg), 0.8);
             border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
@@ -750,9 +746,9 @@ export default defineComponent({
         svg {
           width: 24px;
           height: 24px;
-          
+
           .parents-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, accent-green);
               }
@@ -760,7 +756,7 @@ export default defineComponent({
           }
 
           .children-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 color: mixins.theme-color($theme, accent-teal);
               }
@@ -776,8 +772,8 @@ export default defineComponent({
           font-size: map.get(map.get(vars.$fonts, sizes), medium);
           font-weight: map.get(map.get(vars.$fonts, weights), bold);
           margin-bottom: 4px;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-primary);
             }
@@ -787,8 +783,8 @@ export default defineComponent({
         p {
           font-size: map.get(map.get(vars.$fonts, sizes), small);
           line-height: 1.6;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-secondary);
             }
@@ -814,9 +810,9 @@ export default defineComponent({
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        
+
         .parents-card & {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(
                 135deg,
@@ -830,7 +826,7 @@ export default defineComponent({
         }
 
         .children-card & {
-          @each $theme in ('light', 'dark') {
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(
                 135deg,
@@ -889,15 +885,15 @@ export default defineComponent({
         position: absolute;
         border-radius: 50%;
         opacity: 0.05;
-        
+
         &.deco-1 {
           width: 200px;
           height: 200px;
           top: -100px;
           right: -100px;
-          
+
           .parents-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: mixins.theme-color($theme, accent-green);
               }
@@ -905,7 +901,7 @@ export default defineComponent({
           }
 
           .children-card & {
-            @each $theme in ('light', 'dark') {
+            @each $theme in ("light", "dark") {
               .theme-#{$theme} & {
                 background: mixins.theme-color($theme, accent-teal);
               }
@@ -918,8 +914,8 @@ export default defineComponent({
           height: 150px;
           bottom: -75px;
           left: -75px;
-          
-          @each $theme in ('light', 'dark') {
+
+          @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: mixins.theme-color($theme, accent-lime);
             }
@@ -949,8 +945,8 @@ export default defineComponent({
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
             90deg,
@@ -963,15 +959,15 @@ export default defineComponent({
 
       &::before,
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         width: 10px;
         height: 10px;
         border-radius: 50%;
         top: 50%;
         transform: translateY(-50%);
-        
-        @each $theme in ('light', 'dark') {
+
+        @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: mixins.theme-color($theme, accent-lime);
           }
@@ -999,8 +995,8 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       animation: pulse 2s ease-in-out infinite;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
             135deg,
@@ -1032,8 +1028,8 @@ export default defineComponent({
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      
-      @each $theme in ('light', 'dark') {
+
+      @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-color($theme, accent-lime);
           box-shadow: 0 0 6px rgba(mixins.theme-color($theme, accent-lime), 0.6);
@@ -1066,7 +1062,8 @@ export default defineComponent({
 }
 
 @keyframes float-1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1078,7 +1075,8 @@ export default defineComponent({
 }
 
 @keyframes float-2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1099,7 +1097,8 @@ export default defineComponent({
 }
 
 @keyframes morph-shape {
-  0%, 100% {
+  0%,
+  100% {
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   }
   25% {
@@ -1114,7 +1113,8 @@ export default defineComponent({
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
