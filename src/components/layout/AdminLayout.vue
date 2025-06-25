@@ -196,15 +196,17 @@ export default defineComponent({
       };
     };
 
+    const debouncedHandleResize = debounce(handleResize, 250);
+
     // Event-Listener
     onMounted(() => {
       handleResize();
-      window.addEventListener("resize", debounce(handleResize, 250));
+      window.addEventListener("resize", debouncedHandleResize);
       window.addEventListener("orientationchange", handleResize);
     });
 
     onUnmounted(() => {
-      window.removeEventListener("resize", debounce(handleResize, 250));
+      window.removeEventListener("resize", debouncedHandleResize);
       window.removeEventListener("orientationchange", handleResize);
       document.body.style.overflow = "";
     });
@@ -255,11 +257,6 @@ export default defineComponent({
   backdrop-filter: blur(16px) saturate(150%);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   border-bottom: 1px solid rgba(93, 173, 226, 0.2);
-  
-  @media (max-width: 767px) {
-    height: 60px;
-    padding: 0 16px;
-  }
 }
 
 /* Header-Bereich links */
@@ -267,10 +264,6 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 16px;
-  
-  @media (max-width: 767px) {
-    gap: 12px;
-  }
 }
 
 /* Seitentitel */
@@ -286,11 +279,6 @@ export default defineComponent({
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  
-  @media (max-width: 767px) {
-    font-size: 1.1rem;
-    max-width: 200px;
-  }
 }
 
 /* Sidebar-Toggle */
@@ -316,11 +304,6 @@ export default defineComponent({
 
   &:active {
     transform: scale(0.95);
-  }
-  
-  @media (max-width: 767px) {
-    min-width: 36px;
-    min-height: 36px;
   }
 }
 
@@ -359,16 +342,6 @@ export default defineComponent({
   &:active {
     transform: translateY(0);
   }
-  
-  @media (max-width: 767px) {
-    min-height: 36px;
-    padding: 6px 12px;
-    font-size: 0.875rem;
-    
-    .logout-text {
-      display: none !important;
-    }
-  }
 }
 
 /* Hauptcontainer */
@@ -389,15 +362,6 @@ export default defineComponent({
   overflow-x: hidden;
   position: relative;
   transition: all 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
-  
-  // Desktop: Margin basierend auf Sidebar-Status
-  @media (min-width: 1024px) {
-    margin-left: 0;
-    
-    .admin-container.sidebar-open & {
-      margin-left: 300px; // Sidebar-Breite
-    }
-  }
   
   // Scrollbar Styling
   &::-webkit-scrollbar {
@@ -436,7 +400,79 @@ export default defineComponent({
   display: none !important;
 }
 
-/* Responsive Anpassungen */
+/* Mobile Responsive Anpassungen */
+@media (max-width: 768px) {
+  .admin-header {
+    height: 60px;
+    padding: 0 16px;
+    z-index: 1600; // Höher als Sidebar auf Mobile
+  }
+
+  .header-left {
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 1.1rem;
+    max-width: 150px;
+  }
+
+  .sidebar-toggle {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .logout-button {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    
+    .logout-text {
+      display: none !important;
+    }
+  }
+  
+  // Content nicht verschieben auf Mobile
+  .admin-container.sidebar-open {
+    margin-left: 0;
+  }
+  
+  // Content Blur entfernen für bessere Performance
+  .admin-content.sidebar-active {
+    filter: none;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .page-title {
+    font-size: 1rem;
+    max-width: 120px;
+  }
+  
+  .sidebar-toggle {
+    min-width: 32px;
+    min-height: 32px;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .logout-button {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+/* Responsive Anpassungen für größere Bildschirme */
 @media (min-width: 576px) {
   .d-sm-inline {
     display: inline !important;
@@ -466,13 +502,25 @@ export default defineComponent({
   .admin-header {
     padding: 0 40px;
   }
+  
+  // Desktop: Margin basierend auf Sidebar-Status
+  .admin-content {
+    margin-left: 0;
+    
+    .admin-container.sidebar-open & {
+      margin-left: 300px; // Sidebar-Breite
+    }
+  }
 }
 
 @media (max-width: 1023px) {
-  .admin-content.sidebar-active {
-    filter: blur(2px);
-    pointer-events: none;
-    user-select: none;
+  // Nur auf größeren Tablets den Blur-Effekt
+  @media (min-width: 769px) {
+    .admin-content.sidebar-active {
+      filter: blur(2px);
+      pointer-events: none;
+      user-select: none;
+    }
   }
 }
 
@@ -487,12 +535,44 @@ export default defineComponent({
   opacity: 0;
 }
 
+/* Touch-optimierte Scrollbars für Mobile */
+@media (hover: none) and (pointer: coarse) {
+  .admin-content {
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+    
+    // Momentum Scrolling für iOS
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Landscape Modus für Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-header {
+    height: 50px;
+    
+    .page-title {
+      font-size: 1rem;
+    }
+    
+    .sidebar-toggle,
+    .logout-button {
+      min-height: 32px;
+    }
+  }
+}
+
 /* Safe Area Support für iOS */
 @supports (padding: env(safe-area-inset-top)) {
   .admin-header {
-    @media (max-width: 767px) {
+    @media (max-width: 768px) {
       padding-top: env(safe-area-inset-top);
       height: calc(60px + env(safe-area-inset-top));
+    }
+    
+    @media (max-width: 768px) and (orientation: landscape) {
+      height: calc(50px + env(safe-area-inset-top));
     }
   }
 }

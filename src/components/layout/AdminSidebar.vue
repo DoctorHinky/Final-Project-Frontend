@@ -2,7 +2,7 @@
 <template>
   <aside class="admin-sidebar" :class="{ open: isOpen }">
     <!-- Logo -->
-    <div class="logo-container">
+    <div v-if="!isMobile" class="logo-container">
       <a href="/" class="logo-link">
         <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-sidebar" />
       </a>
@@ -31,19 +31,19 @@
           class="nav-item"
           :class="{ 
             active: isActiveItem(item.id),
-            dragging: draggedItem === item.id,
-            'drag-over': dragOverIndex === index,
+            dragging: draggedItem === item.id && !isMobile,
+            'drag-over': dragOverIndex === index && !isMobile,
           }"
-          draggable="true"
+          :draggable="!isMobile"
           @click="selectMenuItem(item.id)"
-          @dragstart="handleDragStart($event, item.id, index)"
-          @dragend="handleDragEnd"
-          @dragover="handleDragOver($event, index)"
-          @dragleave="handleDragLeave"
-          @drop="handleDrop($event, index)"
+          @dragstart="!isMobile && handleDragStart($event, item.id, index)"
+          @dragend="!isMobile && handleDragEnd"
+          @dragover="!isMobile && handleDragOver($event, index)"
+          @dragleave="!isMobile && handleDragLeave"
+          @drop="!isMobile && handleDrop($event, index)"
         >
           <!-- Drag Handle -->
-          <span class="drag-handle" @click.stop>
+          <span v-if="!isMobile" class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
           </span>
           
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Drop-Indikator Linie -->
-        <div v-if="showDropIndicator" class="drop-indicator" :style="dropIndicatorStyle"></div>
+        <div v-if="showDropIndicator && !isMobile" class="drop-indicator" :style="dropIndicatorStyle"></div>
       </transition-group>
     </nav>
 
@@ -73,7 +73,7 @@
         </button>
 
         <!-- Reset Button -->
-        <button class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
+        <button v-if="!isMobile" class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
           <ArrowPathIcon class="h-4 w-4 Icons" />
         </button>
       </div>
@@ -82,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from "vue";
+import { defineComponent, ref, onMounted, onUnmounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import {
   HomeIcon,
@@ -134,6 +134,10 @@ export default defineComponent({
     const userRole = ref("");
     const userPicture = ref("");
 
+    // Mobile Detection
+    const isMobile = ref(window.innerWidth <= 768);
+    const isSmallMobile = ref(window.innerWidth <= 360);
+
     // Drag & Drop State
     const draggedItem = ref<string | null>(null);
     const draggedIndex = ref<number | null>(null);
@@ -142,6 +146,10 @@ export default defineComponent({
     const dropIndicatorStyle = ref({});
     const navContainer = ref<HTMLElement | null>(null);
     const menuOrder = ref<string[]>([]);
+
+    // Touch-Gesten State
+    const touchStartX = ref(0);
+    const touchEndX = ref(0);
 
     // Basis-Menüelemente
     const baseMenuItems = ref([
@@ -179,7 +187,7 @@ export default defineComponent({
 
     // Sortierte Menüelemente basierend auf gespeicherter Reihenfolge
     const menuItems = computed(() => {
-      if (menuOrder.value.length === 0) {
+      if (menuOrder.value.length === 0 || isMobile.value) {
         return baseMenuItems.value;
       }
 
@@ -204,9 +212,44 @@ export default defineComponent({
       return sorted;
     });
 
+    // Methods
+    const checkScreenSize = () => {
+      isMobile.value = window.innerWidth <= 768;
+      isSmallMobile.value = window.innerWidth <= 360;
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!isMobile.value) return;
+      touchStartX.value = e.changedTouches[0].screenX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isMobile.value) return;
+      touchEndX.value = e.changedTouches[0].screenX;
+      handleSwipe();
+    };
+
+    const handleSwipe = () => {
+      // Swipe nach links zum Schließen
+      if (touchStartX.value - touchEndX.value > 50) {
+        emit('close');
+      }
+    };
+
     // Bei Montage der Komponente die Benutzerinformationen laden
     onMounted(async () => {
-      // Load menu order first
+      // Mobile Detection
+      checkScreenSize();
+      window.addEventListener('resize', checkScreenSize);
+      
+      // Touch-Events für Swipe-to-close
+      if (isMobile.value) {
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchend', handleTouchEnd, { passive: true });
+        menuOrder.value = []; // Reset der Reihenfolge auf Mobile
+      }
+      
+      // Load menu order
       loadMenuOrder();
       
       try {
@@ -254,6 +297,12 @@ export default defineComponent({
         userRole.value = "Admin";
       }
     });
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', checkScreenSize);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    });
     
     // Prüfen ob ein Item aktiv ist
     const isActiveItem = (itemId: string) => {
@@ -294,6 +343,12 @@ export default defineComponent({
 
     // Drag & Drop Handler
     const handleDragStart = (event: DragEvent, itemId: string, index: number) => {
+      // Verhindere Drag & Drop auf Mobile
+      if (isMobile.value) {
+        event.preventDefault();
+        return;
+      }
+
       draggedItem.value = itemId;
       draggedIndex.value = index;
 
@@ -442,6 +497,9 @@ export default defineComponent({
       userName,
       userRole,
       userPicture,
+      // Mobile states
+      isMobile,
+      isSmallMobile,
       // Drag & Drop State
       draggedItem,
       dragOverIndex,
@@ -478,19 +536,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   user-select: none;
-  padding-top: 8rem;
-  
-  // Mobile Anpassungen
-  @media (max-width: 1023px) {
-    top: 0;
-    width: 280px;
-    left: -280px;
-  }
-  
-  @media (max-width: 767px) {
-    width: 100vw;
-    left: -100vw;
-  }
+  padding-top: 70px; // Header-Höhe des AdminLayouts
   
   // Optimierter Glass-Effekt
   background: rgba(30, 30, 40, 0.92);
@@ -500,11 +546,6 @@ export default defineComponent({
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-right: 1px solid rgba(93, 173, 226, 0.2);
-  
-  @media (max-width: 767px) {
-    border-right: none;
-    background: rgba(30, 30, 40, 0.98);
-  }
   
   // Glass Refraction Layer
   &::before {
@@ -530,13 +571,9 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 70px;
+    height: 120px;
     border-bottom: 1px solid rgba(93, 173, 226, 0.15);
-    
-    @media (max-width: 767px) {
-      height: 60px;
-      padding: 10px;
-    }
+    margin-bottom: 20px;
 
     .logo-link {
       display: flex;
@@ -547,7 +584,6 @@ export default defineComponent({
     .logo-sidebar {
       height: 80px;
       width: 80px;
-      margin-bottom: 4rem;
       border-radius: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
       
@@ -567,10 +603,6 @@ export default defineComponent({
     z-index: 1;
     gap: 12px;
     border-bottom: 1px solid rgba(93, 173, 226, 0.15);
-    
-    @media (max-width: 767px) {
-      padding: 16px 20px;
-    }
 
     .profile-image-container {
       position: relative;
@@ -669,11 +701,6 @@ export default defineComponent({
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    
-    @media (max-width: 767px) {
-      padding: 16px;
-      padding-bottom: 100px;
-    }
 
     .nav-items-container {
       display: flex;
@@ -692,12 +719,6 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
       min-height: 52px;
-      
-      @media (max-width: 767px) {
-        padding: 16px 20px;
-        min-height: 56px;
-        border-radius: 16px;
-      }
       
       // Optimierte Glass Card
       background: rgba(255, 255, 255, 0.03);
@@ -765,18 +786,10 @@ export default defineComponent({
         cursor: grab;
         padding: 4px;
         color: #8fd3b5;
-        
-        @media (max-width: 767px) {
-          display: none;
-        }
       }
 
       &:hover .drag-handle {
         opacity: 0.5;
-        
-        @media (max-width: 767px) {
-          opacity: 0;
-        }
       }
 
       .nav-icon {
@@ -789,12 +802,6 @@ export default defineComponent({
         height: 24px;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         opacity: 0.9;
-        
-        @media (max-width: 767px) {
-          width: 26px;
-          height: 26px;
-          margin-right: 14px;
-        }
       }
 
       .nav-text {
@@ -803,10 +810,6 @@ export default defineComponent({
         letter-spacing: -0.01em;
         transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
         flex: 1;
-        
-        @media (max-width: 767px) {
-          font-size: 1rem;
-        }
       }
     }
 
@@ -831,17 +834,6 @@ export default defineComponent({
     padding: 20px;
     border-top: 1px solid rgba(93, 173, 226, 0.15);
     background: rgba(30, 30, 40, 0.5);
-    
-    @media (max-width: 767px) {
-      padding: 16px;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(30, 30, 40, 0.98);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
 
     .footer-divider {
       display: none;
@@ -957,6 +949,259 @@ export default defineComponent({
   }
 }
 
+// Mobile Responsive Styles
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100vw;
+    left: -100vw;
+    border-radius: 0;
+    padding-top: 60px; // Header-Höhe auf Mobile
+    
+    &.open {
+      left: 0;
+      width: 100vw;
+      padding-top: 60px; // Konsistentes Padding
+      
+      // Entferne den Glassmorphismus-Rand auf Mobile
+      border-right: none;
+      border-radius: 0;
+    }
+    
+    // Logo komplett ausblenden auf Mobile
+    .logo-container,
+    .logo-sidebar {
+      display: none;
+    }
+    
+    // Header anpassen für mehr Platz
+    .sidebar-header {
+      padding: 16px;
+      padding-top: 16px; // Normales Padding, da wir schon padding-top auf der Sidebar haben
+      
+      .profile-image-container {
+        .account-logo {
+          width: 45px;
+          height: 45px;
+        }
+      }
+      
+      .header-content {
+        h3 {
+          font-size: 16px;
+        }
+        
+        .user-role {
+          font-size: 12px;
+        }
+        
+        .profile-status {
+          font-size: 11px;
+        }
+      }
+      
+      .close-sidebar {
+        width: 36px;
+        height: 36px;
+        font-size: 1.8rem;
+      }
+    }
+    
+    // Navigation volle Breite
+    .sidebar-nav {
+      padding: 12px;
+      
+      .nav-items-container {
+        gap: 6px;
+      }
+      
+      .nav-item {
+        padding: 12px 14px;
+        min-height: 48px;
+        
+        // Drag Handle auf Mobile ausblenden
+        .drag-handle {
+          display: none;
+        }
+        
+        .nav-icon {
+          margin-left: 0;
+          margin-right: 12px;
+          width: 22px;
+          height: 22px;
+        }
+        
+        .nav-text {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    // Footer anpassen
+    .sidebar-footer {
+      padding: 12px;
+      padding-bottom: 20px; // Weniger Abstand unten
+      
+      .footer-container {
+        gap: 6px;
+      }
+      
+      .back-button {
+        padding: 10px 12px;
+        font-size: 13px;
+        
+        .back-text {
+          font-size: 13px;
+        }
+      }
+      
+      .reset-button {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  }
+}
+
+// Noch kleinere Bildschirme (unter 360px)
+@media (max-width: 360px) {
+  .admin-sidebar {
+    padding-top: 60px; // Konsistent bleiben
+    
+    .sidebar-header {
+      padding: 12px;
+      
+      .profile-image-container {
+        .account-logo {
+          width: 40px;
+          height: 40px;
+        }
+      }
+      
+      .header-content {
+        h3 {
+          font-size: 14px;
+        }
+        
+        .user-role {
+          font-size: 11px;
+        }
+      }
+      
+      .close-sidebar {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    .sidebar-nav {
+      padding: 10px;
+      
+      .nav-item {
+        padding: 10px 12px;
+        min-height: 44px;
+        
+        .nav-icon {
+          width: 20px;
+          height: 20px;
+        }
+        
+        .nav-text {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+// Touch-Geräte optimieren
+@media (hover: none) and (pointer: coarse) {
+  .admin-sidebar {
+    // Erhöhe Touch-Targets
+    .nav-item,
+    .back-button {
+      min-height: 48px;
+    }
+    
+    // Deaktiviere Hover-Effekte auf Touch-Geräten
+    .profile-image-container:hover {
+      transform: none;
+      
+      .account-logo {
+        box-shadow: none;
+      }
+    }
+    
+    // Scrollbar optimieren für Touch
+    .sidebar-nav {
+      &::-webkit-scrollbar {
+        width: 0;
+      }
+      
+      // Momentum Scrolling für iOS
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+    }
+  }
+}
+
+// Landscape Modus für Mobile
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-sidebar {
+    padding-top: 50px; // Reduzierte Header-Höhe im Landscape
+    
+    .sidebar-header {
+      padding: 12px;
+      
+      .profile-image-container {
+        .account-logo {
+          width: 35px;
+          height: 35px;
+        }
+      }
+    }
+    
+    .sidebar-nav {
+      .nav-item {
+        min-height: 42px;
+        padding: 10px 12px;
+      }
+    }
+    
+    .sidebar-footer {
+      padding-bottom: 16px;
+    }
+  }
+}
+
+// Safe Area Insets für Notch-Geräte
+@supports (padding: max(0px)) {
+  .admin-sidebar {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    
+    &.open {
+      // Desktop
+      @media (min-width: 769px) {
+        padding-top: max(70px, env(safe-area-inset-top));
+      }
+      
+      // Mobile
+      @media (max-width: 768px) {
+        padding-top: max(60px, calc(60px + env(safe-area-inset-top)));
+      }
+      
+      // Landscape Mobile
+      @media (max-width: 768px) and (orientation: landscape) {
+        padding-top: max(50px, calc(50px + env(safe-area-inset-top)));
+      }
+      
+      .sidebar-footer {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+      }
+    }
+  }
+}
+
 // Scrollbar
 .sidebar-nav {
   &::-webkit-scrollbar {
@@ -990,29 +1235,6 @@ export default defineComponent({
   }
   100% {
     transform: rotate(-360deg);
-  }
-}
-
-// Safe Area Support für iOS
-@supports (padding: env(safe-area-inset-top)) {
-  .admin-sidebar {
-    @media (max-width: 767px) {
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-  }
-  
-  .logo-container {
-    @media (max-width: 767px) {
-      height: calc(60px + env(safe-area-inset-top));
-      padding-top: calc(10px + env(safe-area-inset-top));
-    }
-  }
-  
-  .sidebar-footer {
-    @media (max-width: 767px) {
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    }
   }
 }
 

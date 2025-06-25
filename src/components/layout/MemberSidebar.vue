@@ -2,7 +2,7 @@
 <template>
   <aside class="member-sidebar" :class="{ open: isOpen }">
     <!-- Sidebar-Header mit Logo und Schließen-Button -->
-    <a href="/" class="logo-link">
+    <a v-if="!isMobile" href="/" class="logo-link">
       <img src="../../assets/images/Logo.webp" alt="Logo" class="logo-Sidebar" />
     </a>
     <div class="sidebar-header">
@@ -54,13 +54,16 @@
       <transition-group name="nav-item-move" tag="div" class="nav-items-container">
         <div v-for="(item, index) in sortedMenuItems" :key="item.id" :data-item-id="item.id" class="nav-item" :class="{
           active: activeMenu === item.id,
-          dragging: draggedItem === item.id,
-          'drag-over': dragOverIndex === index,
-        }" draggable="true" @click="selectMenuItem(item.id)" @dragstart="handleDragStart($event, item.id, index)"
-          @dragend="handleDragEnd" @dragover="handleDragOver($event, index)" @dragleave="handleDragLeave"
-          @drop="handleDrop($event, index)">
+          dragging: draggedItem === item.id && !isMobile,
+          'drag-over': dragOverIndex === index && !isMobile,
+        }" :draggable="!isMobile" @click="selectMenuItem(item.id)" 
+          @dragstart="!isMobile && handleDragStart($event, item.id, index)"
+          @dragend="!isMobile && handleDragEnd" 
+          @dragover="!isMobile && handleDragOver($event, index)" 
+          @dragleave="!isMobile && handleDragLeave"
+          @drop="!isMobile && handleDrop($event, index)">
           <!-- Drag Handle -->
-          <span class="drag-handle" @click.stop>
+          <span v-if="!isMobile" class="drag-handle" @click.stop>
             <Bars3Icon class="h-4 w-4" />
           </span>
 
@@ -68,8 +71,6 @@
             <component :is="item.icon" class="h-6 w-6" />
           </span>
           <span class="nav-text">{{ item.text }}</span>
-
-
 
           <!-- Badge für ungelesene Benachrichtigungen -->
           <span v-if="item.id === 'notifications' && notificationCount > 0" class="nav-badge"
@@ -98,7 +99,7 @@
         </div>
 
         <!-- Reset Button -->
-        <button class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
+        <button v-if="!isMobile" class="reset-button" @click="resetMenuOrder" title="Menüreihenfolge zurücksetzen">
           <ArrowPathIcon class="h-4 w-4 Icons" />
         </button>
       </div>
@@ -198,6 +199,10 @@ export default defineComponent({
     const notificationCount = ref(0);
     const isNavigatingToAdmin = ref(false); // Loading state für Admin-Navigation
 
+    // Mobile Detection
+    const isMobile = ref(window.innerWidth <= 768);
+    const isSmallMobile = ref(window.innerWidth <= 360);
+
     // Drag & Drop State
     const draggedItem = ref<string | null>(null);
     const draggedIndex = ref<number | null>(null);
@@ -206,6 +211,10 @@ export default defineComponent({
     const dropIndicatorStyle = ref({});
     const navContainer = ref<HTMLElement | null>(null);
     const menuOrder = ref<string[]>([]);
+
+    // Touch-Gesten State
+    const touchStartX = ref(0);
+    const touchEndX = ref(0);
 
     // Computed Properties
     const userProfileImage = computed(() => {
@@ -247,7 +256,7 @@ export default defineComponent({
 
     // Sortierte Menüelemente basierend auf gespeicherter Reihenfolge
     const sortedMenuItems = computed(() => {
-      if (menuOrder.value.length === 0) {
+      if (menuOrder.value.length === 0 || isMobile.value) {
         return baseMenuItems.value;
       }
 
@@ -273,6 +282,29 @@ export default defineComponent({
     });
 
     // Methods
+    const checkScreenSize = () => {
+      isMobile.value = window.innerWidth <= 768;
+      isSmallMobile.value = window.innerWidth <= 360;
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!isMobile.value) return;
+      touchStartX.value = e.changedTouches[0].screenX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isMobile.value) return;
+      touchEndX.value = e.changedTouches[0].screenX;
+      handleSwipe();
+    };
+
+    const handleSwipe = () => {
+      // Swipe nach links zum Schließen
+      if (touchStartX.value - touchEndX.value > 50) {
+        emit('close');
+      }
+    };
+
     const loadUserData = async () => {
       try {
       const user = await userService.getCurrentUser();
@@ -390,6 +422,12 @@ export default defineComponent({
 
     // Drag & Drop Handler
     const handleDragStart = (event: DragEvent, itemId: string, index: number) => {
+      // Verhindere Drag & Drop auf Mobile
+      if (isMobile.value) {
+        event.preventDefault();
+        return;
+      }
+
       draggedItem.value = itemId;
       draggedIndex.value = index;
 
@@ -576,6 +614,21 @@ export default defineComponent({
       loadOpenTickets();
       loadMenuOrder();
 
+      // Mobile Detection
+      checkScreenSize();
+      window.addEventListener('resize', checkScreenSize);
+      
+      // Touch-Events für Swipe-to-close
+      if (isMobile.value) {
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchend', handleTouchEnd, { passive: true });
+      }
+      
+      // Verhindere Drag & Drop auf Mobile
+      if (isMobile.value) {
+        menuOrder.value = []; // Reset der Reihenfolge auf Mobile
+      }
+
       // Event-Listener für verschiedene Updates registrieren
       if (typeof window !== "undefined") {
         window.addEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
@@ -590,6 +643,10 @@ export default defineComponent({
       if (typeof window !== "undefined") {
         window.removeEventListener("notification-count-updated", handleNotificationCountUpdate as EventListener);
       }
+
+      window.removeEventListener('resize', checkScreenSize);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
 
       // Notification-System bereinigen
       cleanupNotificationPolling();
@@ -628,6 +685,10 @@ export default defineComponent({
       isAdminOrModerator,
       isNavigatingToAdmin,
 
+      // Mobile states
+      isMobile,
+      isSmallMobile,
+
       // Drag & Drop State
       draggedItem,
       dragOverIndex,
@@ -653,8 +714,6 @@ export default defineComponent({
   },
 });
 </script>
-// MemberSidebar.vue - Style Section
-// Ultra-moderner Glassmorphismus mit grünen Akzenten
 
 <style lang="scss" scoped>
 @use "sass:map";
@@ -1887,6 +1946,298 @@ export default defineComponent({
     &:hover {
       background: linear-gradient(180deg, rgba(74, 210, 149, 0.5), rgba(155, 225, 93, 0.3));
       box-shadow: 0 0 10px rgba(74, 210, 149, 0.3);
+    }
+  }
+}
+
+// Mobile Responsive Styles
+@media (max-width: 768px) {
+  .member-sidebar {
+    width: 100vw;
+    left: -100vw;
+    border-radius: 0;
+    padding-top: 0;
+    
+    &.open {
+      left: 0;
+      width: 100vw;
+      padding-top: 0;
+      
+      // Entferne den Glassmorphismus-Rand auf Mobile
+      border-right: none;
+      border-radius: 0;
+    }
+    
+    // Logo komplett ausblenden auf Mobile
+    .logo-link,
+    .logo-Sidebar {
+      display: none;
+    }
+    
+    // Header anpassen für mehr Platz
+    .sidebar-header {
+      padding: 16px;
+      padding-top: 24px; // Mehr Abstand oben für Status Bar
+      
+      .profile-image-container {
+        margin-right: 12px;
+        
+        .account-logo,
+        .image-placeholder {
+          width: 45px;
+          height: 45px;
+        }
+      }
+      
+      .header-content {
+        h3 {
+          font-size: 16px;
+        }
+        
+        .user-role {
+          font-size: 12px;
+        }
+      }
+      
+      .close-sidebar {
+        width: 36px;
+        height: 36px;
+        font-size: 1.8rem;
+      }
+    }
+    
+    // Admin-Bereich Button anpassen
+    .admin-section {
+      padding: 12px;
+      
+      .admin-button {
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+    }
+    
+    // Navigation volle Breite
+    .sidebar-nav {
+      padding: 12px;
+      
+      .nav-items-container {
+        gap: 6px;
+      }
+      
+      .nav-item {
+        padding: 12px 14px;
+        min-height: 48px;
+        
+        // Drag Handle auf Mobile ausblenden
+        .drag-handle {
+          display: none;
+        }
+        
+        .nav-icon {
+          margin-left: 0;
+          margin-right: 12px;
+          width: 22px;
+          height: 22px;
+        }
+        
+        .nav-text {
+          font-size: 14px;
+        }
+        
+        .nav-badge {
+          min-width: 20px;
+          height: 20px;
+          font-size: 10px;
+          padding: 0 6px;
+        }
+      }
+    }
+    
+    // Support-Bereich anpassen
+    .support-section {
+      padding: 12px;
+      padding-bottom: 20px; // Weniger Abstand unten
+      
+      .support-container {
+        gap: 6px;
+      }
+      
+      .support-item {
+        padding: 10px 12px;
+        min-height: 40px;
+        font-size: 12px;
+        
+        .support-icon {
+          width: 18px;
+          height: 18px;
+          margin-right: 8px;
+        }
+      }
+      
+      .reset-button {
+        width: 36px;
+        height: 36px;
+      }
+    }
+    
+    // Admin Loading Overlay
+    .admin-loading-overlay {
+      border-radius: 0;
+      
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        
+        .spinner-ring {
+          border-width: 2px;
+          
+          &:nth-child(2) {
+            inset: 8px;
+          }
+          
+          &:nth-child(3) {
+            inset: 16px;
+          }
+        }
+      }
+      
+      .loading-text {
+        font-size: 14px;
+      }
+      
+      .loading-subtext {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// Noch kleinere Bildschirme (unter 360px)
+@media (max-width: 360px) {
+  .member-sidebar {
+    .sidebar-header {
+      padding: 12px;
+      padding-top: 20px;
+      
+      .profile-image-container {
+        .account-logo,
+        .image-placeholder {
+          width: 40px;
+          height: 40px;
+        }
+      }
+      
+      .header-content {
+        h3 {
+          font-size: 14px;
+        }
+        
+        .user-role {
+          font-size: 11px;
+        }
+      }
+      
+      .close-sidebar {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    .sidebar-nav {
+      padding: 10px;
+      
+      .nav-item {
+        padding: 10px 12px;
+        min-height: 44px;
+        
+        .nav-icon {
+          width: 20px;
+          height: 20px;
+        }
+        
+        .nav-text {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+// Touch-Geräte optimieren
+@media (hover: none) and (pointer: coarse) {
+  .member-sidebar {
+    // Erhöhe Touch-Targets
+    .nav-item,
+    .support-item,
+    .admin-button {
+      min-height: 48px;
+    }
+    
+    // Deaktiviere Hover-Effekte auf Touch-Geräten
+    .profile-image-container:hover {
+      transform: none;
+      
+      .profile-edit-overlay {
+        opacity: 0;
+      }
+    }
+    
+    // Scrollbar optimieren für Touch
+    .sidebar-nav {
+      &::-webkit-scrollbar {
+        width: 0;
+      }
+      
+      // Momentum Scrolling für iOS
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+    }
+  }
+}
+
+// Landscape Modus für Mobile
+@media (max-width: 768px) and (orientation: landscape) {
+  .member-sidebar {
+    .sidebar-header {
+      padding: 12px;
+      padding-top: 16px;
+      
+      .profile-image-container {
+        .account-logo,
+        .image-placeholder {
+          width: 35px;
+          height: 35px;
+        }
+      }
+    }
+    
+    .sidebar-nav {
+      .nav-item {
+        min-height: 42px;
+        padding: 10px 12px;
+      }
+    }
+    
+    .support-section {
+      padding-bottom: 16px;
+    }
+  }
+}
+
+// Safe Area Insets für Notch-Geräte
+@supports (padding: max(0px)) {
+  .member-sidebar {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    
+    &.open {
+      .sidebar-header {
+        padding-top: max(24px, env(safe-area-inset-top));
+      }
+      
+      .support-section {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+      }
     }
   }
 }

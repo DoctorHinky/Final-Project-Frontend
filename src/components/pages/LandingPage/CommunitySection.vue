@@ -130,7 +130,7 @@
       <!-- Mobile Swipe Hint -->
       <div class="swipe-hint" v-if="isMobile">
         <HandRaisedIcon class="swipe-icon" />
-        <span>Wischen zum Navigieren</span>
+        <span>Wischen</span>
       </div>
     </div>
   </section>
@@ -981,7 +981,7 @@ export default defineComponent({
   // Navigation Controls
   .carousel-controls {
     position: absolute;
-    top: 50%;
+    top: 40%;
     transform: translateY(-50%);
     width: 100%;
     display: flex;
@@ -1111,8 +1111,8 @@ export default defineComponent({
   // Swipe Hint
   .swipe-hint {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
+    bottom: 140px;
+    left: 70%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
