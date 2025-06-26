@@ -39,9 +39,9 @@
               <div class="card-header">
                 <div class="author-info">
                   <div class="avatar-wrapper">
-                    <img 
-                      :src="testimonial.avatar" 
-                      :alt="`${testimonial.author} Avatar`" 
+                    <img
+                      :src="testimonial.avatar"
+                      :alt="`${testimonial.author} Avatar`"
                       class="author-avatar"
                       loading="lazy"
                     />
@@ -52,15 +52,11 @@
                     <p class="author-role">{{ testimonial.role }}</p>
                   </div>
                 </div>
-                
+
                 <!-- Star Rating -->
                 <div class="rating-wrapper">
                   <div class="stars">
-                    <StarIcon
-                      v-for="star in 5"
-                      :key="star"
-                      :class="['star', { filled: star <= testimonial.rating }]"
-                    />
+                    <StarIcon v-for="star in 5" :key="star" :class="['star', { filled: star <= testimonial.rating }]" />
                   </div>
                   <span class="rating-text">{{ testimonial.rating }}.0</span>
                 </div>
@@ -94,17 +90,17 @@
 
         <!-- Navigation Controls -->
         <div class="carousel-controls">
-          <button 
-            class="control-btn prev" 
+          <button
+            class="control-btn prev"
             @click="navigate('prev')"
             :disabled="isAnimating"
             aria-label="Vorheriges Testimonial"
           >
             <ChevronLeftIcon />
           </button>
-          
-          <button 
-            class="control-btn next" 
+
+          <button
+            class="control-btn next"
             @click="navigate('next')"
             :disabled="isAnimating"
             aria-label="Nächstes Testimonial"
@@ -138,16 +134,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, computed, nextTick } from "vue";
-import { 
-  ChevronLeftIcon, 
-  ChevronRightIcon, 
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   StarIcon,
   CalendarIcon,
   CheckBadgeIcon,
-  HandRaisedIcon
+  HandRaisedIcon,
 } from "@heroicons/vue/24/solid";
 
-interface Testimonial {
+export interface Testimonial {
   id: string;
   title: string;
   text: string;
@@ -176,7 +172,7 @@ export default defineComponent({
     const isAnimating = ref(false);
     const autoplayInterval = ref<number | null>(null);
     const isMobile = ref(false);
-    
+
     // Touch handling
     const touchStartX = ref(0);
     const touchEndX = ref(0);
@@ -246,67 +242,67 @@ export default defineComponent({
     // Methods
     const getCardClass = (index: number): string => {
       const position = (index - currentIndex.value + totalCards.value) % totalCards.value;
-      
-      if (position === 0) return 'active';
-      if (position === 1 || position === totalCards.value - 1) return 'adjacent';
-      return 'hidden';
+
+      if (position === 0) return "active";
+      if (position === 1 || position === totalCards.value - 1) return "adjacent";
+      return "hidden";
     };
 
     const getCardStyle = (index: number) => {
       const position = (index - currentIndex.value + totalCards.value) % totalCards.value;
-      
+
       // Active card
       if (position === 0) {
         return {
-          transform: 'translateX(-50%) translateZ(0) scale(1)',
+          transform: "translateX(-50%) translateZ(0) scale(1)",
           opacity: 1,
           zIndex: 30,
-          filter: 'blur(0)',
+          filter: "blur(0)",
         };
       }
-      
+
       // Right adjacent
       if (position === 1) {
         return {
-          transform: 'translateX(15%) translateZ(-100px) scale(0.85)',
+          transform: "translateX(15%) translateZ(-100px) scale(0.85)",
           opacity: 0.7,
           zIndex: 20,
-          filter: 'blur(1px)',
+          filter: "blur(1px)",
         };
       }
-      
+
       // Left adjacent
       if (position === totalCards.value - 1) {
         return {
-          transform: 'translateX(-115%) translateZ(-100px) scale(0.85)',
+          transform: "translateX(-115%) translateZ(-100px) scale(0.85)",
           opacity: 0.7,
           zIndex: 20,
-          filter: 'blur(1px)',
+          filter: "blur(1px)",
         };
       }
-      
+
       // Hidden cards
       return {
-        transform: 'translateX(-50%) translateZ(-200px) scale(0.7)',
+        transform: "translateX(-50%) translateZ(-200px) scale(0.7)",
         opacity: 0,
         zIndex: 10,
-        filter: 'blur(2px)',
+        filter: "blur(2px)",
       };
     };
 
-    const navigate = async (direction: 'prev' | 'next') => {
+    const navigate = async (direction: "prev" | "next") => {
       if (isAnimating.value) return;
-      
+
       isAnimating.value = true;
-      
-      if (direction === 'next') {
+
+      if (direction === "next") {
         currentIndex.value = (currentIndex.value + 1) % totalCards.value;
       } else {
         currentIndex.value = (currentIndex.value - 1 + totalCards.value) % totalCards.value;
       }
-      
+
       resetAutoplay();
-      
+
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -315,11 +311,11 @@ export default defineComponent({
 
     const goToIndex = async (index: number) => {
       if (isAnimating.value || index === currentIndex.value) return;
-      
+
       isAnimating.value = true;
       currentIndex.value = index;
       resetAutoplay();
-      
+
       await nextTick();
       setTimeout(() => {
         isAnimating.value = false;
@@ -328,11 +324,11 @@ export default defineComponent({
 
     const handleCardClick = (index: number) => {
       const position = (index - currentIndex.value + totalCards.value) % totalCards.value;
-      
+
       if (position === 1) {
-        navigate('next');
+        navigate("next");
       } else if (position === totalCards.value - 1) {
-        navigate('prev');
+        navigate("prev");
       }
     };
 
@@ -349,12 +345,12 @@ export default defineComponent({
     const handleSwipe = () => {
       const swipeThreshold = 50;
       const diff = touchStartX.value - touchEndX.value;
-      
+
       if (Math.abs(diff) > swipeThreshold) {
         if (diff > 0) {
-          navigate('next');
+          navigate("next");
         } else {
-          navigate('prev');
+          navigate("prev");
         }
       }
     };
@@ -362,7 +358,7 @@ export default defineComponent({
     // Autoplay
     const startAutoplay = () => {
       autoplayInterval.value = window.setInterval(() => {
-        navigate('next');
+        navigate("next");
       }, 5000);
     };
 
@@ -381,10 +377,10 @@ export default defineComponent({
     // Format date
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
-      return date.toLocaleDateString('de-DE', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString("de-DE", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     };
 
@@ -397,27 +393,27 @@ export default defineComponent({
     onMounted(() => {
       startAutoplay();
       checkMobile();
-      window.addEventListener('resize', checkMobile);
-      
+      window.addEventListener("resize", checkMobile);
+
       // Add touch listeners
-      const container = document.querySelector('.cards-container');
+      const container = document.querySelector(".cards-container");
       if (container) {
-        container.addEventListener('touchstart', handleTouchStart as any);
-        container.addEventListener('touchend', handleTouchEnd as any);
+        container.addEventListener("touchstart", handleTouchStart as any);
+        container.addEventListener("touchend", handleTouchEnd as any);
       }
-      
+
       // Intersection Observer for fade-in animation
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
+              entry.target.classList.add("visible");
             }
           });
         },
         { threshold: 0.1 }
       );
-      
+
       if (sectionRef.value) {
         observer.observe(sectionRef.value);
       }
@@ -425,12 +421,12 @@ export default defineComponent({
 
     onUnmounted(() => {
       stopAutoplay();
-      window.removeEventListener('resize', checkMobile);
-      
-      const container = document.querySelector('.cards-container');
+      window.removeEventListener("resize", checkMobile);
+
+      const container = document.querySelector(".cards-container");
       if (container) {
-        container.removeEventListener('touchstart', handleTouchStart as any);
-        container.removeEventListener('touchend', handleTouchEnd as any);
+        container.removeEventListener("touchstart", handleTouchStart as any);
+        container.removeEventListener("touchend", handleTouchEnd as any);
       }
     });
 
@@ -521,8 +517,7 @@ export default defineComponent({
       width: 100%;
       height: 100%;
       opacity: 0.03;
-      background-image: 
-        radial-gradient(circle at 25% 25%, currentColor 1px, transparent 1px),
+      background-image: radial-gradient(circle at 25% 25%, currentColor 1px, transparent 1px),
         radial-gradient(circle at 75% 75%, currentColor 1px, transparent 1px);
       background-size: 50px 50px;
     }
@@ -588,7 +583,7 @@ export default defineComponent({
         font-size: 2.5rem;
         display: inline-block;
         position: relative;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
@@ -603,14 +598,14 @@ export default defineComponent({
         }
 
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           bottom: -5px;
           left: 0;
           width: 100%;
           height: 3px;
           border-radius: 2px;
-          
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               background: linear-gradient(
@@ -639,11 +634,11 @@ export default defineComponent({
     position: relative;
     height: 500px;
     perspective: 1200px;
-    
+
     @media (max-width: 768px) {
       height: 600px;
     }
-    
+
     @media (max-width: 480px) {
       height: 550px;
     }
@@ -669,12 +664,12 @@ export default defineComponent({
     padding: map.get(vars.$spacing, xl);
     cursor: pointer;
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     @media (max-width: 768px) {
       width: min(500px, 85vw);
       padding: map.get(vars.$spacing, l);
     }
-    
+
     @media (max-width: 480px) {
       width: 90vw;
       padding: map.get(vars.$spacing, m);
@@ -685,15 +680,13 @@ export default defineComponent({
         background: rgba(mixins.theme-color($theme, card-bg), 0.9);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(mixins.theme-color($theme, border-light), 0.5);
-        box-shadow: 
-          0 10px 40px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
     }
 
     &.adjacent {
       cursor: pointer;
-      
+
       &:hover {
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
@@ -723,7 +716,7 @@ export default defineComponent({
       opacity: 0;
       z-index: -1;
       transition: opacity 0.3s ease;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: linear-gradient(
@@ -775,7 +768,7 @@ export default defineComponent({
         height: 60px;
         border-radius: 50%;
         object-fit: cover;
-        
+
         @media (max-width: 480px) {
           width: 50px;
           height: 50px;
@@ -790,7 +783,7 @@ export default defineComponent({
         bottom: -3px;
         border-radius: 50%;
         z-index: -1;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
@@ -808,7 +801,7 @@ export default defineComponent({
         font-size: map.get(map.get(vars.$fonts, sizes), large);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin-bottom: 2px;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -818,7 +811,7 @@ export default defineComponent({
 
       .author-role {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -841,7 +834,7 @@ export default defineComponent({
           width: 20px;
           height: 20px;
           transition: all 0.3s ease;
-          
+
           @each $theme in ("light", "dark") {
             .theme-#{$theme} & {
               color: mixins.theme-color($theme, text-tertiary);
@@ -862,7 +855,7 @@ export default defineComponent({
       .rating-text {
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -880,7 +873,7 @@ export default defineComponent({
         font-weight: map.get(map.get(vars.$fonts, weights), bold);
         margin-bottom: map.get(vars.$spacing, m);
         line-height: 1.3;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-primary);
@@ -891,7 +884,7 @@ export default defineComponent({
       .testimonial-text {
         font-size: map.get(map.get(vars.$fonts, sizes), medium);
         line-height: 1.7;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-secondary);
@@ -907,7 +900,7 @@ export default defineComponent({
       align-items: center;
       padding-top: map.get(vars.$spacing, m);
       border-top: 1px solid;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           border-color: mixins.theme-color($theme, border-light);
@@ -919,7 +912,7 @@ export default defineComponent({
         align-items: center;
         gap: map.get(vars.$spacing, xs);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             color: mixins.theme-color($theme, text-tertiary);
@@ -940,7 +933,7 @@ export default defineComponent({
         border-radius: map.get(map.get(vars.$layout, border-radius), pill);
         font-size: map.get(map.get(vars.$fonts, sizes), small);
         font-weight: map.get(map.get(vars.$fonts, weights), medium);
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: rgba(mixins.theme-color($theme, accent-green), 0.1);
@@ -968,7 +961,7 @@ export default defineComponent({
       opacity: 0;
       transition: all 0.3s ease;
       pointer-events: none;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: mixins.theme-color($theme, text-primary);
@@ -1005,7 +998,7 @@ export default defineComponent({
       justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: auto;
-      
+
       @media (max-width: 768px) {
         width: 48px;
         height: 48px;
@@ -1017,12 +1010,12 @@ export default defineComponent({
           backdrop-filter: blur(10px);
           border: 1px solid mixins.theme-color($theme, border-light);
           color: mixins.theme-color($theme, text-primary);
-          
+
           &:hover:not(:disabled) {
             background: mixins.theme-color($theme, card-bg);
             border-color: mixins.theme-color($theme, accent-green);
             transform: scale(1.1);
-            
+
             svg {
               color: mixins.theme-color($theme, accent-green);
             }
@@ -1039,7 +1032,7 @@ export default defineComponent({
         width: 24px;
         height: 24px;
         transition: color 0.3s ease;
-        
+
         @media (max-width: 768px) {
           width: 20px;
           height: 20px;
@@ -1067,7 +1060,7 @@ export default defineComponent({
       position: relative;
       overflow: hidden;
       transition: all 0.3s ease;
-      
+
       @each $theme in ("light", "dark") {
         .theme-#{$theme} & {
           background: rgba(mixins.theme-color($theme, text-tertiary), 0.2);
@@ -1081,7 +1074,7 @@ export default defineComponent({
         width: 0;
         height: 100%;
         transition: width 0.3s ease;
-        
+
         @each $theme in ("light", "dark") {
           .theme-#{$theme} & {
             background: linear-gradient(
@@ -1121,7 +1114,7 @@ export default defineComponent({
     border-radius: map.get(map.get(vars.$layout, border-radius), pill);
     font-size: map.get(map.get(vars.$fonts, sizes), small);
     animation: bounce 2s ease-in-out infinite;
-    
+
     @each $theme in ("light", "dark") {
       .theme-#{$theme} & {
         background: rgba(mixins.theme-color($theme, text-primary), 0.1);
@@ -1149,7 +1142,8 @@ export default defineComponent({
 }
 
 @keyframes float-1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1161,7 +1155,8 @@ export default defineComponent({
 }
 
 @keyframes float-2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
   }
   33% {
@@ -1173,7 +1168,8 @@ export default defineComponent({
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(-50%) translateY(0);
   }
   50% {
@@ -1192,7 +1188,7 @@ export default defineComponent({
 
     .testimonial-card {
       width: 95vw;
-      
+
       .card-header {
         .author-info {
           gap: map.get(vars.$spacing, s);
