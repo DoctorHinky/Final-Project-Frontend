@@ -154,7 +154,7 @@ export default defineComponent({
     }
   },
   emits: ['toggle-theme', 'tab-change'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const router = useRouter();
     const route = useRoute();
 
@@ -707,13 +707,13 @@ export default defineComponent({
   top: 0;
   right: 0;
   width: 100%;
-  max-width: 400px;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.438);
 
   @each $theme in ('light', 'dark') {
     .theme-#{$theme} & {
