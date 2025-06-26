@@ -742,6 +742,7 @@ export default defineComponent({
   flex-direction: column;
   padding-top: 70px;
   user-select: none;
+  padding-bottom: 4rem;
   
   // Liquid glass effect
   background: rgba(255, 255, 255, 0.18);
