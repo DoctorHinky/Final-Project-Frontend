@@ -733,7 +733,7 @@ export default defineComponent({
   display: flex;
   backdrop-filter: blur(20px);
   flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.438);
+  background-color: rgba(0, 0, 0, 0.85);
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
