@@ -78,7 +78,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>{}
 
       <div class="footer-divider"></div>
 

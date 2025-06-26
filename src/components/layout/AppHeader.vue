@@ -917,6 +917,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding-bottom: 6rem;
 
   @each $theme in ("light", "dark") {
     .theme-#{$theme} & {
