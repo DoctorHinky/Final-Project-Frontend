@@ -30,40 +30,30 @@
           <div class="team-members">
             <div class="team-member">
               <div class="member-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="m22 21-3-3m0 0a5 5 0 1 0-7-7 5 5 0 0 0 7 7z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="m22 21-3-3m0 0a5 5 0 1 0-7-7 5 5 0 0 0 7 7z" />
                 </svg>
               </div>
               <div class="member-info">
                 <span class="name">Normand Tetzlaff</span>
-                <span class="role">Projektmanager & Backend</span>
+                <span class="role">Webdeveloper</span>
               </div>
             </div>
             <div class="team-member">
               <div class="member-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                  <rect width="18" height="18" x="3" y="3" rx="2"/>
-                  <circle cx="9" cy="9" r="2"/>
-                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                 </svg>
               </div>
               <div class="member-info">
                 <span class="name">Chris Schubert</span>
-                <span class="role">Frontend & UI/UX</span>
-              </div>
-            </div>
-            <div class="team-member">
-              <div class="member-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                  <polyline points="16 18 22 12 16 6"/>
-                  <polyline points="8 6 2 12 8 18"/>
-                </svg>
-              </div>
-              <div class="member-info">
-                <span class="name">Mark Döring</span>
-                <span class="role">Frontend to Backend</span>
+                <span class="role">Webdeveloper</span>
               </div>
             </div>
           </div>
@@ -71,22 +61,24 @@
 
         <div class="footer-section about">
           <h3>Über Learn to Grow</h3>
-          <p>Eine liebevoll gestaltete Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten. Wir unterstützen euch in guten wie in schwierigen Zeiten auf eurem gemeinsamen Weg.</p>
+          <p>Eine liebevoll gestaltete Plattform für Eltern, die ihre Kinder besser verstehen und begleiten möchten. Wir
+            unterstützen euch in guten wie in schwierigen Zeiten auf eurem gemeinsamen Weg.</p>
           <div class="contact-info">
 
             <div class="social-icons">
               <a href="https://www.instagram.com" target="_blank" class="social-icon" title="Instagram">
                 <!-- Echtes Instagram Logo -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                  <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                  <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
                 </svg>
               </a>
             </div>
           </div>
         </div>
-      </div>
+      </div>{}
 
       <div class="footer-divider"></div>
 
@@ -211,7 +203,7 @@ export default defineComponent({
     overflow: hidden;
     line-height: 0;
     transform: rotate(180deg);
-    
+
     svg {
       position: relative;
       display: block;
@@ -492,7 +484,7 @@ export default defineComponent({
           .social-icons {
             display: flex;
             gap: 1rem;
-              transition: all 0.3s ease;
+            transition: all 0.3s ease;
 
             .social-icon {
               display: flex;
@@ -507,9 +499,9 @@ export default defineComponent({
 
               @each $theme in ('light', 'dark') {
                 .theme-#{$theme} & {
-                  background: linear-gradient(135deg, 
-                    rgba(mixins.theme-color($theme, accent-teal), 0.1) 0%,
-                    rgba(mixins.theme-color($theme, accent-green), 0.1) 100%);
+                  background: linear-gradient(135deg,
+                      rgba(mixins.theme-color($theme, accent-teal), 0.1) 0%,
+                      rgba(mixins.theme-color($theme, accent-green), 0.1) 100%);
                   color: mixins.theme-color($theme, accent-teal);
                   border: 1px solid rgba(mixins.theme-color($theme, accent-teal), 0.2);
                   box-shadow: 0 4px 15px rgba(mixins.theme-color($theme, accent-teal), 0.15);
@@ -520,7 +512,7 @@ export default defineComponent({
                         mixins.theme-color($theme, accent-teal) 0%,
                         mixins.theme-color($theme, accent-green) 100%);
                     color: white;
-                    box-shadow: 
+                    box-shadow:
                       0 20px 40px rgba(mixins.theme-color($theme, accent-teal), 0.4),
                       0 8px 20px rgba(0, 0, 0, 0.1);
                   }
@@ -546,9 +538,9 @@ export default defineComponent({
     @each $theme in ('light', 'dark') {
       .theme-#{$theme} & {
         background: linear-gradient(90deg,
-          transparent 0%,
-          mixins.theme-color($theme, border-medium) 50%,
-          transparent 100%);
+            transparent 0%,
+            mixins.theme-color($theme, border-medium) 50%,
+            transparent 100%);
         transition: all 0.4s ease;
       }
     }
@@ -639,9 +631,12 @@ export default defineComponent({
 }
 
 @keyframes gradientShift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
